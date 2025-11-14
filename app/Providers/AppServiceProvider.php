@@ -17,9 +17,5 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        // Registramos las rutas del módulo Finanzas
-        require base_path('app/Features/Finanzas/routes.php');
-    }
+    public function boot(): void {}
 }
