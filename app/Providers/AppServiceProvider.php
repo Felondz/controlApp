@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registramos las rutas del módulo Finanzas
+        require base_path('app/Features/Finanzas/routes.php');
     }
 }
