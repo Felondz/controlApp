@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Invitacion extends Model
 {
-
     use HasFactory;
 
     /**
-     * Los atributos que se pueden asignar.
+     * El nombre de la tabla asociada con el modelo.
+     */
+    protected $table = 'invitaciones';
+
+    /**
+     * Los atributos que se pueden asignar masivamente.
      */
     protected $fillable = [
         'proyecto_id',
