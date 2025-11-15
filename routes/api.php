@@ -12,7 +12,7 @@ use App\Features\Finanzas\Controllers\TransaccionController;
 use App\Http\Controllers\Api\ProyectoInvitacionController;
 use App\Http\Controllers\Api\InvitacionController;
 use App\Http\Controllers\Api\ProyectoMiembroController;
-
+use App\Http\Controllers\Api\EmailVerificationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,9 +24,13 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // --- Ruta Pública de Invitación ---
-// Para que un invitado vea los detalles de la invitación ANTES de loguearse
 Route::get('/invitaciones/{token}', [InvitacionController::class, 'show']);
 
+// --- Ruta Pública de Verificación de Email ---
+// Debe estar fuera del grupo protegido porque el usuario no está logueado cuando hace clic en el email
+// NO usamos 'signed' middleware porque validamos el hash manualmente en el controlador
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+    ->name('verification.verify');
 
 // --- RUTAS PROTEGIDAS (Requieren Token) ---
 Route::middleware('auth:sanctum')->group(function () {
@@ -64,4 +68,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/proyectos/{proyecto}/miembros', [ProyectoMiembroController::class, 'index']);
     Route::put('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'update']);
     Route::delete('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'destroy']);
+
+    // Ruta para que el usuario pida un nuevo enlace de verificación
+    // (Debe tener 'throttle' para evitar spam)
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'store'])
+        ->middleware('throttle:6,1') // 6 peticiones por minuto
+        ->name('verification.send'); // Laravel necesita este nombre
 });

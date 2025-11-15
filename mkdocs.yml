@@ -1,0 +1,83 @@
+site_name: ControlApp Documentation
+site_description: Documentación completa de ControlApp - Gestión de Proyectos Financieros
+site_author: Felondz
+site_url: https://controlapp.example.com/docs
+repo_url: https://github.com/Felondz/controlApp
+repo_name: Felondz/controlApp
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: es
+  locale: es_ES
+  
+  palette:
+    - scheme: light
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: dark
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search:
+      lang: es
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - codehilite:
+      guess_lang: false
+  - pymdownx.emoji:
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Inicio Rápido: README.md
+  - Instalación: INSTALLATION.md
+  - API REST: API.md
+  - Autenticación: AUTHENTICATION.md
+  - Base de Datos: DATABASE.md
+  - Contribuir: CONTRIBUTING.md
+  - Changelog: CHANGELOG.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Felondz
+      name: GitHub
+
+extra_css:
+  - css/extra.css
+
+copyright: Copyright &copy; 2025 Felondz

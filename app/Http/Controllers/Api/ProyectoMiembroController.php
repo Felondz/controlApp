@@ -58,7 +58,6 @@ class ProyectoMiembroController extends Controller
 
     /**
      * Elimina un miembro de un proyecto.
-     * ¡LÓGICA CORREGIDA!
      */
     public function destroy(Request $request, Proyecto $proyecto, User $user)
     {

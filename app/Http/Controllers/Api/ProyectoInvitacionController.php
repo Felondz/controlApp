@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Proyecto;
 use App\Models\Invitacion;
 use App\Models\User;
+use App\Mail\InvitacionProyectoMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class ProyectoInvitacionController extends Controller
@@ -62,9 +64,8 @@ class ProyectoInvitacionController extends Controller
             'expires_at' => Carbon::now()->addDays(7), // La invitación expira en 7 días
         ]);
 
-        // 5. Enviar el email (¡El TODO que agendamos!)
-        // TODO: Implementar el Mailable para enviar este token.
-        // Mail::to($invitacion->email)->send(new EnviarInvitacionDeProyecto($invitacion));
+        // 5. Enviar el email con el formato personalizado
+        Mail::to($invitacion->email)->send(new InvitacionProyectoMail($invitacion));
 
         // 6. Devolver la invitación creada
         return response()->json($invitacion, 201); // 201 Creado

@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
-// import sanctum token trait
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Proyecto;
 use App\Models\Cuenta;
+use App\Notifications\VerificacionEmailNotification;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    // 2. Add HasApiTokens to 'use'
+
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -51,8 +50,6 @@ class User extends Authenticatable
             'is_super_admin' => 'boolean',
         ];
     }
-
-    // 3. AÑADIR LAS RELACIONES QUE FALTABAN
 
     /**
      * Los proyectos en los que este usuario es miembro.
@@ -100,5 +97,13 @@ class User extends Authenticatable
         $rol = $this->proyectos()->find($proyecto->id)->pivot->rol;
 
         return $rol === 'admin';
+    }
+
+    /**
+     * Envía la notificación de verificación de email con nuestro template personalizado.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerificacionEmailNotification());
     }
 }

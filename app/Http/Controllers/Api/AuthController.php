@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -31,6 +32,8 @@ class AuthController extends Controller
             'password' => Hash::make($datosValidados['password']), // ¡Importante! Siempre encriptar la contraseña
         ]);
 
+        // Disparar el evento de registro para enviar el email de verificación
+        event(new Registered($usuario));
         // 3. Respuesta
         return response()->json([
             'message' => 'Usuario registrado exitosamente. Por favor, inicia sesión.'
@@ -60,7 +63,7 @@ class AuthController extends Controller
         // 3. Si las credenciales son correctas, obtener el usuario
         $usuario = User::where('email', $request->email)->firstOrFail();
 
-        // 4. ¡LA MAGIA! Crear el token de acceso
+        // 4. Crear el token de acceso
         $token = $usuario->createToken('auth_token')->plainTextToken;
 
         // 5. Devolver la respuesta con el token
