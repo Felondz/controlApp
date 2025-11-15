@@ -38,7 +38,7 @@ class ProyectosApiTest extends TestCase
         /** @var Proyecto $proyecto */
         $proyecto = Proyecto::factory()->create([
             'nombre' => 'Proyecto Prueba',
-            'moneda_default' => 'USD',
+            'moneda_default' => 'COP',
         ]);
         $this->proyecto = $proyecto;
 
@@ -51,11 +51,10 @@ class ProyectosApiTest extends TestCase
      */
     public function test_authenticated_user_can_create_proyecto(): void
     {
-        $response = $this->actingAs($this->usuario)
-            ->postJson('/api/proyectos', [
-                'nombre' => 'Nuevo Proyecto',
-                'moneda_default' => 'EUR',
-            ]);
+        $response = $this->actingAs($this->usuario)->post('/api/proyectos', [
+            'nombre' => 'Mi Proyecto',
+            'moneda_default' => 'COP',
+        ]);
 
         $response->assertStatus(201)
             ->assertJsonStructure([

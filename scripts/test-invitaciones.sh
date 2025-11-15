@@ -105,7 +105,7 @@ PROYECTO_RESPONSE=$(curl -s -X POST $API/proyectos \
   -H "Accept: application/json" \
   -d "{
     \"nombre\": \"Proyecto de Testing\",
-    \"moneda\": \"USD\"
+    \"moneda\": \"COP\"
   }")
 
 PROYECTO_ID=$(echo $PROYECTO_RESPONSE | jq -r '.id')

@@ -1,7 +1,9 @@
-# ControlApp - Gestión Integral de Proyectos Financieros
+# ControlApp - Plataforma de Gestión de Proyectos Colaborativos
 
 <p align="center">
-  <strong>La solución moderna para gestionar proyectos financieros en equipo</strong>
+  <strong>Plataforma moderna y escalable para gestionar proyectos en equipo</strong>
+  <br />
+  Con módulo financiero como primer feature + roadmap hacia gestión integral
 </p>
 
 <p align="center">
@@ -14,18 +16,49 @@
 
 ---
 
-## 🎯 Características
+## 🎯 Características Actuales (v1.0.0 - Módulo Financiero)
 
+### Core
 - ✅ **Autenticación Segura** - Sistema de registro y login con tokens JWT (Sanctum)
-- ✅ **Verificación de Email** - Confirmación de correo electrónico personalizada en español
+- ✅ **Verificación de Email** - Confirmación personalizada en múltiples idiomas
 - ✅ **Gestión de Proyectos** - Crear, editar, eliminar y listar proyectos
-- ✅ **Sistema de Miembros** - Agregar miembros a proyectos con roles (admin/miembro)
-- ✅ **Invitaciones** - Enviar invitaciones personalizadas a nuevos miembros
-- ✅ **Gestión de Cuentas** - Crear y gestionar múltiples cuentas por proyecto
-- ✅ **Categorías** - Organizar transacciones por categorías personalizables
-- ✅ **Transacciones** - Registrar y rastrear transacciones financieras
-- ✅ **Búsqueda Avanzada** - Búsqueda rápida con Meilisearch
-- ✅ **API RESTful Completa** - Documentada con ejemplos
+- ✅ **Sistema de Miembros** - Agregar miembros con roles y permisos
+- ✅ **Invitaciones Colaborativas** - Invitar miembros por email con seguimiento
+
+### Módulo Financiero (Feature v1.0.0)
+- ✅ **Gestión de Cuentas** - Múltiples cuentas por proyecto (banco, efectivo, tarjeta, digital)
+- ✅ **Categorías Personalizables** - Organizar transacciones por categorías con colores e iconos
+- ✅ **Transacciones** - Registrar ingresos y egresos con tracking automático de saldo
+- ✅ **Sincronización de Saldo** - Observer pattern para actualización automática
+
+### Infraestructura
+- ✅ **API RESTful Completa** - 50+ endpoints documentados
+- ✅ **Búsqueda Avanzada** - Motor Meilisearch integrado
+- ✅ **Email System Profesional** - 3 templates estandarizados (verificación, invitación, reset)
+- ✅ **Testing Completo** - 114/114 tests pasando (PHPUnit)
+
+## 🚀 Roadmap & Funcionalidades Futuras
+
+### v1.1.0 (Próximo Release)
+- 📅 **Calendario** - Vista de transacciones en calendario
+- 📊 **Reportes y Gráficas** - Visualización avanzada de datos financieros
+- 📤 **Exportación de Datos** - Descarga en CSV, PDF, Excel
+- 🌍 **Soporte Multi-idioma** - Interface completa en inglés, español, portugués
+
+### v2.0.0+ (Futuro - Gestión Integral)
+- 🎯 **Gestión de Tareas** - Sistema de tareas y subtareas por proyecto
+- 📋 **Tableros Kanban** - Organización visual de flujos de trabajo
+- 🔄 **Integración Bancaria** - Conexión con APIs bancarias reales
+- 💱 **Conversión Multi-moneda** - Soporte para múltiples divisas
+- 📱 **Aplicación Móvil** - React Native app (iOS/Android)
+- 🎨 **Frontend Web** - React 18+ con UI moderna y responsive
+
+### 🔮 Visión Futura
+- 🤖 Automatización de flujos
+- 🔔 Sistema de notificaciones inteligentes
+- 📊 Analytics avanzado y BI
+- 👥 Gestión avanzada de equipos
+- 🔐 SSO y autenticación OAuth
 
 ## ⚡ Instalación Rápida
 
@@ -140,34 +173,53 @@ Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 ## 🛠️ Tecnologías
 
 ### Backend
-- **Laravel 12.38.1** - Framework PHP moderno
+- **Laravel 12.38.1** - Framework PHP moderno y escalable
 - **PHP 8.4.14** - Lenguaje backend
 - **Sanctum** - Autenticación basada en tokens JWT
-- **Eloquent ORM** - Manejo de base de datos
-- **Meilisearch** - Motor de búsqueda
-- **Redis** - Cache y sesiones
+- **Eloquent ORM** - Manejo elegante de base de datos
+- **Meilisearch** - Motor de búsqueda de alto rendimiento
+- **Redis** - Cache y sesiones distribuidas
 
-### Infraestructura
-- **Docker & Docker Compose** - Containerización
+### Frontend (Próximamente)
+- **React 18+** - Librería de UI moderna para web
+- **React Native** - Desarrollo de app móvil (iOS/Android)
+- **Tailwind CSS** - Estilos modernos y responsive
+- **TypeScript** - Tipado estático para confiabilidad
+
+### Infraestructura & DevOps
+- **Docker & Docker Compose** - Containerización y orquestación
 - **MySQL 8.0** - Base de datos relacional
-- **Mailpit** - Testing de emails
-- **Nginx** - Web server
+- **Nginx** - Web server de alto rendimiento
+- **Mailpit** - Testing local de emails
+- **Redis** - Caché distribuida
 
-### Características de Desarrollo
-- **Vite** - Build tool para frontend
+### Calidad & Testing
+- **PHPUnit** - Testing unitario y funcional
+- **Vite** - Build tool moderno para frontend
 - **Composer** - Gestor de dependencias PHP
-- **PHPUnit** - Testing unitario
+- **Git** - Control de versiones
 
-## 📊 Estadísticas del Proyecto
+### Extras
+- **Soporte Multi-idioma** - i18n integrado
+- **Mailtrap/Mailpit** - Integración email
+- **CORS Configurado** - Seguridad cross-domain
 
-- 📁 **Documentación centralizada** en `docs/CHANGELOG.md`
-- 🔌 **50+ Endpoints de API** completamente documentados
-- 🗄️ **8 Tablas de BD** con relaciones complejas
-- 🔐 **Sistema de autenticación** seguro con Sanctum
-- 📧 **3 Email templates** estandarizados con diseño profesional
-- ✅ **114/114 tests pasando** (100% cobertura)
-- 📱 **Responsive design** en todos los emails
-- 🏗️ **100% Dockerizado** para desarrollo consistente
+## 📊 Estado del Proyecto (v1.0.0)
+
+| Aspecto | Estado |
+|--------|--------|
+| **Backend API** | ✅ Completo y funcional |
+| **Módulo Financiero** | ✅ Production-ready |
+| **Testing** | ✅ 114/114 tests pasando |
+| **Documentación** | ✅ Centralizada en `docs/` |
+| **Email System** | ✅ 3 templates profesionales |
+| **Seguridad** | ✅ JWT + Roles + Validación |
+| **Frontend Web** | 🔄 Próxima fase (React) |
+| **App Móvil** | 🔄 Próxima fase (React Native) |
+| **Multi-idioma** | 🔄 En desarrollo |
+| **Reportes/Gráficas** | 🔄 Próxima release |
+| **Exportación Datos** | 🔄 Próxima release |
+| **Calendario** | 🔄 Próxima release |
 
 ## 🤝 Contribuir
 
@@ -199,19 +251,21 @@ Este proyecto está licenciado bajo la licencia MIT - Ver [LICENSE](LICENSE) par
 
 ## 🚀 Roadmap
 
-### v1.1.0 (Próximo)
+### v1.1.0 (Próximo Release)
 - 📅 Calendario de transacciones
-- 📊 Reportes y gráficas
-- 📤 Exportación de datos (CSV, PDF)
+- 📊 Reportes y gráficas avanzadas
+- 📤 Exportación de datos (CSV, PDF, Excel)
+- 🌍 Soporte multi-idioma en API
 
-### v2.0.0 (Futuro)
+### v2.0.0 (Futuro - Gestión Integral)
 - 🏦 Integración bancaria real
 - 💱 Conversión de monedas en tiempo real
-- 📱 Aplicación móvil
+- 📱 Aplicación móvil con React Native
+- 🎨 Frontend web con React 18+
 
 ---
 
-**Última actualización**: 15 de noviembre de 2025 | **Versión**: 1.0.0
+**Última actualización**: 15 de noviembre de 2025 | **Versión**: 1.0.0 | **Status**: 🟢 Production-Ready
 
 <p align="center">
   Hecho con ❤️ para gestión financiera colaborativa

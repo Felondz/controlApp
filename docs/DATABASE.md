@@ -136,7 +136,7 @@ Tabla de proyectos financieros.
 CREATE TABLE proyectos (
   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nombre varchar(255) NOT NULL,
-  moneda varchar(3) NOT NULL DEFAULT 'USD',
+  moneda varchar(3) NOT NULL DEFAULT 'COP',
   user_id bigint UNSIGNED NOT NULL,
   deleted_at timestamp NULL,
   created_at timestamp NULL,
@@ -701,7 +701,7 @@ return new class extends Migration {
         Schema::create('proyectos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('moneda', 3)->default('USD');
+            $table->string('moneda', 3)->default('COP');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();

@@ -88,8 +88,8 @@ class VisualEmailTestsInMailpitTest extends TestCase
 
         // Crear un proyecto
         $proyecto = Proyecto::factory()->create([
-            'nombre' => 'Proyecto Visual Test',
-            'moneda_default' => 'USD',
+            'nombre' => 'Test Proyecto',
+            'moneda_default' => 'COP',
         ]);
 
         // Asignar admin al proyecto
@@ -177,7 +177,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
 
         $proyecto = Proyecto::factory()->create([
             'nombre' => 'Proyecto Con Invitación',
-            'moneda_default' => 'USD',
+            'moneda_default' => 'COP',
         ]);
 
         $proyecto->miembros()->attach($admin, ['rol' => 'admin']);

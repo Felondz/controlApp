@@ -22,6 +22,16 @@ class Proyecto extends Model
     protected $fillable = [
         'nombre',
         'moneda_default',
+        'es_personal',
+        'visible_en_listado',
+    ];
+
+    /**
+     * Los atributos que deben castearse a tipos nativos.
+     */
+    protected $casts = [
+        'es_personal' => 'boolean',
+        'visible_en_listado' => 'boolean',
     ];
 
     /**
@@ -62,5 +72,21 @@ class Proyecto extends Model
     public function invitaciones()
     {
         return $this->hasMany(Invitacion::class);
+    }
+
+    /**
+     * Verifica si este es un proyecto de finanzas personales.
+     */
+    public function esPersonal(): bool
+    {
+        return $this->es_personal === true;
+    }
+
+    /**
+     * Obtiene el propietario del proyecto personal.
+     */
+    public function propietarioPersonal()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

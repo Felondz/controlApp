@@ -201,6 +201,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Raíz ahora limpia: solo README.md, config files, y carpetas de código
   - Todas las guías ahora en `docs/` con CHANGELOG.md como referencia central
 
+- 📝 **README.md Actualizado - Visión del Proyecto**
+  - Cambio de descripción: de "Gestión Financiera" a "Plataforma de Gestión de Proyectos Colaborativos"
+  - Clarificación: Módulo Financiero como FEATURE v1.0.0, no el core
+  - Agregado roadmap detallado para v1.1.0 y v2.0.0
+  - Listado de tecnologías futuras: React, React Native, TypeScript
+  - Estado del proyecto con tabla de progreso (✅ completado, 🔄 en desarrollo)
+  - Referencia a soporte multi-idioma (i18n integrado)
+  - Visión clara de arquitectura futura: frontend React + mobile React Native
+
 #### Cambios de Templates (Sesión 15/11)
 
 - 📝 **Email Templates Unified Design**

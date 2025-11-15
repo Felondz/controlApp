@@ -155,7 +155,7 @@ curl -X POST http://localhost:8000/api/proyectos \
   -H "Accept: application/json" \
   -d '{
     "nombre": "Mi Proyecto Financiero",
-    "moneda": "USD"
+    "moneda": "COP"
   }'
 ```
 

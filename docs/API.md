@@ -182,7 +182,7 @@ Accept: application/json
     {
       "id": 1,
       "nombre": "Presupuesto 2025",
-      "moneda": "USD",
+      "moneda": "COP",
       "user_id": 1,
       "created_at": "2025-11-15 10:00:00",
       "updated_at": "2025-11-15 10:00:00"
@@ -204,7 +204,7 @@ Accept: application/json
 
 {
   "nombre": "Presupuesto Trimestral",
-  "moneda": "USD"
+  "moneda": "COP"
 }
 ```
 
@@ -213,7 +213,7 @@ Accept: application/json
 {
   "id": 2,
   "nombre": "Presupuesto Trimestral",
-  "moneda": "USD",
+  "moneda": "COP",
   "user_id": 1,
   "created_at": "2025-11-15 11:30:00",
   "updated_at": "2025-11-15 11:30:00"
@@ -240,7 +240,7 @@ Accept: application/json
 {
   "id": 1,
   "nombre": "Presupuesto 2025",
-  "moneda": "USD",
+  "moneda": "COP",
   "user_id": 1,
   "miembros": [
     {
