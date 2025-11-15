@@ -51,8 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Transacciones (CRUD completo, anidado en Proyectos)
     Route::apiResource('proyectos.transacciones', TransaccionController::class)
-        ->parameters(['transacciones' => 'transaccion'])
-        ->shallow();
+        ->parameters(['transacciones' => 'transaccion']);
     // --- Rutas del Sistema de Invitaciones ---
 
     // Aceptar/Rechazar invitación (requiere estar logueado)

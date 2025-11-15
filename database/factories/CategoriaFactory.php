@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Proyecto;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,9 @@ class CategoriaFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nombre' => $this->faker->words(3, true),
+            'tipo' => $this->faker->randomElement(['ingreso', 'gasto']),
+            'proyecto_id' => Proyecto::factory(),
         ];
     }
 }

@@ -39,14 +39,15 @@ class TransaccionController extends Controller
     /**
      * Muestra una transacción 
      */
-    public function show(Request $request, Transaccion $transaccion)
+    public function show(Request $request, Proyecto $proyecto, Transaccion $transaccion)
     {
-        // Obtenemos el proyecto DESDE la transacción
-        $proyecto = $transaccion->proyecto;
-
-        // Autorización
+        // Verificar autorización
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
+        // Verificar que la transacción pertenece al proyecto
+        if ($transaccion->proyecto_id !== $proyecto->id) {
+            abort(404);
+        }
 
         return response()->json($transaccion->load('categoria', 'cuenta'));
     }
@@ -54,13 +55,18 @@ class TransaccionController extends Controller
     /**
      * Actualiza una transacción 
      */
-    public function update(UpdateTransaccionRequest $request, Transaccion $transaccion)
+    public function update(UpdateTransaccionRequest $request, Proyecto $proyecto, Transaccion $transaccion)
     {
-        // Obtenemos el proyecto DESDE la transacción
-        $proyecto = $transaccion->proyecto;
-
-        // Autorización
+        // Verificar autorización
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+
+        // Verificar que la transacción pertenece al proyecto
+        if ($transaccion->proyecto_id !== $proyecto->id) {
+            abort(404);
+        }
+
+        // Verificar que el usuario es dueño de la transacción
+        abort_if($transaccion->user_id !== $request->user()->id, 403, 'No puedes editar transacciones de otros usuarios.');
 
         $datosValidados = $request->validated();
         $transaccion->update($datosValidados);
@@ -71,13 +77,18 @@ class TransaccionController extends Controller
     /**
      * Elimina una transacción 
      */
-    public function destroy(Request $request, Transaccion $transaccion)
+    public function destroy(Request $request, Proyecto $proyecto, Transaccion $transaccion)
     {
-        // Obtenemos el proyecto DESDE la transacción
-        $proyecto = $transaccion->proyecto;
-
-        // Autorización
+        // Verificar autorización
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para eliminar en este proyecto.');
+
+        // Verificar que la transacción pertenece al proyecto
+        if ($transaccion->proyecto_id !== $proyecto->id) {
+            abort(404);
+        }
+
+        // Verificar que el usuario es dueño de la transacción
+        abort_if($transaccion->user_id !== $request->user()->id, 403, 'No puedes eliminar transacciones de otros usuarios.');
 
         $transaccion->delete();
         return response()->noContent();

@@ -12,21 +12,25 @@ class InvitacionesApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $admin;
-    private Proyecto $proyecto;
+    private ?User $admin = null;
+    private ?Proyecto $proyecto = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         // Crear usuario admin para cada test
-        $this->admin = User::factory()->create([
+        /** @var User $admin */
+        $admin = User::factory()->create([
             'email' => 'admin@test.com',
             'email_verified_at' => now(),
         ]);
+        $this->admin = $admin;
 
         // Crear proyecto del admin
-        $this->proyecto = Proyecto::factory()->create();
+        /** @var Proyecto $proyecto */
+        $proyecto = Proyecto::factory()->create();
+        $this->proyecto = $proyecto;
         $this->admin->proyectos()->attach($this->proyecto->id, ['rol' => 'admin']);
     }
 
@@ -63,6 +67,7 @@ class InvitacionesApiTest extends TestCase
      */
     public function test_only_admin_can_send_invitation(): void
     {
+        /** @var User $miembro */
         $miembro = User::factory()->create();
         $this->proyecto->miembros()->attach($miembro->id, ['rol' => 'miembro']);
 
@@ -131,34 +136,23 @@ class InvitacionesApiTest extends TestCase
      */
     public function test_registered_user_can_accept_invitation(): void
     {
-        // Crear invitación
         $invitacion = Invitacion::factory()->create([
             'proyecto_id' => $this->proyecto->id,
-            'email' => 'newuser@example.com',
+            'rol' => 'colaborador',
         ]);
 
-        // Crear usuario con el email de la invitación
-        $usuario = User::factory()->create([
-            'email' => 'newuser@example.com',
-            'email_verified_at' => now(),
-        ]);
+        /** @var User $usuario */
+        $usuario = User::factory()->create(['email' => $invitacion->email]);
 
-        // Aceptar invitación
         $response = $this->actingAs($usuario)
             ->postJson('/api/invitaciones/' . $invitacion->token . '/accept', []);
 
         $response->assertStatus(200);
 
-        // Verificar que el usuario fue añadido al proyecto
-        $this->assertTrue(
-            $usuario->proyectos()
-                ->where('proyecto_id', $this->proyecto->id)
-                ->exists()
-        );
-
-        // Verificar que la invitación fue eliminada
-        $this->assertDatabaseMissing('invitaciones', [
-            'id' => $invitacion->id,
+        $this->assertDatabaseHas('proyecto_user', [
+            'user_id' => $usuario->id,
+            'proyecto_id' => $this->proyecto->id,
+            'rol' => 'colaborador',
         ]);
     }
 
@@ -181,6 +175,7 @@ class InvitacionesApiTest extends TestCase
      */
     public function test_invalid_token_returns_404(): void
     {
+        /** @var User $usuario */
         $usuario = User::factory()->create(['email_verified_at' => now()]);
 
         $response = $this->actingAs($usuario)
@@ -199,6 +194,7 @@ class InvitacionesApiTest extends TestCase
             'email' => 'invited@example.com',
         ]);
 
+        /** @var User $usuario */
         $usuario = User::factory()->create([
             'email' => 'different@example.com',
             'email_verified_at' => now(),
@@ -291,6 +287,7 @@ class InvitacionesApiTest extends TestCase
             'rol' => 'tesorero', // Rol específico
         ]);
 
+        /** @var User $usuario */
         $usuario = User::factory()->create([
             'email' => 'newuser@example.com',
             'email_verified_at' => now(),

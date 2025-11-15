@@ -2,12 +2,15 @@
 
 namespace Database\Factories;
 
-// 1. IMPORTA TU MODELO REAL
-use App\Features\Finanzas\Models\Transaccion;
+use App\Models\Categoria;
+use App\Models\Cuenta;
+use App\Models\Proyecto;
+use App\Models\Transaccion;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Features\Finanzas\Models\Transaccion>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Transaccion>
  */
 class TransaccionFactory extends Factory
 {
@@ -25,14 +28,17 @@ class TransaccionFactory extends Factory
      */
     public function definition(): array
     {
+        $proyecto = Proyecto::factory();
+
         return [
-            // 2. LLENA TUS CAMPOS
-            'descripcion' => $this->faker->sentence(6), // Una oración de 6 palabras
-            'monto' => $this->faker->numberBetween(10000, 500000), // Un número entre 10k y 500k
-            'tipo' => $this->faker->randomElement(['gasto', 'ingreso']), // Uno de estos dos
-            'categoria' => $this->faker->randomElement(['Equipos', 'Servicios', 'Comida']),
-            'fecha' => $this->faker->date(), // Una fecha aleatoria
-            'notas' => $this->faker->paragraph(1), // Un párrafo corto
+            'descripcion' => $this->faker->sentence(6),
+            'monto' => $this->faker->randomElement([-50000, -30000, -20000, 10000, 20000, 50000, 100000]),
+            'fecha' => $this->faker->date(),
+            'notas' => $this->faker->paragraph(1),
+            'proyecto_id' => $proyecto,
+            'categoria_id' => Categoria::factory()->for($proyecto),
+            'cuenta_id' => Cuenta::factory()->for($proyecto, 'propietario'),
+            'user_id' => User::factory(),
         ];
     }
 }

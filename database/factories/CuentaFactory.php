@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Proyecto;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,17 @@ class CuentaFactory extends Factory
      */
     public function definition(): array
     {
+        $balance = $this->faker->numberBetween(1000, 100000);
+
         return [
-            //
+            'nombre' => $this->faker->word() . ' - ' . $this->faker->randomElement(['Banco', 'Efectivo', 'Tarjeta']),
+            'banco' => $this->faker->company(),
+            'balance_inicial' => $balance,
+            'balance' => $balance,
+            'tipo' => $this->faker->randomElement(['efectivo', 'banco', 'credito', 'otro']),
+            'estado' => 'activa',
+            'propietario_id' => Proyecto::factory(),
+            'propietario_type' => 'App\Models\Proyecto',
         ];
     }
 }

@@ -82,7 +82,12 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // Revoca el token específico que se usó para hacer esta petición
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        // Solo intentar eliminar si el token existe y es persistente
+        if ($token && method_exists($token, 'delete')) {
+            $token->delete();
+        }
 
         return response()->json(['message' => 'Sesión cerrada exitosamente']);
     }
