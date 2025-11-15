@@ -17,7 +17,8 @@ class ProyectoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nombre' => $this->faker->words(3, true),
+            'moneda_default' => $this->faker->randomElement(['USD', 'COP', 'EUR', 'MXN']),
         ];
     }
 }
