@@ -19,6 +19,7 @@ class Invitacion extends Model
      */
     protected $fillable = [
         'proyecto_id',
+        'user_id',
         'email',
         'rol',
         'token',
@@ -31,5 +32,13 @@ class Invitacion extends Model
     public function proyecto()
     {
         return $this->belongsTo(Proyecto::class);
+    }
+
+    /**
+     * Define la relación: una invitación fue creada por un usuario (el invitador).
+     */
+    public function invitador()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

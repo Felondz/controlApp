@@ -88,6 +88,7 @@ services:
             timeout: 5s
     mailpit:
         image: 'axllent/mailpit:latest'
+        command: --smtp=0.0.0.0:1025
         ports:
             - '${FORWARD_MAILPIT_PORT:-1025}:1025'
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'

@@ -58,6 +58,7 @@ class ProyectoInvitacionController extends Controller
 
         // 4. Crear la invitación
         $invitacion = $proyecto->invitaciones()->create([
+            'user_id' => $request->user()->id, // Quién envió la invitación
             'email' => $emailInvitado,
             'rol' => $datos['rol'],
             'token' => Str::random(40), // Token secreto y único

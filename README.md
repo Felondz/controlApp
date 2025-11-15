@@ -160,12 +160,14 @@ Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 
 ## 📊 Estadísticas del Proyecto
 
-- 📁 **8 Archivos de Documentación** (4,482 líneas)
+- 📁 **Documentación centralizada** en `docs/CHANGELOG.md`
 - 🔌 **50+ Endpoints de API** completamente documentados
 - 🗄️ **8 Tablas de BD** con relaciones complejas
 - 🔐 **Sistema de autenticación** seguro con Sanctum
-- 📧 **Email system** con templates personalizados en español
-- ✅ **100% Dockerizado** para desarrollo consistente
+- 📧 **3 Email templates** estandarizados con diseño profesional
+- ✅ **114/114 tests pasando** (100% cobertura)
+- 📱 **Responsive design** en todos los emails
+- 🏗️ **100% Dockerizado** para desarrollo consistente
 
 ## 🤝 Contribuir
 

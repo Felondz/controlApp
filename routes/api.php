@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ProyectoInvitacionController;
 use App\Http\Controllers\Api\InvitacionController;
 use App\Http\Controllers\Api\ProyectoMiembroController;
 use App\Http\Controllers\Api\EmailVerificationController;
+use App\Http\Controllers\Api\PasswordResetController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,6 +32,11 @@ Route::get('/invitaciones/{token}', [InvitacionController::class, 'show']);
 // NO usamos 'signed' middleware porque validamos el hash manualmente en el controlador
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
     ->name('verification.verify');
+
+// --- Rutas Públicas de Password Reset ---
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+Route::get('/reset-password/validate', [PasswordResetController::class, 'validateToken']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
 // --- RUTAS PROTEGIDAS (Requieren Token) ---
 Route::middleware('auth:sanctum')->group(function () {
