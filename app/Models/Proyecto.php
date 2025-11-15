@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Cuenta;
 use App\Models\Categoria;
 use App\Models\Transaccion;
+use App\Models\Invitacion;
 
 class Proyecto extends Model
 {
@@ -37,5 +38,10 @@ class Proyecto extends Model
     {
 
         return $this->hasMany(Transaccion::class);
+    }
+
+    public function invitaciones()
+    {
+        return $this->hasMany(Invitacion::class);
     }
 }

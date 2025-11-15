@@ -8,21 +8,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Categoria extends Model
 {
-    /** @use HasFactory<\Database\Factories\CategoriaFactory> */
     use HasFactory, SoftDeletes;
 
+    /**
+     * Los atributos que se pueden asignar masivamente.
+     */
     protected $fillable = [
         'proyecto_id',
         'nombre',
-        'tipo', // 'ingreso' o 'gasto'
+        'tipo',
     ];
 
     /**
      * El proyecto al que pertenece esta categoría.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function proyecto()
     {
         return $this->belongsTo(Proyecto::class);
+    }
+
+    /**
+     * Obtiene las transacciones asociadas con la categoría.
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(Transaccion::class);
     }
 }

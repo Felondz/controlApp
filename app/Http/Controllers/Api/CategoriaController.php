@@ -7,25 +7,26 @@ use App\Models\Categoria;
 use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Models\Transaccion;
 
 class CategoriaController extends Controller
 {
     /**
-     * Muestra las categorías.
+     * Muestra las categorías activas de un proyecto.
+     * (Cualquier miembro puede 'ver')
      */
     public function index(Request $request, Proyecto $proyecto)
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
-
-        // El método ->categorias() ahora (gracias a SoftDeletes)
-        // solo traerá las que no estén archivadas. ¡Es automático!
-        return response()->json($proyecto->categorias);
+        return response()->json($proyecto->categorias); // SoftDeletes filtra automáticamente
     }
 
+    /**
+     * Almacena una nueva categoría.
+     */
     public function store(Request $request, Proyecto $proyecto)
     {
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para añadir categorías.');
+
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden añadir categorías.');
 
         $datosValidados = $request->validate([
             'nombre' => 'required|string|max:255',
@@ -33,11 +34,15 @@ class CategoriaController extends Controller
         ]);
 
         $datosCompletos = array_merge($datosValidados, ['proyecto_id' => $proyecto->id]);
-        $categoria = Categoria::create($datosValidados);
+        $categoria = Categoria::create($datosCompletos);
 
         return response()->json($categoria, 201);
     }
 
+    /**
+     * Muestra una categoría específica.
+     * (Cualquier miembro puede 'ver')
+     */
     public function show(Request $request, Proyecto $proyecto, Categoria $categoria)
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
@@ -47,9 +52,14 @@ class CategoriaController extends Controller
         return response()->json($categoria);
     }
 
+    /**
+     * Actualiza una categoría.
+     */
     public function update(Request $request, Proyecto $proyecto, Categoria $categoria)
     {
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para editar este proyecto.');
+
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
+
         if ($categoria->proyecto_id !== $proyecto->id) {
             abort(404);
         }
@@ -68,39 +78,21 @@ class CategoriaController extends Controller
      */
     public function destroy(Request $request, Proyecto $proyecto, Categoria $categoria)
     {
-        // 1. Autorización básica
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para eliminar en este proyecto.');
 
-        // 2. Verificación de pertenencia
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden eliminar/archivar categorías.');
+
         if ($categoria->proyecto_id !== $proyecto->id) {
             abort(404);
         }
 
-        // 3. Revisar si tiene transacciones
-        $tieneTransacciones = $categoria->transacciones()->exists();
-
-        // 4. Revisar si el usuario es Admin
-        $esAdmin = $request->user()->esAdminDe($proyecto);
-
-        // 5. Aplicar la lógica
-        if ($tieneTransacciones && !$esAdmin) {
-            // Caso 1: Tiene transacciones, pero NO eres admin.
-            // ¡Prohibido!
-            return response()->json([
-                'message' => 'Esta categoría tiene transacciones y solo un administrador puede archivarla.'
-            ], 403); // 403 Forbidden
-
-        } else if ($tieneTransacciones && $esAdmin) {
-            // Caso 2: Tiene transacciones Y eres admin.
-            // ¡Permitido! Se "archiva" (Soft Delete).
-            $categoria->delete(); // Gracias a SoftDeletes, esto "archiva"
-
+        if ($categoria->transacciones()->exists()) {
+            // Caso 1: Tiene transacciones. Se archiva (Soft Delete).
+            $categoria->delete();
         } else {
-            // Caso 3: No tiene transacciones.
-            // Cualquiera (que sea miembro) puede borrarla PERMANENTEMENTE.
-            $categoria->forceDelete(); // Borrado destructivo y real
+            // Caso 2: No tiene transacciones. Se borra permanentemente.
+            $categoria->forceDelete();
         }
 
-        return response()->noContent(); // 204 No Content
+        return response()->noContent();
     }
 }
