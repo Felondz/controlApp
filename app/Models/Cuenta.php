@@ -19,9 +19,11 @@ class Cuenta extends Model
         'propietario_id',
         'propietario_type',
         'estado', // 'activa' o 'inactiva'
+        'balance',
     ];
     protected $casts = [
         'balance_inicial' => 'integer', // Asumiendo que guardamos en centavos
+        'balance' => 'integer',
     ];
     /**
      * Obtiene el modelo propietario (ya sea un User o un Proyecto).

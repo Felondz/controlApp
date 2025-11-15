@@ -38,6 +38,9 @@ class CuentaController extends Controller
             'tipo' => ['required', 'string', Rule::in(['efectivo', 'banco', 'credito', 'otro'])],
         ]);
 
+        // Añadimos el balance actual al array antes de crear.
+        $datosValidados['balance'] = $datosValidados['balance_inicial'];
+
         // estado='activa' se pone por defecto (lo definimos en la migración)
         $cuenta = $proyecto->cuentas()->create($datosValidados);
         return response()->json($cuenta, 201);
