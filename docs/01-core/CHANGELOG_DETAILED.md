@@ -236,6 +236,109 @@
 
 ---
 
+#### 🔧 FIX: Mail Driver Configuration para CI (No Conexión a SMTP)
+
+**Tipo**: Configuration + Test Fix
+**Severidad**: Alta (bloqueaba tests en CI)
+**Status**: ✅ Resuelto
+
+**Problema Identificado**:
+- Error en GitHub Actions: `Connection could not be established with host "mailpit:1025"`
+- `PasswordResetApiTest.php` intentaba enviar correos **reales** vía SMTP
+- Sin `Notification::fake()`, Laravel intenta conectar al servidor SMTP
+- En CI, Mailpit no está disponible (solo log driver)
+
+**Causa Raíz**:
+1. `.env.testing` tenía configuración SMTP de Mailpit (MAIL_HOST=mailpit, MAIL_PORT=1025)
+2. `PasswordResetApiTest.php` NO usaba `Notification::fake()` en setUp()
+3. Cuando tests llamaban a `/api/forgot-password`, Laravel intentaba enviar correo real
+4. Intentaba conectar a mailpit:1025, que no existe en CI → Error de conexión
+
+**Solución Implementada**:
+
+1. **Actualizar `.env.testing` para usar Log Driver**:
+   ```env
+   MAIL_MAILER=log
+   MAIL_HOST=localhost
+   MAIL_PORT=1025
+   MAIL_USERNAME=null
+   MAIL_PASSWORD=null
+   MAIL_ENCRYPTION=null
+   MAIL_FROM_ADDRESS="test@example.com"
+   MAIL_FROM_NAME="ControlApp Tests"
+   ```
+   - **Resultado**: Laravel **no intenta conectarse a SMTP**, escribe en logs
+
+2. **Agregar Notification::fake() en PasswordResetApiTest.php**:
+   ```php
+   protected function setUp(): void
+   {
+       parent::setUp();
+       Notification::fake();  // ← NUEVA LÍNEA
+   }
+   ```
+   - **Efecto**: Todos los tests de password reset mockean notificaciones
+   - **Beneficio**: No intenta enviar correos, solo valida que se disparan
+
+3. **Actualizar GitHub Actions Workflow**:
+   ```yaml
+   - name: Create .env.testing file
+     run: |
+       cp .env.example .env.testing
+       echo "QUEUE_CONNECTION=sync" >> .env.testing
+       echo "MAIL_MAILER=log" >> .env.testing  # ← CRITICAL
+       echo "BROADCAST_DRIVER=log" >> .env.testing
+       echo "CI=true" >> .env.testing
+   ```
+
+**Archivos Modificados**:
+- `.env.testing`: Changed MAIL_MAILER to log, removed SMTP host/port values
+- `.github/workflows/tests.yml`: Explicit `MAIL_MAILER=log` in workflow
+- `tests/Feature/PasswordResetApiTest.php`: Added `Notification::fake()` in setUp()
+
+**Validación**:
+- ✅ `PasswordResetApiTest` pasan sin intentar conectar a Mailpit
+- ✅ No hay error "Connection could not be established"
+- ✅ Tests validan que notificaciones se envían (sin conexión real)
+- ✅ Logs disponibles en `storage/logs/laravel.log`
+
+**Comparación: Antes vs Después**
+
+**ANTES** ❌:
+```
+.env.testing → MAIL_MAILER=smtp, MAIL_HOST=mailpit
+Test → Intenta conexión real
+GitHub Actions → 🔥 ERROR: Connection could not be established
+```
+
+**DESPUÉS** ✅:
+```
+.env.testing → MAIL_MAILER=log
+Test → Notification::fake() mockea todo
+GitHub Actions → ✅ Tests pasan sin conexión
+```
+
+**Comportamiento en Different Environments**:
+
+| Ambiente | MAIL_MAILER | setUp() | Resultado |
+|----------|------------|---------|-----------|
+| Local (.env) | mailpit | N/A | ✅ Mailpit http://localhost:8025 |
+| Local Tests (.env.testing) | log | Notification::fake() | ✅ Logs, sin conexión |
+| CI Tests (.env.testing + workflow) | log | Notification::fake() | ✅ Logs, sin conexión |
+
+**Tiempo de Resolución**: 20 minutos (identificación + fix)
+**Complejidad**: Baja (configuración simple + 1 línea de código)
+
+**Lecciones Aprendidas**:
+1. Always mock external connections in tests (SMTP, APIs, etc.)
+2. `.env.testing` debe estar completamente desacoplado de servicios externos
+3. `Notification::fake()` es essencial para cualquier test que envíe notificaciones
+4. Log driver es perfecto para testing (no requiere servicios)
+
+**Commit Simulado**: `fix(test): remove smtp connection, use log driver and notification::fake in ci`
+
+---
+
 #### 🧪 CONFIG: Mailpit Local + Log Driver en CI
 
 **Tipo**: Configuration

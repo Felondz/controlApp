@@ -14,6 +14,16 @@ class PasswordResetApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Mock notifications para evitar intentar enviar correos reales
+        // En testing, los correos se registran en logs (MAIL_MAILER=log)
+        // pero mockamos la notificación para validar que se dispara
+        Notification::fake();
+    }
+
     /**
      * Test 1: Usuario puede solicitar restablecimiento de contraseña
      */
