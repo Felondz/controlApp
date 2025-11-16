@@ -36,10 +36,34 @@ docs/
 │   ├── TESTING.md             (documentación general)
 │   └── TESTING_*.md           (archivos históricos)
 │
-└── 05-reference/              # 📖 Referencias
-    ├── MAILTRAP_GUIDE.md      (configurar emails)
-    └── MAILTRAP_VISUALIZATION.md (ver emails capturados)
+├── 05-reference/              # 📖 Referencias
+│   ├── MAILPIT_GUIDE.md       (Mailpit local SMTP)
+│   ├── MAILTRAP_GUIDE.md      (configurar emails)
+│   └── MAILTRAP_VISUALIZATION.md (ver emails capturados)
+│
+└── 06-security/               # 🔒 Seguridad
+    ├── SECURITY_CONFIGURATION.md (herramientas de seguridad)
+    └── README.md              (overview de seguridad)
 ```
+
+---
+
+## 🎯 Selecciona tu rol
+
+### 👤 Soy usuario final
+
+```
+1. Leer: ../../README.md (5 min)
+   ↓
+2. Instalar: ../02-development/INSTALLATION.md (15 min)
+   ↓
+3. ¡Comenzar a usar!
+```
+
+---
+
+### 💻 Soy desarrollador
+````
 
 ---
 
