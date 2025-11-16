@@ -4,12 +4,22 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class EmailVerificationApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Mock Notification to prevent actual email sending
+        // Tests will use Notification::assertSentTo() to verify verification emails
+        Notification::fake();
+    }
 
     /**
      * Test: Usuario registrado puede verificar email con enlace válido

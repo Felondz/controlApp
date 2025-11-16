@@ -339,6 +339,100 @@ GitHub Actions → ✅ Tests pasan sin conexión
 
 ---
 
+#### 📧 FIX: Mock Notifications/Mail en Todos los Tests de API
+
+**Tipo**: Test Fix (Critical)
+**Severidad**: Alta (bloqueaba múltiples tests en CI)
+**Status**: ✅ Resuelto
+
+**Problema Identificado**:
+- Múltiples tests de API intentaban enviar correos reales SIN mockear
+- Error: `Connection could not be established with host "mailpit:1025"`
+- Afectaba: `InvitacionesApiTest`, `AuthenticationApiTest`, `EmailVerificationApiTest`, `PasswordResetApiTest`
+- Causa: Endpoints de API que envían emails sin `Mail::fake()` o `Notification::fake()`
+
+**Solución Implementada**:
+
+Agregado `Mail::fake()` o `Notification::fake()` en setUp() de cada test suite que envía emails:
+
+1. **`tests/Feature/InvitacionesApiTest.php`**:
+   ```php
+   use Illuminate\Support\Facades\Mail;
+   
+   protected function setUp(): void
+   {
+       parent::setUp();
+       Mail::fake();  // ← NUEVA LÍNEA
+   }
+   ```
+   - **Efecto**: Todos los tests de invitación mockean Mail
+   - **Beneficio**: Valida que emails SE ENVÍAN sin conexión real
+
+2. **`tests/Feature/AuthenticationApiTest.php`**:
+   ```php
+   use Illuminate\Support\Facades\Notification;
+   
+   protected function setUp(): void
+   {
+       parent::setUp();
+       Notification::fake();  // ← NUEVA LÍNEA
+   }
+   ```
+   - **Efecto**: Tests de registro mockean notificaciones
+   - **Beneficio**: No intenta enviar verification emails reales
+
+3. **`tests/Feature/EmailVerificationApiTest.php`**:
+   ```php
+   use Illuminate\Support\Facades\Notification;
+   
+   protected function setUp(): void
+   {
+       parent::setUp();
+       Notification::fake();  // ← NUEVA LÍNEA
+   }
+   ```
+   - **Efecto**: Tests de verificación mockean notificaciones
+   - **Beneficio**: Validar re-envíos de verification links
+
+4. **`tests/Feature/PasswordResetApiTest.php`**:
+   - ✅ Ya tenía `Notification::fake()` en setUp()
+
+**Archivos Modificados**:
+- `tests/Feature/InvitacionesApiTest.php`: Added Mail::fake()
+- `tests/Feature/AuthenticationApiTest.php`: Added Notification::fake()
+- `tests/Feature/EmailVerificationApiTest.php`: Added Notification::fake()
+- `tests/Feature/PasswordResetApiTest.php`: Ya estaba bien
+
+**Validación**:
+- ✅ Todos los tests de API mockean mail/notifications
+- ✅ No hay intentos de conexión a mailpit:1025
+- ✅ Tests validan que emails SE ENVÍAN (sin conexión real)
+- ✅ En CI: Tests pasan sin Mailpit
+- ✅ En Local: Mailpit sigue funcionando (usa .env, no .env.testing)
+
+**Resumen de Cambios**:
+
+| Test Suite | Mock Type | Tests Afectados | Estado |
+|-----------|-----------|-----------------|--------|
+| InvitacionesApiTest | Mail::fake() | 14 tests | ✅ Mockea |
+| AuthenticationApiTest | Notification::fake() | 12 tests | ✅ Mockea |
+| EmailVerificationApiTest | Notification::fake() | 7 tests | ✅ Mockea |
+| PasswordResetApiTest | Notification::fake() | 14 tests | ✅ Mockea |
+| **Total** | | **47 tests** | ✅ Protegidos |
+
+**Tiempo de Resolución**: 15 minutos
+**Complejidad**: Baja (1-2 líneas por archivo)
+
+**Lecciones Aprendidas**:
+1. Siempre mockear conexiones externas en tests (SMTP, APIs, etc.)
+2. Mail::fake() para Mail facades, Notification::fake() para Notifications
+3. setUp() es ideal para setup global de mocks
+4. .env.testing debe complementar mocks, no reemplazarlos
+
+**Commit Simulado**: `fix(test): add mail and notification mocks to api test suites`
+
+---
+
 #### 🧪 CONFIG: Mailpit Local + Log Driver en CI
 
 **Tipo**: Configuration

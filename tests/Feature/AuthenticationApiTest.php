@@ -4,11 +4,21 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class AuthenticationApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Mock Notification to prevent actual email sending during registration
+        // Tests will use Notification::assertSentTo() to verify emails were triggered
+        Notification::fake();
+    }
 
     /**
      * Test 1: Usuario puede registrarse con credenciales válidas

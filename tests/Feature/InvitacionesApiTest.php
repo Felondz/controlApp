@@ -6,6 +6,7 @@ use App\Models\Invitacion;
 use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class InvitacionesApiTest extends TestCase
@@ -18,6 +19,10 @@ class InvitacionesApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Mock Mail to prevent actual email sending
+        // Tests will use Mail::assertSent() to verify emails were triggered
+        Mail::fake();
 
         // Crear usuario admin para cada test
         /** @var User $admin */
