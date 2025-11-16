@@ -11,6 +11,21 @@ use App\Models\Proyecto;
 use App\Models\Cuenta;
 use App\Notifications\VerificacionEmailNotification;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property \Carbon\Carbon|null $email_verified_at
+ * @property string $password
+ * @property string|null $remember_token
+ * @property bool $is_super_admin
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * 
+ * @method static create(array $attributes = [])
+ * @method static where(string $column, $operator = null, $value = null)
+ * @method static find(int $id)
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
 

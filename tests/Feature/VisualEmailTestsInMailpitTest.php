@@ -14,6 +14,24 @@ class VisualEmailTestsInMailpitTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * setUp: Saltear tests si estamos en CI
+     * 
+     * Los tests visuales de Mailpit solo funcionan en desarrollo local.
+     * En GitHub Actions (CI), el driver es "log" y Mailpit no está disponible.
+     * 
+     * Esta clase solo ejecutará tests cuando CI no esté establecido.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Si estamos en CI (GitHub Actions), saltar todos estos tests
+        if (env('CI')) {
+            $this->markTestSkipped('Visual email tests solo se ejecutan localmente con Mailpit');
+        }
+    }
+
+    /**
      * Test: Visualizar correo de verificación en Mailpit
      * 
      * Este test dispara realmente el correo de verificación para que lo veas en:
@@ -107,7 +125,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
         // Disparar endpoint de invitación
         $this->actingAs($admin);
 
-        $response = $this->postJson("/api/proyectos/{$proyecto->id}/invitaciones", [
+        $response = $this->postJson('/api/proyectos/' . $proyecto->id . '/invitaciones', [
             'email' => 'invitado@example.com',
             'rol' => 'miembro',
         ]);
@@ -183,8 +201,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
         $proyecto->miembros()->attach($admin, ['rol' => 'admin']);
 
         $this->actingAs($admin);
-        $response = $this->postJson('/api/invitations', [
-            'proyecto_id' => $proyecto->id,
+        $response = $this->postJson('/api/proyectos/' . $proyecto->id . '/invitaciones', [
             'email' => 'invitado-test@example.com',
             'rol' => 'miembro',
         ]);
@@ -204,7 +221,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
             'email' => 'reset-test@example.com',
         ]);
 
-        $response = $this->postJson('/api/forgot-password', [
+        $response = $this->postJson('/api/password-reset', [
             'email' => $resetUser->email,
         ]);
 

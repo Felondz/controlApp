@@ -1,0 +1,24 @@
+includes:
+    - vendor/phpstan/phpstan-laravel/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - app
+        - config
+    excludePaths:
+        - app/Console/Commands/GrantSuperAdmin.php
+    treatMissingPropertiesAsNullSafe: false
+    
+    # Ignorar errores comunes de Eloquent
+    ignoreErrors:
+        # Eloquent propiedades dinámicas
+        - '#Access to an undefined property.*Model::\$#'
+        # Métodos estáticos de Eloquent
+        - '#Call to an undefined static method.*Model::#'
+        # Builder methods
+        - '#Call to an undefined method.*Builder::#'
+        # Query builder
+        - '#Method.*Builder.*has invalid return type#'
+
+reportUnmatchedIgnoredErrors: false

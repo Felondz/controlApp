@@ -12,6 +12,22 @@ use App\Models\Cuenta;
 use App\Models\Categoria;
 use App\Models\User;
 
+/**
+ * @property int $id
+ * @property int $proyecto_id
+ * @property int $cuenta_id
+ * @property int $categoria_id
+ * @property int $user_id
+ * @property float $monto
+ * @property string $descripcion
+ * @property string $fecha
+ * @property string|null $notas
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * 
+ * @method static create(array $attributes = [])
+ * @method static where(string $column, $operator = null, $value = null)
+ */
 class Transaccion extends Model
 {
     use HasFactory;
