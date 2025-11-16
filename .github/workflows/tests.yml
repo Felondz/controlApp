@@ -50,6 +50,13 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      - name: Create .env.testing file
+        run: |
+          cp .env.example .env.testing
+          echo "QUEUE_CONNECTION=sync" >> .env.testing
+          echo "MAIL_MAILER=log" >> .env.testing
+          echo "BROADCAST_DRIVER=log" >> .env.testing
+
       - name: Wait for MySQL
         run: |
           while ! mysqladmin ping -h"127.0.0.1" -P"3306" -u"root" -p"password" --silent; do
