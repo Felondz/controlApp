@@ -54,7 +54,7 @@ class CuentaController extends Controller
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'App\Models\Proyecto') {
+        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
             abort(404);
         }
 
@@ -69,7 +69,7 @@ class CuentaController extends Controller
 
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'App\Models\Proyecto') {
+        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
             abort(404);
         }
 
@@ -93,7 +93,7 @@ class CuentaController extends Controller
 
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden inactivar/eliminar cuentas.');
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'App\Models\Proyecto') {
+        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
             abort(404);
         }
 

@@ -27,7 +27,7 @@ class CuentaFactory extends Factory
             'tipo' => $this->faker->randomElement(['efectivo', 'banco', 'credito', 'otro']),
             'estado' => 'activa',
             'propietario_id' => Proyecto::factory(),
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
         ];
     }
 }

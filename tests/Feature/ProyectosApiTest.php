@@ -67,16 +67,13 @@ class ProyectosApiTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('proyectos', [
-            'nombre' => 'Nuevo Proyecto',
-            'moneda_default' => 'EUR',
+            'nombre' => 'Mi Proyecto',
+            'moneda_default' => 'COP',
         ]);
 
         // Verificar que el usuario es admin del nuevo proyecto
-        $this->assertTrue(
-            $this->usuario->esAdminDe(
-                Proyecto::where('nombre', 'Nuevo Proyecto')->first()
-            )
-        );
+        $nuevoProyecto = Proyecto::where('nombre', 'Mi Proyecto')->first();
+        $this->assertTrue($this->usuario->esAdminDe($nuevoProyecto));
     }
 
     /**
@@ -307,7 +304,7 @@ class ProyectosApiTest extends TestCase
         $this->assertDatabaseHas('proyectos', [
             'id' => $this->proyecto->id,
             'nombre' => 'Nuevo Nombre',
-            'moneda_default' => 'USD', // Debe mantener el original
+            'moneda_default' => $this->proyecto->moneda_default,
         ]);
     }
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\InvitacionController;
 use App\Http\Controllers\Api\ProyectoMiembroController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\FinanzasPersonalesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -79,4 +80,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'store'])
         ->middleware('throttle:6,1') // 6 peticiones por minuto
         ->name('verification.send'); // Laravel necesita este nombre
+
+    // --- Rutas de Finanzas Personales ---
+    Route::get('/finanzas-personales', [FinanzasPersonalesController::class, 'show']);
+    Route::get('/finanzas-personales/transacciones', [FinanzasPersonalesController::class, 'transacciones']);
+    Route::get('/finanzas-personales/cuentas', [FinanzasPersonalesController::class, 'cuentas']);
+    Route::get('/finanzas-personales/categorias', [FinanzasPersonalesController::class, 'categorias']);
 });

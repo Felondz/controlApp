@@ -21,7 +21,7 @@ class PasswordResetMailTest extends TestCase
         Notification::fake();
 
         $user = User::factory()->create([
-            'email' => 'juan@example.com',
+            'email' => 'juan' . uniqid() . '@example.com',
             'name' => 'Juan Pérez',
         ]);
 
@@ -43,7 +43,7 @@ class PasswordResetMailTest extends TestCase
     public function test_password_reset_mail_has_correct_subject(): void
     {
         $user = User::factory()->create([
-            'email' => 'maria@example.com',
+            'email' => 'maria' . uniqid() . '@example.com',
             'name' => 'María García',
         ]);
 
@@ -62,7 +62,7 @@ class PasswordResetMailTest extends TestCase
      */
     public function test_password_reset_mail_content_is_correct(): void
     {
-        $user = User::factory()->create(['email' => 'test@example.com']);
+        $user = User::factory()->create(['email' => 'test' . uniqid() . '@example.com']);
         $token = 'secure_token_1234567890abcdefghijklmnop';
 
         $notification = new PasswordResetNotification($token, $user->email);
@@ -80,7 +80,7 @@ class PasswordResetMailTest extends TestCase
     {
         Notification::fake();
 
-        $user = User::factory()->create(['email' => 'correo@example.com']);
+        $user = User::factory()->create(['email' => 'correo' . uniqid() . '@example.com']);
 
         $response = $this->postJson('/api/forgot-password', [
             'email' => $user->email,
@@ -99,7 +99,7 @@ class PasswordResetMailTest extends TestCase
      */
     public function test_password_reset_token_is_hashed_in_database(): void
     {
-        $user = User::factory()->create(['email' => 'user@example.com']);
+        $user = User::factory()->create(['email' => 'user' . uniqid() . '@example.com']);
         $tokenPlain = 'plaintoken123456789abc';
         $tokenHashed = hash('sha256', $tokenPlain);
 

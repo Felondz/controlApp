@@ -52,11 +52,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Los proyectos en los que este usuario es miembro.
+     * Los proyectos en los que este usuario es miembro (a través de la tabla pivote).
      */
     public function proyectos()
     {
         return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol');
+    }
+
+    /**
+     * Los proyectos personales de este usuario (aquellos donde user_id = auth()->user()->id).
+     */
+    public function proyectosPersonales()
+    {
+        return $this->hasMany(Proyecto::class);
     }
 
     /**
@@ -69,26 +77,41 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Revisa si el usuario es miembro de un proyecto específico.
+     * Incluye:
+     * - Ser miembro en la tabla pivote 'proyecto_user'
+     * - Ser el propietario de un proyecto personal
      *
      * @param  \App\Models\Proyecto  $proyecto
      * @return bool
      */
     public function esMiembroDe(Proyecto $proyecto)
     {
+        // Si es propietario de un proyecto personal, puede acceder
+        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+            return true;
+        }
+
         // Revisa en la tabla pivote 'proyecto_user' si existe
-        // una fila que conecte a ESTE usuario con ESE proyecto.
         return $this->proyectos()->where('proyecto_id', $proyecto->id)->exists();
     }
 
     /**
      * Revisa si el usuario es 'admin' de un proyecto específico.
+     * Incluye:
+     * - Ser admin en la tabla pivote 'proyecto_user'
+     * - Ser el propietario de un proyecto personal
      *
      * @param  \App\Models\Proyecto  $proyecto
      * @return bool
      */
     public function esAdminDe(Proyecto $proyecto)
     {
-        // Si no es miembro, no puede ser admin.
+        // Si es propietario de un proyecto personal, es admin del mismo
+        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+            return true;
+        }
+
+        // Si no es miembro, no puede ser admin
         if (!$this->esMiembroDe($proyecto)) {
             return false;
         }

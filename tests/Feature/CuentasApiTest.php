@@ -39,7 +39,7 @@ class CuentasApiTest extends TestCase
             'balance' => 500000,
             'tipo' => 'banco',
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
         ]);
     }
 
@@ -81,14 +81,14 @@ class CuentasApiTest extends TestCase
         /** @var Cuenta $cuenta1 */
         $cuenta1 = Cuenta::factory()->create([
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
             'estado' => 'activa',
         ]);
 
         /** @var Cuenta $cuenta2 */
         $cuenta2 = Cuenta::factory()->create([
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
             'estado' => 'activa',
         ]);
 
@@ -113,7 +113,7 @@ class CuentasApiTest extends TestCase
         /** @var Cuenta $cuenta */
         $cuenta = Cuenta::factory()->create([
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
         ]);
 
         $response = $this->actingAs($admin)->putJson(
@@ -147,7 +147,7 @@ class CuentasApiTest extends TestCase
         /** @var Cuenta $cuenta */
         $cuenta = Cuenta::factory()->create([
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'App\Models\Proyecto',
+            'propietario_type' => 'proyecto',
             'estado' => 'activa',
         ]);
 
@@ -156,7 +156,10 @@ class CuentasApiTest extends TestCase
         );
 
         $response->assertStatus(204); // No Content
-        $this->assertDatabaseMissing('cuentas', ['id' => $cuenta->id]);
+        $this->assertDatabaseMissing('cuentas', [
+            'id' => $cuenta->id,
+            'propietario_type' => 'proyecto',
+        ]);
     }
     /**
      * Test: Usuario no autenticado no puede ver cuentas

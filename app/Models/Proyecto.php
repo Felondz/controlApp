@@ -22,9 +22,15 @@ class Proyecto extends Model
     protected $fillable = [
         'nombre',
         'moneda_default',
+        'user_id',
         'es_personal',
         'visible_en_listado',
     ];
+
+    /**
+     * Siempre cargar estas relaciones.
+     */
+    protected $with = ['cuentas', 'categorias', 'transacciones'];
 
     /**
      * Los atributos que deben castearse a tipos nativos.
