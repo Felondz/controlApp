@@ -758,9 +758,9 @@ Usuario pidió documentación para que IAs puedan:
 - Permitir cambio de modelo/software sin perder historia
 
 **Archivos Creados**:
-- `docs/AI_GUIDELINES.md` (Normas de comportamiento para IAs)
-- `docs/CHANGELOG_DETAILED.md` (Este archivo)
-- `docs/TESTING_ARCHITECTURE.md` (Explicación de estrategia de tests)
+- `docs/03-ia-collaboration/AI_GUIDELINES.md` (Normas de comportamiento para IAs)
+- `docs/01-core/CHANGELOG_DETAILED.md` (Este archivo)
+- `docs/04-testing/TESTING_ARCHITECTURE.md` (Explicación de estrategia de tests)
 
 **Contenido de AI_GUIDELINES.md**:
 - 🎯 Filosofía general y principios
@@ -1265,9 +1265,9 @@ Datos Sensibles: Hasheados (passwords, tokens)
 Cuando otro desarrollador o IA continúe este proyecto:
 
 1. **Leer Este Archivo** (CHANGELOG_DETAILED.md)
-2. **Leer** `docs/AI_GUIDELINES.md` para entender el flujo
+2. **Leer** `docs/03-ia-collaboration/AI_GUIDELINES.md` para entender el flujo
 3. **Revisar** Los últimos cambios en git log
-4. **Ejecutar** `./vendor/bin/sail artisan test` para validar
+4. **Ejecutar** `docker compose exec -T laravel.test php artisan test --testdox` para validar
 5. **Comenzar** siguiendo las normas establecidas
 
 ---
@@ -1276,10 +1276,10 @@ Cuando otro desarrollador o IA continúe este proyecto:
 
 ### Archivos Relacionados
 
-- `docs/AI_GUIDELINES.md` - Cómo trabajar en el proyecto
-- `docs/TESTING_ARCHITECTURE.md` - Cómo funciona el testing
-- `docs/API.md` - Documentación de endpoints
-- `docs/DATABASE.md` - Esquema de BD
+- `docs/03-ia-collaboration/AI_GUIDELINES.md` - Cómo trabajar en el proyecto
+- `docs/04-testing/TESTING_ARCHITECTURE.md` - Cómo funciona el testing
+- `docs/02-development/API.md` - Documentación de endpoints
+- `docs/02-development/DATABASE.md` - Esquema de BD
 - `.env.testing` - Configuración de testing
 - `phpunit.xml` - Configuración de PHPUnit
 

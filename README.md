@@ -35,7 +35,8 @@
 - ✅ **API RESTful Completa** - 50+ endpoints documentados
 - ✅ **Búsqueda Avanzada** - Motor Meilisearch integrado
 - ✅ **Email System Profesional** - 3 templates estandarizados (verificación, invitación, reset)
-- ✅ **Testing Completo** - 114/114 tests pasando (PHPUnit)
+- ✅ **Testing Completo** - 131/131 tests pasando (PHPUnit)
+- ✅ **Seguridad Auditada** - Policies, FormRequest, Rate Limiting, CORS hardened
 
 ## 🚀 Roadmap & Funcionalidades Futuras
 
@@ -110,21 +111,48 @@ php artisan migrate
 php artisan serve
 ```
 
-Para guía completa, ver [docs/INSTALLATION.md](docs/INSTALLATION.md)
+Para guía completa, ver [docs/02-development/INSTALLATION.md](docs/02-development/INSTALLATION.md)
 
 ## 📚 Documentación
 
-Documentación profesional completa en la carpeta `docs/`:
+Documentación profesional completa en la carpeta `docs/`, estructurada por temas:
 
+### 📍 Comienza Aquí
 | Archivo | Contenido |
 |---------|-----------|
-| **[docs/INDEX.md](docs/INDEX.md)** | Índice y navegación de toda la documentación |
-| **[docs/API.md](docs/API.md)** | 50+ endpoints con ejemplos de requests/responses |
-| **[docs/AUTHENTICATION.md](docs/AUTHENTICATION.md)** | Sistema de autenticación y seguridad |
-| **[docs/DATABASE.md](docs/DATABASE.md)** | Esquema de BD, relaciones y queries útiles |
-| **[docs/INSTALLATION.md](docs/INSTALLATION.md)** | Guía paso a paso de instalación |
-| **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** | Cómo contribuir al proyecto |
-| **[docs/CHANGELOG.md](docs/CHANGELOG.md)** | Historial de cambios y versiones |
+| **[docs/01-core/INDEX.md](docs/01-core/INDEX.md)** | Índice central - Comienza aquí |
+| **[docs/01-core/CHANGELOG_DETAILED.md](docs/01-core/CHANGELOG_DETAILED.md)** | Historial detallado de cambios |
+| **[docs/01-core/QUICK_REFERENCE.md](docs/01-core/QUICK_REFERENCE.md)** | Comandos y atajos rápidos |
+
+### 💻 Para Desarrolladores
+| Archivo | Contenido |
+|---------|-----------|
+| **[docs/02-development/INSTALLATION.md](docs/02-development/INSTALLATION.md)** | Guía paso a paso de instalación |
+| **[docs/02-development/API.md](docs/02-development/API.md)** | 50+ endpoints, rate limiting, ejemplos |
+| **[docs/02-development/AUTHENTICATION.md](docs/02-development/AUTHENTICATION.md)** | Sistema de autenticación segura |
+| **[docs/02-development/AUTHORIZATION_VALIDATION.md](docs/02-development/AUTHORIZATION_VALIDATION.md)** | Policies, FormRequest, validación |
+| **[docs/02-development/DATABASE.md](docs/02-development/DATABASE.md)** | Esquema de BD, relaciones |
+| **[docs/02-development/CONTRIBUTING.md](docs/02-development/CONTRIBUTING.md)** | Cómo contribuir al proyecto |
+
+### 🤖 Para IAs Colaborando
+| Archivo | Contenido |
+|---------|-----------|
+| **[docs/03-ia-collaboration/AI_GUIDELINES.md](docs/03-ia-collaboration/AI_GUIDELINES.md)** | Normas y flujos de trabajo |
+| **[docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md](docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md)** | Onboarding rápido para nuevas IAs |
+
+### 🧪 Testing
+| Archivo | Contenido |
+|---------|-----------|
+| **[docs/04-testing/TESTING.md](docs/04-testing/TESTING.md)** | Guía general de testing |
+| **[docs/04-testing/TESTING_ARCHITECTURE.md](docs/04-testing/TESTING_ARCHITECTURE.md)** | Estrategia y arquitectura de tests |
+| **[docs/04-testing/TESTING_SCRIPTS.md](docs/04-testing/TESTING_SCRIPTS.md)** | Scripts de testing disponibles |
+
+### 🔐 Seguridad
+| Archivo | Contenido |
+|---------|-----------|
+| **[docs/06-security/README.md](docs/06-security/README.md)** | Overview de seguridad |
+| **[docs/06-security/SECURITY_AUDIT.md](docs/06-security/SECURITY_AUDIT.md)** | Reporte completo de auditoría |
+| **[docs/06-security/PRODUCTION_DEPLOYMENT.md](docs/06-security/PRODUCTION_DEPLOYMENT.md)** | Checklist de deployment |
 
 ## 🌐 Acceso a Servicios
 
@@ -168,7 +196,7 @@ curl -H "Authorization: Bearer {token}" \
   http://localhost:8000/api/user
 ```
 
-Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
+Ver [docs/02-development/API.md](docs/02-development/API.md) para documentación completa de endpoints.
 
 ## 🛠️ Tecnologías
 
@@ -210,10 +238,10 @@ Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 |--------|--------|
 | **Backend API** | ✅ Completo y funcional |
 | **Módulo Financiero** | ✅ Production-ready |
-| **Testing** | ✅ 114/114 tests pasando |
-| **Documentación** | ✅ Centralizada en `docs/` |
+| **Testing** | ✅ 131/131 tests pasando (342 assertions) |
+| **Documentación** | ✅ Completa y estructurada en `docs/` |
 | **Email System** | ✅ 3 templates profesionales |
-| **Seguridad** | ✅ JWT + Roles + Validación |
+| **Seguridad** | ✅ Auditoría completa - Policies + FormRequest + Rate Limiting |
 | **Frontend Web** | 🔄 Próxima fase (React) |
 | **App Móvil** | 🔄 Próxima fase (React Native) |
 | **Multi-idioma** | 🔄 En desarrollo |
@@ -225,7 +253,7 @@ Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 
 ¡Las contribuciones son bienvenidas! Por favor:
 
-1. Lee [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+1. Lee [docs/02-development/CONTRIBUTING.md](docs/02-development/CONTRIBUTING.md)
 2. Fork el repositorio
 3. Crea una rama de feature: `git checkout -b feat/mi-feature`
 4. Haz commits con convención: `git commit -m "feat(api): descripción"`
@@ -233,7 +261,7 @@ Ver [docs/API.md](docs/API.md) para documentación completa de endpoints.
 
 ## 📜 Código de Conducta
 
-Esperamos que todos los participantes sigan nuestro [Código de Conducta](docs/CONTRIBUTING.md#código-de-conducta).
+Esperamos que todos los participantes sigan nuestro [Código de Conducta](docs/02-development/CONTRIBUTING.md#código-de-conducta).
 
 ## 📄 Licencia
 
@@ -245,7 +273,7 @@ Este proyecto está licenciado bajo la licencia MIT - Ver [LICENSE](LICENSE) par
 
 ## 📞 Soporte y Contacto
 
-- 📖 **Documentación**: Lee [docs/INDEX.md](docs/INDEX.md)
+- 📖 **Documentación**: Lee [docs/01-core/INDEX.md](docs/01-core/INDEX.md)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/Felondz/controlApp/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/Felondz/controlApp/discussions)
 
@@ -265,7 +293,7 @@ Este proyecto está licenciado bajo la licencia MIT - Ver [LICENSE](LICENSE) par
 
 ---
 
-**Última actualización**: 15 de noviembre de 2025 | **Versión**: 1.0.0 | **Status**: 🟢 Production-Ready
+**Última actualización**: 18 de noviembre de 2025 | **Versión**: 1.0.0 | **Status**: 🟢 Production-Ready (Auditoría de Seguridad Completada)
 
 <p align="center">
   Hecho con ❤️ para gestión financiera colaborativa

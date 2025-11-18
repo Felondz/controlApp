@@ -348,10 +348,11 @@ Current configuration:
 - API gateway rate limiting (Cloudflare, AWS WAF)
 
 ### 5.3 Token Secret Scanning ✅
-- GitHub Actions CodeQL configured
-- Dependabot enabled for dependency scanning
-- Secret scanning enabled in GitHub
-- Token prefix `controlapp_` enables automatic detection
+- GitHub Actions CodeQL (deshabilitado - proyecto PHP sin JavaScript)
+- PHPStan activo para análisis PHP
+- Dependabot habilitado para escaneo de dependencias
+- Secret scanning habilitado en GitHub
+- Token prefix `controlapp_` permite detección automática
 
 ### 5.4 API Key Management ⚠️
 **Not Implemented** - Consider for production:
@@ -487,11 +488,11 @@ Before deploying to production:
 ## 9. Security Tools & References
 
 ### Tools Configured
-1. **GitHub Dependabot** - Dependency version updates
-2. **GitHub CodeQL** - Static security analysis
-3. **GitHub Secret Scanning** - Token detection
-4. **Laravel PHPStan** - Static code analysis (Larastan)
-5. **Composer Audit** - Vulnerability scanning
+1. **GitHub Dependabot** - Actualización de versiones de dependencias
+2. **GitHub CodeQL** - Análisis estático de seguridad (deshabilitado)
+3. **GitHub Secret Scanning** - Detección de tokens
+4. **Laravel PHPStan** - Análisis estático de código (Larastan)
+5. **Composer Audit** - Escaneo de vulnerabilidades
 
 ### Laravel Security Resources
 - [Laravel Security Documentation](https://laravel.com/docs/security)
@@ -541,6 +542,6 @@ Before deploying to production:
 ---
 
 **Document Version**: 1.0  
-**Last Updated**: November 16, 2025  
-**Next Review**: February 16, 2026
+**Last Updated**: November 18, 2025  
+**Next Review**: February 18, 2026
 

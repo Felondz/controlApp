@@ -9,7 +9,7 @@ use App\Models\Proyecto;
 class CuentaPolicy
 {
     /**
-     * Determine if the user can view any account in the project.
+     * Determina si el usuario puede ver cualquier cuenta del proyecto.
      * 
      * @param User $user
      * @return bool
@@ -20,7 +20,7 @@ class CuentaPolicy
     }
 
     /**
-     * Determine if the user can view the account.
+     * Determina si el usuario puede ver la cuenta.
      * 
      * @param User $user
      * @param Cuenta $cuenta
@@ -28,13 +28,13 @@ class CuentaPolicy
      */
     public function view(User $user, Cuenta $cuenta): bool
     {
-        // User can view if they're a member of the project
+        // El usuario puede verla si es miembro del proyecto
         $proyecto = $cuenta->proyecto;
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can create an account in a project.
+     * Determina si el usuario puede crear una cuenta en el proyecto.
      * 
      * @param User $user
      * @param Proyecto $proyecto
@@ -42,12 +42,12 @@ class CuentaPolicy
      */
     public function create(User $user, Proyecto $proyecto): bool
     {
-        // Only project members can create accounts
+        // Solo los miembros del proyecto pueden crear cuentas
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can update the account.
+     * Determina si el usuario puede actualizar la cuenta.
      * 
      * @param User $user
      * @param Cuenta $cuenta
@@ -55,13 +55,13 @@ class CuentaPolicy
      */
     public function update(User $user, Cuenta $cuenta): bool
     {
-        // Members can update accounts in their project
+        // Los miembros pueden actualizar cuentas en su proyecto
         $proyecto = $cuenta->proyecto;
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can delete the account.
+     * Determina si el usuario puede eliminar la cuenta.
      * 
      * @param User $user
      * @param Cuenta $cuenta
@@ -69,13 +69,13 @@ class CuentaPolicy
      */
     public function delete(User $user, Cuenta $cuenta): bool
     {
-        // Only project admins can delete accounts
+        // Solo los administradores del proyecto pueden eliminar cuentas
         $proyecto = $cuenta->proyecto;
         return $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can restore the account.
+     * Determina si el usuario puede restaurar la cuenta.
      * 
      * @param User $user
      * @param Cuenta $cuenta
@@ -87,7 +87,7 @@ class CuentaPolicy
     }
 
     /**
-     * Determine if the user can permanently delete the account.
+     * Determina si el usuario puede eliminar permanentemente la cuenta.
      * 
      * @param User $user
      * @param Cuenta $cuenta

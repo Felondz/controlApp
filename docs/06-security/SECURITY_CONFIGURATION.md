@@ -8,25 +8,14 @@ ControlApp has been configured with multiple layers of security scanning and vul
 
 ## 🛡️ Automated Security Tools
 
-### 1. CodeQL Analysis
+### 1. CodeQL Analysis (Deshabilitado)
 **Location**: `.github/workflows/codeql.yml`
 
-**What it does:**
-- Performs deep static security analysis on PHP code
-- Detects potential vulnerabilities like SQL injection, XSS, authentication flaws
-- Runs automatically on push and pull requests to `main`
-- Runs weekly on Mondays at 3:00 AM UTC
+**Status**: ⏸️ Deshabilitado
 
-**How to view results:**
-1. Go to Repository → Security tab
-2. Click "Code scanning" (left sidebar)
-3. View detected issues and recommendations
+**Razón**: El proyecto es PHP puro sin JavaScript. CodeQL está optimizado para lenguajes como JavaScript/TypeScript. Para análisis de seguridad en PHP, utilizamos **PHPStan** y **Composer Audit**.
 
-**Cost**: Free with GitHub
-
----
-
-### 2. Dependabot
+**Referencia**: El archivo de configuración se mantiene como referencia para futuras necesidades si el proyecto añade JavaScript.
 **Location**: `.github/dependabot.yml`
 
 **What it does:**
@@ -212,22 +201,21 @@ $apiKey = 'sk_live_abc123xyz789';
 
 ## 🔗 Quick Links
 
-| Tool | Location | Documentation |
-|------|----------|---|
-| CodeQL | `.github/workflows/codeql.yml` | [GitHub CodeQL Docs](https://codeql.github.com/) |
-| Dependabot | `.github/dependabot.yml` | [Dependabot Docs](https://docs.github.com/en/code-security/dependabot) |
-| PHPStan | `phpstan.neon` | [PHPStan Docs](https://phpstan.org/) |
-| PHPCS | `.php-cs-fixer.php` | [PHPCS Docs](https://github.com/squizlabs/PHP_CodeSniffer) |
-| Laravel Security | - | [Laravel Docs](https://laravel.com/docs/security) |
-| OWASP | - | [OWASP Top 10](https://owasp.org/www-project-top-ten/) |
+| Tool | Location | Status |
+|------|----------|--------|
+| CodeQL | `.github/workflows/codeql.yml` | ⏸️ Deshabilitado |
+| Dependabot | `.github/dependabot.yml` | ✅ Activo |
+| PHPStan | `phpstan.neon` | ✅ Activo |
+| PHPCS | `.php-cs-fixer.php` | ✅ Activo |
 
 ---
 
 ## 🛠️ Troubleshooting
 
-### CodeQL workflow not running
-- **Check**: Repository Settings → Actions → General
-- **Fix**: Enable "All actions and reusable workflows"
+### CodeQL workflow deshabilitado
+- **Status**: ⏸️ Deshabilitado por diseño
+- **Razón**: No hay JavaScript en el proyecto
+- **Solución**: Se usa PHPStan y Composer Audit para análisis PHP
 
 ### Dependabot PRs not created
 - **Check**: `.github/dependabot.yml` syntax
@@ -239,6 +227,6 @@ $apiKey = 'sk_live_abc123xyz789';
 
 ---
 
-**Last Updated**: 16 de noviembre de 2025
+**Last Updated**: 18 de noviembre de 2025
 **Version**: 1.0.0
 **Maintained By**: ControlApp Security Team

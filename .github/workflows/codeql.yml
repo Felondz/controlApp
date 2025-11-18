@@ -1,32 +1,11 @@
-name: "CodeQL Analysis"
+name: "CodeQL Analysis (Deshabilitado)"
+
+# Workflow deshabilitado: No se usa CodeQL actualmente
+# El proyecto es PHP puro sin JavaScript
+# Se mantiene el archivo como referencia para futuras necesidades
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "app/**"
-      - "config/**"
-      - "routes/**"
-      - "database/**"
-      - "bootstrap/**"
-      - "*.php"
-      - "composer.json"
-      - "composer.lock"
-      - ".github/workflows/codeql.yml"
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - "app/**"
-      - "config/**"
-      - "routes/**"
-      - "database/**"
-      - "bootstrap/**"
-      - "*.php"
-      - "composer.json"
-      - "composer.lock"
-  schedule:
-    # Run CodeQL analysis weekly on Monday at 3:00 AM UTC
-    - cron: '0 3 * * 1'
+  workflow_dispatch:  # Solo manual, nunca automático
 
 permissions:
   contents: read
@@ -52,24 +31,10 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: ${{ matrix.language }}
-          # For more details on CodeQL's query suites, refer to:
-          # https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning-with-codeql
           queries: security-and-quality
 
-      # Autobuild attempts to build any compiled languages (C/C++, C#, or Java)
-      # If this step fails, then you should remove it and run the build manually
-      # (see below)
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
-
-      # ℹ️ Command-line programs to run using the OS shell.
-      # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-      # If the Autobuild fails above, remove it and uncomment the following
-      # three lines, adjusting the paths as needed
-      # - name: Build PHP code
-      #   run: |
-      #     php -r "echo 'PHP version: ' . PHP_VERSION . PHP_EOL;"
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

@@ -166,7 +166,7 @@ $response->assertStatus(201)
 
 ## 📚 Documentación
 
-- **Guía Completa**: `docs/TESTING.md`
+- **Guía Completa**: `docs/04-testing/TESTING.md`
 - **Tests**: `tests/Feature/InvitacionesApiTest.php`
 - **Workflow**: `.github/workflows/tests.yml`
 

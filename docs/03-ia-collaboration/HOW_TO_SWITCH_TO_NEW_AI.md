@@ -40,7 +40,7 @@ Si falta algo o no pasan los tests:
 
 #### Paso 1: Abre ONBOARDING_FOR_NEW_AIs.md
 ```
-Archivo: /docs/ONBOARDING_FOR_NEW_AIs.md
+Archivo: /docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md
 ```
 
 #### Paso 2: Copia completamente el contenido
@@ -101,7 +101,7 @@ Aquí está el contexto:
 #### Paso 8: Copia ÚLTIMAS ENTRADAS de CHANGELOG_DETAILED.md
 
 ```
-Archivo: /docs/CHANGELOG_DETAILED.md
+Archivo: /docs/01-core/CHANGELOG_DETAILED.md
 Copia: Las últimas 10-15 entradas (últimas 2-4 semanas)
 ```
 
@@ -118,7 +118,7 @@ Aquí está el historial reciente de cambios para más contexto:
 Si tu tarea es compleja:
 
 ```
-Archivo: /docs/AI_GUIDELINES.md
+Archivo: /docs/03-ia-collaboration/AI_GUIDELINES.md
 Copia: 
   - Sección "4 Fases de Desarrollo" 
   - Sección "3 Flujos de Trabajo" (el que aplique)
@@ -148,14 +148,14 @@ Ahora necesito: [tu tarea]
 #### Paso 12: Copia ESQUEMA DE BD (opcional)
 
 ```
-Archivo: /docs/DATABASE.md
+Archivo: /docs/02-development/DATABASE.md
 Copia: Tabla de modelos y relaciones
 ```
 
 #### Paso 13: Copia ENDPOINTS RELEVANTES (si es necesario)
 
 ```
-Archivo: /docs/API.md
+Archivo: /docs/02-development/API.md
 Copia: Los endpoints que voy a modificar
 ```
 
@@ -188,7 +188,7 @@ La tarea es crítica porque [razón].
 
 ### Si quieres: Agregar un nuevo modelo
 
-**Usa**: Opción 2 + docs/DATABASE.md
+**Usa**: Opción 2 + docs/02-development/DATABASE.md
 
 ```
 1. Opción 2 (15 min)
@@ -210,7 +210,7 @@ La tarea es crítica porque [razón].
 
 ### Si quieres: Agregar un endpoint
 
-**Usa**: Opción 2 + docs/API.md
+**Usa**: Opción 2 + docs/02-development/API.md
 
 ```
 1. Opción 2 (15 min)
@@ -381,21 +381,21 @@ Día 2+: Trabajas con Claude
 ### Tip 1: Crea Bookmark
 Guarda esta ruta en favoritos:
 ```
-/home/guarox/Documentos/proyectos-personales/controlApp/docs/ONBOARDING_FOR_NEW_AIs.md
+/home/guarox/Documentos/proyectos-personales/controlApp/docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md
 ```
 
 Así accedes rápido la próxima vez.
 
 ### Tip 2: Copia a Portapapeles Directamente
 ```bash
-cat /home/guarox/Documentos/proyectos-personales/controlApp/docs/ONBOARDING_FOR_NEW_AIs.md | xclip -selection clipboard
+cat /home/guarox/Documentos/proyectos-personales/controlApp/docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md | xclip -selection clipboard
 ```
 
 Luego solo pega en el chat.
 
 ### Tip 3: Crea Alias en .bashrc
 ```bash
-alias ia-onboard='cat ~/Documentos/proyectos-personales/controlApp/docs/ONBOARDING_FOR_NEW_AIs.md | xclip -selection clipboard && echo "✅ Copiado al portapapeles"'
+alias ia-onboard='cat ~/Documentos/proyectos-personales/controlApp/docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md | xclip -selection clipboard && echo "✅ Copiado al portapapeles"'
 ```
 
 Luego usa: `ia-onboard`

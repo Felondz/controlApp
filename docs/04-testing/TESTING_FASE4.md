@@ -107,8 +107,8 @@
 - `phpunit.xml` (Configuration)
 
 ### Documentation
-- `docs/TESTING.md` - 250+ líneas
-- `docs/TESTING_RESUMEN.md` - Paradigm shift
+- `docs/04-testing/TESTING.md` - 250+ líneas
+- `docs/04-testing/TESTING_RESUMEN.md` - Paradigm shift
 - `TESTING_CHECKLIST.md` - Checklist completo
 - `TESTING_COVERAGE.md` - Coverage report
 

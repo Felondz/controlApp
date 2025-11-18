@@ -101,7 +101,7 @@
 
 ### Cuando hagas cambios:
 
-1. **Edita `docs/CHANGELOG.md`**
+1. **Edita `docs/01-core/CHANGELOG_DETAILED.md`**
    ```markdown
    ## [X.X.X] - FECHA
    
@@ -147,20 +147,20 @@
 - ✅ Reset de contraseña
 - ✅ Dockerfile + Docker Compose
 - ✅ Mailpit para testing
-- ✅ 114/114 tests pasando
+- ✅ 131/131 tests pasando (342 assertions)
 
 ---
 
 ## 🔗 Referencias Rápidas
 
 **Quiero saber...**
-- 📋 Qué endpoints hay → Ver `docs/API.md`
-- 🔐 Cómo funciona auth → Ver `docs/AUTHENTICATION.md`
-- 🗄️ Schema de BD → Ver `docs/DATABASE.md`
-- 🧪 Cómo correr tests → Ver `docs/TESTING.md`
-- 🚀 Instalar proyecto → Ver `docs/INSTALLATION.md`
-- 📧 Setup de email → Ver `docs/MAILTRAP_GUIDE.md`
-- 🎯 TODO versionado → Ver `docs/CHANGELOG.md`
+- 📋 Qué endpoints hay → Ver `docs/02-development/API.md`
+- 🔐 Cómo funciona auth → Ver `docs/02-development/AUTHENTICATION.md`
+- 🗄️ Schema de BD → Ver `docs/02-development/DATABASE.md`
+- 🧪 Cómo correr tests → Ver `docs/04-testing/TESTING.md`
+- 🚀 Instalar proyecto → Ver `docs/02-development/INSTALLATION.md`
+- 📧 Setup de email → Ver `docs/05-reference/MAILTRAP_GUIDE.md`
+- 🎯 TODO versionado → Ver `docs/01-core/CHANGELOG_DETAILED.md`
 
 ---
 
@@ -168,16 +168,16 @@
 
 ```bash
 # Ver changelog
-cat docs/CHANGELOG.md | head -100
+cat docs/01-core/CHANGELOG_DETAILED.md | head -100
 
-# Verificar tests
-docker compose exec -T laravel.test php artisan test tests/Feature/ 
+# Verificar tests (SIEMPRE dentro de Docker)
+docker compose exec -T laravel.test php artisan test --testdox
 
 # Ver emails en Mailpit
 # Abre: http://localhost:8025
 
 # Desarrollar
-# Edita código → Actualiza docs/CHANGELOG.md → Commit
+# Edita código → Actualiza docs/01-core/CHANGELOG_DETAILED.md → Commit
 ```
 
 ---

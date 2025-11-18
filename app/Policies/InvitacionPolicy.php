@@ -9,7 +9,7 @@ use App\Models\Proyecto;
 class InvitacionPolicy
 {
     /**
-     * Determine if the user can view any invitation in the project.
+     * Determina si el usuario puede ver cualquier invitación del proyecto.
      * 
      * @param User $user
      * @return bool
@@ -20,7 +20,7 @@ class InvitacionPolicy
     }
 
     /**
-     * Determine if the user can view the invitation.
+     * Determina si el usuario puede ver la invitación.
      * 
      * @param User $user
      * @param Invitacion $invitacion
@@ -28,13 +28,13 @@ class InvitacionPolicy
      */
     public function view(User $user, Invitacion $invitacion): bool
     {
-        // Only project admins can view invitations
+        // Solo los administradores del proyecto pueden ver invitaciones
         $proyecto = $invitacion->proyecto;
         return $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can create an invitation in a project.
+     * Determina si el usuario puede crear una invitación en el proyecto.
      * 
      * @param User $user
      * @param Proyecto $proyecto
@@ -42,12 +42,12 @@ class InvitacionPolicy
      */
     public function create(User $user, Proyecto $proyecto): bool
     {
-        // Only project admins can create invitations
+        // Solo los administradores del proyecto pueden crear invitaciones
         return $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can delete the invitation.
+     * Determina si el usuario puede eliminar la invitación.
      * 
      * @param User $user
      * @param Invitacion $invitacion
@@ -55,13 +55,13 @@ class InvitacionPolicy
      */
     public function delete(User $user, Invitacion $invitacion): bool
     {
-        // Only project admins can delete invitations
+        // Solo los administradores del proyecto pueden eliminar invitaciones
         $proyecto = $invitacion->proyecto;
         return $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can restore the invitation.
+     * Determina si el usuario puede restaurar la invitación.
      * 
      * @param User $user
      * @param Invitacion $invitacion
@@ -73,7 +73,7 @@ class InvitacionPolicy
     }
 
     /**
-     * Determine if the user can permanently delete the invitation.
+     * Determina si el usuario puede eliminar permanentemente la invitación.
      * 
      * @param User $user
      * @param Invitacion $invitacion

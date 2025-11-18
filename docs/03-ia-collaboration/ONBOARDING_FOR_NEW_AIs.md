@@ -690,7 +690,7 @@ class MiTest extends TestCase
 
 ### P: ¿Necesito entender toda la BD?
 
-**R**: NO, pero lee `docs/DATABASE.md` si necesitas.
+**R**: NO, pero lee `docs/02-development/DATABASE.md` si necesitas.
 
 ```
 Información básica que debes saber:

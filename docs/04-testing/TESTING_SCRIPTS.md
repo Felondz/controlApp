@@ -309,7 +309,7 @@ docker compose restart laravel.test
 
 ## 📝 Referencia en CHANGELOG
 
-Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
+Cuando hagas cambios relacionados con testing, documenta en `docs/01-core/CHANGELOG_DETAILED.md`:
 
 ```markdown
 ## [X.X.X] - FECHA
@@ -327,10 +327,10 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 
 | Aspecto | Ubicación |
 |---------|-----------|
-| Cómo usar scripts | Este archivo (EN RAÍZ) |
-| Cambios en tests | `docs/CHANGELOG.md` |
-| Resultados de tests | `docs/TESTING.md` |
-| Guía de testing | `docs/TESTING.md` |
+| Cómo usar scripts | Este archivo |
+| Cambios en tests | `docs/01-core/CHANGELOG_DETAILED.md` |
+| Resultados de tests | `docs/04-testing/TESTING.md` |
+| Guía de testing | `docs/04-testing/TESTING.md` |
 | Docker importante | **AMBOS ARCHIVOS** |
 
 ---
@@ -343,7 +343,7 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 - [ ] ✅ IMPORTANTE: Correr en Docker
   docker compose exec -T laravel.test php artisan test --testdox
 - [ ] Correr: docker compose exec -T laravel.test bash scripts/check-docs.sh
-- [ ] Actualizar docs/CHANGELOG.md
+- [ ] Actualizar docs/01-core/CHANGELOG_DETAILED.md
 - [ ] Visualizar cambios en scripts/
 - [ ] Correr: docker compose exec -T laravel.test bash scripts/TESTING_SUMMARY.sh
 - [ ] Si OK → Listo para commit
@@ -354,6 +354,6 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 **Última actualización**: 16 de Noviembre, 2025  
 **Scripts centralizados en**: `scripts/`  
 **⚠️ IMPORTANTE**: Tests solo en Docker (`docker compose exec -T laravel.test`)  
-**Documentación de cambios**: `docs/CHANGELOG.md`
+**Documentación de cambios**: `docs/01-core/CHANGELOG_DETAILED.md`
 
 

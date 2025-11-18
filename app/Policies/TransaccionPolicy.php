@@ -9,7 +9,7 @@ use App\Models\Proyecto;
 class TransaccionPolicy
 {
     /**
-     * Determine if the user can view any transaction in the project.
+     * Determina si el usuario puede ver cualquier transacción del proyecto.
      * 
      * @param User $user
      * @return bool
@@ -20,7 +20,7 @@ class TransaccionPolicy
     }
 
     /**
-     * Determine if the user can view the transaction.
+     * Determina si el usuario puede ver la transacción.
      * 
      * @param User $user
      * @param Transaccion $transaccion
@@ -28,13 +28,13 @@ class TransaccionPolicy
      */
     public function view(User $user, Transaccion $transaccion): bool
     {
-        // User can view if they're a member of the project
+        // El usuario puede verla si es miembro del proyecto
         $proyecto = $transaccion->proyecto;
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can create a transaction in a project.
+     * Determina si el usuario puede crear una transacción en el proyecto.
      * 
      * @param User $user
      * @param Proyecto $proyecto
@@ -42,12 +42,12 @@ class TransaccionPolicy
      */
     public function create(User $user, Proyecto $proyecto): bool
     {
-        // Only project members can create transactions
+        // Solo los miembros del proyecto pueden crear transacciones
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can update the transaction.
+     * Determina si el usuario puede actualizar la transacción.
      * 
      * @param User $user
      * @param Transaccion $transaccion
@@ -55,13 +55,13 @@ class TransaccionPolicy
      */
     public function update(User $user, Transaccion $transaccion): bool
     {
-        // Only the transaction creator or project admins can update
+        // Solo el creador de la transacción o administradores del proyecto pueden actualizar
         $proyecto = $transaccion->proyecto;
         return $transaccion->user_id === $user->id || $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can delete the transaction.
+     * Determina si el usuario puede eliminar la transacción.
      * 
      * @param User $user
      * @param Transaccion $transaccion
@@ -69,13 +69,13 @@ class TransaccionPolicy
      */
     public function delete(User $user, Transaccion $transaccion): bool
     {
-        // Only the transaction creator or project admins can delete
+        // Solo el creador de la transacción o administradores del proyecto pueden eliminar
         $proyecto = $transaccion->proyecto;
         return $transaccion->user_id === $user->id || $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can restore the transaction.
+     * Determina si el usuario puede restaurar la transacción.
      * 
      * @param User $user
      * @param Transaccion $transaccion
@@ -87,7 +87,7 @@ class TransaccionPolicy
     }
 
     /**
-     * Determine if the user can permanently delete the transaction.
+     * Determina si el usuario puede eliminar permanentemente la transacción.
      * 
      * @param User $user
      * @param Transaccion $transaccion

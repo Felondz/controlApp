@@ -17,13 +17,13 @@ Documentación sobre:
 
 ## 🛡️ Herramientas de Seguridad
 
-| Herramienta | Tipo | Actualización |
-|-----------|------|--------------|
-| **CodeQL** | Static Analysis | Push, PR, Semanal |
-| **Dependabot** | Dependency Scanning | Semanal |
-| **Secret Scanning** | Secret Detection | Cada push |
-| **PHPStan** | Type Analysis | Manual |
-| **PHPCS** | Code Style | Manual |
+| Herramienta | Tipo | Estado |
+|-----------|------|--------|
+| **CodeQL** | Static Analysis | ⏸️ Deshabilitado |
+| **Dependabot** | Dependency Scanning | ✅ Activo |
+| **Secret Scanning** | Secret Detection | ✅ Activo |
+| **PHPStan** | Type Analysis | ✅ Activo |
+| **PHPCS** | Code Style | ✅ Activo |
 
 ## 👉 Comienza aquí
 
@@ -38,5 +38,5 @@ Documentación sobre:
 
 ---
 
-**Última actualización**: 16 de noviembre de 2025
+**Última actualización**: 18 de noviembre de 2025
 **Status**: ✅ Activo

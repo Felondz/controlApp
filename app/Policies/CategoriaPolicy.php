@@ -9,7 +9,7 @@ use App\Models\Proyecto;
 class CategoriaPolicy
 {
     /**
-     * Determine if the user can view any category in the project.
+     * Determina si el usuario puede ver cualquier categoría del proyecto.
      * 
      * @param User $user
      * @return bool
@@ -20,7 +20,7 @@ class CategoriaPolicy
     }
 
     /**
-     * Determine if the user can view the category.
+     * Determina si el usuario puede ver la categoría.
      * 
      * @param User $user
      * @param Categoria $categoria
@@ -28,13 +28,13 @@ class CategoriaPolicy
      */
     public function view(User $user, Categoria $categoria): bool
     {
-        // User can view if they're a member of the project
+        // El usuario puede verla si es miembro del proyecto
         $proyecto = $categoria->proyecto;
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can create a category in a project.
+     * Determina si el usuario puede crear una categoría en el proyecto.
      * 
      * @param User $user
      * @param Proyecto $proyecto
@@ -42,12 +42,12 @@ class CategoriaPolicy
      */
     public function create(User $user, Proyecto $proyecto): bool
     {
-        // Only project members can create categories
+        // Solo los miembros del proyecto pueden crear categorías
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can update the category.
+     * Determina si el usuario puede actualizar la categoría.
      * 
      * @param User $user
      * @param Categoria $categoria
@@ -55,13 +55,13 @@ class CategoriaPolicy
      */
     public function update(User $user, Categoria $categoria): bool
     {
-        // Members can update categories in their project
+        // Los miembros pueden actualizar categorías en su proyecto
         $proyecto = $categoria->proyecto;
         return $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
-     * Determine if the user can delete the category.
+     * Determina si el usuario puede eliminar la categoría.
      * 
      * @param User $user
      * @param Categoria $categoria
@@ -69,13 +69,13 @@ class CategoriaPolicy
      */
     public function delete(User $user, Categoria $categoria): bool
     {
-        // Only project admins can delete categories
+        // Solo los administradores del proyecto pueden eliminar categorías
         $proyecto = $categoria->proyecto;
         return $user->esAdminDe($proyecto);
     }
 
     /**
-     * Determine if the user can restore the category.
+     * Determina si el usuario puede restaurar la categoría.
      * 
      * @param User $user
      * @param Categoria $categoria
@@ -87,7 +87,7 @@ class CategoriaPolicy
     }
 
     /**
-     * Determine if the user can permanently delete the category.
+     * Determina si el usuario puede eliminar permanentemente la categoría.
      * 
      * @param User $user
      * @param Categoria $categoria

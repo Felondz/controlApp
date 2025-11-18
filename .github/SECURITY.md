@@ -25,11 +25,10 @@ If you discover a security vulnerability in ControlApp, please report it respons
 
 This repository uses multiple security tools to maintain code quality and vulnerability detection:
 
-#### 1. **CodeQL Analysis** (Automatic)
-- Runs on every push to `main` and pull requests
-- Weekly scheduled analysis
-- Detects potential security vulnerabilities in PHP code
-- Dashboard: GitHub → Security → Code scanning
+#### 1. **CodeQL Analysis** (Deshabilitado)
+- No se está utilizando actualmente (proyecto PHP puro sin JavaScript)
+- Archivo de configuración disponible en `.github/workflows/codeql.yml` como referencia
+- Propósito: Análisis de seguridad de código (deshabilitado para proyectos PHP puro sin JavaScript)
 
 #### 2. **Dependabot** (Automatic)
 - Weekly scanning of composer dependencies
@@ -89,7 +88,7 @@ This repository uses multiple security tools to maintain code quality and vulner
 - **PHPStan** - Static analysis (catches type errors and common mistakes)
 - **PHP_CodeSniffer** - Code style and security checks
 - **Composer Audit** - Dependency vulnerability scanner
-- **GitHub CodeQL** - Deep security analysis
+- **GitHub CodeQL** - Análisis profundo de seguridad (deshabilitado - no se usa)
 
 ---
 
@@ -111,7 +110,7 @@ Go to: **Repository Settings → Security & analysis**
 - ✅ Dependabot alerts
 - ✅ Dependabot security updates
 - ✅ Dependabot version updates
-- ✅ Code scanning (CodeQL)
+- ⏸️ Code scanning (CodeQL) - Deshabilitado
 - ✅ Secret scanning
 - ✅ Push protection
 - ✅ Dependency graph
@@ -128,5 +127,5 @@ For security-related questions or concerns, please:
 
 ---
 
-**Last Updated**: 16 de noviembre de 2025
+**Last Updated**: 18 de noviembre de 2025
 **Security Status**: 🟢 Active
