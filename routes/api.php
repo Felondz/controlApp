@@ -22,8 +22,15 @@ use App\Http\Controllers\Api\FinanzasPersonalesController;
 */
 
 // --- Rutas Públicas de Autenticación ---
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+// SECURITY: Rate limiting to prevent brute force attacks
+// 5 attempts per minute for authentication attempts
+Route::post('/register', [AuthController::class, 'register'])
+    ->middleware('throttle:5,1')
+    ->name('auth.register');
+
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1')
+    ->name('auth.login');
 
 // --- Ruta Pública de Invitación ---
 Route::get('/invitaciones/{token}', [InvitacionController::class, 'show']);
@@ -35,9 +42,19 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
     ->name('verification.verify');
 
 // --- Rutas Públicas de Password Reset ---
-Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
-Route::get('/reset-password/validate', [PasswordResetController::class, 'validateToken']);
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+// SECURITY: Rate limiting to prevent abuse
+// 5 attempts per minute for password reset requests
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])
+    ->middleware('throttle:5,1')
+    ->name('password.email');
+
+Route::get('/reset-password/validate', [PasswordResetController::class, 'validateToken'])
+    ->middleware('throttle:10,1')
+    ->name('password.validate');
+
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
+    ->middleware('throttle:5,1')
+    ->name('password.reset');
 
 // --- RUTAS PROTEGIDAS (Requieren Token) ---
 Route::middleware('auth:sanctum')->group(function () {

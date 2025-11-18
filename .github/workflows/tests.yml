@@ -100,13 +100,23 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          tools: phpstan, phpcs
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
       - name: Install dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Run PHPStan
-        run: phpstan analyse app --level=5 || true
+      - name: Run Larastan (PHPStan with Laravel support)
+        run: vendor/bin/phpstan analyse --memory-limit=512M
+        continue-on-error: true
 
-      - name: Run PHP Code Sniffer
-        run: phpcs app --standard=PSR12 || true
+      - name: Run PHPStan (backup)
+        run: phpstan analyse app --level=8 --memory-limit=512M || true
+        continue-on-error: true

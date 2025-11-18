@@ -32,6 +32,36 @@ Este proyecto utiliza **PHPUnit** como framework de testing. Los tests se organi
 
 ## Configuración
 
+### ⚠️ IMPORTANTE: Ejecutar Tests Dentro de Docker
+
+**PROBLEMA IDENTIFICADO (Nov 16, 2025)**: Si ejecutas los tests desde el host (`php artisan test`), la conexión a la base de datos MySQL en Docker se queda **colgada indefinidamente** (timeout >15 min).
+
+**SOLUCIÓN**: Siempre ejecuta los tests **DENTRO del contenedor Docker**:
+
+```bash
+# ❌ NO HACER ESTO (se cuelga)
+php artisan test
+
+# ✅ HACER ESTO (correcto)
+docker compose exec -T laravel.test php artisan test --testdox
+```
+
+**Por qué sucede:**
+- El contenedor MySQL tiene hostname `mysql` resoluble solo dentro de Docker
+- Desde el host, no se puede resolver ese hostname
+- Laravel espera la conexión indefinidamente
+
+**Verificación rápida:**
+```bash
+# Ver contenedores corriendo
+docker compose ps
+
+# Verificar que laravel.test esté running
+# Status debe ser "Up"
+```
+
+---
+
 ### phpunit.xml
 
 Ya está configurado en el proyecto:
@@ -107,32 +137,49 @@ public function test_user_can_check_project_membership(): void
 
 ## Ejecutar Tests
 
-### Opción 1: Dentro del Docker (Recomendado)
+### ✅ Opción Correcta: Dentro de Docker (REQUIRED)
 
 ```bash
-# Todos los tests
-docker compose exec -T laravel.test php artisan test
+# 📍 SIEMPRE USAR ESTO - Todos los tests
+docker compose exec -T laravel.test php artisan test --testdox
 
-# Solo Feature tests
-docker compose exec -T laravel.test php artisan test tests/Feature
+# 📍 Solo Feature tests (la mayoría de tests)
+docker compose exec -T laravel.test php artisan test tests/Feature --testdox
 
-# Solo tests de invitaciones (con detalle)
+# 📍 Archivo específico (para debugging)
 docker compose exec -T laravel.test php artisan test tests/Feature/InvitacionesApiTest.php --testdox
 
-# Con cobertura de código
+# 📍 Con cobertura de código (genera reporte)
 docker compose exec -T laravel.test php artisan test --coverage
 ```
 
-### Opción 2: Localmente (Si tienes PHP instalado)
+**Output esperado:**
+```
+Tests: 131, Assertions: 342
+OK (131 tests, 342 assertions)
+```
+
+### ❌ EVITAR: Ejecutar Localmente (HANG/TIMEOUT)
 
 ```bash
+# ❌ NO HAGAS ESTO - Se cuelga por 15+ minutos
 php artisan test
 
-# Con testdox (formato legible)
+# ❌ NO HAGAS ESTO - Mismo problema
 php artisan test --testdox
+```
 
-# Archivo específico
-php artisan test tests/Feature/InvitacionesApiTest.php
+**Por qué se cuelga:**
+- Docker Compose expone MySQL en hostname `mysql`
+- Desde el host, `mysql` no es resolvible
+- Laravel se queda esperando conexión indefinidamente
+- Timeout ocurre después de 15+ minutos
+
+**Solución rápida si se cuelga:**
+```bash
+# Cancelar con Ctrl+C
+# Luego ejecutar correctamente dentro de Docker
+docker compose exec -T laravel.test php artisan test --testdox
 ```
 
 ### Script Helper

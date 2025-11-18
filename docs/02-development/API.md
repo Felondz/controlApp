@@ -1,15 +1,55 @@
 # API Documentation - ControlApp
 
+> **Last Updated**: November 16, 2025 - Security Audit & Rate Limiting Added
+
 ## 📋 Índice
 
-1. [Autenticación](#autenticación)
-2. [Usuarios](#usuarios)
-3. [Proyectos](#proyectos)
-4. [Invitaciones](#invitaciones)
-5. [Categorías](#categorías)
-6. [Cuentas](#cuentas)
-7. [Transacciones](#transacciones)
-8. [Códigos de Error](#códigos-de-error)
+1. [Rate Limiting & Security](#rate-limiting--security)
+2. [Autenticación](#autenticación)
+3. [Usuarios](#usuarios)
+4. [Proyectos](#proyectos)
+5. [Invitaciones](#invitaciones)
+6. [Categorías](#categorías)
+7. [Cuentas](#cuentas)
+8. [Transacciones](#transacciones)
+9. [Códigos de Error](#códigos-de-error)
+
+---
+
+## ⏱️ Rate Limiting & Security
+
+### Rate Limits
+
+La API implementa rate limiting para proteger contra ataques de fuerza bruta y abuso:
+
+| Endpoint | Límite | Ventana |
+|----------|--------|---------|
+| `POST /api/register` | 5 intentos | 1 minuto |
+| `POST /api/login` | 5 intentos | 1 minuto |
+| `POST /api/forgot-password` | 5 intentos | 1 minuto |
+| `POST /api/reset-password` | 5 intentos | 1 minuto |
+| `GET /api/reset-password/validate` | 10 intentos | 1 minuto |
+| `POST /api/email/verification-notification` | 6 intentos | 1 minuto |
+
+**Response cuando se excede el límite (429)**:
+```json
+{
+  "message": "Too Many Requests"
+}
+```
+
+### Seguridad
+
+- ✅ Todos los endpoints de autenticación requieren validación fuerte
+- ✅ Emails validados con RFC + DNS check
+- ✅ Contraseñas hasheadas con bcrypt
+- ✅ Tokens con prefijo `controlapp_` y expiración de 24 horas
+- ✅ CORS restringido a origen específico
+- ✅ Input sanitizado automáticamente
+
+---
+
+## 🔐 Autenticación
 
 ---
 
@@ -166,6 +206,8 @@ Accept: application/json
 
 ## 🚀 Proyectos
 
+**Autorización**: Solo miembros del proyecto pueden acceder. Solo administradores pueden modificar o gestionar miembros.
+
 ### List Proyectos - Listar Proyectos
 Obtiene todos los proyectos del usuario autenticado.
 
@@ -194,7 +236,7 @@ Accept: application/json
 ---
 
 ### Create Proyecto - Crear Proyecto
-Crea un nuevo proyecto.
+Crea un nuevo proyecto. Solo usuarios autenticados pueden crear proyectos.
 
 ```http
 POST /api/proyectos
@@ -220,9 +262,16 @@ Accept: application/json
 }
 ```
 
-**Validación**
-- `nombre` - Requerido, string, máx 255 caracteres
-- `moneda` - Requerido, string, máx 3 caracteres
+**Validación** (FormRequest: `StoreProyectoRequest`)
+- `nombre` - Requerido, string, 3-255 caracteres
+- `moneda` - Requerido, string exacto 3 caracteres (ISO 4217), mayúsculas (ej: USD, COP, EUR)
+
+**Autorización**
+- ✅ Cualquier usuario autenticado puede crear
+
+**Errors**
+- `422` - Validación fallida
+- `401` - No autenticado
 
 ---
 
@@ -256,6 +305,10 @@ Accept: application/json
   "updated_at": "2025-11-15 10:00:00"
 }
 ```
+
+**Autorización**
+- ✅ Solo miembros del proyecto pueden ver
+- ❌ No miembros reciben 403 Forbidden
 
 ---
 

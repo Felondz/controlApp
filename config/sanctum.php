@@ -13,13 +13,14 @@ return [
     | authentication cookies. Typically, these should include your local
     | and production domains which access your API via a frontend SPA.
     |
+    | SECURITY: Only include domains you control. Never use wildcards in production.
+    |
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
         '%s%s',
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        'localhost,localhost:3000,localhost:5173,127.0.0.1,127.0.0.1:8000,::1',
         Sanctum::currentApplicationUrlWithPort(),
-        // Sanctum::currentRequestHost(),
     ))),
 
     /*
@@ -45,9 +46,13 @@ return [
     | considered expired. This will override any values set in the token's
     | "expires_at" attribute, but first-party sessions are not affected.
     |
+    | SECURITY: Set to a reasonable value (e.g., 60 = 1 hour, 1440 = 24 hours)
+    | Shorter expiration times improve security but require more frequent refreshes
+    | Use environment variable for flexibility between dev/production
+    |
     */
 
-    'expiration' => null,
+    'expiration' => (int) env('SANCTUM_TOKEN_EXPIRATION', 1440), // 24 hours by default
 
     /*
     |--------------------------------------------------------------------------
@@ -58,11 +63,14 @@ return [
     | security scanning initiatives maintained by open source platforms
     | that notify developers if they commit tokens into repositories.
     |
+    | SECURITY: Always use a prefix for better secret scanning detection
+    | Prefix format: controlapp_ (or similar unique identifier)
+    |
     | See: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
     |
     */
 
-    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+    'token_prefix' => env('SANCTUM_TOKEN_PREFIX', 'controlapp_'),
 
     /*
     |--------------------------------------------------------------------------

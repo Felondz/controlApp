@@ -444,7 +444,11 @@ class ProyectoPolicy
 
 ## 🛡️ Seguridad
 
-### 1. Encriptación de Contraseñas
+**Última Actualización**: November 16, 2025 - Comprehensive Security Audit Applied
+
+### 1. Autenticación & Tokens (Laravel Sanctum)
+
+#### Encriptación de Contraseñas
 
 Todas las contraseñas se encriptan con **bcrypt**:
 
@@ -458,6 +462,194 @@ Características:
 - Rondas: 12 (configurable)
 - Salt: generado automáticamente
 - Time constant: resistente a timing attacks
+
+#### Token Configuration
+
+```env
+# Sanctum Token Settings (in .env)
+SANCTUM_TOKEN_PREFIX=controlapp_        # Detectado por GitHub secret scanning
+SANCTUM_TOKEN_EXPIRATION=1440            # 24 hours - configurable
+```
+
+**Token Prefix Benefit**: `controlapp_` prefix enables automatic detection by GitHub's secret scanning if accidentally committed.
+
+**Token Lifecycle**:
+- Tokens generados al login
+- Expiran después de 24 horas (configurable)
+- Usuario debe hacer login nuevamente
+- Tokens revocados al logout
+
+### 2. Rate Limiting (Protección contra Brute Force)
+
+**Configurado en `routes/api.php`**:
+
+```php
+Route::post('/login', [...])
+    ->middleware('throttle:5,1')        // 5 intentos por minuto
+
+Route::post('/forgot-password', [...])
+    ->middleware('throttle:5,1')        // 5 intentos por minuto
+```
+
+| Endpoint | Límite | Ventana | Propósito |
+|----------|--------|---------|----------|
+| `/login` | 5 | 1 min | Prevenir brute force |
+| `/register` | 5 | 1 min | Prevenir spam |
+| `/forgot-password` | 5 | 1 min | Prevenir abuse |
+| `/reset-password` | 5 | 1 min | Prevenir abuse |
+| `/email/verification-notification` | 6 | 1 min | Prevenir spam |
+
+**Response cuando se excede (HTTP 429)**:
+```json
+{
+  "message": "Too Many Requests"
+}
+```
+
+### 3. Input Validation (Validación de Entrada)
+
+**FormRequest Classes** (`app/Http/Requests/`):
+
+```php
+// Antes: Inline validation (inconsistente)
+$request->validate(['email' => 'required|email']);
+
+// Ahora: FormRequest class (consistente, reutilizable)
+class StoreProyectoRequest extends FormRequest {
+    public function rules() {
+        return [
+            'email' => 'required|email:rfc,dns',  // RFC + DNS validation
+            'rol' => 'required|string|in:admin,miembro',
+            'moneda' => 'required|string|size:3|uppercase',
+        ];
+    }
+}
+```
+
+**Beneficios**:
+- ✅ Email validation con DNS check
+- ✅ Enum validation para campos fijos
+- ✅ Custom error messages
+- ✅ Reutilizable across endpoints
+- ✅ Centralizado para auditoría
+
+### 4. Authorization Policies (Control de Acceso)
+
+**Nueva: Policies Pattern** (`app/Policies/`):
+
+```php
+// Antes: Autorización dispersa
+abort_if(!$user->esAdminDe($proyecto), 403);
+
+// Ahora: Policy centralizada
+if (!Gate::allows('manageMembersAndInvitations', $proyecto)) {
+    abort(403, 'No permission');
+}
+```
+
+**Policy Actions**:
+- `view` - Leer recurso
+- `create` - Crear recurso nuevo
+- `update` - Modificar recurso
+- `delete` - Eliminar recurso
+- `manageMembersAndInvitations` - Gestionar miembros (custom)
+
+**Ventajas**:
+- ✅ Lógica de autorización centralizada
+- ✅ Fácil de auditar
+- ✅ Fácil de testear
+- ✅ Sigue patrón Laravel estándar
+
+### 5. CORS Security (Cross-Origin)
+
+**Configuración mejorada** (`config/cors.php`):
+
+```php
+// ❌ Antes: TOO PERMISSIVE
+'allowed_methods' => ['*'],      // Permitía cualquier método
+'allowed_headers' => ['*'],      // Aceptaba cualquier header
+
+// ✅ Ahora: SECURE
+'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+'allowed_headers' => ['Authorization', 'Content-Type', 'Accept', ...],
+'supports_credentials' => true,
+```
+
+**Origins Configuration** (configurable por ambiente):
+
+```env
+# Development
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://controlapp:8000
+
+# Production  
+CORS_ALLOWED_ORIGINS=https://app.yourdomain.com,https://www.yourdomain.com
+```
+
+**Beneficios**:
+- ✅ Solo métodos necesarios permitidos
+- ✅ Headers explícitos (sin wildcard)
+- ✅ Credenciales manejadas correctamente
+- ✅ Ambiente-specific configuration
+
+### 6. Input Sanitization (Limpieza de Entrada)
+
+**Middleware**: `SanitizeInput.php`
+
+```php
+// Automáticamente:
+- HTML entity escaping: <script> → &lt;script&gt;
+- Whitespace trimming: "  admin  " → "admin"
+- Recursive array sanitization
+```
+
+**Protege contra**:
+- XSS (Cross-Site Scripting)
+- HTML injection
+- Malicious JavaScript
+
+### 7. Email Validation (Validación de Emails)
+
+**Strict validation** en FormRequest:
+
+```php
+'email' => 'required|email:rfc,dns'  // RFC compliant + DNS check
+```
+
+**Previene**:
+- ✅ Invalid email formats
+- ✅ Non-existent domains
+- ✅ Temporary email services (optional)
+
+### 8. Best Practices
+
+```php
+// ✅ BIEN: Usar Policies para autorización
+$this->authorize('update', $proyecto);
+
+// ✅ BIEN: FormRequest para validación
+class UpdateProyectoRequest extends FormRequest {
+    public function authorize() { return true; }
+    public function rules() { return [...]; }
+}
+
+// ✅ BIEN: Usar bcrypt para contraseñas
+'password' => Hash::make($request->password),
+
+// ✅ BIEN: Logging de eventos de seguridad
+Log::warning('Unauthorized access attempt', ['user_id' => $user->id]);
+
+// ✅ BIEN: Rate limiting en endpoints sensibles
+Route::post('/login', [...])
+    ->middleware('throttle:5,1');
+
+// ❌ MAL: Guardar contraseñas en texto plano
+// ❌ MAL: Autorización inline sin Policies
+// ❌ MAL: CORS permitiendo cualquier método
+// ❌ MAL: Tokens sin expiración
+// ❌ MAL: No validar entrada del usuario
+```
+
+---
 
 ### 2. Tokens Sanctum
 

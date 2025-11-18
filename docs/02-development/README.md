@@ -2,12 +2,15 @@
 
 Guías para desarrolladores trabajando en ControlApp.
 
+**Last Updated**: November 16, 2025 - Security Audit & Authorization Policies Added
+
 ## 📁 Contenidos
 
 - **INSTALLATION.md** - Cómo instalar ControlApp (con/sin Docker)
-- **API.md** - Documentación de endpoints REST
+- **API.md** - Documentación de endpoints REST (actualizado con rate limiting)
+- **AUTHENTICATION.md** - Sistema de autenticación y seguridad (actualizado con nuevas medidas)
+- **AUTHORIZATION_VALIDATION.md** - **NEW** - Policies, FormRequest, Rate Limiting
 - **DATABASE.md** - Esquema de base de datos y modelos
-- **AUTHENTICATION.md** - Sistema de autenticación y seguridad
 - **CONTRIBUTING.md** - Cómo contribuir al proyecto
 
 ## 🎯 Propósito
@@ -16,7 +19,9 @@ Guías prácticas para:
 - Instalar y configurar el ambiente
 - Entender la arquitectura de BD
 - Usar y extender la API REST
-- Implementar autenticación
+- Implementar autenticación segura (Sanctum, Policies)
+- Validar entrada (FormRequest)
+- Rate limiting y protección
 - Contribuir al proyecto
 
 ## 👉 Comienza aquí
@@ -24,19 +29,49 @@ Guías prácticas para:
 **Si estás instalando**:
 → INSTALLATION.md
 
-**Si estás desarrollando**:
-→ DATABASE.md → AUTHENTICATION.md → API.md → CONTRIBUTING.md
+**Si estás desarrollando un nuevo endpoint**:
+1. DATABASE.md (entender modelos)
+2. AUTHENTICATION.md (seguridad requerida)
+3. AUTHORIZATION_VALIDATION.md (crear Policy + FormRequest)
+4. API.md (documentar endpoint)
+5. CONTRIBUTING.md (commit y push)
 
-## 🔄 Actualización
+**Si necesitas entender autorización**:
+→ AUTHORIZATION_VALIDATION.md
 
-| Documento | Cuándo |
-|-----------|--------|
-| INSTALLATION.md | Cambios en setup |
-| API.md | Nuevos endpoints |
-| DATABASE.md | Nuevas migraciones |
-| AUTHENTICATION.md | Cambios en auth |
-| CONTRIBUTING.md | Cambios de proceso |
+**Si necesitas entender seguridad**:
+→ AUTHENTICATION.md
+
+## � Security Improvements (Nov 16, 2025)
+
+- ✅ Added Authorization Policies (centralized access control)
+- ✅ Added FormRequest Validation (strong input validation)
+- ✅ Added Rate Limiting (protection against brute force)
+- ✅ Hardened CORS configuration
+- ✅ Token security: prefix + 24h expiration
+- ✅ Email validation: RFC + DNS check
+- ✅ Input sanitization middleware
+
+## �🔄 Actualización
+
+| Documento | Cuándo | Status |
+|-----------|--------|--------|
+| INSTALLATION.md | Cambios en setup | ✅ Current |
+| API.md | Nuevos endpoints + rate limits | ✅ Updated Nov 16 |
+| DATABASE.md | Nuevas migraciones | ✅ Current |
+| AUTHENTICATION.md | Cambios en auth | ✅ Updated Nov 16 |
+| AUTHORIZATION_VALIDATION.md | **NEW** - Policies & FormRequest | ✅ NEW Nov 16 |
+| CONTRIBUTING.md | Cambios de proceso | ✅ Current |
+
+## 📚 Related Security Documentation
+
+For detailed security information, see `/docs/06-security/`:
+- `SECURITY_AUDIT.md` - Comprehensive security audit
+- `PRODUCTION_DEPLOYMENT.md` - Deployment security checklist
+- `COMPLETION_SUMMARY.md` - What was fixed summary
 
 ---
 
 **Última actualización**: 16 de noviembre de 2025
+
+

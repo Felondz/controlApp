@@ -46,7 +46,7 @@ class InvitacionesApiTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
-                'email' => 'newuser@example.com',
+                'email' => 'newuser@gmail.com',
                 'rol' => 'miembro',
             ]);
 
@@ -61,7 +61,7 @@ class InvitacionesApiTest extends TestCase
             ]);
 
         $this->assertDatabaseHas('invitaciones', [
-            'email' => 'newuser@example.com',
+            'email' => 'newuser@gmail.com',
             'proyecto_id' => $this->proyecto->id,
             'rol' => 'miembro',
         ]);
@@ -78,7 +78,7 @@ class InvitacionesApiTest extends TestCase
 
         $response = $this->actingAs($miembro)
             ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
-                'email' => 'newuser@example.com',
+                'email' => 'newuser@gmail.com',
                 'rol' => 'miembro',
             ]);
 
@@ -91,7 +91,7 @@ class InvitacionesApiTest extends TestCase
     public function test_unauthenticated_user_cannot_send_invitation(): void
     {
         $response = $this->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
-            'email' => 'newuser@example.com',
+            'email' => 'newuser@gmail.com',
             'rol' => 'miembro',
         ]);
 
@@ -105,7 +105,7 @@ class InvitacionesApiTest extends TestCase
     {
         $invitacion = Invitacion::factory()->create([
             'proyecto_id' => $this->proyecto->id,
-            'email' => 'newuser@example.com',
+            'email' => 'newuser@gmail.com',
         ]);
 
         $response = $this->getJson('/api/invitaciones/' . $invitacion->token);
@@ -196,12 +196,12 @@ class InvitacionesApiTest extends TestCase
     {
         $invitacion = Invitacion::factory()->create([
             'proyecto_id' => $this->proyecto->id,
-            'email' => 'invited@example.com',
+            'email' => 'invited@gmail.com',
         ]);
 
         /** @var User $usuario */
         $usuario = User::factory()->create([
-            'email' => 'different@example.com',
+            'email' => 'different@gmail.com',
             'email_verified_at' => now(),
         ]);
 
@@ -239,12 +239,12 @@ class InvitacionesApiTest extends TestCase
     {
         Invitacion::factory()->create([
             'proyecto_id' => $this->proyecto->id,
-            'email' => 'duplicate@example.com',
+            'email' => 'duplicate@gmail.com',
         ]);
 
         $response = $this->actingAs($this->admin)
             ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
-                'email' => 'duplicate@example.com',
+                'email' => 'duplicate@gmail.com',
                 'rol' => 'miembro',
             ]);
 
@@ -288,13 +288,13 @@ class InvitacionesApiTest extends TestCase
     {
         $invitacion = Invitacion::factory()->create([
             'proyecto_id' => $this->proyecto->id,
-            'email' => 'newuser@example.com',
+            'email' => 'newuser@gmail.com',
             'rol' => 'tesorero', // Rol específico
         ]);
 
         /** @var User $usuario */
         $usuario = User::factory()->create([
-            'email' => 'newuser@example.com',
+            'email' => 'newuser@gmail.com',
             'email_verified_at' => now(),
         ]);
 

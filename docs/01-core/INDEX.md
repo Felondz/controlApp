@@ -12,38 +12,43 @@ Bienvenido a la documentación de **ControlApp** - Plataforma de gestión de pro
 
 ```
 docs/
-├── 01-core/                    # 📍 Comienza aquí
-│   ├── INDEX.md               (este archivo)
-│   ├── CHANGELOG.md           (historial de versiones)
-│   ├── CHANGELOG_DETAILED.md  (cambios técnicos detallados)
-│   └── QUICK_REFERENCE.md     (comandos y atajos)
+├── 01-core/                     # 📍 Comienza aquí
+│   ├── INDEX.md                (este archivo)
+│   ├── CHANGELOG.md            (historial de versiones)
+│   ├── CHANGELOG_DETAILED.md   (cambios técnicos detallados)
+│   └── QUICK_REFERENCE.md      (comandos y atajos)
 │
-├── 02-development/            # 💻 Para desarrolladores
-│   ├── INSTALLATION.md        (cómo instalar)
-│   ├── API.md                 (endpoints)
-│   ├── DATABASE.md            (esquema y modelos)
-│   ├── AUTHENTICATION.md      (sistema de auth)
-│   └── CONTRIBUTING.md        (cómo contribuir)
+├── 02-development/             # 💻 Para desarrolladores
+│   ├── INSTALLATION.md         (cómo instalar)
+│   ├── API.md                  (endpoints - UPDATED)
+│   ├── AUTHENTICATION.md       (sistema de auth - UPDATED)
+│   ├── AUTHORIZATION_VALIDATION.md (NEW - Policies, FormRequest, Rate Limiting)
+│   ├── DATABASE.md             (esquema y modelos)
+│   ├── CONTRIBUTING.md         (cómo contribuir)
+│   └── README.md               (guide para developers)
 │
-├── 03-ia-collaboration/       # 🤖 Para IAs colaborando
-│   ├── AI_GUIDELINES.md       (normas y flujos)
+├── 03-ia-collaboration/        # 🤖 Para IAs colaborando
+│   ├── AI_GUIDELINES.md        (normas y flujos)
 │   ├── ONBOARDING_FOR_NEW_AIs.md (COPY-PASTE en chat)
 │   └── HOW_TO_SWITCH_TO_NEW_AI.md (procedimiento de cambio)
 │
-├── 04-testing/                # 🧪 Testing y QA
+├── 04-testing/                 # 🧪 Testing y QA
 │   ├── TESTING_ARCHITECTURE.md (estrategia de testing)
-│   ├── TESTING_SCRIPTS.md     (scripts de testing)
-│   ├── TESTING.md             (documentación general)
-│   └── TESTING_*.md           (archivos históricos)
+│   ├── TESTING_SCRIPTS.md      (scripts de testing)
+│   ├── TESTING.md              (documentación general)
+│   └── TESTING_*.md            (archivos históricos)
 │
-├── 05-reference/              # 📖 Referencias
-│   ├── MAILPIT_GUIDE.md       (Mailpit local SMTP)
-│   ├── MAILTRAP_GUIDE.md      (configurar emails)
+├── 05-reference/               # 📖 Referencias
+│   ├── MAILPIT_GUIDE.md        (Mailpit local SMTP)
+│   ├── MAILTRAP_GUIDE.md       (configurar emails)
 │   └── MAILTRAP_VISUALIZATION.md (ver emails capturados)
 │
-└── 06-security/               # 🔒 Seguridad
-    ├── SECURITY_CONFIGURATION.md (herramientas de seguridad)
-    └── README.md              (overview de seguridad)
+└── 06-security/                # � Seguridad (NEW - Comprehensive)
+    ├── README.md               (overview de seguridad)
+    ├── SECURITY_AUDIT.md       (NEW - Audit findings & fixes)
+    ├── PRODUCTION_DEPLOYMENT.md (NEW - Deployment checklist)
+    ├── COMPLETION_SUMMARY.md   (NEW - What was fixed)
+    └── SECURITY_CONFIGURATION.md (herramientas de seguridad)
 ```
 
 ---
@@ -90,11 +95,29 @@ docs/
    ↓
 3. Estudiar: ../02-development/DATABASE.md (10 min)
    ↓
-4. Aprender: ../02-development/AUTHENTICATION.md (10 min)
+4. Seguridad: ../02-development/AUTHENTICATION.md (10 min)
    ↓
-5. Explorar: ../02-development/API.md (20 min)
+5. Autorización: ../02-development/AUTHORIZATION_VALIDATION.md (20 min)
    ↓
-6. Contribuir: ../02-development/CONTRIBUTING.md
+6. API Docs: ../02-development/API.md (15 min)
+   ↓
+7. Contribuir: ../02-development/CONTRIBUTING.md
+   ↓
+8. Ver cambios: ../01-core/CHANGELOG_DETAILED.md
+```
+
+### 🔐 Necesito entender seguridad
+
+```
+1. Empezar: ../06-security/README.md
+   ↓
+2. Audit: ../06-security/SECURITY_AUDIT.md (comprehensive)
+   ↓
+3. Deployment: ../06-security/PRODUCTION_DEPLOYMENT.md
+   ↓
+4. Dev Guide: ../02-development/AUTHENTICATION.md
+   ↓
+5. Code Examples: ../02-development/AUTHORIZATION_VALIDATION.md
 ```
 
 ---

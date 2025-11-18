@@ -6,6 +6,51 @@
 
 ---
 
+## ⚠️ NOTA CRÍTICA: Tests Requieren Docker
+
+**Fecha de Descubrimiento**: 16 de Noviembre de 2025
+
+Los tests **DEBEN ejecutarse DENTRO del contenedor Docker**. Ejecutarlos desde el host causa que se **cuelguen indefinidamente** (>15 minutos).
+
+### ❌ NO HAGAS ESTO
+
+```bash
+# Se cuelga esperando conexión a MySQL
+php artisan test
+
+# ❌ Evitar completamente
+php artisan test --testdox
+```
+
+### ✅ SIEMPRE HACES ESTO
+
+```bash
+# ✅ Correcto - Tests dentro de Docker
+docker compose exec -T laravel.test php artisan test --testdox
+
+# ✅ También funciona
+docker compose exec -T laravel.test php artisan test
+```
+
+### Razón Técnica
+
+- MySQL en Docker resuelve hostname `mysql` **solo dentro de Docker**
+- Desde host, `mysql` no es resolvible
+- Laravel espera indefinidamente la conexión
+- Timeout ocurre después de 15+ minutos
+
+### Verificación Rápida
+
+```bash
+# Ver si containers están corriendo
+docker compose ps
+
+# Debe mostrar:
+# STATUS    UP (para laravel.test y mysql)
+```
+
+---
+
 ## 📋 Tabla de Contenidos
 
 1. [Visión General](#visión-general)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreInvitacionRequest;
 use App\Models\Proyecto;
 use App\Models\Invitacion;
 use App\Models\User;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class ProyectoInvitacionController extends Controller
 {
@@ -21,8 +22,10 @@ class ProyectoInvitacionController extends Controller
      */
     public function index(Request $request, Proyecto $proyecto)
     {
-        // Autorización: Solo un admin puede ver las invitaciones pendientes
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden ver las invitaciones.');
+        // SECURITY: Use policy authorization
+        if (!Gate::allows('manageMembersAndInvitations', $proyecto)) {
+            abort(403, 'No tienes permiso para ver las invitaciones de este proyecto.');
+        }
 
         // Devolvemos las invitaciones 
         return response()->json($proyecto->invitaciones);
@@ -34,13 +37,15 @@ class ProyectoInvitacionController extends Controller
      */
     public function store(Request $request, Proyecto $proyecto)
     {
-        // Autorización: Solo un admin puede enviar invitaciones
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden enviar invitaciones.');
+        // SECURITY: Use policy authorization
+        if (!Gate::allows('create', [Invitacion::class, $proyecto])) {
+            abort(403, 'No tienes permiso para crear invitaciones en este proyecto.');
+        }
 
-        // 1. Validar la entrada
+        // SECURITY: Use validation
         $datos = $request->validate([
-            'email' => 'required|email',
-            'rol' => ['required', 'string', Rule::in(['admin', 'miembro'])],
+            'email' => 'required|email:rfc,dns',
+            'rol' => 'required|string|in:admin,miembro',
         ]);
 
         $emailInvitado = $datos['email'];
@@ -78,8 +83,10 @@ class ProyectoInvitacionController extends Controller
      */
     public function destroy(Request $request, Proyecto $proyecto, Invitacion $invitacion)
     {
-        // Autorización: Solo un admin puede borrar invitaciones
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden cancelar invitaciones.');
+        // SECURITY: Use policy authorization
+        if (!Gate::allows('delete', $invitacion)) {
+            abort(403, 'No tienes permiso para cancelar esta invitación.');
+        }
 
         // Verificación de pertenencia
         if ($invitacion->proyecto_id !== $proyecto->id) {

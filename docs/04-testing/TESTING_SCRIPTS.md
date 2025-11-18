@@ -1,5 +1,22 @@
 # 🧪 Scripts de Testing - Guía Completa
 
+## ⚠️ NOTA IMPORTANTE: Docker es Obligatorio
+
+**Descubierto el 16 de Noviembre de 2025:**
+
+Los tests **DEBEN ejecutarse dentro del contenedor Docker**. Si ejecutas los scripts desde el host, se quedarán **colgados indefinidamente** (timeout 15+ minutos) debido a problemas de resolución DNS de `mysql`.
+
+**Verificación rápida:**
+```bash
+# ✅ Esto funciona (tests dentro de Docker)
+docker compose exec -T laravel.test php artisan test --testdox
+
+# ❌ Esto se cuelga (tests desde host)
+php artisan test
+```
+
+---
+
 ## 📍 Ubicación
 
 Todos los scripts de testing están centralizados en:
@@ -12,9 +29,11 @@ scripts/
 ### 1. `run-tests.sh` - Suite Principal de Tests
 **Propósito:** Ejecutar toda la suite de tests del proyecto
 
-**Uso:**
+**Uso (DENTRO DE DOCKER):**
 ```bash
-bash scripts/run-tests.sh
+docker compose exec -T laravel.test bash scripts/run-tests.sh
+# O directamente
+docker compose exec -T laravel.test php artisan test --testdox
 ```
 
 **Qué hace:**
@@ -32,8 +51,8 @@ bash scripts/run-tests.sh
 
 **Resultado esperado:**
 ```
-✅ 114/114 tests pasando
-✅ 297 assertions correctas
+✅ 131 tests pasando
+✅ 342 assertions correctas
 ```
 
 ---
@@ -41,14 +60,16 @@ bash scripts/run-tests.sh
 ### 2. `test-invitaciones.sh` - Tests de Invitaciones
 **Propósito:** Validar el sistema de invitaciones específicamente
 
-**Uso:**
+**Uso (DENTRO DE DOCKER):**
 ```bash
-bash scripts/test-invitaciones.sh
+docker compose exec -T laravel.test bash scripts/test-invitaciones.sh
+# O directamente
+docker compose exec -T laravel.test php artisan test tests/Feature/InvitacionesApiTest.php --testdox
 ```
 
 **Qué hace:**
 - Tests de creación de invitaciones
-- Validación de emails de invitación
+- Validación de emails de invitación (con DNS check)
 - Aceptación de invitaciones
 - Rechazo de invitaciones
 - Listado y filtrado
@@ -68,9 +89,9 @@ bash scripts/test-invitaciones.sh
 ### 3. `test-mailtrap.sh` - Tests de Email
 **Propósito:** Validar emails llegando a Mailtrap/Mailpit
 
-**Uso:**
+**Uso (DENTRO DE DOCKER):**
 ```bash
-bash scripts/test-mailtrap.sh
+docker compose exec -T laravel.test bash scripts/test-mailtrap.sh
 ```
 
 **Qué hace:**
@@ -93,7 +114,7 @@ bash scripts/test-mailtrap.sh
 
 **Nota:** Requiere que Mailpit esté ejecutándose:
 ```bash
-docker compose up mailpit
+docker compose up mailpit -d
 ```
 
 ---
@@ -101,9 +122,9 @@ docker compose up mailpit
 ### 4. `check-docs.sh` - Validación de Documentación
 **Propósito:** Verificar que toda la documentación esté actualizada
 
-**Uso:**
+**Uso (DENTRO DE DOCKER):**
 ```bash
-bash scripts/check-docs.sh
+docker compose exec -T laravel.test bash scripts/check-docs.sh
 ```
 
 **Qué hace:**
@@ -128,9 +149,9 @@ bash scripts/check-docs.sh
 ### 5. `TESTING_SUMMARY.sh` - Reporte Final Completo
 **Propósito:** Generar reporte final de testing exhaustivo
 
-**Uso:**
+**Uso (DENTRO DE DOCKER):**
 ```bash
-bash scripts/TESTING_SUMMARY.sh
+docker compose exec -T laravel.test bash scripts/TESTING_SUMMARY.sh
 ```
 
 **Qué hace:**
@@ -148,7 +169,7 @@ bash scripts/TESTING_SUMMARY.sh
 **Resultado esperado:**
 ```
 📊 TESTING SUMMARY
-✅ 114/114 tests
+✅ 131/131 tests
 ✅ Email system OK
 ✅ APIs OK
 ✅ Documentación OK
@@ -166,35 +187,35 @@ bash scripts/TESTING_SUMMARY.sh
    # ... editas código ...
    ```
 
-2. **Corres tests específicos:**
+2. **Corres tests específicos (EN DOCKER):**
    ```bash
    # Si cambias invitaciones
-   bash scripts/test-invitaciones.sh
+   docker compose exec -T laravel.test php artisan test tests/Feature/InvitacionesApiTest.php --testdox
    
    # Si cambias emails
-   bash scripts/test-mailtrap.sh
+   docker compose exec -T laravel.test php artisan test tests/Feature/VisualEmailTestsInMailpitTest.php --testdox
    ```
 
-3. **Validas documentación:**
+3. **Validas documentación (EN DOCKER):**
    ```bash
-   bash scripts/check-docs.sh
+   docker compose exec -T laravel.test bash scripts/check-docs.sh
    ```
 
 ### Antes de Commit
 
 ```bash
-# Suite completa
-bash scripts/run-tests.sh
+# Suite completa (EN DOCKER)
+docker compose exec -T laravel.test php artisan test --testdox
 
-# Reporte final
-bash scripts/TESTING_SUMMARY.sh
+# Reporte final (EN DOCKER)
+docker compose exec -T laravel.test bash scripts/TESTING_SUMMARY.sh
 ```
 
 ### Antes de Release
 
 ```bash
-# Todo junto
-bash scripts/TESTING_SUMMARY.sh
+# Todo junto (EN DOCKER)
+docker compose exec -T laravel.test bash scripts/TESTING_SUMMARY.sh
 
 # Si OK → listo para producción
 ```
@@ -207,17 +228,14 @@ bash scripts/TESTING_SUMMARY.sh
 # Ver todos los scripts disponibles
 ls -la scripts/
 
-# Ejecutar un script específico
-bash scripts/run-tests.sh
+# Ejecutar dentro de Docker
+docker compose exec -T laravel.test php artisan test --testdox
 
-# Ver contenido de un script
-cat scripts/run-tests.sh
+# Ver logs si algo falla
+docker compose logs laravel.test
 
-# Hacer script ejecutable
-chmod +x scripts/test-mailtrap.sh
-
-# Ejecutar con output completo
-bash scripts/test-invitaciones.sh 2>&1 | tee output.log
+# Verificar que containers están corriendo
+docker compose ps
 ```
 
 ---
@@ -233,10 +251,11 @@ Si necesitas crear un nuevo script de testing:
    ```bash
    #!/bin/bash
    # Script description
-   # Usage: bash scripts/nombreScript.sh
+   # Usage: docker compose exec -T laravel.test bash scripts/nombreScript.sh
    ```
 3. **Documentar en CHANGELOG.md** qué hace
 4. **Documentar aquí** en esta guía
+5. **SIEMPRE ejecutar dentro de Docker**
 
 ### Mantener scripts
 
@@ -245,18 +264,21 @@ Si necesitas crear un nuevo script de testing:
 - ✅ Usar colores y emojis para claridad
 - ✅ Documentar antes de cambiar
 - ✅ Hacer scripts idempotentes (sin efectos secundarios)
+- ✅ **SIEMPRE** asumir ejecución dentro de Docker
 
 ---
 
 ## 🚨 Troubleshooting
 
-### Script no ejecuta
+### Script no ejecuta / Se cuelga por 15+ minutos
 ```bash
-# Solución 1: Dar permisos
-chmod +x scripts/nombre.sh
+# ❌ PROBLEMA: Ejecutaste desde host
+php artisan test
 
-# Solución 2: Ejecutar con bash
-bash scripts/nombre.sh  # ✓ Mejor opción
+# ✅ SOLUCIÓN: Ejecuta en Docker
+docker compose exec -T laravel.test php artisan test --testdox
+
+# Si se cuelga, presiona Ctrl+C y reintenta con Docker
 ```
 
 ### Errores de dependencias
@@ -264,20 +286,23 @@ bash scripts/nombre.sh  # ✓ Mejor opción
 # Verificar que Docker está corriendo
 docker compose ps
 
-# Verificar que containers existen
+# Si faltan containers, levantarlos
 docker compose up -d
 
-# Luego correr el script
-bash scripts/test-mailtrap.sh
+# Luego correr tests (EN DOCKER)
+docker compose exec -T laravel.test php artisan test --testdox
 ```
 
 ### Tests fallan
 ```bash
-# Ejecutar con verbosidad
-bash scripts/run-tests.sh -v
+# Ejecutar con verbosidad (EN DOCKER)
+docker compose exec -T laravel.test php artisan test --testdox -v
 
-# Ver logs completos
-tail -50 storage/logs/laravel.log
+# Ver logs del container
+docker compose logs -f laravel.test
+
+# Reiniciar containers si está corrupto
+docker compose restart laravel.test
 ```
 
 ---
@@ -292,7 +317,8 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 ### 🧪 Testing
 - ✅ Nueva suite de tests para feature X
 - 🔧 Fix en test de módulo Y
-- 📊 Scripts: ver `scripts/` para ejecutar tests
+- 📊 Scripts: ver `scripts/` - EJECUTAR EN DOCKER
+- 🐛 Descubierto: Tests cuelgan si se ejecutan desde host
 ```
 
 ---
@@ -305,6 +331,7 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 | Cambios en tests | `docs/CHANGELOG.md` |
 | Resultados de tests | `docs/TESTING.md` |
 | Guía de testing | `docs/TESTING.md` |
+| Docker importante | **AMBOS ARCHIVOS** |
 
 ---
 
@@ -313,16 +340,20 @@ Cuando hagas cambios relacionados con testing, documenta en `docs/CHANGELOG.md`:
 ```
 - [ ] Código escrito
 - [ ] Tests escritos (unit + feature)
-- [ ] Correr: bash scripts/run-tests.sh
-- [ ] Correr: bash scripts/check-docs.sh
+- [ ] ✅ IMPORTANTE: Correr en Docker
+  docker compose exec -T laravel.test php artisan test --testdox
+- [ ] Correr: docker compose exec -T laravel.test bash scripts/check-docs.sh
 - [ ] Actualizar docs/CHANGELOG.md
 - [ ] Visualizar cambios en scripts/
-- [ ] Correr: bash scripts/TESTING_SUMMARY.sh
+- [ ] Correr: docker compose exec -T laravel.test bash scripts/TESTING_SUMMARY.sh
 - [ ] Si OK → Listo para commit
 ```
 
 ---
 
-**Última actualización**: 15 de Noviembre, 2025  
+**Última actualización**: 16 de Noviembre, 2025  
 **Scripts centralizados en**: `scripts/`  
+**⚠️ IMPORTANTE**: Tests solo en Docker (`docker compose exec -T laravel.test`)  
 **Documentación de cambios**: `docs/CHANGELOG.md`
+
+

@@ -119,14 +119,14 @@ class VisualEmailTestsInMailpitTest extends TestCase
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
         echo "De: {$admin->email} ({$admin->name})\n";
         echo "Proyecto: {$proyecto->nombre}\n";
-        echo "Para: invitado@example.com\n";
+        echo "Para: invitado@gmail.com\n";
         echo "\n";
 
         // Disparar endpoint de invitación
         $this->actingAs($admin);
 
         $response = $this->postJson('/api/proyectos/' . $proyecto->id . '/invitaciones', [
-            'email' => 'invitado@example.com',
+            'email' => 'invitado@gmail.com',
             'rol' => 'miembro',
         ]);
 

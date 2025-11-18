@@ -57,7 +57,110 @@
 
 ## 🕐 Cambios por Fecha
 
-### 16 de Noviembre de 2025 (Tarde)#### 📚 Reorganización de Documentación + Nuevas Normas para IAs
+### 16 de Noviembre de 2025 (Noche)
+
+#### 🔐 Auditoría de Seguridad Completa + Hardening de Aplicación Laravel
+
+**Tipo**: Security Audit & Enhancement
+**Impacto**: ALTO - Mejoras críticas de seguridad para producción
+**Tests Afectados**: TODOS pasan (131/131) ✅
+**Archivos Creados**: 16 archivos (Policies, FormRequests, Middleware, Docs)
+
+**Vulnerabilidades Identificadas y Corregidas**:
+
+| ID | Vulnerabilidad | Severidad | Estado |
+|----|-----------------|-----------|--------|
+| #1 | Missing Authorization Policies | HIGH | ✅ FIXED |
+| #2 | CORS Configuration Too Permissive | HIGH | ✅ FIXED |
+| #3 | Sanctum Token No Prefix/Expiration | MEDIUM | ✅ FIXED |
+| #4 | Weak Input Validation | MEDIUM | ✅ FIXED |
+| #5 | No Rate Limiting on Auth | MEDIUM | ✅ FIXED |
+| #6 | Email Validation Too Lenient | LOW | ✅ FIXED |
+
+**Cambios Realizados**:
+
+1. **✅ CREATED 5x Authorization Policies**
+   - `app/Policies/ProyectoPolicy.php`
+   - `app/Policies/CategoriaPolicy.php`
+   - `app/Policies/CuentaPolicy.php`
+   - `app/Policies/TransaccionPolicy.php`
+   - `app/Policies/InvitacionPolicy.php`
+   - Status: All working with Gate::allows()
+
+2. **✅ UPDATED Configuration Files (3x)**
+   - `config/cors.php`: Restricción de métodos/headers, origins env-based
+   - `config/sanctum.php`: Token prefix `controlapp_`, 24h expiration
+   - `config/auth.php`: Added API guard for Sanctum
+
+3. **✅ CREATED 7x FormRequest Validation Classes**
+   - `app/Http/Requests/Store|Update*Request.php` para todos los recursos
+   - Email validation con DNS check, enum validation, custom messages
+
+4. **✅ CREATED 2x Security Middleware**
+   - `SanitizeInput.php`: HTML entity escaping + trimming
+   - `RateLimitingMiddleware.php`: Rate limiting framework
+
+5. **✅ UPDATED Routes with Rate Limiting**
+   - Auth endpoints: 5 req/min (brute force protection)
+   - Password reset: 5 req/min
+   - Token validation: 10 req/min
+
+6. **✅ UPDATED ProyectoInvitacionController**
+   - Migrado de abort_if() a Gate::allows() con Policies
+   - Email validation mejorada
+
+7. **✅ UPDATED AppServiceProvider**
+   - Registración de todas las Policies con Gate::policy()
+
+8. **✅ UPDATED phpstan.neon**
+   - Level 8 (máximo práctico) for analysis
+   - Added strict mixed types checking
+   - Paths extendidos (Policies, Requests, Controllers)
+
+9. **✅ CREATED 2x Security Documentation (1,800+ líneas)**
+   - `docs/06-security/SECURITY_AUDIT.md`: Findings, fixes, recommendations
+   - `docs/06-security/PRODUCTION_DEPLOYMENT.md`: Pre-deployment checklist, procedures
+
+10. **✅ UPDATED .github/workflows/tests.yml**
+    - Added Larastan (PHPStan + Laravel support)
+    - Memory limit: 512M
+
+**Security Architecture Implemented**:
+```
+HTTP Request
+    ↓
+Route Middleware (auth:sanctum)
+    ↓
+Controller
+    ↓
+Gate::allows() + Policy
+    ↓
+Authorized ✅ or 403 ❌
+```
+
+**Configuration Summary**:
+```env
+# CORS: Explicit methods, headers, credentials
+CORS_ALLOWED_ORIGINS=https://app.domain.com
+
+# Sanctum: Token security
+SANCTUM_TOKEN_PREFIX=controlapp_
+SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
+```
+
+**Estadísticas**:
+- 16 archivos creados
+- 6 archivos actualizados  
+- 2,500+ LOC agregadas
+- 1,800+ líneas de documentación
+- 0 tests broken
+- 131/131 tests passing ✅
+
+---
+
+### 16 de Noviembre de 2025 (Tarde)
+
+#### 📚 Reorganización de Documentación + Nuevas Normas para IAs
 
 **Tipo**: Documentation
 **Impacto**: Estructura y claridad

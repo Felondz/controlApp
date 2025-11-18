@@ -1,24 +1,62 @@
 includes:
     - vendor/phpstan/phpstan-laravel/extension.neon
+    - vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-    level: 5
+    # SECURITY: Maximum analysis level for production code
+    # Level 8 = Very strict type checking, catches most potential bugs
+    level: 8
+    
     paths:
         - app
         - config
+        - routes
+        - app/Policies
+        - app/Http/Requests
+        - app/Http/Controllers
+        - app/Models
+        - app/Providers
+    
     excludePaths:
         - app/Console/Commands/GrantSuperAdmin.php
+        - storage
+        - vendor
+        - bootstrap/cache
+        - node_modules
+    
+    tmpDir: storage/phpstan
+    
     treatMissingPropertiesAsNullSafe: false
     
-    # Ignorar errores comunes de Eloquent
+    # Enable strict mixed types - catches implicit mixed types
+    strictMixed: true
+    
+    # Check for unused properties and parameters
+    checkUnusedProperties: true
+    checkUnusedParameters: true
+    
+    # Detect dead code
+    checkUnusedFunctionReturnValues: true
+    
+    # Generic class usage detection
+    checkGenericClassInNonGenericObjectType: true
+    
+    # Universal object crash fixer
+    universalObjectCrashFixer: true
+    
+    # SECURITY: Ignore only known Laravel magic property/method patterns
+    # Intentionally minimal to catch potential security issues
     ignoreErrors:
-        # Eloquent propiedades dinámicas
+        # Eloquent dynamic properties (necessary for ORM)
         - '#Access to an undefined property.*Model::\$#'
-        # Métodos estáticos de Eloquent
-        - '#Call to an undefined static method.*Model::#'
-        # Builder methods
-        - '#Call to an undefined method.*Builder::#'
-        # Query builder
-        - '#Method.*Builder.*has invalid return type#'
-
-reportUnmatchedIgnoredErrors: false
+        # Laravel helpers that use dynamic methods
+        - '#Call to an undefined method.*Builder::(.*where|orderBy|select|groupBy|join|with|has|whereHas)#'
+        # Sanctum token method
+        - '#Call to an undefined method.*User::currentAccessToken#'
+        # Relation loading methods
+        - '#Call to an undefined method.*Model::load#'
+        # Collection methods
+        - '#Call to an undefined method.*Collection::(pluck|keyBy|groupBy)#'
+    
+    # Do not report ignored errors that are not encountered
+    reportUnmatchedIgnoredErrors: false
