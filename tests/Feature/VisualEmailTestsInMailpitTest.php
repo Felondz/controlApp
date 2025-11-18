@@ -103,6 +103,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
             'name' => 'Admin Test',
             'email' => 'admin@example.com',
         ]);
+        /** @var User $admin */
 
         // Crear un proyecto
         $proyecto = Proyecto::factory()->create([
@@ -192,6 +193,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
             'name' => 'Admin Invitador',
             'email' => 'admin-invitacion@example.com',
         ]);
+        /** @var User $admin */
 
         $proyecto = Proyecto::factory()->create([
             'nombre' => 'Proyecto Con Invitación',

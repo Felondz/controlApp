@@ -272,6 +272,7 @@ class FinanzasPersonalesTest extends TestCase
     {
         $proyecto = $this->getPersonalProject();
         $user2 = User::factory()->create();
+        /** @var User $user2 */
 
         $response = $this->actingAs($user2, 'sanctum')
             ->patchJson("/api/proyectos/{$proyecto->id}", [

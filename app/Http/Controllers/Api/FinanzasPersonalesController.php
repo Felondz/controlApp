@@ -68,10 +68,10 @@ class FinanzasPersonalesController extends Controller
         }
 
         // Debug: Log the SQL and result
-        \Log::info('ProyectoPersonal ID: ' . $proyectoPersonal->id);
-        \Log::info('Cuentas SQL: ' . $proyectoPersonal->cuentas()->toSql());
+        Log::info('ProyectoPersonal ID: ' . $proyectoPersonal->id);
+        Log::info('Cuentas SQL: ' . $proyectoPersonal->cuentas()->toSql());
         $cuentas = $proyectoPersonal->cuentas()->get();
-        \Log::info('Cuentas Result: ' . json_encode($cuentas));
+        Log::info('Cuentas Result: ' . json_encode($cuentas));
 
         return response()->json($cuentas);
     }
