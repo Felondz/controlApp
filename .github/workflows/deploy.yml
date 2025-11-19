@@ -52,14 +52,17 @@ jobs:
         run: docker pull ghcr.io/felondz/controlapp:latest
 
       - name: Update Docker Compose File
-        # Descargamos el archivo docker-compose.prod.yml del repo y lo ponemos en el servidor
-        run: curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3.raw" -o /home/guaro/docker-sites/controlapp/docker-compose.yml -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
+        run: |
+          mkdir -p /home/guarox/docker-sites/controlapp
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            -o /home/guarox/docker-sites/controlapp/docker-compose.yml \
+            -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
 
       - name: Deploy Containers
-        working-directory: /home/guaro/docker-sites/controlapp
+        working-directory: /home/guarox/docker-sites/controlapp
         run: |
           docker compose down
           docker compose up -d
           docker compose exec -T app php artisan migrate --force
-          # Limpiar imágenes viejas para no llenar el disco
           docker image prune -f

@@ -50,9 +50,11 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Create .env.testing file
+      - name: Setup testing environment
         run: |
-          cp .env.example .env.testing
+          cp .env.testing .env.testing.bak
+          # .env.testing ya tiene APP_KEY, no lo sobrescribimos
+          cat .env.testing.bak > .env.testing
           echo "QUEUE_CONNECTION=sync" >> .env.testing
           echo "MAIL_MAILER=log" >> .env.testing
           echo "BROADCAST_DRIVER=log" >> .env.testing
