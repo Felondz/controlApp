@@ -1,14 +1,25 @@
-import React from 'react';
+import '../css/app.css';
+import './bootstrap';
+
+import { createInertiaApp } from '@inertiajs/react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
-function App() {
-    return (
-        <div>
-            <h1>¡React funcionando en ControlApp - Bienvenido a Finanzas de Hongos!</h1>
-            <p>Si ves esto, el setup está listo. Próximo: Componente de transacciones.</p>
-        </div>
-    );
-}
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-const root = createRoot(document.getElementById('app'));
-root.render(<App />);
+createInertiaApp({
+    title: (title) => `${title} - ${appName}`,
+    resolve: (name) =>
+        resolvePageComponent(
+            `./Pages/${name}.jsx`,
+            import.meta.glob('./Pages/**/*.jsx'),
+        ),
+    setup({ el, App, props }) {
+        const root = createRoot(el);
+
+        root.render(<App {...props} />);
+    },
+    progress: {
+        color: '#4B5563',
+    },
+});
