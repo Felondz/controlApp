@@ -55,14 +55,14 @@ jobs:
 
       - name: Update Docker Compose File
         run: |
-          mkdir -p /home/guarox/docker-sites/controlapp
+          mkdir -p /home/guaro/docker-sites/controlapp
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3.raw" \
-            -o /home/guarox/docker-sites/controlapp/docker-compose.yml \
+            -o /home/guaro/docker-sites/controlapp/docker-compose.yml \
             -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
 
       - name: Deploy Containers
-        working-directory: /home/guarox/docker-sites/controlapp
+        working-directory: /home/guaro/docker-sites/controlapp
         run: |
           docker compose down
           docker compose up -d
