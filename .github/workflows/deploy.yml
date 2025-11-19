@@ -66,5 +66,9 @@ jobs:
         run: |
           docker compose down
           docker compose up -d
+          
+          echo "⏳ Esperando a que la Base de Datos inicie..."
+          sleep 30
+          
           docker compose exec -T app php artisan migrate --force
           docker image prune -f
