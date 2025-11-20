@@ -65,8 +65,8 @@ jobs:
       - name: Setup testing environment
         run: |
           cp .env.testing .env.testing.bak
-          # .env.testing ya tiene APP_KEY, no lo sobrescribimos
-          cat .env.testing.bak > .env.testing
+          # Override DB_HOST for CI (GitHub Actions uses 127.0.0.1, not mysql)
+          cat .env.testing.bak | sed 's/DB_HOST=.*/DB_HOST=127.0.0.1/' > .env.testing
           echo "QUEUE_CONNECTION=sync" >> .env.testing
           echo "MAIL_MAILER=log" >> .env.testing
           echo "BROADCAST_DRIVER=log" >> .env.testing
