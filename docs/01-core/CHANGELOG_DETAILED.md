@@ -1461,3 +1461,36 @@ El objetivo es que en 6 meses, 1 año, o 5 años:
 **Mantenedor**: Equipo de Desarrollo ControlApp
 **Estado**: ✅ Actualizado
 
+
+### 🔧 Fixed (Corregido) - Bloque de Debug y Configuración
+
+**Fecha**: 20-11-25
+**Autor**: Felipe L
+
+### 🔧 Fixed (Corregido) - Bloque de Debug y Configuración
+
+- 🔧 **CRÍTICO: Fix de Conexión de Testing (Issue #8 Implícito)**
+    - **Problema**: `SQLSTATE[HY000] [2002] Connection refused` causaba fallo total en la suite de tests. La configuración de `DB_HOST` en `.env.testing` era incorrecta para el entorno Dockerizado.
+    - **Solución**: Se actualizó la configuración de `DB_HOST` de `127.0.0.1` a `mysql` para usar el nombre del servicio Docker.
+    - **Archivo**: `.env.testing`
+
+- 🔧 **Fix: Reactivación de Observers y Rutas**
+    - **Problema**: Fallos intermitentes en tests que dependen de la creación automática de recursos (ej. Proyecto Personal).
+    - **Solución**:
+        - Se reactivó la creación automática del proyecto personal en `UserObserver.php`.
+        - Se actualizó el nombre de ruta de verificación de email en `api.php` para evitar conflictos.
+    - **Archivos**: `UserObserver.php`, `api.php`.
+
+### ✨ Added (Agregado) - Estabilidad y Esquema
+
+- ✅ **Estabilidad y Expansión de Tests**
+    - Se agregó una nueva serie de tests, elevando el conteo de tests a **163** (antes 131) y las assertions a **440**.
+    - Se actualizó `ProyectosApiTest.php` para incluir el conteo del proyecto personal.
+- ✅ **Expansión de Esquema BD**
+    - Se agregó la columna `descripcion` a la tabla `proyectos` para estandarizar la entrada de datos.
+    - **Migración**: `2025_11_20_202313_add_descripcion_to_proyectos_table.php`
+- ✅ **Mejora de Validación**
+    - Se agregó la regla `min:3` al campo `nombre` en `StoreProyectoRequest.php`.
+
+### 📊 Testing Status
+- ✅ 163/163 Tests Pasando (100%) ✅ 440 Assertions Correctas ✅ 0 Failures | 0 Errors

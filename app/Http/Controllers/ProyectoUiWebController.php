@@ -12,30 +12,27 @@ class ProyectoUiWebController extends Controller
 {
     /**
      * Almacena un nuevo proyecto en la base de datos.
-     * DIAGNÓSTICO: Validación manual para aislar problemas de inyección.
      */
-    public function store(Request $request) 
+    public function store(StoreProyectoRequest $request) 
     {
-        // 1. Crear instancia del Form Request para acceder a sus reglas
-        $formRequest = new StoreProyectoRequest();
+        // El FormRequest ya se ejecutó y si falló, lanzó la excepción 422
+        // El FormRequest también maneja la autorización (si la tiene).
+        $validatedData = $request->validated(); // ✅ USANDO EL MÉTODO LIMPIO
         
-        // 2. FORZAR validación manual - esto debe fallar con 'max:1'
-        $validatedData = $request->validate($formRequest->rules());
-        
-        // 3. Crear el proyecto usando los datos validados
+        // 1. Crear el proyecto usando los datos validados
         $proyecto = Proyecto::create([
             'nombre' => $validatedData['nombre'],
-            'descripcion' => $validatedData['descripcion'],
+            'descripcion' => $validatedData['descripcion'] ?? null, // Usar null para opcionales si no viene
             'moneda_default' => $validatedData['moneda_default'],
             'user_id' => Auth::id(),
             'es_personal' => false,
             'visible_en_listado' => true,
         ]);
         
-        // 4. Adjuntar al creador como miembro y administrador
+        // 2. Adjuntar al creador como miembro y administrador
         $proyecto->miembros()->attach(Auth::id(), ['rol' => 'admin']); 
 
-        // 5. Redireccionar con éxito
+        // 3. Redireccionar con éxito (Inertia detecta automáticamente los errores 422)
         return redirect()->route('dashboard')
             ->with('success', '¡Proyecto "' . $proyecto->nombre . '" creado con éxito!');
     }

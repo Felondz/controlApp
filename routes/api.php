@@ -40,7 +40,7 @@ Route::get('/invitaciones/{token}', [InvitacionController::class, 'show']);
 // Debe estar fuera del grupo protegido porque el usuario no está logueado cuando hace clic en el email
 // NO usamos 'signed' middleware porque validamos el hash manualmente en el controlador
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-    ->name('verification.verify');
+    ->name('api.verification.verify');
 
 // --- Rutas Públicas de Password Reset ---
 // SECURITY: Rate limiting to prevent abuse

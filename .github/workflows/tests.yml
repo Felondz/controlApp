@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, 'feature/**', 'fix/**' ]
   pull_request:
     branches: [ main, develop ]
 
@@ -64,13 +64,20 @@ jobs:
 
       - name: Setup testing environment
         run: |
-          cp .env.testing .env.testing.bak
-          # .env.testing ya tiene APP_KEY, no lo sobrescribimos
-          cat .env.testing.bak > .env.testing
-          echo "QUEUE_CONNECTION=sync" >> .env.testing
+          # Override DB_HOST for CI (GitHub Actions uses 127.0.0.1, not mysql)
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+          # Force MAIL_MAILER to log for CI (no mailpit available)
+          # Remove any existing MAIL_* configuration lines and ensure log driver
+          sed -i '/^MAIL_/d' .env.testing
           echo "MAIL_MAILER=log" >> .env.testing
-          echo "BROADCAST_DRIVER=log" >> .env.testing
-          echo "CI=true" >> .env.testing
+          echo "MAIL_FROM_ADDRESS=test@example.com" >> .env.testing
+          echo "MAIL_FROM_NAME=ControlApp_Tests" >> .env.testing
+          # Add CI-specific settings (only if not already present)
+          grep -q "^QUEUE_CONNECTION" .env.testing || echo "QUEUE_CONNECTION=sync" >> .env.testing
+          grep -q "^BROADCAST_DRIVER" .env.testing || echo "BROADCAST_DRIVER=log" >> .env.testing
+          grep -q "^CI=" .env.testing || echo "CI=true" >> .env.testing
+          # Ensure APP_KEY is set (should already be in .env.testing)
+          grep -q "^APP_KEY" .env.testing || (php artisan key:generate --env=testing && grep "APP_KEY" .env | sed 's/^/# From .env: /' >> .env.testing)
 
       - name: Wait for MySQL
         run: |
@@ -86,6 +93,9 @@ jobs:
           DB_DATABASE: laravel_test
           DB_USERNAME: root
           DB_PASSWORD: password
+          MAIL_MAILER: log
+          QUEUE_CONNECTION: sync
+          BROADCAST_DRIVER: log
 
       - name: Run tests
         run: php artisan test --testdox
@@ -94,6 +104,9 @@ jobs:
           DB_DATABASE: laravel_test
           DB_USERNAME: root
           DB_PASSWORD: password
+          MAIL_MAILER: log
+          QUEUE_CONNECTION: sync
+          BROADCAST_DRIVER: log
 
       - name: Upload coverage reports
         if: always()
