@@ -16,7 +16,7 @@ This status reflects the stability achieved through **Continuous Integration (CI
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
 | **Current Version** | v1.0.0 (Production Ready) | ✅ **Stable** |
 
-ml?branch=develop&label=Tests&logo=github&cache=false)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
+[![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
 
 ---
 
