@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCuentaRequest extends FormRequest
 {
@@ -23,6 +24,8 @@ class StoreCuentaRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tiposPermitidos = ['efectivo', 'transferencia bancaria', 'crédito', 'inversion'];
+
         return [
             'nombre' => [
                 'required',
@@ -33,7 +36,7 @@ class StoreCuentaRequest extends FormRequest
             'tipo' => [
                 'required',
                 'string',
-                'in:efectivo,banco,tarjeta',
+                Rule::in($tiposPermitidos),
             ],
             'saldo_inicial' => [
                 'required',
@@ -61,7 +64,7 @@ class StoreCuentaRequest extends FormRequest
             'nombre.max' => 'El nombre no puede exceder 255 caracteres.',
             'nombre.min' => 'El nombre debe tener al menos 2 caracteres.',
             'tipo.required' => 'El tipo de cuenta es obligatorio.',
-            'tipo.in' => 'El tipo debe ser "efectivo", "banco" o "tarjeta".',
+            'tipo.in' => 'El tipo debe ser "efectivo", "transferencia bancaria", "crédito" o "inversion".',
             'saldo_inicial.required' => 'El saldo inicial es obligatorio.',
             'saldo_inicial.numeric' => 'El saldo inicial debe ser un número.',
             'saldo_inicial.min' => 'El saldo inicial no puede ser negativo.',

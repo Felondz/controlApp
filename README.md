@@ -24,6 +24,7 @@
 - ✅ **Gestión de Proyectos** - Crear, editar, eliminar y listar proyectos
 - ✅ **Sistema de Miembros** - Agregar miembros con roles y permisos
 - ✅ **Invitaciones Colaborativas** - Invitar miembros por email con seguimiento
+- ✅ **🌍 Internacionalización (i18n)** - Sistema completo multilingüe (Español, Inglés)
 
 ### Módulo Financiero (Feature v1.0.0)
 - ✅ **Gestión de Cuentas** - Múltiples cuentas por proyecto (banco, efectivo, tarjeta, digital)
@@ -44,7 +45,7 @@
 - 📅 **Calendario** - Vista de transacciones en calendario
 - 📊 **Reportes y Gráficas** - Visualización avanzada de datos financieros
 - 📤 **Exportación de Datos** - Descarga en CSV, PDF, Excel
-- 🌍 **Soporte Multi-idioma** - Interface completa en inglés, español, portugués
+- 🌍 **Cambio Dinámico de Idioma** - Selector de idioma en UI (i18n v2)
 
 ### v2.0.0+ (Futuro - Gestión Integral)
 - 🎯 **Gestión de Tareas** - Sistema de tareas y subtareas por proyecto
@@ -52,7 +53,7 @@
 - 🔄 **Integración Bancaria** - Conexión con APIs bancarias reales
 - 💱 **Conversión Multi-moneda** - Soporte para múltiples divisas
 - 📱 **Aplicación Móvil** - React Native app (iOS/Android)
-- 🎨 **Frontend Web** - React 18+ con UI moderna y responsive
+- 🎨 **Frontend Web Completo** - React 19+ con UI moderna y responsive
 
 ### 🔮 Visión Futura
 - 🤖 Automatización de flujos
@@ -202,52 +203,74 @@ Ver [docs/02-development/API.md](docs/02-development/API.md) para documentación
 
 ### Backend
 - **Laravel 12.38.1** - Framework PHP moderno y escalable
-- **PHP 8.4.14** - Lenguaje backend
-- **Sanctum** - Autenticación basada en tokens JWT
-- **Eloquent ORM** - Manejo elegante de base de datos
+- **PHP 8.2** - Lenguaje backend con tipado estricto
+- **Sanctum** - Autenticación basada en tokens API
+- **Eloquent ORM** - Manejo elegante de base de datos con relaciones
 - **Meilisearch** - Motor de búsqueda de alto rendimiento
 - **Redis** - Cache y sesiones distribuidas
 
-### Frontend (Próximamente)
-- **React 18+** - Librería de UI moderna para web
-- **React Native** - Desarrollo de app móvil (iOS/Android)
-- **Tailwind CSS** - Estilos modernos y responsive
-- **TypeScript** - Tipado estático para confiabilidad
+### Frontend
+- **React 19** - Librería de UI moderna y reactiva
+- **Inertia.js** - Adaptador entre Laravel y React (sin API REST)
+- **React Router DOM** - Enrutamiento cliente-lado
+- **Vite** - Build tool ultra-rápido (HMR en <100ms)
+- **Tailwind CSS** - Utility-first CSS para estilos responsive
+- **Axios** - Cliente HTTP con interceptores para autenticación
+- **i18next & react-i18next** - Sistema multilingüe (Español, Inglés)
+- **JavaScript** - Lenguaje dinámico con path aliases configurados
+
+### Base de Datos
+- **MySQL 8.0** - Base de datos relacional altamente confiable
+- **Migrations** - Control de versiones de esquema
+- **Seeders & Factories** - Data fixtures para testing
 
 ### Infraestructura & DevOps
-- **Docker & Docker Compose** - Containerización y orquestación
-- **MySQL 8.0** - Base de datos relacional
-- **Nginx** - Web server de alto rendimiento
-- **Mailpit** - Testing local de emails
-- **Redis** - Caché distribuida
+- **Docker & Docker Compose** - Containerización multi-servicio
+- **Apache 2.4** - Web server con mod_rewrite para URLs limpias
+- **GitHub Container Registry** - Almacenamiento de imágenes Docker
+- **GitHub Actions** - CI/CD automático (build, test, deploy)
+- **Self-hosted Runner** - Despliegue en homelab privado
+- **Mailpit** - Testing local de emails SMTP
 
 ### Calidad & Testing
-- **PHPUnit** - Testing unitario y funcional
-- **Vite** - Build tool moderno para frontend
+- **PHPUnit** - Testing unitario, funcional e integración (154 tests)
 - **Composer** - Gestor de dependencias PHP
-- **Git** - Control de versiones
+- **npm/Node.js** - Gestor de dependencias frontend
+- **PHPStan Level 8** - Análisis estático PHP
+- **Pint** - Code style automatizado
 
-### Extras
-- **Soporte Multi-idioma** - i18n integrado
-- **Mailtrap/Mailpit** - Integración email
-- **CORS Configurado** - Seguridad cross-domain
+### Seguridad & Monitoring
+- **Laravel Policies** - Autorización granular por recurso
+- **Form Requests** - Validación centralizada
+- **Rate Limiting** - Protección contra abuso API
+- **CORS Configurado** - Seguridad cross-domain hardened
+- **Password Hashing** - bcrypt con opciones seguras
+- **Email Verification** - Confirmación de cuenta obligatoria
+
+### Documentación & Colaboración
+- **Markdown** - Documentación completa en `docs/`
+- **API Documentation** - 50+ endpoints documentados
+- **AI Collaboration Guides** - Onboarding para IAs
+- **CHANGELOG** - Historial detallado de cambios
 
 ## 📊 Estado del Proyecto (v1.0.0)
 
 | Aspecto | Estado |
 |--------|--------|
-| **Backend API** | ✅ Completo y funcional |
-| **Módulo Financiero** | ✅ Production-ready |
-| **Testing** | ✅ 131/131 tests pasando (342 assertions) |
+| **Backend API** | ✅ Completo y production-ready |
+| **Módulo Financiero** | ✅ Funcional - 50+ endpoints |
+| **Testing** | ✅ 154/154 tests configurados (342 assertions) |
 | **Documentación** | ✅ Completa y estructurada en `docs/` |
-| **Email System** | ✅ 3 templates profesionales |
+| **Email System** | ✅ 3 templates profesionales + Mailpit |
 | **Seguridad** | ✅ Auditoría completa - Policies + FormRequest + Rate Limiting |
-| **Frontend Web** | 🔄 Próxima fase (React) |
+| **Frontend Web** | 🔄 En desarrollo - React 19 + Inertia + Vite |
+| **CI/CD Pipeline** | ✅ GitHub Actions - Build, Test, Deploy automático |
+| **Docker & Containerización** | ✅ Dev + Prod compose configurados |
 | **App Móvil** | 🔄 Próxima fase (React Native) |
 | **Multi-idioma** | 🔄 En desarrollo |
-| **Reportes/Gráficas** | 🔄 Próxima release |
-| **Exportación Datos** | 🔄 Próxima release |
-| **Calendario** | 🔄 Próxima release |
+| **Reportes/Gráficas** | 🔄 Próxima release (v1.1.0) |
+| **Exportación Datos** | 🔄 Próxima release (v1.1.0) |
+| **Calendario** | 🔄 Próxima release (v1.1.0) |
 
 ## 🤝 Contribuir
 

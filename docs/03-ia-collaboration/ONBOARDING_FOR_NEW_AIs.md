@@ -126,6 +126,35 @@ Laravel Sanctum
 └─ Logout revoca tokens
 ```
 
+### Frontend
+
+```
+React 19 + Inertia.js
+├─ React 19 (UI moderna)
+├─ Inertia.js (Laravel↔React bridge, sin API REST)
+├─ Vite 7.2.2 (Build tool con HMR <100ms)
+├─ Tailwind CSS (Utility-first styling)
+├─ React Router DOM (Client-side routing)
+└─ Axios (HTTP client)
+```
+
+### Internacionalización (i18n)
+
+```
+Sistema Multilingüe ✨ NUEVO
+├─ i18next + react-i18next
+├─ Hook personalizado: useTranslate()
+├─ Idiomas soportados: Español, Inglés
+├─ Traducciones en: resources/lang/{es,en}.json
+├─ Inyección automática: HandleInertiaRequests middleware
+├─ Zero hardcoding: SIEMPRE usar t('clave')
+└─ HMR compatible: Cambios instantáneos con Vite
+
+REGLA DE ORO PARA FRONTEND:
+❌ NUNCA: <h1>"Mi Texto"</h1>  (hardcoding)
+✅ SIEMPRE: <h1>{t('seccion.clave')}</h1>  (traducción)
+```
+
 ---
 
 ## 📁 Estructura del Proyecto
@@ -146,6 +175,9 @@ controlApp/
 │   ├── Http/
 │   │   └── Controllers/     # API controllers
 │   │       └── Api/         # Rutas protegidas
+│   ├── Http/
+│   │   └── Middleware/
+│   │       └── HandleInertiaRequests.php  # ← i18n aquí
 │   ├── Mail/                # Clases de correo
 │   ├── Notifications/       # Notificaciones
 │   ├── Observers/           # Event listeners
@@ -157,6 +189,24 @@ controlApp/
 │   ├── api.php              # Rutas API
 │   ├── web.php              # Rutas web (si hay)
 │   └── console.php          # Comandos artisan
+│
+├── resources/
+│   ├── lang/                # ← TRADUCCIONES (NUEVO!)
+│   │   ├── es.json          # Español (136 claves)
+│   │   └── en.json          # Inglés (136 claves)
+│   ├── js/
+│   │   ├── hooks/
+│   │   │   └── useTranslate.jsx  # ← Hook i18n (NUEVO!)
+│   │   ├── Providers/
+│   │   │   └── I18nProvider.jsx  # ← Provider (NUEVO!)
+│   │   ├── Pages/           # Páginas React
+│   │   │   ├── Dashboard.jsx     # ← Con i18n refactorizado
+│   │   │   └── ...
+│   │   ├── Components/
+│   │   │   ├── Project/
+│   │   │   │   └── ProjectCard.jsx  # ← Con i18n refactorizado
+│   │   │   └── ...
+│   │   └── Layouts/         # Layouts
 │
 ├── database/
 │   ├── migrations/          # Esquema BD
@@ -669,6 +719,252 @@ Procedimiento:
 
 # 8. Si pasan: Documentar en CHANGELOG_DETAILED.md
 ```
+
+### P: ¿Cómo agrego traducción a un componente React?
+
+**R**: ✅ ESTE ES UN PASO IMPORTANTE. Sigue el **FLUJO IDEAL**:
+
+---
+
+#### 🎯 FLUJO IDEAL PARA i18n
+
+**Principio**: NUNCA crear texto en React sin traducción inmediata. Esto evita "deuda técnica" de traducciones.
+
+```
+PASO A PASO (Orden CRÍTICO):
+
+1️⃣ ANTES de escribir React code, agregar claves a JSONs:
+   
+   A) EDITAR: resources/lang/es.json
+      {
+        "accounts": {
+          "balance": "Balance de Cuentas",
+          "total": "Total de Cuentas"
+        }
+      }
+   
+   B) EDITAR: resources/lang/en.json
+      {
+        "accounts": {
+          "balance": "Account Balance",
+          "total": "Total Accounts"
+        }
+      }
+
+2️⃣ LUEGO escribir el componente React:
+   
+   import { useTranslate } from '@/hooks/useTranslate';
+   
+   export default function AccountsComponent() {
+       const t = useTranslate();
+       return (
+           <>
+               <h1>{t('accounts.balance')}</h1>
+               <p>{t('accounts.total')}</p>
+           </>
+       );
+   }
+
+3️⃣ VERIFICAR en navegador (HMR automático):
+   - http://localhost:5175
+   - ✅ Deberías ver: "Balance de Cuentas"
+   - Si ves: "accounts.balance" → Clave NO EXISTE
+```
+
+---
+
+#### 💡 ¿Qué pasa si la clave falta?
+
+**Sistema de Fallback automático** (en `useTranslate` hook):
+
+```javascript
+// Si la clave NO existe:
+{t('accounts.missing')}
+// Renderiza: "accounts.missing" (la clave misma)
+
+// Esto te AYUDA a identificar claves faltantes:
+// ✅ Si ves texto normal → clave existe
+// ❌ Si ves "accounts.missing" → OLVIDASTE agregar a JSON
+
+// Ejemplo visual:
+// ✅ {t('accounts.balance')}  → "Balance de Cuentas"
+// ❌ {t('accounts.typo')}     → "accounts.typo" (¡DETECTA EL ERROR!)
+```
+
+---
+
+#### ✨ Ventajas del Flujo Ideal
+
+```
+ANTES (❌ Mala Práctica):
+1. Escribir React: <h1>"Balance de Cuentas"</h1>
+2. Luego recordar agregar a JSON
+3. Resultado: Algunos textos SIN traducción en inglés
+4. Deuda técnica acumulada: 😞
+
+DESPUÉS (✅ Flujo Ideal):
+1. Agregar a es.json Y en.json PRIMERO
+2. Luego escribir React con t('clave')
+3. Resultado: SIEMPRE 100% traducido en ambos idiomas
+4. Deuda técnica: 0 ✨
+
+BENEFICIO: Si ves un string sin t(), sabes que falta traducción.
+El fallback te muestra exactamente dónde.
+```
+
+---
+
+#### 📋 CHECKLIST Completo (en orden)
+
+```
+ANTES DE CODEAR:
+- [ ] ¿Necesito texto nuevo en UI?
+- [ ] ✅ Sí → Ir a PASO 1
+
+PASO 1 - Agregar a resources/lang/es.json
+- [ ] Identifiqué la sección (accounts, projects, etc.)
+- [ ] Agregué la clave con texto en ESPAÑOL
+- [ ] Guardé el archivo
+- [ ] Verifiqué sintaxis JSON (sin errores)
+
+PASO 2 - Agregar a resources/lang/en.json
+- [ ] ⚠️ CRÍTICO: Agregar la MISMA clave
+- [ ] Traduje a INGLÉS
+- [ ] Guardé el archivo
+- [ ] ❌ NUNCA omitir este paso
+
+PASO 3 - Usar en React
+- [ ] Importé: import { useTranslate } from '@/hooks/useTranslate';
+- [ ] Declaré: const t = useTranslate();
+- [ ] Usé en JSX: {t('seccion.clave')}
+- [ ] Verifiqué notación de punto (no guiones, no camelCase)
+
+PASO 4 - Verificar
+- [ ] Abierto http://localhost:5175
+- [ ] ✅ Veo texto en ESPAÑOL
+- [ ] ❌ NO veo "seccion.clave" (que indicaría error)
+- [ ] HMR actualizó automáticamente (<100ms)
+
+LISTO: ✅ Componente traducido al 100%
+```
+
+---
+
+#### 🔍 Debugging i18n
+
+Si algo sale mal, verifica esto EN ORDEN:
+
+```
+1. ¿Veo "seccion.clave" en pantalla?
+   → La clave NO existe en JSON
+   → Solución: Agregala a es.json Y en.json
+
+2. ¿El texto está en inglés cuando debería ser español?
+   → Middleware no inyectó traducciones
+   → Verifica: app/Http/Middleware/HandleInertiaRequests.php
+   → O recarga la página (Ctrl+Shift+R)
+
+3. ¿El cambio en JSON no aparece en UI?
+   → HMR no recargó
+   → Solución: Recarga manual (F5)
+   → O revisa terminal de Vite: ¿dice "hmr update"?
+
+4. ¿Error: Cannot read property 'seccion' of undefined?
+   → El hook useTranslate() devolvió undefined
+   → Verifica: ¿Está el componente dentro de Inertia?
+   → O verifica: ¿Middleware inyectó props correctamente?
+```
+
+---
+
+#### 📚 Ejemplo Completo Paso a Paso
+
+```
+TAREA: Agregar botón "Balance de Cuentas" a Dashboard
+
+PASO 1 - EDITAR: resources/lang/es.json
+{
+  "dashboard": { ... },
+  "accounts": {
+    "balance": "Balance de Cuentas"
+  }
+}
+
+PASO 2 - EDITAR: resources/lang/en.json
+{
+  "dashboard": { ... },
+  "accounts": {
+    "balance": "Account Balance"
+  }
+}
+
+PASO 3 - EDITAR: resources/js/Pages/Dashboard.jsx
+import { useTranslate } from '@/hooks/useTranslate';
+
+export default function Dashboard() {
+    const t = useTranslate();
+    
+    return (
+        <div>
+            <h1>{t('dashboard.title')}</h1>
+            <button>{t('accounts.balance')}</button>  ← ✅ CORRECTO
+        </div>
+    );
+}
+
+PASO 4 - VERIFICAR en http://localhost:5175
+✅ Ves: "Balance de Cuentas"
+❌ NO ves: "accounts.balance"
+
+LISTO: Componente completamente traducido en 2 idiomas
+```
+
+---
+
+#### 🚀 Quick Reference (Memorizar esto)
+
+```
+SIEMPRE:
+✅ es.json FIRST
+✅ en.json SECOND (NUNCA OLVIDES)
+✅ t('seccion.clave') en React
+✅ Punto (.) para acceder a claves anidadas
+
+NUNCA:
+❌ Hardcodear strings: <h1>"Mi Texto"</h1>
+❌ Agregar solo a es.json sin en.json
+❌ Usar guiones o camelCase en claves JSON
+❌ Escribir React antes de agregar a JSONs
+
+RECUERDA:
+💡 Si ves la clave (accounts.balance) en pantalla
+   → Falta agregar a JSON
+   → El fallback te lo MUESTRA para que lo arregles
+```
+
+---
+
+**REGLA DE ORO**:
+- ✅ Agregá a JSON primero, código React después
+- ✅ SIEMPRE AMBOS IDIOMAS (es.json + en.json)
+- ✅ NUNCA hardcodear, SIEMPRE usar t()
+- ✅ El fallback es tu amigo para detectar errores
+
+**Ver más**: [docs/03-ia-collaboration/I18N_QUICK_REFERENCE.md](./I18N_QUICK_REFERENCE.md)
+
+---
+
+## 📚 Documentación Importante
+
+| Documento | Cuándo Leerlo |
+|-----------|---------------|
+| **[AI_GUIDELINES.md](./AI_GUIDELINES.md)** | Normas de comportamiento |
+| **[CHANGELOG_DETAILED.md](../01-core/CHANGELOG_DETAILED.md)** | Historial completo del proyecto |
+| **[I18N_QUICK_REFERENCE.md](./I18N_QUICK_REFERENCE.md)** | 🆕 Quick start para agregar traducciones |
+| **[I18N_IMPLEMENTATION.md](./I18N_IMPLEMENTATION.md)** | 🆕 Guía completa de i18n |
+| **[TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md)** | Arquitectura de tests |
+
+
 
 ### P: ¿Qué es la trait `RefreshDatabase`?
 

@@ -1,0 +1,6 @@
+# PHPStan configuration to suppress factory type warnings in tests
+parameters:
+    ignoreErrors:
+        # Factory returns can be Model or Collection - ignore in tests
+        - pattern: '#Expected.*Authenticatable.*Found.*Collection.*Model#'
+        - pattern: '#Expected type.*Authenticatable.*Found.*Eloquent#'

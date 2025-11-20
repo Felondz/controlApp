@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ProyectoMiembroController;
 use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\FinanzasPersonalesController;
+use App\Http\Controllers\Api\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -62,6 +63,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Autenticación
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn(Request $request) => $request->user());
+
+    // --- Usuario: Preferencias ---
+    Route::put('/user/locale', [UserController::class, 'updateLocale']);
 
     // --- Rutas CRUD (Forma Limpia) ---
     // Proyectos (CRUD completo)

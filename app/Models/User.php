@@ -18,6 +18,7 @@ use App\Notifications\VerificacionEmailNotification;
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
+ * @property string $locale
  * @property bool $is_super_admin
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -40,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'locale',
     ];
 
     /**

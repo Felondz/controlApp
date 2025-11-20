@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
+use Illuminate\Support\Facades\Auth;
 
 class StoreProyectoRequest extends FormRequest
 {
@@ -29,19 +31,20 @@ class StoreProyectoRequest extends FormRequest
             'nombre' => [
                 'required',
                 'string',
-                'max:255',
-                'min:3',
+                'max:255',   
+                Rule::unique('proyectos')->where(function ($query) {
+                    return $query->where('user_id', Auth::id());
+                }),
             ],
             'descripcion' => [
                 'nullable',
                 'string',
                 'max:1000',
             ],
-            'moneda' => [
+            'moneda_default' => [
                 'required',
                 'string',
-                'size:3', // ISO 4217 currency code (e.g., USD, EUR)
-                'uppercase',
+                'in:COP,USD,EUR',  // Remover 'uppercase' - no es una regla válida
             ],
         ];
     }
@@ -60,9 +63,10 @@ class StoreProyectoRequest extends FormRequest
             'nombre.min' => 'El nombre debe tener al menos 3 caracteres.',
             'descripcion.string' => 'La descripción debe ser texto.',
             'descripcion.max' => 'La descripción no puede exceder 1000 caracteres.',
-            'moneda.required' => 'La moneda es obligatoria.',
-            'moneda.size' => 'La moneda debe ser un código de 3 caracteres (ej: USD, EUR).',
-            'moneda.uppercase' => 'El código de moneda debe estar en mayúsculas.',
+            'moneda_default.required' => 'La moneda es obligatoria.',
+            'moneda_default.in' => 'La moneda debe ser una de las siguientes: COP, USD, EUR.',
+            'moneda_default.uppercase' => 'El código de moneda debe estar en mayúsculas.',
+            'nombre.unique' => 'Ya tienes un proyecto con este nombre.',
         ];
     }
 }

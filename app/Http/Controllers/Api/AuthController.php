@@ -82,10 +82,11 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // Revoca el token específico que se usó para hacer esta petición
-        $token = $request->user()->currentAccessToken();
+        /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+        $token = $request->user()?->currentAccessToken();
 
-        // Solo intentar eliminar si el token existe y es persistente
-        if ($token && method_exists($token, 'delete')) {
+        // Eliminar el token si existe
+        if ($token) {
             $token->delete();
         }
 

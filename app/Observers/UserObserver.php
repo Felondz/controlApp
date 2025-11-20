@@ -12,14 +12,19 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        // Crear proyecto de finanzas personales automáticamente
-        Proyecto::create([
+        // 1. Crear el proyecto personal y capturar la instancia
+        $personalProject = Proyecto::create([
             'nombre' => 'Finanzas Personales',
             'moneda_default' => 'COP',
             'user_id' => $user->id,
             'es_personal' => true,
-            'visible_en_listado' => false, // Oculto del listado normal
+            'visible_en_listado' => false,
         ]);
+
+        // 2. ADJUNTAR LA RELACIÓN many-to-many
+        // Esto asocia el proyecto recién creado con el usuario a través de la tabla pivote
+        // y le asigna el rol de 'admin' al creador.
+        $user->proyectos()->attach($personalProject->id, ['rol' => 'admin']);
     }
 
     /**
