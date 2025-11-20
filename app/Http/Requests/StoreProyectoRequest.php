@@ -31,6 +31,7 @@ class StoreProyectoRequest extends FormRequest
             'nombre' => [
                 'required',
                 'string',
+                'min:3',
                 'max:255',   
                 Rule::unique('proyectos')->where(function ($query) {
                     return $query->where('user_id', Auth::id());

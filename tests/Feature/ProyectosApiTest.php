@@ -145,6 +145,8 @@ class ProyectosApiTest extends TestCase
     }
     /**
      * Test 6: Usuario puede listar sus propios proyectos
+     * Nota: El UserObserver crea automáticamente un proyecto personal, por lo que:
+     * 1 personal + 2 creados = 3 total
      */
     public function test_usuario_puede_listar_sus_proyectos(): void
     {
@@ -156,14 +158,16 @@ class ProyectosApiTest extends TestCase
             ->getJson('/api/proyectos');
 
         $response->assertStatus(200)
-            ->assertJsonCount(2); // Debe tener 2 proyectos
+            ->assertJsonCount(3); // 1 personal + 2 proyectos = 3
 
         $response->assertJsonFragment(['nombre' => 'Proyecto Prueba'])
-            ->assertJsonFragment(['nombre' => 'Proyecto 2']);
+            ->assertJsonFragment(['nombre' => 'Proyecto 2'])
+            ->assertJsonFragment(['nombre' => 'Finanzas Personales']);
     }
 
     /**
      * Test 7: Usuario solo ve sus propios proyectos (no los de otros)
+     * Nota: El UserObserver crea automáticamente un proyecto personal
      */
     public function test_usuario_no_puede_ver_proyectos_de_otros(): void
     {
@@ -174,8 +178,9 @@ class ProyectosApiTest extends TestCase
             ->getJson('/api/proyectos');
 
         $response->assertStatus(200)
-            ->assertJsonCount(1) // Solo debe ver su proyecto
-            ->assertJsonFragment(['nombre' => 'Proyecto Prueba']);
+            ->assertJsonCount(2) // 1 personal + 1 proyecto prueba
+            ->assertJsonFragment(['nombre' => 'Proyecto Prueba'])
+            ->assertJsonFragment(['nombre' => 'Finanzas Personales']);
 
         // No debe aparecer el proyecto del otro usuario
         $response->assertJsonMissing(['nombre' => 'Proyecto Privado']);
