@@ -71,7 +71,7 @@ jobs:
           sed -i '/^MAIL_/d' .env.testing
           echo "MAIL_MAILER=log" >> .env.testing
           echo "MAIL_FROM_ADDRESS=test@example.com" >> .env.testing
-          echo "MAIL_FROM_NAME=ControlApp Tests" >> .env.testing
+          echo "MAIL_FROM_NAME=ControlApp_Tests" >> .env.testing
           # Add CI-specific settings (only if not already present)
           grep -q "^QUEUE_CONNECTION" .env.testing || echo "QUEUE_CONNECTION=sync" >> .env.testing
           grep -q "^BROADCAST_DRIVER" .env.testing || echo "BROADCAST_DRIVER=log" >> .env.testing
