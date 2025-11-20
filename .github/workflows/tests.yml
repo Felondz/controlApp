@@ -66,9 +66,10 @@ jobs:
         run: |
           # Override DB_HOST for CI (GitHub Actions uses 127.0.0.1, not mysql)
           sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+          # Force MAIL_MAILER to log for CI (no mailpit available)
+          sed -i 's/MAIL_MAILER=.*/MAIL_MAILER=log/' .env.testing
           # Add CI-specific settings (only if not already present)
           grep -q "^QUEUE_CONNECTION" .env.testing || echo "QUEUE_CONNECTION=sync" >> .env.testing
-          grep -q "^MAIL_MAILER" .env.testing || echo "MAIL_MAILER=log" >> .env.testing
           grep -q "^BROADCAST_DRIVER" .env.testing || echo "BROADCAST_DRIVER=log" >> .env.testing
           grep -q "^CI=" .env.testing || echo "CI=true" >> .env.testing
           # Ensure APP_KEY is set (should already be in .env.testing)
