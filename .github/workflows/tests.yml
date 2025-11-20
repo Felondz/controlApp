@@ -67,7 +67,11 @@ jobs:
           # Override DB_HOST for CI (GitHub Actions uses 127.0.0.1, not mysql)
           sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
           # Force MAIL_MAILER to log for CI (no mailpit available)
-          sed -i 's/MAIL_MAILER=.*/MAIL_MAILER=log/' .env.testing
+          # Remove any existing MAIL_* configuration lines and ensure log driver
+          sed -i '/^MAIL_/d' .env.testing
+          echo "MAIL_MAILER=log" >> .env.testing
+          echo "MAIL_FROM_ADDRESS=test@example.com" >> .env.testing
+          echo "MAIL_FROM_NAME=ControlApp Tests" >> .env.testing
           # Add CI-specific settings (only if not already present)
           grep -q "^QUEUE_CONNECTION" .env.testing || echo "QUEUE_CONNECTION=sync" >> .env.testing
           grep -q "^BROADCAST_DRIVER" .env.testing || echo "BROADCAST_DRIVER=log" >> .env.testing
@@ -89,6 +93,9 @@ jobs:
           DB_DATABASE: laravel_test
           DB_USERNAME: root
           DB_PASSWORD: password
+          MAIL_MAILER: log
+          QUEUE_CONNECTION: sync
+          BROADCAST_DRIVER: log
 
       - name: Run tests
         run: php artisan test --testdox
@@ -97,6 +104,9 @@ jobs:
           DB_DATABASE: laravel_test
           DB_USERNAME: root
           DB_PASSWORD: password
+          MAIL_MAILER: log
+          QUEUE_CONNECTION: sync
+          BROADCAST_DRIVER: log
 
       - name: Upload coverage reports
         if: always()
