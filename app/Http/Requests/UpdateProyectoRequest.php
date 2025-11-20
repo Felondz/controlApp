@@ -30,19 +30,10 @@ class UpdateProyectoRequest extends FormRequest
                 'string',
                 'max:255',
                 'min:3',
+                Rule::unique('proyectos')->ignore($this->route('proyecto')),
             ],
-            'descripcion' => [
-                'sometimes',
-                'nullable',
-                'string',
-                'max:1000',
-            ],
-            'moneda' => [
-                'sometimes',
-                'string',
-                'size:3', // ISO 4217 currency code
-                'uppercase',
-            ],
+            'moneda' => 'sometimes|required|in:COP,USD,EUR',
+            'descripcion' => 'nullable|string|max:1000',
         ];
     }
 
@@ -57,10 +48,10 @@ class UpdateProyectoRequest extends FormRequest
             'nombre.string' => 'El nombre debe ser texto.',
             'nombre.max' => 'El nombre no puede exceder 255 caracteres.',
             'nombre.min' => 'El nombre debe tener al menos 3 caracteres.',
+            'nombre.unique' => 'Ya existe un proyecto con ese nombre.',
             'descripcion.string' => 'La descripción debe ser texto.',
             'descripcion.max' => 'La descripción no puede exceder 1000 caracteres.',
-            'moneda.size' => 'La moneda debe ser un código de 3 caracteres (ej: USD, EUR).',
-            'moneda.uppercase' => 'El código de moneda debe estar en mayúsculas.',
+            'moneda.in' => 'La moneda seleccionada no es válida.',
         ];
     }
 }
