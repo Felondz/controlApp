@@ -10,11 +10,12 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Tests Passing** | 163 / 163 | ✅ **100% Stable** |
+| **Backend Tests** | 163 / 163 | ✅ **100% Stable** |
 | **Total Assertions** | 440+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Current Version** | v1.0.0 (Production Ready) | ✅ **Stable** |
+| **Backend Version** | v1.0.0 (Production Ready) | ✅ **Stable** |
+| **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
 
@@ -33,12 +34,13 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 | **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
 
-### Frontend (Web/Mobile Readiness)
-| Component | Technology |
+### Frontend (Web/Mobile Readiness) - 🚧 In Development
+| Component | Technology | Status |
 | :--- | :--- | :--- |
-| **Framework** | React 19 + Inertia.js | Building Single-Page Applications (SPA) with routing and data binding efficiency. |
-| **Tooling** | Vite | Configuration and leverage of **Hot Module Replacement (HMR)** for rapid development. |
-| **Localization (i18n)** | i18next + Custom Hook | Implementation of a sustainable **multilingual flow** with automatic debugging fallback. |
+| **Framework** | React 19 + Inertia.js | 🚧 **In Active Development** |
+| **Tooling** | Vite | ✅ **Configured** |
+| **Localization (i18n)** | i18next + Custom Hook | 🚧 **Being Implemented** |
+| **UI/UX** | Tailwind CSS + React Components | 🚧 **In Development** |
 
 ---
 
