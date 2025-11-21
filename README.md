@@ -61,6 +61,29 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 
 ---
 
+## 📚 Documentation
+
+Complete documentation is available in **English** and **Spanish**:
+
+| Language | Link | Contents |
+| :--- | :--- | :--- |
+| 🇬🇧 **English** | [`/docs/en/`](./docs/en/README.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
+| 🇪🇸 **Spanish** | [`/docs/es/`](./docs/es/README.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
+
+### Quick Navigation
+
+**For Developers:**
+- ✅ [Installation Guide](./docs/en/02-development/INSTALLATION.md) (English)
+- ✅ [Guía de Instalación](./docs/es/02-development/INSTALLATION.md) (Spanish)
+- 📖 [API Documentation](./docs/en/02-development/API.md) (English)
+- 📖 [Documentación de API](./docs/es/02-development/API.md) (Spanish)
+
+**For QA & Testing:**
+- 🧪 [Testing Architecture](./docs/en/04-testing/TESTING_ARCHITECTURE.md) (English)
+- 🧪 [Arquitectura de Testing](./docs/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
+
+---
+
 ## ⚙️ Local Installation Guide (for Reviewers)
 
 The project is easily runnable using Docker and Laravel Sail.

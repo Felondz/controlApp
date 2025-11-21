@@ -185,7 +185,7 @@ SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
    - ❌ DOCUMENTATION_GUIDE.md
    - ❌ DOCUMENTATION_SUMMARY.md
    - ❌ CHANGELOG_DIFFERENCE_EXPLAINED.md
-   Motivo: Información consolidada en CHANGELOG_DETAILED.md e INDEX.md
+   Motivo: Información consolidada en CHANGELOG.md e INDEX.md
 
 3. **Actualizado INDEX.md**:
    - Nueva estructura clara por carpetas
@@ -197,7 +197,7 @@ SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
 4. **Actualizado AI_GUIDELINES.md**:
    - Nueva sección: "Patrón de Documentación"
    - Regla Principal: NO crear documentos sin necesidad
-   - Flujo de decisión: ¿Cambiar código? → CHANGELOG_DETAILED.md
+   - Flujo de decisión: ¿Cambiar código? → CHANGELOG.md
    - Checklist ANTES de crear nuevo documento
    - Tabla: Archivo + Propósito + Cuándo actualizar + Cuándo crear
 
@@ -211,7 +211,7 @@ SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
    - ✅ ControlApp es plataforma de **gestión de proyectos en general**
    - ✅ **FEATURE 1: Gestión Financiera** (ya implementada - cuentas, transacciones, categorías)
    - ✅ Próximas features: tareas, documentos, comunicación, etc.
-   - Actualizado descripción en INDEX.md, ONBOARDING, CHANGELOG_DETAILED
+   - Actualizado descripción en INDEX.md, ONBOARDING, CHANGELOG
 
 **Resultado**:
 - ✅ Estructura limpia, lógica y escalable
@@ -224,7 +224,7 @@ SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
 **Archivos Modificados**:
 - `docs/01-core/INDEX.md` (completamente reescrito)
 - `docs/01-core/README.md` (creado)
-- `docs/01-core/CHANGELOG_DETAILED.md` (actualizado resumen)
+- `docs/01-core/CHANGELOG.md` (actualizado resumen)
 - `docs/03-ia-collaboration/AI_GUIDELINES.md` (sección documentación)
 - `docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md` (descripción del proyecto)
 - `docs/02-development/README.md` (creado)
@@ -234,7 +234,7 @@ SANCTUM_TOKEN_EXPIRATION=1440  # 24 hours
 - `docs/README.md` (creado en raíz)
 
 **Documentos Movidos** (25 archivos reorganizados):
-- CHANGELOG.md, CHANGELOG_DETAILED.md, QUICK_REFERENCE.md → `01-core/`
+- CHANGELOG.md, QUICK_REFERENCE.md → `01-core/`
 - INSTALLATION.md, API.md, DATABASE.md, AUTHENTICATION.md, CONTRIBUTING.md → `02-development/`
 - AI_GUIDELINES.md, ONBOARDING_FOR_NEW_AIs.md, HOW_TO_SWITCH_TO_NEW_AI.md → `03-ia-collaboration/`
 - TESTING_ARCHITECTURE.md, TESTING.md, TESTING_SCRIPTS.md, TESTING_*.md → `04-testing/`
@@ -765,7 +765,7 @@ Frontend (React):
 **Documentación Actualizada**:
 - `README.md` - Agregó section sobre i18n en stack
 - `docs/03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md` - Guía i18n para nuevas IAs
-- `docs/01-core/CHANGELOG_DETAILED.md` - Este documento
+- `docs/01-core/CHANGELOG.md` - Este documento
 
 **Reglas de Oro para Colaboradores** (SIEMPRE):
 ✅ Importar `useTranslate` en componentes React
@@ -871,7 +871,7 @@ Usuario pidió documentación para que IAs puedan:
 
 **Archivos Creados**:
 - `docs/03-ia-collaboration/AI_GUIDELINES.md` (Normas de comportamiento para IAs)
-- `docs/01-core/CHANGELOG_DETAILED.md` (Este archivo)
+- `docs/01-core/CHANGELOG.md` (Este archivo)
 - `docs/04-testing/TESTING_ARCHITECTURE.md` (Explicación de estrategia de tests)
 
 **Contenido de AI_GUIDELINES.md**:
@@ -883,7 +883,7 @@ Usuario pidió documentación para que IAs puedan:
 - 💬 Formato de comunicación
 - ✅ Checklists para cada tipo de tarea
 
-**Contenido de CHANGELOG_DETAILED.md**:
+**Contenido de CHANGELOG.md**:
 - Este archivo, con registro exhaustivo de cambios
 - Trazabilidad completa de cada decisión
 - Análisis de problemas y soluciones
@@ -1376,7 +1376,7 @@ Datos Sensibles: Hasheados (passwords, tokens)
 
 Cuando otro desarrollador o IA continúe este proyecto:
 
-1. **Leer Este Archivo** (CHANGELOG_DETAILED.md)
+1. **Leer Este Archivo** (CHANGELOG.md)
 2. **Leer** `docs/03-ia-collaboration/AI_GUIDELINES.md` para entender el flujo
 3. **Revisar** Los últimos cambios en git log
 4. **Ejecutar** `docker compose exec -T laravel.test php artisan test --testdox` para validar

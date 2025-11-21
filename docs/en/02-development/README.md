@@ -1,15 +1,15 @@
-# 💻 02-Development Documentation
+# 💻 Documentación de Desarrollo - Español
 
-Guías para desarrolladores trabajando en ControlApp.
+Guías exhaustivas para desarrolladores trabajando en ControlApp.
 
-**Last Updated**: November 16, 2025 - Security Audit & Authorization Policies Added
+**Última Actualización**: 20 de Noviembre de 2025
 
 ## 📁 Contenidos
 
 - **INSTALLATION.md** - Cómo instalar ControlApp (con/sin Docker)
 - **API.md** - Documentación de endpoints REST (actualizado con rate limiting)
-- **AUTHENTICATION.md** - Sistema de autenticación y seguridad (actualizado con nuevas medidas)
-- **AUTHORIZATION_VALIDATION.md** - **NEW** - Policies, FormRequest, Rate Limiting
+- **AUTHENTICATION.md** - Sistema de autenticación y seguridad
+- **AUTHORIZATION_VALIDATION.md** - Políticas, FormRequest, Rate Limiting
 - **DATABASE.md** - Esquema de base de datos y modelos
 - **CONTRIBUTING.md** - Cómo contribuir al proyecto
 
