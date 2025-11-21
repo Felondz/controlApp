@@ -4,6 +4,10 @@ services:
     image: ghcr.io/felondz/controlapp:latest
     container_name: controlapp_app
     restart: unless-stopped
+    environment:
+      # Forzamos los drivers de caché y sesión a 'file' para evitar el bloqueo silencioso
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
     env_file: .env
     volumes:
       - ./storage:/var/www/html/storage
