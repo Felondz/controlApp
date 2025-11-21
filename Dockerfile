@@ -21,13 +21,19 @@ WORKDIR /var/www/html
 # Copy composer from official composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
-COPY . .
+# --- CAMBIO CRÍTICO AQUÍ ---
+# Copiamos los archivos y asignamos el dueño a www-data inmediatamente
+# Esto evita que los archivos pertenezcan a 'root' y causen el error 504
+COPY --chown=www-data:www-data . .
+# ---------------------------
 
 # Install PHP dependencies
+# Ejecutamos esto después del COPY para que el vendor se genere correctamente
 RUN composer install --no-dev --optimize-autoloader
 
 # Set proper permissions
+# Mantenemos esto por seguridad para asegurar que storage siga siendo escribible
+# después de la instalación de dependencias
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Configure Apache
