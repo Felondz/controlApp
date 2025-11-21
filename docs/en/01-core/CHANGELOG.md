@@ -1494,3 +1494,13 @@ El objetivo es que en 6 meses, 1 año, o 5 años:
 
 ### 📊 Testing Status
 - ✅ 163/163 Tests Pasando (100%) ✅ 440 Assertions Correctas ✅ 0 Failures | 0 Errors
+
+## [Unreleased] - 2025-11-21
+
+### 🚀 Infrastructure & DevOps
+- **FIX (Critical):** Resolved "504 Gateway Timeout" error in production.
+    - Updated `.gitignore` to include the `public/build` folder and `manifest.json` in the repository.
+    - Updated `Dockerfile` to assign `www-data:www-data` ownership during image build (write permissions fix).
+- **FEAT:** Configured automatic deployment (CI/CD) pipeline with GitHub Actions.
+- **FEAT:** Integrated with Traefik for `controlapp.site` and `api.controlapp.site` domains with automatic SSL.
+- **CONFIG:** Updated `config/cache.php` and environment variables to force `file` drivers in production, preventing database locking issues during startup.
