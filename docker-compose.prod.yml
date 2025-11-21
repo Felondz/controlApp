@@ -7,7 +7,6 @@ services:
     env_file: .env
     volumes:
       - ./storage:/var/www/html/storage
-      - ./prod.env:/var/www/html/.env
     networks:
       - proxy # Red pública (Traefik)
       - internal # Red privada (DB)
