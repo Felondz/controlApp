@@ -34,7 +34,7 @@ RUN composer install --no-dev --optimize-autoloader
 # Set proper permissions
 # Mantenemos esto por seguridad para asegurar que storage siga siendo escribible
 # después de la instalación de dependencias
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
 # Configure Apache
 RUN echo '<Directory /var/www/html/public>\n\
