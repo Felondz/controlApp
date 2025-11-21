@@ -22,7 +22,7 @@ docs/ ├── 01-core/ # 📍 Referencia general, Changelogs │ ├── IND
 
 ### 🤖 Soy IA colaborando en el proyecto
 * **🚀 Quick Start:** **Copia completamente `../03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md`** y pégalo en el chat.
-* **Documentos para leer (Solo si el onboarding no basta):** `CHANGELOG_DETAILED.md` (últimas entradas).
+* **Documentos para leer (Solo si el onboarding no basta):** `CHANGELOG.md` (últimas entradas).
 
 ---
 

@@ -14,8 +14,7 @@ Bienvenido a la documentación de **ControlApp** - Plataforma de gestión de pro
 docs/
 ├── 01-core/                     # 📍 Comienza aquí
 │   ├── INDEX.md                (este archivo)
-│   ├── CHANGELOG.md            (historial de versiones)
-│   ├── CHANGELOG_DETAILED.md   (cambios técnicos detallados)
+│   ├── CHANGELOG.md            (cambios técnicos detallados)
 │   └── QUICK_REFERENCE.md      (comandos y atajos)
 │
 ├── 02-development/             # 💻 Para desarrolladores
@@ -103,7 +102,7 @@ docs/
    ↓
 7. Contribuir: ../02-development/CONTRIBUTING.md
    ↓
-8. Ver cambios: ../01-core/CHANGELOG_DETAILED.md
+8. Ver cambios: ../01-core/CHANGELOG.md
 ```
 
 ### 🔐 Necesito entender seguridad
@@ -141,7 +140,7 @@ docs/
 |------|-----------|--------|-------|
 | 1 | **ONBOARDING_FOR_NEW_AIs.md** | 10 min | Entiendes estructura y normas |
 | 2 | **AI_GUIDELINES.md** | 15 min | Sabes cómo debo comportarme |
-| 3 | **CHANGELOG_DETAILED.md** (últimas entradas) | 5 min | Entiendes contexto histórico |
+| 3 | **CHANGELOG.md** (últimas entradas) | 5 min | Entiendes contexto histórico |
 
 **Si cambias de IA en próxima sesión**:
 → Lee: **HOW_TO_SWITCH_TO_NEW_AI.md** (tu guía exacta de procedimiento)
@@ -174,7 +173,7 @@ docs/
    ↓
 3. Leer: ../02-development/API.md (15 min)
    ↓
-4. Ver: CHANGELOG_DETAILED.md (últimas entradas) (5 min)
+4. Ver: CHANGELOG.md (últimas entradas) (5 min)
    ↓
 5. Hacer pull request ✅
 ```
@@ -193,7 +192,7 @@ docs/
 | "¿Cuál es estructura de BD?" | 02-development | DATABASE.md |
 | "¿Cómo contribuyo?" | 02-development | CONTRIBUTING.md |
 | "¿Qué cambios hubo?" | 01-core | CHANGELOG.md |
-| "¿Cambios MÁS detallados?" | 01-core | CHANGELOG_DETAILED.md |
+| "¿Cambios MÁS detallados?" | 01-core | CHANGELOG.md |
 | "¿Comandos rápidos?" | 01-core | QUICK_REFERENCE.md |
 | "¿Soy una IA?" | 03-ia-collaboration | ONBOARDING_FOR_NEW_AIs.md |
 | "¿Cómo testear?" | 04-testing | TESTING_ARCHITECTURE.md |
@@ -213,7 +212,7 @@ docs/
    - Crear CHANGELOG_DIFFERENCE_EXPLAINED.md
    
 ✅ AHORA (correcto):
-   - ¿Es resumen? → Actualizar CHANGELOG_DETAILED.md
+   - ¿Es resumen? → Actualizar CHANGELOG.md
    - ¿Es guía? → Actualizar documento existente
    - ¿Es procedimiento? → Agregar a HOW_TO_SWITCH_TO_NEW_AI.md
    - ¿Es REALMENTE nuevo? → Preguntar primero
@@ -225,10 +224,10 @@ docs/
 ¿Necesito crear/modificar documentación?
   │
   ├─ ¿Hay un cambio de código?
-  │  └─ SÍ → Actualizar CHANGELOG_DETAILED.md SIEMPRE
+  │  └─ SÍ → Actualizar CHANGELOG.md SIEMPRE
   │
   ├─ ¿Es resumen de sesión?
-  │  └─ SÍ → Actualizar CHANGELOG_DETAILED.md (NO crear nuevo doc)
+  │  └─ SÍ → Actualizar CHANGELOG.md (NO crear nuevo doc)
   │
   ├─ ¿Es aclaración de norma existente?
   │  └─ SÍ → Actualizar AI_GUIDELINES.md
@@ -248,9 +247,9 @@ docs/
 
 | Situación | Acción | Ubicación | Ejemplo |
 |-----------|--------|-----------|---------|
-| Bug arreglado | UPDATE | CHANGELOG_DETAILED.md | "Corregido MorphType en CuentaController" |
-| Feature agregada | UPDATE | CHANGELOG_DETAILED.md | "Agregado sistema de invitaciones" |
-| Sesión completada | UPDATE | CHANGELOG_DETAILED.md | "16-11-25: Completada refactorización de..." |
+| Bug arreglado | UPDATE | CHANGELOG.md | "Corregido MorphType en CuentaController" |
+| Feature agregada | UPDATE | CHANGELOG.md | "Agregado sistema de invitaciones" |
+| Sesión completada | UPDATE | CHANGELOG.md | "16-11-25: Completada refactorización de..." |
 | Norma aclarada | UPDATE | AI_GUIDELINES.md | Agregar sección explicatoria |
 | Procedimiento NUEVO | CREATE | En carpeta temática | "PROCEDURE_NAME.md" + PREGUNTAR |
 | Documentación vieja | UPDATE | Documento existente | Actualizar sección obsoleta |
@@ -262,7 +261,7 @@ docs/
 
 - [ ] ¿Hay un documento existente sobre este tema?
 - [ ] ¿Puedo actualizar uno existente en lugar de crear?
-- [ ] ¿Esto es un resumen? → Va en CHANGELOG_DETAILED.md
+- [ ] ¿Esto es un resumen? → Va en CHANGELOG.md
 - [ ] ¿Esto es una clarificación? → Va en AI_GUIDELINES.md
 - [ ] ¿Es REALMENTE nuevo y no existe en otro lado?
 - [ ] ¿Pregunté al usuario antes de crear?
@@ -317,7 +316,7 @@ docs/
 
 ## ✅ Lo que SÍ debes hacer
 
-- ✅ Actualizar CHANGELOG_DETAILED.md SIEMPRE con cada cambio
+- ✅ Actualizar CHANGELOG.md SIEMPRE con cada cambio
 - ✅ Preguntar si no sabes si crear documento
 - ✅ Organizar SIEMPRE en carpetas temáticas
 - ✅ Eliminar o consolidar documentos obsoletos
@@ -331,7 +330,7 @@ docs/
 Desde cualquier documento, vuelve a:
 
 - **Índice principal**: `INDEX.md`
-- **Cambios recientes**: `CHANGELOG_DETAILED.md`
+- **Cambios recientes**: `CHANGELOG.md`
 - **Para Developers**: `../02-development/API.md`
 - **Para IAs**: `../03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md`
 - **Para Testing**: `../04-testing/TESTING_ARCHITECTURE.md`

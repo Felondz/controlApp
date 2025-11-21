@@ -101,7 +101,7 @@
 
 ### Cuando hagas cambios:
 
-1. **Edita `docs/01-core/CHANGELOG_DETAILED.md`**
+1. **Edita `docs/01-core/CHANGELOG.md`**
    ```markdown
    ## [X.X.X] - FECHA
    
@@ -160,7 +160,7 @@
 - 🧪 Cómo correr tests → Ver `docs/04-testing/TESTING.md`
 - 🚀 Instalar proyecto → Ver `docs/02-development/INSTALLATION.md`
 - 📧 Setup de email → Ver `docs/05-reference/MAILTRAP_GUIDE.md`
-- 🎯 TODO versionado → Ver `docs/01-core/CHANGELOG_DETAILED.md`
+- 🎯 TODO versionado → Ver `docs/01-core/CHANGELOG.md`
 
 ---
 
@@ -168,7 +168,7 @@
 
 ```bash
 # Ver changelog
-cat docs/01-core/CHANGELOG_DETAILED.md | head -100
+cat docs/01-core/CHANGELOG.md | head -100
 
 # Verificar tests (SIEMPRE dentro de Docker)
 docker compose exec -T laravel.test php artisan test --testdox
@@ -177,7 +177,7 @@ docker compose exec -T laravel.test php artisan test --testdox
 # Abre: http://localhost:8025
 
 # Desarrollar
-# Edita código → Actualiza docs/01-core/CHANGELOG_DETAILED.md → Commit
+# Edita código → Actualiza docs/01-core/CHANGELOG.md → Commit
 ```
 
 ---

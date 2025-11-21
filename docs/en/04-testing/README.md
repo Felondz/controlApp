@@ -1,13 +1,10 @@
-# 🧪 04-Testing Documentation
+# 🧪 Documentación de Testing - Español
 
 Documentación sobre testing, QA y validación en ControlApp.
 
 ## 📁 Contenidos
 
-- **TESTING_ARCHITECTURE.md** - Estrategia completa de testing (READ FIRST)
-- **TESTING_SCRIPTS.md** - Todos los scripts y comandos disponibles
-- **TESTING.md** - Referencia general de testing
-- **TESTING_*.md** - Archivos históricos de fases de testing
+- **TESTING_ARCHITECTURE.md** - Estrategia completa de testing (LEER PRIMERO)
 
 ## 🎯 Propósito
 

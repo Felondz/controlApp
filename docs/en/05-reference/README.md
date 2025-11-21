@@ -1,15 +1,13 @@
-```markdown
-# 📖 05-Reference Documentation
+# 📚 Documentación de Referencia - Español
 
-Referencias y configuraciones específicas de herramientas externas.
+Referencias y configuraciones específicas para herramientas externas.
 
 ## 📁 Contenidos
 
-- **MAILPIT_GUIDE.md** - Mailpit (local SMTP para desarrollo) + Cómo funciona en CI
+- **MAILPIT_GUIDE.md** - Mailpit (SMTP local para desarrollo) + Cómo funciona en CI
 - **MAILTRAP_GUIDE.md** - Cómo configurar Mailtrap para capturar emails (alternativa cloud)
 - **MAILTRAP_VISUALIZATION.md** - Cómo ver los emails capturados
-
-## 🎯 Propósito
+- **SECURITY/** - Auditoría de seguridad y documentación de despliegue
 
 Documentación sobre integraciones y herramientas externas:
 - Configuración de servicios

@@ -1,40 +1,57 @@
 # 📚 ControlApp Documentation
 
-Bienvenido a la documentación de **ControlApp** - Plataforma de gestión de proyectos colaborativos con funcionalidades integrables.
-
-**👉 Comienza aquí**: [01-core/INDEX.md](01-core/INDEX.md)
-
-## 📁 Estructura
-
-```
-docs/
-├── 01-core/                  # Índice, changelog, referencias
-├── 02-development/           # Guías para desarrolladores
-├── 03-ia-collaboration/      # Normas para IAs
-├── 04-testing/               # Documentación de testing
-└── 05-reference/             # Configuraciones y referencias
-```
-
-## 🎯 Selecciona tu rol
-
-- **👤 Usuario final**: [Leer aquí](01-core/INDEX.md#soy-usuario-final)
-- **💻 Desarrollador**: [Leer aquí](01-core/INDEX.md#soy-desarrollador)
-- **🤖 IA colaborando**: [Leer aquí](01-core/INDEX.md#soy-ia-colaborando-en-el-proyecto)
-- **🧪 QA/Testing**: [Leer aquí](01-core/INDEX.md#soy-qa--testing)
-- **🤝 Contribuidor**: [Leer aquí](01-core/INDEX.md#soy-contribuidor)
-
-## 📖 Acceso Rápido
-
-| Pregunta | Carpeta |
-|----------|---------|
-| ¿Cómo instalo? | [02-development](02-development) |
-| ¿Cuáles son los endpoints? | [02-development](02-development) |
-| ¿Soy una IA? | [03-ia-collaboration](03-ia-collaboration) |
-| ¿Cómo testear? | [04-testing](04-testing) |
-| ¿Historial de cambios? | [01-core](01-core) |
+> Comprehensive documentation for ControlApp - A collaborative project management platform.
 
 ---
 
-**Documentación organizada, clara y mantenible.**
+## 🌐 Select Your Language / Selecciona tu idioma
 
-Última actualización: 16 de noviembre de 2025
+### 🇬🇧 English
+**Complete documentation for developers, users, and AI collaborators.**
+
+👉 **[English Documentation](./en/README.md)** - Start here
+
+---
+
+### 🇪🇸 Español
+**Documentación completa para desarrolladores, usuarios e IAs colaboradores.**
+
+👉 **[Documentación en Español](./es/README.md)** - Comienza aquí
+
+---
+
+## 📖 Quick Navigation
+
+| Language | Getting Started | Development | Testing | Reference |
+|----------|---|---|---|---|
+| 🇬🇧 **English** | [Start](./en/README.md) | [Dev Guide](./en/02-development/) | [Testing](./en/04-testing/) | [Reference](./en/05-reference/) |
+| 🇪🇸 **Español** | [Inicio](./es/README.md) | [Guía Dev](./es/02-development/) | [Testing](./es/04-testing/) | [Referencia](./es/05-reference/) |
+
+---
+
+## 📁 Documentation Structure
+
+Both English and Spanish versions follow the same structure:
+
+```
+docs/
+├── en/                          # English Documentation
+│   ├── 01-core/                 # Index, Changelog, Roadmap
+│   ├── 02-development/          # Setup, API Guides, Development
+│   ├── 03-ia-collaboration/     # AI Guidelines & Best Practices
+│   ├── 04-testing/              # Testing Documentation
+│   ├── 05-reference/            # Configuration & References
+│   └── README.md
+├── es/                          # Documentación en Español
+│   ├── 01-core/                 # Índice, Changelog, Roadmap
+│   ├── 02-development/          # Setup, Guías API, Desarrollo
+│   ├── 03-ia-collaboration/     # Guías para IAs
+│   ├── 04-testing/              # Documentación de Testing
+│   ├── 05-reference/            # Configuraciones y Referencias
+│   └── README.md
+└── sessions/                    # Session Records (Bilingual)
+```
+
+---
+
+**Last Updated**: November 20, 2025
