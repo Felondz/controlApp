@@ -12,15 +12,41 @@ services:
       - internal # Red privada (DB)
     labels:
       - "traefik.enable=true"
-      # Configuración HTTP (Puerto 80)
-      - "traefik.http.routers.controlapp-http.rule=Host(`tu-futuro-dominio.com`)"
-      - "traefik.http.routers.controlapp-http.entrypoints=web"
-      # Configuración HTTPS (Puerto 443)
-      - "traefik.http.routers.controlapp-https.rule=Host(`tu-futuro-dominio.com`)"
-      - "traefik.http.routers.controlapp-https.entrypoints=websecure"
-      - "traefik.http.routers.controlapp-https.tls.certresolver=letsencrypt"
-      # Puerto interno del contenedor
-      - "traefik.http.services.controlapp.loadbalancer.server.port=80"
+      # =========================================================
+      # A. ROUTER PRINCIPAL (Dominio Raíz - Landing Page / Login)
+      # Responde a https://controlapp.site
+      # =========================================================
+
+      # 1. HTTP (Redirección 80 -> 443)
+      - "traefik.http.routers.controlapp-root-http.rule=Host(`controlapp.site`)"
+      - "traefik.http.routers.controlapp-root-http.entrypoints=web"
+      - "traefik.http.routers.controlapp-root-http.middlewares=https-redirect"
+
+      # 2. HTTPS (Seguro 443)
+      - "traefik.http.routers.controlapp-root-https.rule=Host(`controlapp.site`)"
+      - "traefik.http.routers.controlapp-root-https.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-root-https.tls.certresolver=letsencrypt"
+
+      # =========================================================
+      # B. ROUTER SECUNDARIO (Subdominio API - APIREST)
+      # Responde a https://api.controlapp.site
+      # =========================================================
+
+      # 1. HTTP (Redirección 80 -> 443)
+      - "traefik.http.routers.controlapp-api-http.rule=Host(`api.controlapp.site`)"
+      - "traefik.http.routers.controlapp-api-http.entrypoints=web"
+      - "traefik.http.routers.controlapp-api-http.middlewares=https-redirect"
+
+      # 2. HTTPS (Seguro 443)
+      - "traefik.http.routers.controlapp-api-https.rule=Host(`api.controlapp.site`)"
+      - "traefik.http.routers.controlapp-api-https.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-api-https.tls.certresolver=letsencrypt"
+
+      # =========================================================
+      # C. SERVICIO (Ambos Routers usan el mismo Backend)
+      # Apunta al puerto interno 80 del contenedor
+      # =========================================================
+      - "traefik.http.services.controlapp-service.loadbalancer.server.port=80"
 
   db:
     image: mysql:8.0
