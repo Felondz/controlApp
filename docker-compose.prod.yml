@@ -20,7 +20,7 @@ services:
       # 1. HTTP (Redirección 80 -> 443)
       - "traefik.http.routers.controlapp-root-http.rule=Host(`controlapp.site`)"
       - "traefik.http.routers.controlapp-root-http.entrypoints=web"
-      - "traefik.http.routers.controlapp-root-http.middlewares=https-redirect"
+      - "traefik.http.routers.controlapp-root-http.middlewares=cattleya-https-redirect"
 
       # 2. HTTPS (Seguro 443)
       - "traefik.http.routers.controlapp-root-https.rule=Host(`controlapp.site`)"
@@ -35,7 +35,7 @@ services:
       # 1. HTTP (Redirección 80 -> 443)
       - "traefik.http.routers.controlapp-api-http.rule=Host(`api.controlapp.site`)"
       - "traefik.http.routers.controlapp-api-http.entrypoints=web"
-      - "traefik.http.routers.controlapp-api-http.middlewares=https-redirect"
+      - "traefik.http.routers.controlapp-api-http.middlewares=cattleya-https-redirect"
 
       # 2. HTTPS (Seguro 443)
       - "traefik.http.routers.controlapp-api-https.rule=Host(`api.controlapp.site`)"
