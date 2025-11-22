@@ -3,74 +3,107 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @skip Pendiente: Refactorizar con Inertia/React
-     */
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
-        $response = $this->get('/forgot-password');
-
-        $response->assertStatus(200);
+        $response = $this->get(route('password.request'));
+        $response->assertInertia(fn (Assert $page) => 
+            $page->component('Auth/ForgotPassword')
+        );
     }
 
     public function test_reset_password_link_can_be_requested(): void
     {
-        Notification::fake();
-
         $user = User::factory()->create();
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post(route('password.email'), [
+            'email' => $user->email,
+            '_token' => csrf_token(),
+        ]);
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        $response->assertSessionHas('status', 'We have emailed your password reset link.');
     }
 
     public function test_reset_password_screen_can_be_rendered(): void
     {
-        Notification::fake();
-
         $user = User::factory()->create();
+        $token = Password::createToken($user);
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->get(route('password.reset', ['token' => $token]));
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-            $response = $this->get('/reset-password/' . $notification->token);
-
-            $response->assertStatus(200);
-
-            return true;
-        });
+        $response->assertInertia(fn (Assert $page) => 
+            $page->component('Auth/ResetPassword')
+                ->has('token')
+                ->has('email')
+        );
     }
 
     public function test_password_can_be_reset_with_valid_token(): void
     {
-        Notification::fake();
-
         $user = User::factory()->create();
+        $token = Password::createToken($user);
+        $newPassword = 'new-password-123';
 
-        $this->post('/forgot-password', ['email' => $user->email]);
+        $response = $this->post(route('password.store'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => $newPassword,
+            'password_confirmation' => $newPassword,
+            '_token' => csrf_token(),
+        ]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
+        $response->assertSessionHasNoErrors();
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+    }
 
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
+    public function test_password_reset_requires_valid_data(): void
+    {
+        $response = $this->post(route('password.store'), [
+            'token' => 'invalid-token',
+            'email' => 'invalid-email',
+            'password' => '123',
+            'password_confirmation' => 'mismatch',
+            '_token' => csrf_token(),
+        ]);
 
-            return true;
-        });
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors(['email', 'password']);
+    }
+
+    public function test_password_reset_requires_matching_passwords(): void
+    {
+        $user = User::factory()->create();
+        $token = Password::createToken($user);
+
+        $response = $this->post(route('password.store'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password',
+            'password_confirmation' => 'wrong-confirmation',
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_password_reset_requires_valid_email(): void
+    {
+        $response = $this->post(route('password.email'), [
+            'email' => 'nonexistent@example.com',
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('email');
     }
 }

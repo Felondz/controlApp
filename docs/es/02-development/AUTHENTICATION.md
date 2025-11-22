@@ -31,7 +31,7 @@ ControlApp utiliza **Laravel Sanctum** para la autenticación basada en tokens A
 |-----------|-----------|----------|
 | **Autenticación** | Laravel Sanctum | Tokens JWT |
 | **Encriptación** | bcrypt | Contraseñas |
-| **Emails** | Mailtrap + Custom Templates | Verificación |
+| **Emails** | Mailpit + Custom Templates | Verificación |
 | **CORS** | Laravel CORS | Cross-Origin |
 | **Rate Limiting** | Laravel Throttle | DDoS Protection |
 
@@ -318,38 +318,40 @@ $hash = sha1($user->email);
 Ejemplo:
 - Email: `juan@example.com`
 - SHA1: `0a67a28003c728819cadf18f440831ff0349525d`
-
 ### Endpoint de Verificación
 
 ```http
 GET /api/email/verify/{id}/{hash}
-Accept: application/json
 ```
 
-**⚠️ Importante**: Este endpoint NO requiere autenticación.
+**⚠️ Importante**:
+- Este endpoint NO requiere autenticación.
+- Está pensado para abrirse en el navegador al hacer clic en el enlace del correo.
+- No devuelve JSON: redirige a la pantalla de login con mensajes en sesión.
 
-### Response (200)
-```json
-{
-  "message": "¡Email verificado exitosamente! Ahora puedes loguearte."
-}
-```
+### Comportamiento
 
-### Error Responses
+- **Usuario existente y hash válido**
+  - HTTP `302` → `route('login')`
+  - `session('status') = "¡Email verificado exitosamente! Ahora puedes iniciar sesión."`
 
-**404 - Usuario no encontrado**
-```json
-{
-  "message": "Usuario no encontrado"
-}
-```
+- **Usuario no encontrado**
+  - HTTP `302` → `route('login')`
+  - `session('error') = "Usuario no encontrado."`
 
-**400 - Hash inválido o email ya verificado**
-```json
-{
-  "message": "El enlace de verificación es inválido o el email ya fue verificado"
-}
-```
+- **Hash inválido**
+  - HTTP `302` → `route('login')`
+  - `session('error') = "El enlace de verificación es inválido o ha expirado."`
+
+- **Email ya verificado**
+  - HTTP `302` → `route('login')`
+  - `session('status') = "El email ya había sido verificado. Puedes iniciar sesión."`
+
+### Cobertura de Tests
+
+- `Tests\Feature\Auth\EmailVerificationTest`: cubre el flujo de verificación desde la interfaz web (Inertia).
+- `Tests\Feature\EmailVerificationApiTest`: valida redirecciones y mensajes de sesión del endpoint `/api/email/verify/{id}/{hash}` y el reenvío del correo.
+- `Tests\Feature\VisualEmailTestsInMailpitTest`: comprueba en Mailpit que el correo de verificación se envía con la URL correcta.
 
 ### Reenviar Email
 

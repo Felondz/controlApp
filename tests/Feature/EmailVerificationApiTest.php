@@ -35,12 +35,12 @@ class EmailVerificationApiTest extends TestCase
         // Generar hash válido para el usuario
         $hash = sha1($user->getEmailForVerification());
 
-        // Hacer GET al endpoint de verificación
-        $response = $this->getJson("/api/email/verify/{$user->id}/{$hash}");
+        // Hacer GET al endpoint de verificación (esta ruta redirige al login)
+        $response = $this->get("/api/email/verify/{$user->id}/{$hash}");
 
-        $response->assertStatus(200);
-        $response->assertJsonStructure(['message']);
-        $response->assertJson(['message' => '¡Email verificado exitosamente! Ahora puedes loguearte.']);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status', '¡Email verificado exitosamente! Ahora puedes iniciar sesión.');
 
         // Verificar que el email fue marcado como verificado en BD
         $user->refresh();
@@ -60,10 +60,11 @@ class EmailVerificationApiTest extends TestCase
         // Hash inválido
         $invalidHash = 'hash_invalido_12345';
 
-        $response = $this->getJson("/api/email/verify/{$user->id}/{$invalidHash}");
+        $response = $this->get("/api/email/verify/{$user->id}/{$invalidHash}");
 
-        $response->assertStatus(400);
-        $response->assertJson(['message' => 'El enlace de verificación es inválido o ha expirado.']);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('error', 'El enlace de verificación es inválido o ha expirado.');
 
         // Verificar que el email NO fue marcado como verificado
         $user->refresh();
@@ -78,10 +79,11 @@ class EmailVerificationApiTest extends TestCase
         $fakeUserId = 9999;
         $fakeHash = 'cualquier_hash';
 
-        $response = $this->getJson("/api/email/verify/{$fakeUserId}/{$fakeHash}");
+        $response = $this->get("/api/email/verify/{$fakeUserId}/{$fakeHash}");
 
-        $response->assertStatus(404);
-        $response->assertJson(['message' => 'Usuario no encontrado.']);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('error', 'Usuario no encontrado.');
     }
 
     /**
@@ -95,10 +97,11 @@ class EmailVerificationApiTest extends TestCase
 
         $hash = sha1($user->getEmailForVerification());
 
-        $response = $this->getJson("/api/email/verify/{$user->id}/{$hash}");
+        $response = $this->get("/api/email/verify/{$user->id}/{$hash}");
 
-        $response->assertStatus(400);
-        $response->assertJson(['message' => 'El email ya había sido verificado.']);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status', 'El email ya había sido verificado. Puedes iniciar sesión.');
     }
 
     /**
