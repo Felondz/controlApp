@@ -3,6 +3,33 @@
         "name": "ControlApp",
         "description": "Plataforma de gestión de proyectos colaborativos"
     },
+    "landing": {
+        "hero_title": "Toma el Control de Tus Proyectos",
+        "hero_subtitle": "La solución completa para gestionar tus proyectos, finanzas y equipo en un solo lugar.",
+        "cta_primary": "Comenzar",
+        "cta_secondary": "Saber más",
+        "features_title": "¿Por qué elegir ControlApp?",
+        "features": [
+            {
+                "title": "Gestión de Proyectos",
+                "description": "Organiza y haz seguimiento a todos tus proyectos en un solo lugar.",
+                "icon": "📊"
+            },
+            {
+                "title": "Control Financiero",
+                "description": "Mantén un registro de gastos, ingresos y presupuestos.",
+                "icon": "💰"
+            },
+            {
+                "title": "Colaboración en Equipo",
+                "description": "Trabaja en equipo en tiempo real con tus compañeros.",
+                "icon": "👥"
+            }
+        ],
+        "coming_soon_title": "Próximamente",
+        "coming_soon_message": "Estamos trabajando duro para ofrecerte la mejor experiencia. El frontend se encuentra actualmente en desarrollo activo.",
+        "footer_copyright": "© :year ControlApp. Todos los derechos reservados."
+    },
     "auth": {
         "login": "Iniciar sesión",
         "logout": "Cerrar sesión",
@@ -19,7 +46,26 @@
         "email_verification": "Verificación de correo",
         "please_verify_email": "Por favor verifica tu correo electrónico",
         "verification_link_sent": "Se ha enviado un enlace de verificación a tu correo",
-        "resend_verification": "Reenviar enlace de verificación"
+        "resend_verification": "Reenviar enlace de verificación",
+        "forgot_password_title": "Olvidé mi contraseña",
+        "forgot_password_description": "¿Olvidaste tu contraseña? No hay problema. Indícanos tu correo electrónico y te enviaremos un enlace para restablecerla.",
+        "forgot_password_submit": "Enviar enlace de restablecimiento",
+        "reset_password_title": "Restablecer contraseña",
+        "reset_password_submit": "Restablecer contraseña",
+        "reset_password_invalid_link": "Enlace inválido o expirado.",
+        "back_to_login": "Volver al inicio de sesión",
+        "name": "Nombre",
+        "confirm_password_title": "Confirmar contraseña",
+        "confirm_password_description": "Esta es un área segura de la aplicación. Por favor confirma tu contraseña antes de continuar.",
+        "confirm_password_submit": "Confirmar",
+        "agree_terms": "Acepto los términos del servicio y la política de privacidad",
+        "terms_of_service": "Términos del Servicio",
+        "privacy_policy": "Política de Privacidad",
+        "already_registered": "¿Ya estás registrado?",
+        "request_new_password": "Solicitar nuevo enlace de restablecimiento",
+        "verify_email_description": "¡Gracias por registrarte! Antes de comenzar, por favor verifica tu dirección de correo electrónico haciendo clic en el enlace que te acabamos de enviar. Si no recibiste el correo, con gusto te enviaremos otro.",
+        "confirming": "Confirmando...",
+        "email_password_reset_link": "Enviar enlace de restablecimiento de contraseña"
     },
     "finance": {
         "accounts": "Gestión de Cuentas",

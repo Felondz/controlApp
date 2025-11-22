@@ -1,36 +1,42 @@
-import InputError from '@/Components/InputError';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { useEffect } from 'react';
+import AuthLayout from '@/Layouts/AuthLayout';
+import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import InputError from '@/Components/InputError';
+import PrimaryButton from '@/Components/PrimaryButton';
+import Checkbox from '@/Components/Checkbox';
 
 export default function Register() {
+    const { t } = useTranslate();
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        terms: false,
     });
+
+    useEffect(() => {
+        return () => {
+            reset('password', 'password_confirmation');
+        };
+    }, []);
 
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
+        post(route('register'));
     };
 
     return (
-        <GuestLayout>
-            <Head title="Register" />
-
-            <form onSubmit={submit}>
+        <AuthLayout title={t('auth.register')}>
+            <form onSubmit={submit} className="space-y-6">
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
+                    <InputLabel htmlFor="name" value={t('auth.name')} />
                     <TextInput
                         id="name"
+                        type="text"
                         name="name"
                         value={data.name}
                         className="mt-1 block w-full"
@@ -39,30 +45,26 @@ export default function Register() {
                         onChange={(e) => setData('name', e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.name} className="mt-2" />
+                    <InputError message={errors.name} className="mt-1" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
-
+                <div>
+                    <InputLabel htmlFor="email" value={t('auth.email')} />
                     <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full"
-                        autoComplete="username"
+                        autoComplete="email"
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="mt-1" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
+                <div>
+                    <InputLabel htmlFor="password" value={t('auth.password')} />
                     <TextInput
                         id="password"
                         type="password"
@@ -73,16 +75,11 @@ export default function Register() {
                         onChange={(e) => setData('password', e.target.value)}
                         required
                     />
-
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-1" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
+                <div>
+                    <InputLabel htmlFor="password_confirmation" value={t('auth.confirm_password')} />
                     <TextInput
                         id="password_confirmation"
                         type="password"
@@ -90,31 +87,40 @@ export default function Register() {
                         value={data.password_confirmation}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
+                        onChange={(e) => setData('password_confirmation', e.target.value)}
                         required
                     />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
+                    <InputError message={errors.password_confirmation} className="mt-1" />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="block mt-4">
+                    <label className="flex items-center">
+                        <Checkbox
+                            name="terms"
+                            checked={data.terms}
+                            onChange={(e) => setData('terms', e.target.checked)}
+                            required
+                        />
+                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                            {t('auth.agree_terms')}
+                        </span>
+                    </label>
+                    <InputError message={errors.terms} className="mt-1" />
+                </div>
+
+                <div className="flex items-center justify-between mt-6">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                     >
-                        Already registered?
+                        {t('auth.already_registered')}
                     </Link>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                    <PrimaryButton type="submit" disabled={processing}>
+                        {t('auth.register')}
                     </PrimaryButton>
                 </div>
             </form>
-        </GuestLayout>
+        </AuthLayout>
     );
 }

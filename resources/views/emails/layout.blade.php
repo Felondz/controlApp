@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'ControlApp' }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,39 +13,66 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
+            color: #1f2937;
+            background-color: #f3f4f6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .wrapper {
-            background-color: #f5f5f5;
-            padding: 20px;
+            padding: 2rem 1rem;
+            background-color: #f3f4f6;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
             overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 2.5rem 1.5rem;
             text-align: center;
-            border-bottom: 4px solid #667eea;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo svg {
+            width: 2rem;
+            height: 2rem;
+            margin-right: 0.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.025em;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
             font-weight: 600;
+            margin: 0.5rem 0 0;
+            color: white;
         }
 
         .header p {
@@ -74,150 +101,145 @@
 
         .greeting {
             color: #667eea;
-            font-weight: 600;
         }
 
-        /* Highlight Box */
-        .highlight-box {
-            background-color: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 4px;
-        }
-
-        .highlight-box p {
-            margin-bottom: 10px;
-            font-size: 15px;
-        }
-
-        .highlight-box p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Action Button */
+        /* Buttons */
         .button-wrapper {
+            margin: 2rem 0;
             text-align: center;
-            margin: 35px 0;
         }
 
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 14px 40px;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white !important;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: none;
+            cursor: pointer;
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2), 0 2px 4px -1px rgba(79, 70, 229, 0.1);
         }
 
-        /* Fallback Link */
-        .link-fallback {
-            margin: 25px 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 13px;
-            word-break: break-all;
+        /* Highlight Box */
+        .highlight-box {
+            background-color: #f5f3ff;
+            border: 1px solid #e9d5ff;
+            border-left: 4px solid #8b5cf6;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.375rem 0.375rem 0;
+            font-size: 0.9375rem;
+            color: #4c1d95;
         }
 
-        .link-fallback p {
-            margin-bottom: 10px;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .link-fallback a {
-            color: #667eea;
-            text-decoration: none;
+        .highlight-box p {
+            margin: 0;
+            color: inherit;
         }
 
         /* Alert Box */
         .alert-box {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 25px 0;
-            color: #856404;
-            font-size: 14px;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.375rem 0.375rem 0;
+            font-size: 0.9375rem;
         }
 
-        .alert-box strong {
-            color: #856404;
+        .alert-box p {
+            margin: 0;
+            color: inherit;
         }
 
-        /* Info Box */
-        .info-box {
-            background-color: #e8f4f8;
-            border-left: 4px solid #0288d1;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #01579b;
+        /* Link Fallback */
+        .link-fallback {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            word-break: break-all;
+            color: #4b5563;
         }
 
-        /* Divider */
-        .divider {
-            height: 1px;
-            background-color: #e0e0e0;
-            margin: 30px 0;
+        .link-fallback p {
+            margin: 0 0 0.5rem 0;
+            color: inherit;
+        }
+
+        .link-fallback a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+        }
+
+        .link-fallback a:hover {
+            text-decoration: underline;
+        }
+
+        /* Greeting */
+        .greeting {
+            color: #4f46e5;
+            font-weight: 600;
         }
 
         /* Footer */
         .footer {
-            background-color: #f8f8f8;
-            padding: 30px;
+            background-color: #f9fafb;
+            padding: 1.5rem;
             text-align: center;
-            border-top: 1px solid #e0e0e0;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .footer p {
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .footer p:last-child {
-            margin-bottom: 0;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
 
         .footer a {
-            color: #667eea;
+            color: #4f46e5;
             text-decoration: none;
+            font-weight: 500;
         }
 
-        /* Utility Classes */
-        .text-center {
-            text-align: center;
+        .footer a:hover {
+            text-decoration: underline;
         }
 
-        .text-muted {
-            color: #999;
-            font-size: 14px;
+        .divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 1.5rem 0;
         }
 
-        .mt-20 {
-            margin-top: 20px;
-        }
+        /* Responsive */
+        @media (max-width: 640px) {
+            .content, .header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .cta-button {
+                display: block;
+                width: 100%;
+                padding: 0.75rem 1rem;
+            }
 
-        .mb-20 {
-            margin-bottom: 20px;
-        }
-
-        strong {
-            color: #667eea;
+            h2 {
+                font-size: 1.25rem;
+            }
         }
     </style>
 </head>
@@ -225,26 +247,32 @@
 <body>
     <div class="wrapper">
         <div class="container">
-            <!-- Header -->
             <div class="header">
-                <h1>{{ $headerTitle ?? 'ControlApp' }}</h1>
-                @if(isset($headerSubtitle))
-                <p>{{ $headerSubtitle }}</p>
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="text-white">
+                        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="logo-text">ControlApp</span>
+                </div>
+                @if(isset($header))
+                    <h1>{{ $header }}</h1>
                 @endif
             </div>
 
-            <!-- Content -->
             <div class="content">
                 @yield('content')
             </div>
 
-            <!-- Footer -->
+            <div class="divider"></div>
+
             <div class="footer">
-                <p>© {{ date('Y') }} ControlApp. Todos los derechos reservados.</p>
-                <p style="font-size: 12px; color: #999;">Este es un correo automático, por favor no respondas directamente.</p>
+                <p>  {{ date('Y') }} ControlApp. @lang('Todos los derechos reservados.')</p>
+                <p>
+                    <a href="{{ config('app.url') }}/privacy">@lang('Política de Privacidad')</a> · 
+                    <a href="{{ config('app.url') }}/terms">@lang('Términos de Servicio')</a> ·
+                    <a href="{{ config('app.url') }}/contact">@lang('Contacto')</a>
+                </p>
             </div>
         </div>
     </div>
 </body>
-
-</html>
