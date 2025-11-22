@@ -1,57 +1,49 @@
 services:
+  # --- APLICACIÓN PRINCIPAL ---
   app:
-    # Usamos tu usuario de GitHub (Felondz) detectado en los logs anteriores
     image: ghcr.io/felondz/controlapp:latest
     container_name: controlapp_app
     restart: unless-stopped
-    environment:
-      # Forzamos los drivers de caché y sesión a 'file' para evitar el bloqueo silencioso
-      CACHE_DRIVER: file
-      SESSION_DRIVER: file
-    env_file: .env
+
+    # Leemos todo del .env (Ahora controlará Redis y Meilisearch)
+    env_file: ./.env
+
+    # La app espera a que estos servicios inicien primero
+    depends_on:
+      - db
+      - redis
+      - meilisearch
+
     volumes:
       - ./storage:/var/www/html/storage
+
     networks:
-      - proxy # Red pública (Traefik)
-      - internal # Red privada (DB)
+      - proxy # Para Traefik (Público)
+      - internal # Para DB, Redis y Meilisearch (Privado)
+
     labels:
       - "traefik.enable=true"
-      # =========================================================
-      # A. ROUTER PRINCIPAL (Dominio Raíz - Landing Page / Login)
-      # Responde a https://controlapp.site
-      # =========================================================
 
-      # 1. HTTP (Redirección 80 -> 443)
+      # --- Router Principal (controlapp.site) ---
       - "traefik.http.routers.controlapp-root-http.rule=Host(`controlapp.site`)"
       - "traefik.http.routers.controlapp-root-http.entrypoints=web"
       - "traefik.http.routers.controlapp-root-http.middlewares=cattleya-https-redirect"
-
-      # 2. HTTPS (Seguro 443)
       - "traefik.http.routers.controlapp-root-https.rule=Host(`controlapp.site`)"
       - "traefik.http.routers.controlapp-root-https.entrypoints=websecure"
       - "traefik.http.routers.controlapp-root-https.tls.certresolver=letsencrypt"
 
-      # =========================================================
-      # B. ROUTER SECUNDARIO (Subdominio API - APIREST)
-      # Responde a https://api.controlapp.site
-      # =========================================================
-
-      # 1. HTTP (Redirección 80 -> 443)
+      # --- Router API (api.controlapp.site) ---
       - "traefik.http.routers.controlapp-api-http.rule=Host(`api.controlapp.site`)"
       - "traefik.http.routers.controlapp-api-http.entrypoints=web"
       - "traefik.http.routers.controlapp-api-http.middlewares=cattleya-https-redirect"
-
-      # 2. HTTPS (Seguro 443)
       - "traefik.http.routers.controlapp-api-https.rule=Host(`api.controlapp.site`)"
       - "traefik.http.routers.controlapp-api-https.entrypoints=websecure"
       - "traefik.http.routers.controlapp-api-https.tls.certresolver=letsencrypt"
 
-      # =========================================================
-      # C. SERVICIO (Ambos Routers usan el mismo Backend)
-      # Apunta al puerto interno 80 del contenedor
-      # =========================================================
+      # --- Servicio ---
       - "traefik.http.services.controlapp-service.loadbalancer.server.port=80"
 
+  # --- BASE DE DATOS ---
   db:
     image: mysql:8.0
     container_name: controlapp_db
@@ -66,11 +58,39 @@ services:
     networks:
       - internal
 
+  # --- REDIS (Cache & Colas) ---
+  redis:
+    image: redis:alpine
+    container_name: controlapp_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+
+  # --- MEILISEARCH (Búsqueda Avanzada) ---
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: controlapp_meilisearch
+    restart: unless-stopped
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_ENV=production
+    volumes:
+      - meili_data:/meili_data
+    networks:
+      - internal
+
+# --- REDES ---
 networks:
   proxy:
-    external: true # Se conecta a la red existente de Traefik en tu servidor
+    external: true # Red de Traefik
   internal:
-    driver: bridge
+    driver: bridge # Red interna de la app
 
+# --- VOLÚMENES ---
 volumes:
   db_data:
+  redis_data:
+  meili_data:
