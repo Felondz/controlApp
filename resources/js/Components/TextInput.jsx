@@ -16,14 +16,28 @@ export default forwardRef(function TextInput(
         }
     }, [isFocused]);
 
+    const baseStyles = 'border rounded-md shadow-sm ' +
+        'focus:ring-2 focus:ring-opacity-50 ' +
+        'transition duration-200 ease-in-out ';
+
+    const lightStyles = 'bg-gray-50 text-gray-900 ' +
+        'border-gray-300 focus:border-indigo-600 focus:ring-indigo-500 ' +
+        'placeholder-gray-400 ';
+
+    const darkStyles = 'dark:bg-gray-700 dark:text-gray-100 ' +
+        'dark:border-gray-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-500 ' +
+        'dark:placeholder-gray-300 ';
+
     return (
         <input
             {...props}
             type={type}
-            className={
-                'rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ' +
-                className
-            }
+            className={`
+                ${baseStyles}
+                ${lightStyles}
+                ${darkStyles}
+                ${className}
+            `.trim()}
             ref={localRef}
         />
     );

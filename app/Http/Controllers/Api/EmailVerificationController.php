@@ -22,26 +22,20 @@ class EmailVerificationController extends Controller
         // 1. Buscar el usuario por ID
         $user = User::find($id);
 
-        // 2. Si no existe, retornar error
+        // 2. Si no existe, redirigir a login con error
         if (!$user) {
-            return response()->json([
-                'message' => 'Usuario no encontrado.'
-            ], 404);
+            return redirect()->route('login')->with('error', 'Usuario no encontrado.');
         }
 
         // 3. Validar que la firma sea correcta usando el helper de Laravel
         // Laravel genera el hash con: sha1($user->getEmailForVerification())
         if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            return response()->json([
-                'message' => 'El enlace de verificación es inválido o ha expirado.'
-            ], 400);
+            return redirect()->route('login')->with('error', 'El enlace de verificación es inválido o ha expirado.');
         }
 
         // 4. Si ya está verificado
         if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'message' => 'El email ya había sido verificado.'
-            ], 400);
+            return redirect()->route('login')->with('status', 'El email ya había sido verificado. Puedes iniciar sesión.');
         }
 
         // 5. Marcar como verificado
@@ -50,10 +44,8 @@ class EmailVerificationController extends Controller
         // 6. Disparar el evento Verified (opcional, pero bueno para listeners)
         event(new Verified($user));
 
-        // 7. Devolver respuesta de éxito
-        return response()->json([
-            'message' => '¡Email verificado exitosamente! Ahora puedes loguearte.'
-        ]);
+        // 7. Redirigir a login con mensaje de éxito
+        return redirect()->route('login')->with('status', '¡Email verificado exitosamente! Ahora puedes iniciar sesión.');
     }
 
     /**

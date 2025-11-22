@@ -6,7 +6,7 @@
 
 ## 1. 🎯 Filosofía de Testing y QA
 
-* **Estado Actual**: 131 tests pasando con 342 assertions (100% de cobertura en módulos principales).
+* **Estado Actual**: 176 tests pasando con 557 assertions (100% de cobertura en módulos principales de autenticación y finanzas).
 * **Regla de Oro (Quality Gate)**: Si los tests fallan, el código tiene un error. **No hagas commit/push hasta que todos pasen**.
 * **Convención**: Usar nombres descriptivos para los tests: `test_admin_puede_crear_usuario`.
 
@@ -29,11 +29,12 @@ Todos los tests deben ejecutarse dentro del contenedor de la aplicación a trav�
 
 | Propósito | Comando |
 | :--- | :--- |
-| **Ejecutar todos los tests (Principal)** | `./vendor/bin/sail artisan test --testdox` |
-| **Ejecutar un archivo específico** | `./vendor/bin/sail artisan test tests/Feature/Auth/LoginTest.php` |
-| **Ejecutar un test específico** | `./vendor/bin/sail artisan test --filter=can_user_login` |
-| **Ejecutar tests en paralelo** | `./vendor/bin/sail artisan test --parallel` |
-| **Ejecutar migraciones de testing** | `./vendor/bin/sail artisan migrate --env=testing` |
+| **Ejecutar todos los tests (Principal)** | `./vendor/bin/sail test` |
+| **Ejecutar todos los tests con testdox** | `./vendor/bin/sail test --testdox` |
+| **Ejecutar un archivo específico** | `./vendor/bin/sail test tests/Feature/Auth/AuthenticationTest.php` |
+| **Ejecutar un test específico** | `./vendor/bin/sail test --filter=test_users_can_logout` |
+| **Ejecutar tests en paralelo** | `./vendor/bin/sail test --parallel` |
+| **Ejecutar migraciones de testing** | `./vendor/bin/sail artisan migrate:fresh --env=testing` |
 
 ---
 
@@ -53,7 +54,25 @@ Todos los tests deben ejecutarse dentro del contenedor de la aplicación a trav�
 
 ---
 
-## 5. 🗑️ Tarea de Limpieza Final
+## 5. 🧪 Cobertura de Autenticación (Web + API)
+
+Resumen de los tests clave relacionados con login/registro/verificación y reset de contraseña:
+
+- **Web (Inertia + React)**
+  - `tests/Feature/Auth/AuthenticationTest.php`: pantalla de login (Inertia), login correcto/incorrecto, logout y "remember me".
+  - `tests/Feature/Auth/RegistrationTest.php`: pantalla de registro, creación de usuario, redirección a login y protección por verificación de email.
+  - `tests/Feature/Auth/EmailVerificationTest.php`: flujo de verificación de email en la parte web.
+  - `tests/Feature/Auth/PasswordResetTest.php`: solicitud de enlace, pantalla de reset y validaciones de token/contraseña.
+  - `tests/Feature/Auth/PasswordUpdateTest.php`: cambio de contraseña del usuario autenticado.
+
+- **API**
+  - `tests/Feature/AuthenticationApiTest.php`: registro/login/logout vía API y restricción por email verificado.
+  - `tests/Feature/EmailVerificationApiTest.php`: verificación de email vía enlace (`/api/email/verify/{id}/{hash}`) y reenvío del email.
+  - `tests/Feature/PasswordResetApiTest.php`: endpoints de reset de contraseña (forgot/reset/validaciones).
+  - `tests/Feature/PasswordResetMailTest.php`: contenido y formato del email de reset.
+  - `tests/Feature/VisualEmailTestsInMailpitTest.php`: verificación visual de correos de verificación, invitación y reset en Mailpit.
+
+## 6. 🗑️ Tarea de Limpieza Final
 
 Si no lo has hecho ya, por favor, elimina de la carpeta `docs/04-testing/` los archivos `TESTING.md` y `TESTING_SCRIPTS.md` (y cualquier otro archivo histórico), ya que su contenido ha sido fusionado en este documento.
 

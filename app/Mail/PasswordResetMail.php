@@ -47,8 +47,8 @@ class PasswordResetMail extends Mailable
      */
     public function content(): Content
     {
-        // URL del frontend para restablecimiento
-        $resetUrl = env('FRONTEND_URL', 'http://localhost:3000') . '/reset-password?token=' . $this->token . '&email=' . urlencode($this->email);
+        // URL para restablecimiento (mismo dominio que el backend)
+        $resetUrl = url('/reset-password?token=' . $this->token . '&email=' . urlencode($this->email));
 
         return new Content(
             view: 'emails.password-reset',
