@@ -593,6 +593,14 @@ Accept: application/json
 }
 ```
 
+**Response (422)**
+*Si la categoría tiene transacciones asociadas:*
+```json
+{
+  "message": "No se puede eliminar la categoría porque tiene transacciones asociadas. Inhabilítala en su lugar."
+}
+```
+
 ---
 
 ## 💳 Cuentas

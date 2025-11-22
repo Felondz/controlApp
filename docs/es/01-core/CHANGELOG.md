@@ -36,6 +36,9 @@
 | 🎯 Bug fixes en CuentasAPI | 2025-11-16 | ✅ Completado |
 | 🎯 Documentación completa | 2025-11-16 | ✅ Completado |
 | 🎯 GitHub Actions & PHPStan | 2025-11-16 | ✅ Completado |
+| 🎯 Web CRUD Proyectos | 2025-11-21 | ✅ Completado |
+| 🎯 Soft Deletes & Fixes | 2025-11-21 | ✅ Completado |
+| 🎯 SuperAdmin God Mode | 2025-11-21 | ✅ Completado |
 
 ### Módulos Implementados
 
