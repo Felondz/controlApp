@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::resource('mis-proyectos', ProyectoUiWebController::class)
-    ->only(['index', 'create', 'store', 'show'])
     ->middleware(['auth', 'verified']);
 
 Route::resource('mis-proyectos.cuentas', ProjectAccountUiWebController::class)

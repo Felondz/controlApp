@@ -316,6 +316,9 @@ class ProyectosApiTest extends TestCase
     /**
      * Test 16: Admin puede eliminar proyecto
      */
+    /**
+     * Test 16: Admin puede eliminar proyecto (Soft Delete)
+     */
     public function test_admin_puede_eliminar_proyecto(): void
     {
         $proyectoId = $this->proyecto->id;
@@ -325,8 +328,8 @@ class ProyectosApiTest extends TestCase
 
         $response->assertStatus(204); // No Content
 
-        // Verificar que el proyecto fue eliminado
-        $this->assertDatabaseMissing('proyectos', [
+        // Verificar que el proyecto fue eliminado suavemente
+        $this->assertSoftDeleted('proyectos', [
             'id' => $proyectoId,
         ]);
     }
@@ -376,21 +379,23 @@ class ProyectosApiTest extends TestCase
     }
 
     /**
-     * Test 20: Eliminar proyecto también elimina relaciones
+     * Test 20: Eliminar proyecto (Soft Delete) MANTIENE relaciones
      */
-    public function test_eliminar_proyecto_elimina_miembros(): void
+    public function test_eliminar_proyecto_mantiene_miembros(): void
     {
         // Agregar otro miembro
-        $this->otroUsuario->proyectos()->attach($this->proyecto->id, ['rol' => 'colaborador']);
+        $this->otroUsuario->proyectos()->attach($this->proyecto->id, ['rol' => 'miembro']);
 
         $proyectoId = $this->proyecto->id;
 
         $this->actingAs($this->usuario)
             ->deleteJson('/api/proyectos/' . $proyectoId);
 
-        // Verificar que las relaciones se eliminaron
-        $this->assertDatabaseMissing('proyecto_user', [
+        // Verificar que las relaciones SE MANTIENEN (porque es soft delete)
+        // Esto permite restaurar el proyecto con sus miembros intactos.
+        $this->assertDatabaseHas('proyecto_user', [
             'proyecto_id' => $proyectoId,
+            'user_id' => $this->otroUsuario->id,
         ]);
     }
 }
