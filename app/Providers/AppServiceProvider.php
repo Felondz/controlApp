@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\User; // 💡 Importar el modelo User
 use App\Observers\UserObserver; // 💡 Importar el UserObserver
 use Illuminate\Database\Eloquent\Relations\Relation; // 💡 Importar para MorphMap
+use Illuminate\Support\Facades\Gate; // 💡 Importar Gate
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
             'proyecto' => \App\Models\Proyecto::class,
             'usuario' => \App\Models\User::class, // Aunque User ya está importado, lo definimos aquí
         ]);
+
+        // 3. SUPER ADMIN GOD MODE (Issue #15)
+        // Permite que los super admins salten todas las restricciones de Policies
+        Gate::before(function ($user, $ability) {
+            if ($user->is_super_admin) {
+                return true;
+            }
+        });
         // --- FIN DE CONFIGURACIÓN DE CONTROLAPP ---
     }
 }

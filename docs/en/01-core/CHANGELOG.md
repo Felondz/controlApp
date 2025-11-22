@@ -35,7 +35,10 @@
 | 🎯 Aislamiento de datos | 2025-11-15 | ✅ Completado |
 | 🎯 Bug fixes en CuentasAPI | 2025-11-16 | ✅ Completado |
 | 🎯 Documentación completa | 2025-11-16 | ✅ Completado |
-| 🎯 GitHub Actions & PHPStan | 2025-11-16 | ✅ Completado |
+| 🎯 GitHub Actions & PHPStan | 2025-11-16 | ✅ Completed |
+| 🎯 Web CRUD Projects | 2025-11-21 | ✅ Completed |
+| 🎯 Soft Deletes & Fixes | 2025-11-21 | ✅ Completed |
+| 🎯 SuperAdmin God Mode | 2025-11-21 | ✅ Completed |
 
 ### Módulos Implementados
 

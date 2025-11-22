@@ -361,6 +361,29 @@ Accept: application/json
 }
 ```
 
+### Delete Category - Delete Category
+
+```http
+DELETE /api/projects/{project}/categories/{category}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "message": "Category deleted successfully"
+}
+```
+
+**Response (422)**
+*If the category has associated transactions:*
+```json
+{
+  "message": "No se puede eliminar la categoría porque tiene transacciones asociadas. Inhabilítala en su lugar."
+}
+```
+
 ---
 
 ## 💳 Accounts

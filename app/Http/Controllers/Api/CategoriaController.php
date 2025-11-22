@@ -86,11 +86,11 @@ class CategoriaController extends Controller
         }
 
         if ($categoria->transacciones()->exists()) {
-            // Caso 1: Tiene transacciones. Se archiva (Soft Delete).
-            $categoria->delete();
+            // Caso 1: Tiene transacciones. Se impide el borrado.
+            return response()->json(['message' => 'No se puede eliminar la categoría porque tiene transacciones asociadas. Inhabilítala en su lugar.'], 422);
         } else {
-            // Caso 2: No tiene transacciones. Se borra permanentemente.
-            $categoria->forceDelete();
+            // Caso 2: No tiene transacciones. Se borra (Soft Delete es suficiente, no forceDelete para mantener historial si se restaura).
+            $categoria->delete();
         }
 
         return response()->noContent();

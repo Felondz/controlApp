@@ -12,9 +12,11 @@ use App\Models\Categoria;
 use App\Models\Transaccion;
 use App\Models\Invitacion; // <-- ¡La importación!
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Proyecto extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * Los atributos que se pueden asignar masivamente.

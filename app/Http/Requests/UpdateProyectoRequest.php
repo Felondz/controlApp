@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProyectoRequest extends FormRequest
 {
@@ -32,7 +33,7 @@ class UpdateProyectoRequest extends FormRequest
                 'min:3',
                 Rule::unique('proyectos')->ignore($this->route('proyecto')),
             ],
-            'moneda' => 'sometimes|required|in:COP,USD,EUR',
+            'moneda_default' => 'sometimes|required|in:COP,USD,EUR',
             'descripcion' => 'nullable|string|max:1000',
         ];
     }
