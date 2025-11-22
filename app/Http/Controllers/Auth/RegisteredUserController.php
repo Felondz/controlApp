@@ -44,8 +44,9 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // NO hacer login automático
+        // Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. Por favor, verifica tu correo electrónico antes de iniciar sesión.');
     }
 }

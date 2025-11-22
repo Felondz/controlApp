@@ -49,6 +49,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Verificar que el email esté verificado
+        if (! Auth::user()->hasVerifiedEmail()) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

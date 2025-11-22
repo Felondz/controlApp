@@ -47,7 +47,7 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 // 5 attempts per minute for password reset requests
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])
     ->middleware('throttle:5,1')
-    ->name('password.email');
+    ->name('api.password.email');
 
 Route::get('/reset-password/validate', [PasswordResetController::class, 'validateToken'])
     ->middleware('throttle:10,1')
@@ -55,7 +55,7 @@ Route::get('/reset-password/validate', [PasswordResetController::class, 'validat
 
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
     ->middleware('throttle:5,1')
-    ->name('password.reset');
+    ->name('api.password.reset');
 
 // --- RUTAS PROTEGIDAS (Requieren Token) ---
 Route::middleware('auth:sanctum')->group(function () {

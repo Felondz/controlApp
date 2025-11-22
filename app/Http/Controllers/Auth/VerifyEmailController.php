@@ -3,25 +3,41 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class VerifyEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
      */
-    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    public function __invoke(Request $request, $id, $hash): RedirectResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+        // Buscar el usuario por ID
+        $user = User::find($id);
+
+        // Si no existe el usuario
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Usuario no encontrado.');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        // Validar que el hash sea correcto
+        if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+            return redirect()->route('login')->with('error', 'El enlace de verificación es inválido o ha expirado.');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+        // Si ya está verificado
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login')->with('status', 'El email ya había sido verificado. Puedes iniciar sesión.');
+        }
+
+        // Marcar como verificado
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+        }
+
+        return redirect()->route('login')->with('status', '¡Email verificado exitosamente! Ahora puedes iniciar sesión.');
     }
 }
