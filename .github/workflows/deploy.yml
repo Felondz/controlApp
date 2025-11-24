@@ -81,8 +81,12 @@ jobs:
           # 4. Ejecutar migraciones de base de datos
           echo "🗄️ Ejecutando migraciones..."
           docker compose exec -T app php artisan migrate --force
+
+          # 5. Ejecutar Seeders (Crear/Actualizar SuperAdmin)
+          echo "🌱 Verificando SuperAdmin y Seeders..."
+          docker compose exec -T app php artisan db:seed --force
           
-          # 5. --- OPTIMIZACIÓN CRÍTICA (ESTO EVITA EL ERROR 504) ---
+          # 6. --- OPTIMIZACIÓN CRÍTICA (ESTO EVITA EL ERROR 504) ---
           echo "🧹 Limpiando y cacheando configuración..."
           
           # Borrar cualquier caché vieja que pueda causar conflictos
@@ -101,6 +105,6 @@ jobs:
           docker compose exec -T app php artisan queue:restart
           # ---------------------------------------------------------
           
-          # 6. Limpieza de imágenes viejas de Docker (ahorra espacio en disco)
+          # 7. Limpieza de imágenes viejas de Docker (ahorra espacio en disco)
           echo "🗑️ Limpiando imágenes antiguas..."
           docker image prune -f

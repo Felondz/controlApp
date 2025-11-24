@@ -77,10 +77,23 @@ Complete documentation is available in **English** and **Spanish**:
 - ✅ [Guía de Instalación](./docs/es/02-development/INSTALLATION.md) (Spanish)
 - 📖 [API Documentation](./docs/en/02-development/API.md) (English)
 - 📖 [Documentación de API](./docs/es/02-development/API.md) (Spanish)
-
 **For QA & Testing:**
 - 🧪 [Testing Architecture](./docs/en/04-testing/TESTING_ARCHITECTURE.md) (English)
 - 🧪 [Arquitectura de Testing](./docs/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
+
+## 🧪 Testing
+
+El proyecto utiliza **PHPUnit** con **SQLite en memoria** para una ejecución rápida y aislada.
+
+```bash
+# Ejecutar todos los tests
+php artisan test
+
+# O usando Sail
+./vendor/bin/sail test
+```
+
+Para más detalles, ver [Testing Architecture](docs/es/04-testing/TESTING_ARCHITECTURE.md).
 
 ---
 
