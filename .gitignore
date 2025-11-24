@@ -29,3 +29,6 @@ Thumbs.db
 /docs/en/03-ia-collaboration/
 /docs/es/03-ia-collaboration/
 /docs/03-ia-collaboration/
+
+# Incident reports (local only)
+/docs/incidents/

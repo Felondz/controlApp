@@ -1,59 +1,72 @@
-# Use official PHP image with Apache
-FROM php:8.2-apache
+# --- ETAPA 1: Construcción del Frontend (Node.js) ---
+FROM node:20-alpine as frontend_builder
 
-# Install system dependencies
+WORKDIR /app
+
+# Copiamos archivos de dependencias
+COPY package*.json vite.config.js ./
+
+# Instalamos dependencias de Node
+RUN npm ci
+
+# Copiamos el resto de los archivos necesarios para el build (recursos, vistas, css)
+COPY resources/ ./resources/
+COPY public/ ./public/
+# Si usas Tailwind u otros configs JS, cópialos aquí
+COPY tailwind.config.js postcss.config.js ./ 
+
+# Ejecutamos el build de producción (Genera public/build)
+RUN npm run build
+
+# --- ETAPA 2: Servidor de Aplicación (PHP/Laravel) ---
+FROM php:8.3-apache
+
+# Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
     unzip \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    default-mysql-client \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql zip
-
-# Install Redis extension via PECL
+# Install Redis extension via PECL (Fixes Error 500)
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
-# Enable Apache mod_rewrite
+# Habilitar mod_rewrite de Apache para Laravel
 RUN a2enmod rewrite
 
-# Set working directory
+# Establecer directorio de trabajo
 WORKDIR /var/www/html
 
-# Copy composer from official composer image
+# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# --- CAMBIO CRÍTICO AQUÍ ---
-# Copiamos los archivos y asignamos el dueño a www-data inmediatamente
-# Esto evita que los archivos pertenezcan a 'root' y causen el error 504
-COPY --chown=www-data:www-data . .
-# ---------------------------
+# Copiar archivos del proyecto (Backend)
+COPY . .
 
-# Install PHP dependencies
-# Ejecutamos esto después del COPY para que el vendor se genere correctamente
-RUN composer install --no-dev --optimize-autoloader
+# --- CRÍTICO: Copiar el Frontend compilado desde la Etapa 1 ---
+COPY --from=frontend_builder /app/public/build ./public/build
+# -------------------------------------------------------------
 
-# Set proper permissions
-# Mantenemos esto por seguridad para asegurar que storage siga siendo escribible
-# después de la instalación de dependencias
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+# Instalar dependencias de PHP (Optimizadas para prod)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-# Configure Apache
-RUN echo '<Directory /var/www/html/public>\n\
-    Options -MultiViews\n\
-    RewriteEngine On\n\
-    RewriteCond %{REQUEST_FILENAME} !-f\n\
-    RewriteRule ^ index.php [QSA,L]\n\
-    </Directory>' > /etc/apache2/conf-available/rewrite.conf && \
-    a2enconf rewrite
+# Ajustar permisos (Crucial para evitar errores 500/504 por logs)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Set Apache document root to public folder
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
+# Configurar Apache DocumentRoot para apuntar a /public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Expose port 80
+# Exponer puerto 80
 EXPOSE 80
 
-# Start Apache
+# Comando de inicio
 CMD ["apache2-foreground"]
