@@ -100,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // (Debe tener 'throttle' para evitar spam)
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'store'])
         ->middleware('throttle:6,1') // 6 peticiones por minuto
-        ->name('verification.send'); // Laravel necesita este nombre
+        ->name('api.verification.send'); // Nombre único para la API
 
     // --- Rutas de Finanzas Personales ---
     Route::get('/finanzas-personales', [FinanzasPersonalesController::class, 'show']);
