@@ -9,6 +9,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
             <Head title={t('app.name')} />
 
+            {/* Test Environment Warning */}
+            <div className="bg-amber-500 text-white text-center py-2 px-4 font-bold shadow-md">
+                {t('landing.test_environment_warning')}
+            </div>
+
             {/* Header */}
             <header className="container mx-auto px-4 py-6 flex justify-between items-center">
                 <div className="flex items-center space-x-2">

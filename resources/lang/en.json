@@ -28,7 +28,8 @@
         ],
         "coming_soon_title": "Coming Soon",
         "coming_soon_message": "We're working hard to bring you the best experience. The frontend is currently under active development.",
-        "footer_copyright": "© :year ControlApp. All rights reserved."
+        "footer_copyright": "© :year ControlApp. All rights reserved.",
+        "test_environment_warning": "⚠️ Test Environment: All information will be deleted periodically."
     },
     "auth": {
         "login": "Sign In",
