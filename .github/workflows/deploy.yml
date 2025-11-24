@@ -42,10 +42,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  # TRABAJO 2: Desplegar en TU Servidor (Runner)
+  # TRABAJO 2: Desplegar en TU Servidor (Runner Self-Hosted)
   deploy:
     needs: build-and-push
-    runs-on: [self-hosted, homelab] # <--- Busca tu servidor por la etiqueta 'homelab'
+    runs-on: [self-hosted, homelab]
     steps:
       - name: Login to GitHub Container Registry (Local)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -54,6 +54,7 @@ jobs:
         run: docker pull ghcr.io/felondz/controlapp:latest
 
       - name: Update Docker Compose File
+        # Descarga siempre la última versión de tu docker-compose de producción
         run: |
           mkdir -p /home/guaro/docker-sites/controlapp
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -61,30 +62,45 @@ jobs:
             -o /home/guaro/docker-sites/controlapp/docker-compose.yml \
             -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
 
-      - name: Deploy Containers
+      - name: Deploy and Optimize
         run: |
           cd /home/guaro/docker-sites/controlapp
           
-          # 1. Descargar imágenes primero (para minimizar tiempo de espera)
-          docker compose pull
+          # 1. Detener contenedores viejos para evitar conflictos de puerto/memoria
+          # (Opcional, pero recomendado si hay cambios grandes)
+          # docker compose down 
           
-          # 2. Actualizar SIN tirar todo abajo (Smart Update)
-          # Esto solo reinicia la App, la DB se queda prendida si no cambió
+          # 2. Levantar contenedores con la nueva imagen
+          echo "🚀 Levantando contenedores..."
           docker compose up -d --remove-orphans
           
-          # 3. Espera de seguridad (Por si acaso es la primera vez que se prende la DB)
-          echo "⏳ Dando tiempo de estabilización..."
-          sleep 15
+          # 3. Espera de seguridad (Dar tiempo a MySQL y Redis para iniciar)
+          echo "⏳ Esperando estabilización de servicios (10s)..."
+          sleep 10
           
-          # 4. Ejecutar migraciones
-          # Usamos un bucle: Intenta migrar, si falla, espera 5s y reintenta (hasta 5 veces)
-          echo "🚀 Ejecutando migraciones..."
-          for i in {1..5}; do
-            docker compose exec -T app php artisan migrate --force && break || {
-              echo "⚠️ La base de datos aún no está lista, reintentando en 10s... ($i/5)"
-              sleep 10
-            }
-          done
+          # 4. Ejecutar migraciones de base de datos
+          echo "🗄️ Ejecutando migraciones..."
+          docker compose exec -T app php artisan migrate --force
           
-          # 5. Limpieza
+          # 5. --- OPTIMIZACIÓN CRÍTICA (ESTO EVITA EL ERROR 504) ---
+          echo "🧹 Limpiando y cacheando configuración..."
+          
+          # Borrar cualquier caché vieja que pueda causar conflictos
+          docker compose exec -T app php artisan optimize:clear
+          
+          # Regenerar caché de configuración, rutas y eventos para producción
+          docker compose exec -T app php artisan optimize
+          
+          # Cachear las vistas (importante para rendimiento en monolitos Blade/Inertia)
+          docker compose exec -T app php artisan view:cache
+          
+          # Asegurar que los enlaces simbólicos de storage existan
+          docker compose exec -T app php artisan storage:link
+          
+          # Reiniciar cola de trabajos (si usas workers, para que tomen el nuevo código)
+          docker compose exec -T app php artisan queue:restart
+          # ---------------------------------------------------------
+          
+          # 6. Limpieza de imágenes viejas de Docker (ahorra espacio en disco)
+          echo "🗑️ Limpiando imágenes antiguas..."
           docker image prune -f
