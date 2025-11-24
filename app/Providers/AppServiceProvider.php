@@ -7,6 +7,7 @@ use App\Observers\UserObserver; // 💡 Importar el UserObserver
 use Illuminate\Database\Eloquent\Relations\Relation; // 💡 Importar para MorphMap
 use Illuminate\Support\Facades\Gate; // 💡 Importar Gate
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\URL; // 💡 Importar URL Facade
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // --- FIX: FORCE HTTPS (Error Mixed Content) ---
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Vite::prefetch(concurrency: 3);
 
         // --- INICIO DE CONFIGURACIÓN DE CONTROLAPP ---

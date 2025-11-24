@@ -39,6 +39,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'cors' => HandleCors::class,  // Alias para usar en rutas
             'super-admin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class,
         ]);
+
+        // --- FIX: TRUST PROXIES (Error Mixed Content) ---
+        // Confiamos en Traefik para que Laravel sepa que es HTTPS
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
