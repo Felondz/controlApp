@@ -379,20 +379,35 @@ docker compose exec laravel.test npm install
 docker compose exec laravel.test npm run dev
 ```
 
-### 4. Crear Usuario Administrador (Opcional)
+### 4. Crear Usuario Administrador (Automatizado)
 
+El sistema incluye una automatización para crear o actualizar al SuperAdmin usando variables de entorno.
+
+1.  **Configurar credenciales en `.env`:**
+    ```env
+    SUPER_ADMIN_EMAIL=admin@tudominio.com
+    SUPER_ADMIN_PASSWORD=TuPasswordSeguro123!
+    ```
+
+2.  **Ejecutar el Seeder:**
+    ```bash
+    # Con Docker
+    docker compose exec laravel.test php artisan db:seed
+
+    # O en producción
+    docker exec -it controlapp_app php artisan db:seed
+    ```
+
+    > **Nota:** Este comando es *idempotente*. Si el usuario ya existe, actualizará su contraseña y permisos sin duplicarlo.
+
+3.  **Verificar:**
+    Intenta iniciar sesión con las credenciales configuradas.
+
+#### Método Manual (Legacy)
+Si prefieres hacerlo manualmente vía Tinker:
 ```bash
-# Usar artisan tinker
 docker compose exec laravel.test php artisan tinker
-
-# En la consola tinker:
->>> $user = App\Models\User::factory()->create([
-...   'name' => 'Admin',
-...   'email' => 'admin@example.com',
-...   'email_verified_at' => now()
-... ]);
-
->>> exit
+>>> \App\Models\User::factory()->create(['email' => 'admin@example.com', 'is_super_admin' => true]);
 ```
 
 ---
