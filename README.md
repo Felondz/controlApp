@@ -37,10 +37,10 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 ### Frontend (Web/Mobile Readiness) - 🚧 In Development
 | Component | Technology | Status |
 | :--- | :--- | :--- |
-| **Framework** | React 19 + Inertia.js | 🚧 **In Active Development** |
+| **Framework** | React 19 + Inertia.js | ✅ **Active** |
 | **Tooling** | Vite | ✅ **Configured** |
-| **Localization (i18n)** | i18next + Custom Hook | 🚧 **Being Implemented** |
-| **UI/UX** | Tailwind CSS + React Components | 🚧 **In Development** |
+| **Localization (i18n)** | i18next + Custom Hook | ✅ **Implemented** |
+| **UI/UX** | Tailwind CSS + React Components | ✅ **Standardized (Dark Mode Support)** |
 
 ---
 

@@ -1,0 +1,106 @@
+# 🤖 Onboarding for New AIs - ControlApp
+
+Welcome, new AI! This document is your **source of truth** for collaborating on ControlApp.
+
+> **Critical Instruction**: Read this document COMPLETELY before writing a single line of code.
+
+---
+
+## 1. 🌍 Project Context
+
+**ControlApp** is a collaborative project management platform.
+- **Current State**: Financial management features (accounts, transactions) implemented.
+- **Goal**: Expand to comprehensive project management.
+- **Philosophy**: Clean code, solid architecture, and **premium aesthetics**.
+
+---
+
+## 2. 🛠️ Tech Stack
+
+| Layer | Technology | Version / Detail |
+|-------|------------|------------------|
+| **Backend** | Laravel | 11+ (PHP 8.2+) |
+| **Frontend** | React | 18+ (Inertia.js) |
+| **Styles** | TailwindCSS | v3.4+ |
+| **DB** | MySQL | 8.0+ |
+| **DevOps** | Docker | Laravel Sail |
+| **Testing** | PHPUnit / Pest | Feature & Unit tests |
+
+---
+
+## 3. 🚦 Workflow Rules
+
+### 3.1 Agent Mode (`task_boundary`)
+- **ALWAYS** use `task_boundary` when starting a complex task.
+- **NEVER** leave `TaskStatus` empty or generic. It must describe the **next step**.
+- **GRANULARITY**: A `TaskName` must correspond to an item in `task.md`.
+
+### 3.2 Artifacts
+- **`task.md`**: Your living checklist. Update it constantly.
+- **`implementation_plan.md`**: MANDATORY in PLANNING mode. Ask for approval before executing.
+- **`walkthrough.md`**: MANDATORY upon completion. Show visual proofs and results.
+
+### 3.3 Commits
+Use **Conventional Commits**:
+- `feat(auth): add google login`
+- `fix(user): fix email validation`
+- `docs(readme): update installation instructions`
+- `refactor(api): optimize project query`
+
+---
+
+## 4. 📚 Documentation Rules
+
+> **🔴 GOLDEN RULE**: Do not create new documents unless STRICTLY necessary.
+> **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/en/`) and Spanish (`docs/es/`).
+
+### Structure
+- `docs/en/01-core/`: Indexes, Changelog.
+- `docs/en/02-development/`: Technical guides (API, DB, Auth).
+- `docs/en/03-ia-collaboration/`: YOUR guides (this file).
+- `docs/en/04-testing/`: Testing strategies.
+
+### Decision Flow
+1. Is it a code change? -> Update `CHANGELOG.md`.
+2. Is it a rule clarification? -> Update `AI_GUIDELINES.md`.
+3. Is it a new procedure? -> Ask before creating file.
+
+---
+
+## 5. 💻 Coding Standards
+
+### PHP (Laravel)
+- **PSR-12**: Strict.
+- **Types**: Use `declare(strict_types=1);` and type hints everywhere.
+- **Controllers**: Keep them thin. Use `FormRequest` for validation and `Policies` for authorization.
+- **Models**: Use `$fillable` or `$guarded` explicitly.
+
+### React (Frontend)
+- **Components**: Functional with Hooks.
+- **Names**: `PascalCase` for components (`UserProfile.jsx`).
+- **Props**: Validate with PropTypes or TypeScript (if applicable).
+- **Inertia**: Use `useForm` for forms.
+
+### CSS (Tailwind)
+- **Utilities**: Use utility classes whenever possible.
+- **Config**: Use semantic colors (`bg-primary`, `text-danger`) defined in `tailwind.config.js`.
+- **Responsive**: Mobile-first (`w-full md:w-1/2`).
+
+---
+
+## 6. 🧪 Testing
+
+- **Rule**: "If it's not tested, it's not finished".
+- **Command**: `php artisan test` (o `docker compose exec laravel.test php artisan test`).
+- **Coverage**: Prioritize Feature tests for critical flows.
+
+---
+
+## 7. 🚀 Quick Start for your Session
+
+1. **Read** `task.md` (if exists) to see current state.
+2. **Read** `CHANGELOG.md` to see latest changes.
+3. **Verify** environment with `php artisan test`.
+4. **Start** your task with `task_boundary`.
+
+Good luck! 🚀

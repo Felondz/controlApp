@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function ForgotPassword({ status }) {
     const { t } = useTranslate();
@@ -44,19 +45,8 @@ export default function ForgotPassword({ status }) {
                     {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.email}</p>}
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <Link
-                        href={route('login')}
-                        className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                    >
-                        {t('auth.back_to_login')}
-                    </Link>
-
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                    >
+                <div className="flex items-center justify-center mt-4 space-x-4">
+                    <PrimaryButton className="justify-center !px-2 !py-1" disabled={processing}>
                         {processing ? (
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -64,9 +54,21 @@ export default function ForgotPassword({ status }) {
                             </svg>
                         ) : null}
                         {t('auth.email_password_reset_link')}
-                    </button>
+                    </PrimaryButton>
+                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
+                        {t('auth.cancel')}
+                    </Link>
                 </div>
             </form>
-        </AuthLayout>
+
+            <div className="mt-4 text-center">
+                <Link
+                    href={route('login')}
+                    className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline"
+                >
+                    {t('auth.back_to_login')}
+                </Link>
+            </div>
+        </AuthLayout >
     );
 }

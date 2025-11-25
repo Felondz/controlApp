@@ -17,13 +17,13 @@ class WelcomeController extends Controller
         $translations = [];
         
         // Cargar el archivo de idioma correspondiente
-        $file = resource_path("lang/{$locale}.json");
+        $file = resource_path("lang/{$locale}/{$locale}.json");
         
         if (File::exists($file)) {
             $translations = json_decode(File::get($file), true);
         } else {
             // Si no existe el archivo de idioma, cargar el inglés por defecto
-            $file = resource_path('lang/en.json');
+            $file = resource_path('lang/en/en.json');
             if (File::exists($file)) {
                 $translations = json_decode(File::get($file), true);
             }
