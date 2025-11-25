@@ -50,8 +50,10 @@ Frontend (React)                    Backend (Laravel)
 ### 1. **Translation Files** (Backend)
 ```
 resources/lang/
-├── es.json  (Spanish)
-└── en.json  (English)
+├── es/
+│   └── es.json  (Spanish)
+└── en/
+    └── en.json  (English)
 ```
 
 ### 2. **Modified Middleware** (`app/Http/Middleware/HandleInertiaRequests.php`)
@@ -114,14 +116,14 @@ export default function MyComponent() {
 
 ### To add a new translation:
 
-1. Edit `resources/lang/es.json` and `resources/lang/en.json`
+1. Edit `resources/lang/es/es.json` and `resources/lang/en/en.json`
 2. Add the key: `"mi_clave": "Mi valor"`
 3. Use in component: `{t('seccion.mi_clave')}`
 4. Done! Vite HMR reloads instantly
 
 ### To add a new language:
 
-1. Create `resources/lang/pt.json` (Portuguese, for example)
+1. Create `resources/lang/pt/pt.json` (Portuguese, for example)
 2. In Laravel: `app()->setLocale('pt')`
 3. The middleware automatically loads translations
 4. No frontend changes needed!
@@ -138,11 +140,11 @@ DEBUG FLOW:
    ↓
 2. It's the FALLBACK (meaning the key doesn't exist)
    ↓
-3. Check es.json: "dashboard.missing" ✗
+3. Check es/es.json: "dashboard.missing" ✗
    ↓
 4. Add the key: "dashboard.missing": "Missing Resource"
    ↓
-5. Check en.json: "dashboard.missing" ✗
+5. Check en/en.json: "dashboard.missing" ✗
    ↓
 6. Add the key: "dashboard.missing": "Missing Resource"
    ↓
@@ -157,7 +159,7 @@ DEBUG FLOW:
 
 When you need to add a new section of translations:
 
-**In `resources/lang/es.json`:**
+**In `resources/lang/es/es.json`:**
 ```json
 {
   "mi_seccion": {
@@ -172,7 +174,7 @@ When you need to add a new section of translations:
 }
 ```
 
-**In `resources/lang/en.json`:**
+**In `resources/lang/en/en.json`:**
 ```json
 {
   "mi_seccion": {
@@ -201,8 +203,8 @@ When you need to add a new section of translations:
 ```
 
 **Solution**:
-1. Check es.json: does "dashboard.titulo" exist?
-2. Check en.json: does "dashboard.titulo" exist?
+1. Check es/es.json: does "dashboard.titulo" exist?
+2. Check en/en.json: does "dashboard.titulo" exist?
 3. Check for typos: (dashboard.titilo vs dashboard.titulo)
 
 The fallback SHOWS you exactly which key is missing.
@@ -210,10 +212,10 @@ The fallback SHOWS you exactly which key is missing.
 ### ❌ Error 2: Forgot one language
 
 ```json
-// es.json - HAVE the key ✓
+// es/es.json - HAVE the key ✓
 "proyectos.crear": "Crear"
 
-// en.json - DON'T HAVE the key ✗
+// en/en.json - DON'T HAVE the key ✗
 // (you forgot to copy it)
 
 // Result in English: See "proyectos.crear" on screen
@@ -221,8 +223,8 @@ The fallback SHOWS you exactly which key is missing.
 
 **Solution**: 
 **ALWAYS add BOTH languages:**
-- Add to es.json
-- THEN add to en.json
+- Add to es/es.json
+- THEN add to en/en.json
 - NEVER omit one
 
 If you see a key on screen, it means it's missing in at least one JSON.
@@ -239,7 +241,7 @@ npm run dev
 ```
 
 When you edit:
-- `resources/lang/es.json` → Translations update on refresh
+- `resources/lang/es/es.json` → Translations update on refresh
 - `resources/js/Pages/*.jsx` → Components update without reloading
 - `resources/js/Components/*.jsx` → Changes propagate with HMR
 
@@ -249,8 +251,8 @@ When you edit:
 
 | File | Purpose | Changes |
 |---------|-----------|---------|
-| `resources/lang/es.json` | Spanish translations | 136 keys |
-| `resources/lang/en.json` | English translations | 136 keys |
+| `resources/lang/es/es.json` | Spanish translations | 136 keys |
+| `resources/lang/en/en.json` | English translations | 136 keys |
 | `app/Http/Middleware/HandleInertiaRequests.php` | Share translations | Middleware modified |
 | `resources/js/hooks/useTranslate.jsx` | Translation hook | New file |
 | `resources/js/Providers/I18nProvider.jsx` | i18n Provider | New file |

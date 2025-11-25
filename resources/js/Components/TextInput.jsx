@@ -20,13 +20,13 @@ export default forwardRef(function TextInput(
         'focus:ring-2 focus:ring-opacity-50 ' +
         'transition duration-200 ease-in-out ';
 
-    const lightStyles = 'bg-gray-50 text-gray-900 ' +
-        'border-gray-300 focus:border-indigo-600 focus:ring-indigo-500 ' +
-        'placeholder-gray-400 ';
+    const lightStyles = 'bg-secondary-50 text-secondary-900 ' +
+        'border-secondary-300 focus:border-primary-600 focus:ring-primary-500 ' +
+        'placeholder-secondary-400 ';
 
-    const darkStyles = 'dark:bg-gray-700 dark:text-gray-100 ' +
-        'dark:border-gray-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-500 ' +
-        'dark:placeholder-gray-300 ';
+    const darkStyles = 'dark:bg-secondary-700 dark:text-secondary-100 ' +
+        'dark:border-secondary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 ' +
+        'dark:placeholder-secondary-300 ';
 
     return (
         <input

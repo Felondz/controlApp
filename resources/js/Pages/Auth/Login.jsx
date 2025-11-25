@@ -84,9 +84,9 @@ export default function Login({ status, canResetPassword }) {
                     </span>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-6 flex items-center space-x-4">
                     <PrimaryButton
-                        className="w-full flex justify-center"
+                        className="flex-1"
                         disabled={processing}
                     >
                         {processing ? (
@@ -101,18 +101,18 @@ export default function Login({ status, canResetPassword }) {
                             t('auth.login_button')
                         )}
                     </PrimaryButton>
-                </div>
-
-                <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-                    {t('auth.dont_have_account')}{' '}
-                    <Link
-                        href={route('register')}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium"
-                    >
-                        {t('auth.register')}
+                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
+                        {t('auth.cancel')}
                     </Link>
                 </div>
             </form>
+            <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                {t('auth.dont_have_account')}{' '}
+                <Link href={route('register')} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium">
+                    {t('auth.register')}
+                </Link>
+            </div>
         </AuthLayout>
     );
 }
+

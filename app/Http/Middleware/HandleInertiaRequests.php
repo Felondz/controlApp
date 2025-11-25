@@ -55,14 +55,14 @@ class HandleInertiaRequests extends Middleware
      */
     private function loadTranslations(string $locale): array
     {
-        $langPath = resource_path("lang/{$locale}.json");
+        $langPath = resource_path("lang/{$locale}/{$locale}.json");
 
         if (File::exists($langPath)) {
             return json_decode(File::get($langPath), true) ?? [];
         }
 
         // Fallback a inglés si el idioma solicitado no existe
-        $fallbackPath = resource_path('lang/en.json');
+        $fallbackPath = resource_path('lang/en/en.json');
         if (File::exists($fallbackPath)) {
             return json_decode(File::get($fallbackPath), true) ?? [];
         }
