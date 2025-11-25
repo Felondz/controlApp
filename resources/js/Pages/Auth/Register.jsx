@@ -1,5 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
@@ -7,9 +7,12 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import Checkbox from '@/Components/Checkbox';
+import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function Register() {
     const { t } = useTranslate();
+    const [activeModal, setActiveModal] = useState(null); // 'terms' | 'privacy' | null
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -28,6 +31,28 @@ export default function Register() {
         e.preventDefault();
         post(route('register'));
     };
+
+    const closeModal = () => {
+        setActiveModal(null);
+    };
+
+    const getModalContent = () => {
+        if (activeModal === 'terms') {
+            return {
+                title: t('auth.terms_modal_title'),
+                content: t('auth.terms_content')
+            };
+        }
+        if (activeModal === 'privacy') {
+            return {
+                title: t('auth.privacy_modal_title'),
+                content: t('auth.privacy_content')
+            };
+        }
+        return { title: '', content: '' };
+    };
+
+    const { title: modalTitle, content: modalContent } = getModalContent();
 
     return (
         <AuthLayout title={t('auth.register')}>
@@ -102,25 +127,63 @@ export default function Register() {
                             required
                         />
                         <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                            {t('auth.agree_terms')}
+                            {t('auth.agree_terms_text_1')}
+                            <button
+                                type="button"
+                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                onClick={() => setActiveModal('terms')}
+                            >
+                                {t('auth.terms_of_service')}
+                            </button>
+                            {t('auth.agree_terms_text_2')}
+                            <button
+                                type="button"
+                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                onClick={() => setActiveModal('privacy')}
+                            >
+                                {t('auth.privacy_policy')}
+                            </button>
                         </span>
                     </label>
                     <InputError message={errors.terms} className="mt-1" />
                 </div>
 
-                <div className="flex items-center justify-between mt-6">
-                    <Link
-                        href={route('login')}
-                        className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                    >
-                        {t('auth.already_registered')}
-                    </Link>
-
-                    <PrimaryButton type="submit" disabled={processing}>
+                <div className="mt-6 flex items-center space-x-4">
+                    <PrimaryButton className="flex-1" disabled={processing}>
                         {t('auth.register')}
                     </PrimaryButton>
+                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
+                        {t('auth.cancel')}
+                    </Link>
                 </div>
             </form>
+
+            <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                <Link
+                    href={route('login')}
+                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline"
+                >
+                    {t('auth.already_registered')}
+                </Link>
+            </div>
+
+            <Modal show={!!activeModal} onClose={closeModal}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-primary-900 dark:text-gray-100">
+                        {modalTitle}
+                    </h2>
+
+                    <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line max-h-96 overflow-y-auto">
+                        {modalContent}
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                        <SecondaryButton onClick={closeModal}>
+                            {t('auth.close')}
+                        </SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthLayout>
     );
 }

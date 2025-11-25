@@ -25,9 +25,9 @@ export default function VerifyEmail({ status }) {
             )}
 
             <form onSubmit={submit} className="space-y-4">
-                <div className="mt-6">
+                <div className="mt-6 flex items-center space-x-4">
                     <PrimaryButton
-                        className="w-full flex justify-center"
+                        className="flex-1 justify-center"
                         disabled={processing}
                     >
                         {processing ? (
@@ -42,6 +42,9 @@ export default function VerifyEmail({ status }) {
                             t('auth.resend_verification')
                         )}
                     </PrimaryButton>
+                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
+                        {t('auth.cancel')}
+                    </Link>
                 </div>
 
                 <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">

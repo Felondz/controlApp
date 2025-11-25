@@ -6,7 +6,7 @@
 > **NEVER hardcode strings in React components**
 
 All user-visible text must be:
-1. In `resources/lang/es.json` and `resources/lang/en.json`
+1. In `resources/lang/es/es.json` and `resources/lang/en/en.json`
 2. Accessed through the `useTranslate()` hook
 
 ---
@@ -17,7 +17,7 @@ All user-visible text must be:
 
 ### BEFORE writing React, add to JSONs:
 
-#### 1️⃣ Edit `resources/lang/es.json`
+#### 1️⃣ Edit `resources/lang/es/es.json`
 ```json
 {
   "accounts": {
@@ -27,7 +27,7 @@ All user-visible text must be:
 }
 ```
 
-#### 2️⃣ Edit `resources/lang/en.json` (⚠️ NEVER omit)
+#### 2️⃣ Edit `resources/lang/en/en.json` (⚠️ NEVER omit)
 ```json
 {
   "accounts": {
@@ -66,8 +66,8 @@ The `useTranslate()` hook has intelligent fallback:
 ```
 
 **Benefit**: If you see weird text like "accounts.balance" on screen, you know:
-- You forgot to add the key to `es.json`
-- Or forgot to add to `en.json`
+- You forgot to add the key to `es/es.json`
+- Or forgot to add to `en/en.json`
 - The fallback is a CANARY for errors
 
 ---
@@ -99,8 +99,8 @@ export default function MyComponent() {
 ```
 
 ### Step 4: If key does NOT exist
-1. ✅ FIRST: Edit `resources/lang/es.json`
-2. ✅ SECOND: Edit `resources/lang/en.json` (ALWAYS BOTH)
+1. ✅ FIRST: Edit `resources/lang/es/es.json`
+2. ✅ SECOND: Edit `resources/lang/en/en.json` (ALWAYS BOTH)
 3. ✅ Then: Use in React component
 4. ❌ NEVER: The opposite (code first, i18n later)
 
@@ -165,7 +165,7 @@ Before committing:
 - [ ] Are there hardcoded strings in JSX?
 - [ ] Are all strings in the translation keys JSONs?
 - [ ] Is `t()` used for all text?
-- [ ] Are the keys added in es.json AND en.json?
+- [ ] Are the keys added in es/es.json AND en/en.json?
 - [ ] Did you test with Vite HMR?
 
 ---
@@ -211,7 +211,7 @@ common.open
 common.close
 ```
 
-See `resources/lang/es.json` for the complete list.
+See `resources/lang/es/es.json` for the complete list.
 
 ---
 
@@ -229,8 +229,8 @@ See `resources/lang/es.json` for the complete list.
 **How to find the error (Fallback is your friend)**:
 ```
 If you see "dashboard.titulo" on screen:
-1. Check es.json: does "dashboard.titulo" exist?
-2. Check en.json: does "dashboard.titulo" exist?
+1. Check es/es.json: does "dashboard.titulo" exist?
+2. Check en/en.json: does "dashboard.titulo" exist?
 3. Is there a typo? (dashboard.titilo vs dashboard.titulo)
 
 The fallback SHOWS exactly what key is missing.
@@ -246,10 +246,10 @@ The fallback SHOWS exactly what key is missing.
 
 ### ❌ Mistake 3: Forgot one language
 ```json
-// es.json - HAS the key ✓
+// es/es.json - HAS the key ✓
 "proyectos.crear": "Crear"
 
-// en.json - DOESN'T HAVE the key ✗
+// en/en.json - DOESN'T HAVE the key ✗
 // (you forgot to copy it)
 
 // Result in English: See "proyectos.crear"
@@ -258,8 +258,8 @@ The fallback SHOWS exactly what key is missing.
 **Solution**: 
 ```
 ALWAYS add BOTH languages:
-- Add to es.json
-- THEN add to en.json
+- Add to es/es.json
+- THEN add to en/en.json
 - NEVER skip one
 
 If you see a key on screen, it means:
@@ -287,7 +287,7 @@ If you see a key on screen, it means:
 
 // If key DOESN'T EXIST in JSON:
 // See: "dashboard.my_projects" (fallback)
-// Solution: Add to es.json and en.json first
+// Solution: Add to es/es.json and en/en.json first
 ```
 
 ---
@@ -318,8 +318,8 @@ ADVANTAGE:
 
 ## 🚀 Add New Language
 
-1. Create `resources/lang/pt.json` (Portuguese)
-2. Copy structure from `es.json`
+1. Create `resources/lang/pt/pt.json` (Portuguese)
+2. Copy structure from `es/es.json`
 3. Translate all keys
 4. In backend: `app()->setLocale('pt')`
 5. Done! Middleware loads automatically
@@ -331,7 +331,7 @@ No frontend changes needed.
 ## 📞 Quick Help
 
 **Where is the translation I need?**
-→ Search in `resources/lang/es.json`
+→ Search in `resources/lang/es/es.json`
 
 **How do I add a new translation?**
 → Follow the template in "Template for New Translations"

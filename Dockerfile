@@ -1,4 +1,12 @@
-# Use official PHP image with Apache
+# Stage 1: Build Frontend Assets
+FROM node:20 as frontend
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: Setup PHP Application
 FROM php:8.2-apache
 
 # Install system dependencies
@@ -21,19 +29,16 @@ WORKDIR /var/www/html
 # Copy composer from official composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# --- CAMBIO CRÍTICO AQUÍ ---
-# Copiamos los archivos y asignamos el dueño a www-data inmediatamente
-# Esto evita que los archivos pertenezcan a 'root' y causen el error 504
+# Copy application files
 COPY --chown=www-data:www-data . .
-# ---------------------------
+
+# Copy built frontend assets from Stage 1
+COPY --from=frontend --chown=www-data:www-data /app/public/build /var/www/html/public/build
 
 # Install PHP dependencies
-# Ejecutamos esto después del COPY para que el vendor se genere correctamente
 RUN composer install --no-dev --optimize-autoloader
 
 # Set proper permissions
-# Mantenemos esto por seguridad para asegurar que storage siga siendo escribible
-# después de la instalación de dependencias
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
 # Configure Apache
