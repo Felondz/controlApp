@@ -11,9 +11,9 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <div className="min-h-screen bg-gradient-to-br from-info-50 to-primary-100 dark:from-secondary-900 dark:to-secondary-800">
             <Head title={t('app.name')} />
 
-            {/* Test Mode Banner */}
-            <div className="bg-warning-500 text-white text-center py-2 px-4 font-medium text-sm">
-                {t('auth.test_mode_banner')}
+            {/* Test Environment Warning */}
+            <div className="bg-warning-500 text-white text-center py-2 px-4 font-bold shadow-md">
+                {t('landing.test_environment_warning')}
             </div>
 
             {/* Header */}

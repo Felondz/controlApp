@@ -19,6 +19,34 @@
         "name": "ControlApp",
         "description": "Plataforma de gestión de proyectos colaborativos"
     },
+    "landing": {
+        "hero_title": "Toma el Control de Tus Proyectos",
+        "hero_subtitle": "La solución completa para gestionar tus proyectos, finanzas y equipo en un solo lugar.",
+        "cta_primary": "Comenzar",
+        "cta_secondary": "Saber más",
+        "features_title": "¿Por qué elegir ControlApp?",
+        "features": [
+            {
+                "title": "Gestión de Proyectos",
+                "description": "Organiza y haz seguimiento a todos tus proyectos en un solo lugar.",
+                "icon": "📊"
+            },
+            {
+                "title": "Control Financiero",
+                "description": "Mantén un registro de gastos, ingresos y presupuestos.",
+                "icon": "💰"
+            },
+            {
+                "title": "Colaboración en Equipo",
+                "description": "Trabaja en equipo en tiempo real con tus compañeros.",
+                "icon": "👥"
+            }
+        ],
+        "coming_soon_title": "Próximamente",
+        "coming_soon_message": "Estamos trabajando duro para ofrecerte la mejor experiencia. El frontend se encuentra actualmente en desarrollo activo.",
+        "footer_copyright": "© :year ControlApp. Todos los derechos reservados.",
+        "test_environment_warning": "⚠️ Entorno de Pruebas: Toda la información será borrada periódicamente."
+    },
     "auth": {
         "login": "Iniciar sesión",
         "logout": "Cerrar sesión",
@@ -138,33 +166,6 @@
         "start_here": "Aquí verás tus cuentas bancarias y el balance total.",
         "no_accounts": "No tienes cuentas registradas aún. ¡Crea una para empezar!",
         "add_account": "Nueva Cuenta"
-    },
-    "landing": {
-        "hero_title": "Toma el Control de Tus Proyectos",
-        "hero_subtitle": "La solución completa para gestionar tus proyectos, finanzas y equipo en un solo lugar.",
-        "cta_primary": "Comenzar",
-        "cta_secondary": "Saber más",
-        "features_title": "¿Por qué elegir ControlApp?",
-        "features": [
-            {
-                "title": "Gestión de Proyectos",
-                "description": "Organiza y haz seguimiento a todos tus proyectos en un solo lugar.",
-                "icon": "📊"
-            },
-            {
-                "title": "Control Financiero",
-                "description": "Mantén un registro de gastos, ingresos y presupuestos.",
-                "icon": "💰"
-            },
-            {
-                "title": "Colaboración en Equipo",
-                "description": "Trabaja en equipo en tiempo real con tus compañeros.",
-                "icon": "👥"
-            }
-        ],
-        "coming_soon_title": "Próximamente",
-        "coming_soon_message": "Estamos trabajando duro para ofrecerte la mejor experiencia. El frontend se encuentra actualmente en desarrollo activo.",
-        "footer_copyright": "© :year ControlApp. Todos los derechos reservados."
     },
     "members": {
         "title": "Miembros",

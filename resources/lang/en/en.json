@@ -19,6 +19,34 @@
         "name": "ControlApp",
         "description": "Collaborative Project Management Platform"
     },
+    "landing": {
+        "hero_title": "Take Control of Your Projects",
+        "hero_subtitle": "The complete solution to manage your projects, finances and team in one place.",
+        "cta_primary": "Get Started",
+        "cta_secondary": "Learn More",
+        "features_title": "Why Choose ControlApp?",
+        "features": [
+            {
+                "title": "Project Management",
+                "description": "Organize and track all your projects in one place.",
+                "icon": "📊"
+            },
+            {
+                "title": "Financial Control",
+                "description": "Keep track of expenses, income and budgets.",
+                "icon": "💰"
+            },
+            {
+                "title": "Team Collaboration",
+                "description": "Work together with your team in real time.",
+                "icon": "👥"
+            }
+        ],
+        "coming_soon_title": "Coming Soon",
+        "coming_soon_message": "We're working hard to bring you the best experience. The frontend is currently under active development.",
+        "footer_copyright": "© :year ControlApp. All rights reserved.",
+        "test_environment_warning": "⚠️ Test Environment: All information will be deleted periodically."
+    },
     "auth": {
         "login": "Sign In",
         "logout": "Sign Out",
@@ -138,33 +166,6 @@
         "start_here": "Here you will see your bank accounts and total balance.",
         "no_accounts": "You don't have any accounts registered yet. Create one to get started!",
         "add_account": "New Account"
-    },
-    "landing": {
-        "hero_title": "Take Control of Your Projects",
-        "hero_subtitle": "The complete solution to manage your projects, finances and team in one place.",
-        "cta_primary": "Get Started",
-        "cta_secondary": "Learn More",
-        "features_title": "Why Choose ControlApp?",
-        "features": [
-            {
-                "title": "Project Management",
-                "description": "Organize and track all your projects in one place.",
-                "icon": "📊"
-            },
-            {
-                "title": "Financial Control",
-                "description": "Keep track of expenses, income and budgets.",
-                "icon": "💰"
-            },
-            {
-                "title": "Team Collaboration",
-                "description": "Work together with your team in real time.",
-                "icon": "👥"
-            }
-        ],
-        "coming_soon_title": "Coming Soon",
-        "coming_soon_message": "We're working hard to bring you the best experience. The frontend is currently under active development.",
-        "footer_copyright": "© :year ControlApp. All rights reserved."
     },
     "members": {
         "title": "Members",

@@ -29,3 +29,6 @@ Thumbs.db
 
 # AI collaboration documentation (work-in-progress notes for AI sessions)
 /docs/03-ia-collaboration/
+
+# Incident reports (local only)
+/docs/incidents/

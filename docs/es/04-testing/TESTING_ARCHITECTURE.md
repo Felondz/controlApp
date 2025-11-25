@@ -12,29 +12,31 @@
 
 ---
 
-## 2. 🗄️ Aislamiento de Base de Datos (Estrategia Crítica)
-
-### El Trait RefreshDatabase
-La suite de tests utiliza el trait `Illuminate\Foundation\Testing\RefreshDatabase` en cada `TestCase`.
-
-* **Propósito**: Asegurar que cada test se ejecute con una base de datos completamente limpia, previniendo que los datos de un test anterior afecten al siguiente.
-* **Mecanismo**: Inicia una transacción antes de cada test y hace un `rollback` automático al finalizar.
-* **Setup**: Los datos se preparan utilizando **Factories** para generar instancias aisladas y realistas para cada prueba.
-
+## 2. 🗄️ Aislamiento de Base de Datos (SQLite In-Memory)
+ 
+La suite de tests ahora está configurada para usar **SQLite en memoria** (`:memory:`).
+ 
+*   **Ventajas**:
+    *   🚀 **Velocidad**: Los tests se ejecutan mucho más rápido al no tocar el disco.
+    *   🛠️ **Simplicidad**: No requiere un servidor MySQL corriendo ni crear una base de datos de testing separada.
+    *   🔄 **Aislamiento**: Cada test inicia con una base de datos fresca en memoria que se destruye al finalizar.
+*   **Trait RefreshDatabase**: Sigue siendo esencial. Se encarga de migrar la base de datos en memoria antes de cada test.
+ 
 ---
-
+ 
 ## 3. 🛠️ Comandos de Ejecución (Testing Scripts)
-
-Todos los tests deben ejecutarse dentro del contenedor de la aplicación a través de **Sail**.
-
-| Propósito | Comando |
-| :--- | :--- |
-| **Ejecutar todos los tests (Principal)** | `./vendor/bin/sail test` |
-| **Ejecutar todos los tests con testdox** | `./vendor/bin/sail test --testdox` |
-| **Ejecutar un archivo específico** | `./vendor/bin/sail test tests/Feature/Auth/AuthenticationTest.php` |
-| **Ejecutar un test específico** | `./vendor/bin/sail test --filter=test_users_can_logout` |
-| **Ejecutar tests en paralelo** | `./vendor/bin/sail test --parallel` |
-| **Ejecutar migraciones de testing** | `./vendor/bin/sail artisan migrate:fresh --env=testing` |
+ 
+Puedes ejecutar los tests tanto dentro de Docker (Sail) como en tu máquina local (si tienes PHP instalado), gracias a SQLite.
+ 
+| Propósito | Comando (Local) | Comando (Sail/Docker) |
+| :--- | :--- | :--- |
+| **Ejecutar todos los tests** | `php artisan test` | `./vendor/bin/sail test` |
+| **Ejecutar con testdox (Detallado)** | `php artisan test --testdox` | `./vendor/bin/sail test --testdox` |
+| **Ejecutar un archivo específico** | `php artisan test tests/Feature/EjemploTest.php` | `./vendor/bin/sail test ...` |
+| **Ejecutar un test específico** | `php artisan test --filter=nombre_del_test` | `./vendor/bin/sail test ...` |
+| **Ejecutar tests en paralelo** | `php artisan test --parallel` | `./vendor/bin/sail test --parallel` |
+ 
+> **Nota:** Ya no es necesario ejecutar comandos de migración manual (`migrate:fresh`) para testing, ya que SQLite se migra automáticamente en memoria.
 
 ---
 
