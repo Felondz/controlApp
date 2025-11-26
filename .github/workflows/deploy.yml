@@ -75,8 +75,8 @@ jobs:
           docker compose up -d --force-recreate --remove-orphans
           
           # 3. Espera de seguridad (Dar tiempo a MySQL y Redis para iniciar)
-          echo "⏳ Esperando estabilización de servicios (10s)..."
-          sleep 10
+          echo "⏳ Esperando estabilización de servicios (30s)..."
+          sleep 30
           
           # 4. Ejecutar migraciones de base de datos
           echo "🗄️ Ejecutando migraciones..."
