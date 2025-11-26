@@ -72,7 +72,7 @@ jobs:
           
           # 2. Levantar contenedores con la nueva imagen
           echo "🚀 Levantando contenedores..."
-          docker compose up -d --remove-orphans
+          docker compose up -d --force-recreate --remove-orphans
           
           # 3. Espera de seguridad (Dar tiempo a MySQL y Redis para iniciar)
           echo "⏳ Esperando estabilización de servicios (10s)..."
