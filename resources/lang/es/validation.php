@@ -1,5 +1,3 @@
-// resources/lang/es/validation.php
-
 <?php
 
 return [
