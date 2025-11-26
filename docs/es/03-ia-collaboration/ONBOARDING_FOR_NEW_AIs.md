@@ -53,6 +53,7 @@ Usa **Conventional Commits**:
 
 > **🔴 REGLA DE ORO**: NO crees documentos nuevos a menos que sea ESTRICTAMENTE necesario.
 > **🌐 REGLA BILINGÜE**: La documentación SIEMPRE debe estar en inglés (`docs/en/`) y español (`docs/es/`).
+> **⚠️ REGLA DE VERACIDAD**: La información en la documentación (fechas, versiones, comandos) debe ser **100% REAL y VERIFICADA**. Prohibido inventar datos o dejar "placeholders" (ej. fechas de 2023). El riesgo de desinformación es CRÍTICO.
 
 ### Estructura
 - `docs/es/01-core/`: Índices, Changelog.

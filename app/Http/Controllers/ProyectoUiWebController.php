@@ -23,11 +23,14 @@ class ProyectoUiWebController extends Controller
         // 1. Crear el proyecto usando los datos validados
         $proyecto = Proyecto::create([
             'nombre' => $validatedData['nombre'],
-            'descripcion' => $validatedData['descripcion'] ?? null, // Usar null para opcionales si no viene
+            'descripcion' => $validatedData['descripcion'] ?? null,
             'moneda_default' => $validatedData['moneda_default'],
             'user_id' => Auth::id(),
             'es_personal' => false,
             'visible_en_listado' => true,
+            'modules' => $validatedData['modules'],
+            'color' => $validatedData['color'] ?? null,
+            'icon' => $validatedData['icon'] ?? null,
         ]);
         
         // 2. Adjuntar al creador como miembro y administrador
@@ -51,12 +54,23 @@ class ProyectoUiWebController extends Controller
              abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
-        // 2. Eager Loading: Cargar las relaciones que la vista necesita.
-        $mis_proyecto->load(['cuentas', 'categorias']); 
+        // 2. Verificar si es admin para cargar datos financieros
+        $isAdmin = $request->user()->esAdminDe($mis_proyecto);
+
+        // 3. Eager Loading condicional
+        $relations = ['categorias']; // Categorías pueden ser visibles (o no, según requerimiento, pero finanzas es lo crítico)
         
-        // 3. Renderizar la vista de Inertia, pasando el objeto Proyecto.
+        if ($isAdmin) {
+            $relations[] = 'cuentas';
+            // $relations[] = 'transacciones'; // Si se cargaran aquí
+        }
+
+        $mis_proyecto->load($relations); 
+        
+        // 4. Renderizar la vista de Inertia
         return Inertia::render('Projects/Show', [
             'proyecto' => $mis_proyecto,
+            'isAdmin' => $isAdmin,
         ]);
     }
 

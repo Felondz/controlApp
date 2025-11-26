@@ -129,11 +129,14 @@
         "confirm": "Confirmar",
         "close": "Cerrar",
         "open": "Abrir",
+        "profile": "Perfil",
         "language": "Idioma",
         "change_language": "Cambiar Idioma",
         "spanish": "Español",
         "english": "English",
-        "portuguese": "Português"
+        "portuguese": "Português",
+        "projects": "Proyectos",
+        "users": "Usuarios"
     },
     "currency": {
         "cop": "COP (Peso Colombiano)",
@@ -142,7 +145,7 @@
     },
     "dashboard": {
         "title": "Panel de Control",
-        "welcome": "Bienvenido",
+        "welcome": "Bienvenido, :name",
         "my_projects": "Mis Proyectos",
         "activity_summary": "Resumen de Actividad",
         "recent_transactions": "Transacciones Recientes",
@@ -150,7 +153,13 @@
         "create_project": "Crear Proyecto",
         "total_projects": "Proyectos Totales",
         "active_members": "Miembros Activos",
-        "total_balance": "Saldo Total"
+        "total_balance": "Saldo Total",
+        "active_projects_count": "Tienes :count proyectos activos",
+        "create_first_project_desc": "Comienza creando tu primer proyecto para organizar tus finanzas y tareas.",
+        "apps": "Aplicaciones",
+        "calendar": "Calendario",
+        "marketplace": "Mercado",
+        "calculator": "Calculadora Financiera"
     },
     "errors": {
         "404": "Página no encontrada",
@@ -165,7 +174,26 @@
         "accounts_list": "Tus Cuentas",
         "start_here": "Aquí verás tus cuentas bancarias y el balance total.",
         "no_accounts": "No tienes cuentas registradas aún. ¡Crea una para empezar!",
-        "add_account": "Nueva Cuenta"
+        "add_account": "Nueva Cuenta",
+        "balance": "Balance Actual",
+        "budget": "Presupuesto Mensual",
+        "income": "Ingresos",
+        "expense": "Gastos",
+        "restricted": "Acceso Restringido",
+        "restricted_access": "No tienes permisos para ver la información financiera de este proyecto."
+    },
+    "profile": {
+        "edit": "Editar Perfil"
+    },
+    "search": {
+        "title": "Resultados de Búsqueda",
+        "results_for": "Resultados para",
+        "no_projects_found": "No se encontraron proyectos",
+        "no_users_found": "No se encontraron usuarios"
+    },
+    "tasks": {
+        "pending": "Tareas Pendientes",
+        "due_today": "vencen hoy"
     },
     "members": {
         "title": "Miembros",
@@ -197,7 +225,15 @@
         "no_projects_yet": "No hay proyectos aún",
         "my_role": "Mi Rol",
         "personal": "Personal",
-        "collaborative": "Colaborativo"
+        "collaborative": "Colaborativo",
+        "create_new": "Crear Nuevo",
+        "modules": "Módulos Activos",
+        "color": "Color",
+        "icon": "Icono (Emoji)"
+    },
+    "modules": {
+        "finance": "Finanzas",
+        "tasks": "Tareas"
     },
     "transactions": {
         "title": "Transacciones",
