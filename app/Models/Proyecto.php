@@ -14,9 +14,11 @@ use App\Models\Invitacion; // <-- ¡La importación!
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Laravel\Scout\Searchable;
+
 class Proyecto extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
 
     /**
      * Los atributos que se pueden asignar masivamente.
@@ -27,12 +29,16 @@ class Proyecto extends Model
         'user_id',
         'es_personal',
         'visible_en_listado',
+        'modules',
+        'color',
+        'icon',
     ];
 
     /**
      * Siempre cargar estas relaciones.
+     * (Eliminado por seguridad: las finanzas solo deben cargarse si es admin)
      */
-    protected $with = ['cuentas', 'categorias', 'transacciones'];
+    // protected $with = ['cuentas', 'categorias', 'transacciones'];
 
     /**
      * Los atributos que deben castearse a tipos nativos.
@@ -40,6 +46,7 @@ class Proyecto extends Model
     protected $casts = [
         'es_personal' => 'boolean',
         'visible_en_listado' => 'boolean',
+        'modules' => 'array',
     ];
 
     /**
@@ -96,5 +103,19 @@ class Proyecto extends Model
     public function propietarioPersonal()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'user_id' => $this->user_id,
+        ];
     }
 }

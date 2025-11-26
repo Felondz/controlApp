@@ -6,9 +6,9 @@
 
 ## 1. 🎯 Testing Philosophy and QA
 
-* **Current Status**: 131 tests passing with 342 assertions (100% coverage of main modules).
-* **Golden Rule (Quality Gate)**: If tests fail, the code has an error. **Do not commit/push until all pass**.
-* **Convention**: Use descriptive test names: `test_admin_can_create_user`.
+*   **Current Status**: 131 tests passing with 342 assertions (100% coverage of main modules).
+*   **Golden Rule (Quality Gate)**: If tests fail, the code has an error. **Do not commit/push until all pass**.
+*   **Convention**: Use descriptive test names: `test_admin_can_create_user`.
 
 ---
 
@@ -17,8 +17,6 @@
 ### The RefreshDatabase Trait
 The test suite uses the `Illuminate\Foundation\Testing\RefreshDatabase` trait in each `TestCase`.
 
-* **Purpose**: Ensure each test runs with a completely clean database, preventing data from one test affecting the next.
-* **Mechanism**: Starts a transaction before each test and automatically rolls back on completion.
 * **Setup**: Data is prepared using **Factories** to generate isolated and realistic instances for each test.
 
 ---

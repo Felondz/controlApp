@@ -15,6 +15,9 @@ export default function Create({ auth }) {
         nombre: '',
         descripcion: '',
         moneda_default: 'COP',
+        modules: ['finance'],
+        color: '#4F46E5',
+        icon: '💰',
     });
 
     const submit = (e) => {
@@ -83,6 +86,74 @@ export default function Create({ auth }) {
                                     <option value="EUR">{t('currency.eur')}</option>
                                 </select>
                                 {errors.moneda_default && <p className="text-sm text-red-600 mt-1">{errors.moneda_default}</p>}
+                            </div>
+
+                            {/* Módulos */}
+                            <div className="mb-6">
+                                <InputLabel value={t('projects.modules', 'Módulos Activos')} />
+                                <div className="mt-2 space-y-2">
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            checked={data.modules.includes('finance')}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                const newModules = checked
+                                                    ? [...data.modules, 'finance']
+                                                    : data.modules.filter(m => m !== 'finance');
+                                                setData('modules', newModules);
+                                            }}
+                                        />
+                                        <span className="ml-2 text-gray-700 dark:text-gray-300">{t('modules.finance', 'Finanzas')}</span>
+                                    </label>
+                                    <br />
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                            checked={data.modules.includes('tasks')}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                const newModules = checked
+                                                    ? [...data.modules, 'tasks']
+                                                    : data.modules.filter(m => m !== 'tasks');
+                                                setData('modules', newModules);
+                                            }}
+                                        />
+                                        <span className="ml-2 text-gray-700 dark:text-gray-300">{t('modules.tasks', 'Tareas')}</span>
+                                    </label>
+                                </div>
+                                {errors.modules && <p className="text-sm text-red-600 mt-1">{errors.modules}</p>}
+                            </div>
+
+                            {/* Color e Icono */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <InputLabel htmlFor="color" value={t('projects.color', 'Color')} />
+                                    <input
+                                        type="color"
+                                        id="color"
+                                        name="color"
+                                        value={data.color}
+                                        onChange={(e) => setData('color', e.target.value)}
+                                        className="mt-1 block w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    />
+                                    {errors.color && <p className="text-sm text-red-600 mt-1">{errors.color}</p>}
+                                </div>
+                                <div>
+                                    <InputLabel htmlFor="icon" value={t('projects.icon', 'Icono (Emoji)')} />
+                                    <TextInput
+                                        id="icon"
+                                        name="icon"
+                                        value={data.icon}
+                                        onChange={(e) => setData('icon', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        placeholder="💰"
+                                        maxLength="2"
+                                    />
+                                    {errors.icon && <p className="text-sm text-red-600 mt-1">{errors.icon}</p>}
+                                </div>
                             </div>
 
                             {/* Botón de Submit */}

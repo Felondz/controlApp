@@ -222,24 +222,34 @@ EXIT;
 ```
 
 ### Step 5: Generate Application Key
-
 ```bash
 php artisan key:generate
 ```
 
-### Step 6: Run Migrations
-
+### Step 6: Run Migrations and Seeders
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
 
-### Step 7: Create Storage Symlink
+### Step 7: Initialize Search Index (Meilisearch)
+```bash
+php artisan scout:import "App\Models\User"
+php artisan scout:import "App\Models\Proyecto"
+```
+
+### Step 8: Install Frontend Dependencies
+```bash
+npm install
+npm run build
+```
+
+### Step 9: Create Storage Symlink
 
 ```bash
 php artisan storage:link
 ```
 
-### Step 8: Start Local Server
+### Step 10: Start Local Server
 
 ```bash
 php artisan serve

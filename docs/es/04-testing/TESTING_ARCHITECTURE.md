@@ -40,9 +40,24 @@ Puedes ejecutar los tests tanto dentro de Docker (Sail) como en tu máquina loca
 
 ---
 
-## 4. 📝 Assertions y Estructura
+## 4. 🔍 Pruebas de Búsqueda
+- **Driver**: Usamos el driver `collection` para `Laravel Scout` durante las pruebas.
+- **Configuración**: Definida en `.env.testing` (`SCOUT_DRIVER=collection`).
+- **Beneficio**: Permite probar la lógica de búsqueda (como control de acceso y formato de resultados) sin requerir una instancia de Meilisearch en ejecución en el entorno de pruebas.
+- **Test Clave**: `tests/Feature/SearchTest.php` verifica que:
+  - La página de búsqueda es accesible.
+  - Los resultados se devuelven correctamente.
+  - **Seguridad**: Los usuarios solo ven proyectos de los que son miembros (o admins, según el modo estricto).
 
-* **Estructura del Test (AAA)**:
+---
+
+## 5. 🚀 Integración Continua (CI)
+
+---
+
+## 6. 📝 Assertions y Estructura
+
+*   **Estructura del Test (AAA)**:
     1.  `Arrange`: Preparar datos con Factories.
     2.  `Act`: Ejecutar la acción (ej. `$this->postJson(...)`).
     3.  `Assert`: Validar el resultado (`assertStatus`, `assertDatabaseHas`, `assertJson`, etc.).

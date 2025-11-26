@@ -48,8 +48,8 @@
         "test_environment_warning": "⚠️ Test Environment: All information will be deleted periodically."
     },
     "auth": {
-        "login": "Sign In",
-        "logout": "Sign Out",
+        "login": "Log in",
+        "logout": "Log Out",
         "register": "Register",
         "email": "Email Address",
         "password": "Password",
@@ -129,11 +129,14 @@
         "confirm": "Confirm",
         "close": "Close",
         "open": "Open",
+        "profile": "Profile",
         "language": "Language",
         "change_language": "Change Language",
         "spanish": "Español",
         "english": "English",
-        "portuguese": "Português"
+        "portuguese": "Português",
+        "projects": "Projects",
+        "users": "Users"
     },
     "currency": {
         "cop": "COP (Colombian Peso)",
@@ -142,7 +145,7 @@
     },
     "dashboard": {
         "title": "Dashboard",
-        "welcome": "Welcome",
+        "welcome": "Welcome, :name",
         "my_projects": "My Projects",
         "activity_summary": "Activity Summary",
         "recent_transactions": "Recent Transactions",
@@ -150,7 +153,13 @@
         "create_project": "Create Project",
         "total_projects": "Total Projects",
         "active_members": "Active Members",
-        "total_balance": "Total Balance"
+        "total_balance": "Total Balance",
+        "active_projects_count": "You have :count active projects",
+        "create_first_project_desc": "Start by creating your first project to organize your finances and tasks.",
+        "apps": "Apps",
+        "calendar": "Calendar",
+        "marketplace": "Marketplace",
+        "calculator": "Financial Calculator"
     },
     "errors": {
         "404": "Page Not Found",
@@ -165,7 +174,26 @@
         "accounts_list": "Your Accounts",
         "start_here": "Here you will see your bank accounts and total balance.",
         "no_accounts": "You don't have any accounts registered yet. Create one to get started!",
-        "add_account": "New Account"
+        "add_account": "New Account",
+        "balance": "Current Balance",
+        "budget": "Monthly Budget",
+        "income": "Income",
+        "expense": "Expenses",
+        "restricted": "Restricted Access",
+        "restricted_access": "You do not have permission to view financial information for this project."
+    },
+    "profile": {
+        "edit": "Edit Profile"
+    },
+    "search": {
+        "title": "Search Results",
+        "results_for": "Results for",
+        "no_projects_found": "No projects found",
+        "no_users_found": "No users found"
+    },
+    "tasks": {
+        "pending": "Pending Tasks",
+        "due_today": "due today"
     },
     "members": {
         "title": "Members",
@@ -197,7 +225,15 @@
         "no_projects_yet": "No projects yet",
         "my_role": "My Role",
         "personal": "Personal",
-        "collaborative": "Collaborative"
+        "collaborative": "Collaborative",
+        "create_new": "Create New",
+        "modules": "Active Modules",
+        "color": "Color",
+        "icon": "Icon (Emoji)"
+    },
+    "modules": {
+        "finance": "Finance",
+        "tasks": "Tasks"
     },
     "transactions": {
         "title": "Transactions",

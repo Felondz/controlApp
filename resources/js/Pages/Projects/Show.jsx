@@ -6,7 +6,7 @@ import { useTranslate } from '@/hooks/useTranslate';
 import AccountsList from '@/Components/Finance/Accounts/AccountsList';
 
 // Este componente recibe el objeto 'proyecto' de Laravel
-export default function Show({ auth, proyecto }) {
+export default function Show({ auth, proyecto, isAdmin }) {
     const t = useTranslate();
 
     // 💡 Título para la página
@@ -31,12 +31,19 @@ export default function Show({ auth, proyecto }) {
                     </p>
 
                     {/* MÓDULO PRINCIPAL DE CUENTAS E INFORMACIÓN FINANCIERA */}
-                    <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
-                        <h4 className="text-xl font-semibold mb-4">{t('finance.accounts')}</h4>
-                        <AccountsList cuentas={proyecto.cuentas || []}
-                            proyectoId={proyecto.id} />
-
-                    </div>
+                    {isAdmin ? (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                            <h4 className="text-xl font-semibold mb-4">{t('finance.accounts')}</h4>
+                            <AccountsList cuentas={proyecto.cuentas || []}
+                                proyectoId={proyecto.id} />
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+                            <p className="text-gray-500 dark:text-gray-400 text-center">
+                                {t('finance.restricted_access', 'No tienes permisos para ver la información financiera de este proyecto.')}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

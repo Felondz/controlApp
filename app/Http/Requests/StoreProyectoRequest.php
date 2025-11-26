@@ -45,7 +45,26 @@ class StoreProyectoRequest extends FormRequest
             'moneda_default' => [
                 'required',
                 'string',
-                'in:COP,USD,EUR',  // Remover 'uppercase' - no es una regla válida
+                'in:COP,USD,EUR',
+            ],
+            'modules' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'modules.*' => [
+                'string',
+                'in:finance,tasks',
+            ],
+            'color' => [
+                'nullable',
+                'string',
+                'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/',
+            ],
+            'icon' => [
+                'nullable',
+                'string',
+                'max:5',
             ],
         ];
     }
@@ -68,6 +87,10 @@ class StoreProyectoRequest extends FormRequest
             'moneda_default.in' => 'La moneda debe ser una de las siguientes: COP, USD, EUR.',
             'moneda_default.uppercase' => 'El código de moneda debe estar en mayúsculas.',
             'nombre.unique' => 'Ya tienes un proyecto con este nombre.',
+            'modules.required' => 'Debes seleccionar al menos un módulo.',
+            'modules.min' => 'Debes seleccionar al menos un módulo.',
+            'color.regex' => 'El color debe ser un código hexadecimal válido.',
+            'icon.max' => 'El icono no puede exceder 5 caracteres.',
         ];
     }
 }
