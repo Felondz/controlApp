@@ -32,7 +32,7 @@ class ProyectoWebTest extends TestCase
             'nombre' => 'Nuevo Proyecto Web',
             'moneda_default' => 'USD',
             'descripcion' => 'Descripción de prueba',
-            'modules' => ['finances', 'tasks'],
+            'modules' => ['finance', 'tasks'],
         ]);
 
         $response->assertRedirect(route('dashboard'));

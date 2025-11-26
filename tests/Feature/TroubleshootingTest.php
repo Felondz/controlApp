@@ -23,7 +23,7 @@ class TroubleshootingTest extends TestCase
             'nombre' => 'Proyecto Test',
             'descripcion' => 'Primera vez',
             'moneda_default' => 'COP',
-            'modules' => ['finances'],
+            'modules' => ['finance'],
         ]);
         
         // Verificar que el primer POST fue exitoso
@@ -40,7 +40,7 @@ class TroubleshootingTest extends TestCase
             'nombre' => 'Proyecto Test', // Duplicado
             'descripcion' => 'Segunda vez',
             'moneda_default' => 'COP',
-            'modules' => ['finances'],
+            'modules' => ['finance'],
         ]);
 
         // Debe fallar por unique
@@ -65,7 +65,7 @@ class TroubleshootingTest extends TestCase
             'nombre' => 'AB', // Menos de 3 caracteres
             'descripcion' => 'Prueba',
             'moneda_default' => 'COP',
-            'modules' => ['finances'], // Añadir modules para pasar esa validación
+            'modules' => ['finance'], // Añadir modules para pasar esa validación
         ]);
 
         $response->assertStatus(302);
@@ -87,7 +87,7 @@ class TroubleshootingTest extends TestCase
             'nombre' => 'Proyecto Válido',
             'descripcion' => 'Prueba',
             'moneda_default' => 'JPY', // No está en COP, USD, EUR
-            'modules' => ['finances'], // Añadir modules para pasar esa validación
+            'modules' => ['finance'], // Añadir modules para pasar esa validación
         ]);
 
         $response->assertStatus(302);
@@ -109,7 +109,7 @@ class TroubleshootingTest extends TestCase
             'nombre' => 'Proyecto Válido ABC',
             'descripcion' => 'Esta es una descripción válida',
             'moneda_default' => 'COP',
-            'modules' => ['finances'],
+            'modules' => ['finance'],
         ]);
 
         // Debe redirigir exitosamente (302 o similar)
