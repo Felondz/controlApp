@@ -7,7 +7,7 @@
         "laravel",
         "framework"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "require": {
         "php": "^8.2",
         "http-interop/http-factory-guzzle": "^1.2",
