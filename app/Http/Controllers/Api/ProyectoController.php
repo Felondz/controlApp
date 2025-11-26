@@ -41,7 +41,16 @@ class ProyectoController extends Controller
     {
         // Para 'ver', solo necesita ser miembro
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
-        return response()->json($proyecto->load('miembros', 'cuentas', 'categorias'));
+
+        // Cargar relaciones base
+        $relations = ['miembros', 'categorias'];
+
+        // Solo cargar cuentas (finanzas) si es admin
+        if ($request->user()->esAdminDe($proyecto)) {
+            $relations[] = 'cuentas';
+        }
+
+        return response()->json($proyecto->load($relations));
     }
 
     /**

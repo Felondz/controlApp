@@ -296,22 +296,29 @@ CREATE DATABASE controlapp;
 EXIT;
 ```
 
-### Paso 5: Generar Application Key
+### Paso 5:4. **Generar Clave de Aplicación**
+   ```bash
+   php artisan key:generate
+   ```
 
-```bash
-php artisan key:generate
-```
+5. **Ejecutar Migraciones y Seeders**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-### Paso 6: Ejecutar Migraciones
+6. **Inicializar Índice de Búsqueda (Meilisearch)**
+   ```bash
+   php artisan scout:import "App\Models\User"
+   php artisan scout:import "App\Models\Proyecto"
+   ```
 
-```bash
-php artisan migrate
+7. **Instalar Dependencias Frontend**
+   ```bash
+   npm install
+   npm run build
+   ```
 
-# O con seed:
-php artisan migrate:fresh --seed
-```
-
-### Paso 7: Generar Symlink de Storage
+### Paso 8: Generar Symlink de Storage
 
 ```bash
 php artisan storage:link

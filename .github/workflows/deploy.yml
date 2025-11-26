@@ -102,7 +102,13 @@ jobs:
           docker compose exec -T app php artisan storage:link
           
           # Reiniciar cola de trabajos (si usas workers, para que tomen el nuevo código)
+          # Reiniciar cola de trabajos (si usas workers, para que tomen el nuevo código)
           docker compose exec -T app php artisan queue:restart
+
+          # 7. Indexar datos en Meilisearch (Automatización de Búsqueda)
+          echo "🔍 Indexando datos en Meilisearch..."
+          docker compose exec -T app php artisan scout:import "App\Models\User"
+          docker compose exec -T app php artisan scout:import "App\Models\Proyecto"
           # ---------------------------------------------------------
           
           # 7. Limpieza de imágenes viejas de Docker (ahorra espacio en disco)

@@ -24,6 +24,14 @@ jobs:
         ports:
           - 3306:3306
 
+      meilisearch:
+        image: getmeili/meilisearch:latest
+        ports:
+          - 7700:7700
+        env:
+          MEILI_MASTER_KEY: masterKey
+          MEILI_NO_ANALYTICS: true
+
     steps:
       - uses: actions/checkout@v6
 

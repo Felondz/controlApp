@@ -33,6 +33,11 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 | **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
 | **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
+| **Features** | |
+| | - **Project Management**: Create, edit, and track projects. |
+| | - **Global Search**: Fast search for projects and users with Meilisearch. |
+| | - **Financial Control**: Manage accounts, income, and expenses (with strict access control). |
+| | - **Collaboration**: Invitation system and roles (Admin, Member, Viewer). |
 
 ### Frontend (Web/Mobile Readiness) - 🚧 In Development
 | Component | Technology | Status |
@@ -83,17 +88,17 @@ Complete documentation is available in **English** and **Spanish**:
 
 ## 🧪 Testing
 
-El proyecto utiliza **PHPUnit** con **SQLite en memoria** para una ejecución rápida y aislada.
+The project uses **PHPUnit** with **in-memory SQLite** for fast and isolated execution.
 
 ```bash
-# Ejecutar todos los tests
+# Run all tests
 php artisan test
 
-# O usando Sail
+# Or using Sail
 ./vendor/bin/sail test
 ```
 
-Para más detalles, ver [Testing Architecture](docs/es/04-testing/TESTING_ARCHITECTURE.md).
+For more details, see [Testing Architecture](docs/en/04-testing/TESTING_ARCHITECTURE.md).
 
 ---
 
