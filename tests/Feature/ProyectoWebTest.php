@@ -20,7 +20,7 @@ class ProyectoWebTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertInertia(fn (Assert $page) => $page
-            ->component('Projects/Create')
+            ->component('Projects/CreateProject')
         );
     }
 
