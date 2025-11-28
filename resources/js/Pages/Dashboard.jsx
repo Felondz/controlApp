@@ -16,8 +16,8 @@ export default function Dashboard({ auth, proyectos = [] }) {
             header={
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-4">
-                        <h2 className="font-semibold text-base text-gray-800 dark:text-gray-200 leading-tight">
-                            {t('dashboard.welcome', { name: auth.user.name })}
+                        <h2 className="font-semibold text-xl text-primary-800 dark:text-primary-200 leading-tight">
+                            {t('dashboard.title')}
                         </h2>
                     </div>
 
@@ -37,14 +37,14 @@ export default function Dashboard({ auth, proyectos = [] }) {
             {/* Floating Action Button (FAB) */}
             <Link
                 href={route('mis-proyectos.create')}
-                className="fixed bottom-8 right-8 z-50 p-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 p-3 md:p-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 aria-label={t('projects.create')}
             >
-                <PlusIcon className="h-6 w-6" />
+                <PlusIcon className="h-5 w-5 md:h-6 md:w-6" />
             </Link>
 
             {/* Grid de Proyectos */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
                 {proyectos.length > 0 ? (
                     proyectos.map((proyecto) => (
                         <ProjectCard key={proyecto.id} proyecto={proyecto} />
@@ -62,7 +62,7 @@ export default function Dashboard({ auth, proyectos = [] }) {
                         </p>
                         <Link
                             href={route('mis-proyectos.create')}
-                            className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition ease-in-out duration-150"
+                            className="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition ease-in-out duration-150"
                         >
                             {t('projects.create_new')}
                         </Link>
@@ -73,12 +73,12 @@ export default function Dashboard({ auth, proyectos = [] }) {
                 {proyectos.length > 0 && (
                     <Link
                         href={route('mis-proyectos.create')}
-                        className="group border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 min-h-[200px]"
+                        className="group border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center hover:border-primary-500 dark:hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 min-h-[200px]"
                     >
-                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-3 transition-colors">
-                            <PlusIcon className="h-6 w-6 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 flex items-center justify-center mb-3 transition-colors">
+                            <PlusIcon className="h-6 w-6 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400" />
                         </div>
-                        <span className="text-sm font-medium text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                        <span className="text-sm font-medium text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400">
                             {t('projects.create_new')}
                         </span>
                     </Link>

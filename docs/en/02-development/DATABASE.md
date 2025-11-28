@@ -82,64 +82,99 @@ ControlApp uses **MySQL 8.0** with the following features:
 ## 📑 Tables
 
 ### 1. USERS
-
-System user table.
-
-```sql
-CREATE TABLE users (
-  id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name varchar(255) NOT NULL,
-  email varchar(255) UNIQUE NOT NULL,
-  email_verified_at timestamp NULL,
-  password varchar(255) NOT NULL,
-  remember_token varchar(100) NULL,
-  created_at timestamp NULL,
-  updated_at timestamp NULL,
-  
-  INDEX idx_email (email),
-  INDEX idx_created_at (created_at)
-);
-```
-
-**Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | bigint UNSIGNED | Auto-incremented unique ID |
-| `name` | varchar(255) | User full name |
-| `email` | varchar(255) | Unique email for login |
-| `email_verified_at` | timestamp | Email verification date |
-| `password` | varchar(255) | Encrypted password (bcrypt) |
-| `remember_token` | varchar(100) | "Remember me" token |
-| `created_at` | timestamp | Creation date |
-| `updated_at` | timestamp | Last update date |
-
----
-
-### 2. PROJECTS
-
-Financial projects table.
-
-```sql
-CREATE TABLE projects (
-  id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name varchar(255) NOT NULL,
-  currency varchar(3) NOT NULL DEFAULT 'COP',
-  user_id bigint UNSIGNED NOT NULL,
-  deleted_at timestamp NULL,
-  created_at timestamp NULL,
-  updated_at timestamp NULL,
-  
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_user_id (user_id),
-  INDEX idx_deleted_at (deleted_at),
-  INDEX idx_created_at (created_at)
-);
-```
-
-**Features:**
-- Soft delete: not actually deleted
-- Belongs to one owner user
-- Can have multiple members via `project_user`
+ 
+ System user table.
+ 
+ ```sql
+ CREATE TABLE users (
+   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   name varchar(255) NOT NULL,
+   email varchar(255) UNIQUE NOT NULL,
+   email_verified_at timestamp NULL,
+   password varchar(255) NOT NULL,
+   remember_token varchar(100) NULL,
+   is_super_admin boolean NOT NULL DEFAULT false,
+   locale varchar(5) NOT NULL DEFAULT 'es',
+   profile_photo_path varchar(2048) NULL,
+   global_theme varchar(50) NOT NULL DEFAULT 'purple-modern',
+   created_at timestamp NULL,
+   updated_at timestamp NULL,
+   
+   INDEX idx_email (email),
+   INDEX idx_created_at (created_at)
+ );
+ ```
+ 
+ **Fields:**
+ | Field | Type | Description |
+ |-------|------|-------------|
+ | `id` | bigint UNSIGNED | Auto-incremented unique ID |
+ | `name` | varchar(255) | User full name |
+ | `email` | varchar(255) | Unique email for login |
+ | `email_verified_at` | timestamp | Email verification date |
+ | `password` | varchar(255) | Encrypted password (bcrypt) |
+ | `remember_token` | varchar(100) | "Remember me" token |
+ | `is_super_admin` | boolean | Indicates if user is super admin |
+ | `locale` | varchar(5) | Language preference (es/en) |
+ | `profile_photo_path` | varchar(2048) | Profile photo path |
+ | `global_theme` | varchar(50) | Preferred global theme |
+ | `created_at` | timestamp | Creation date |
+ | `updated_at` | timestamp | Last update date |
+ 
+ ---
+ 
+ ### 2. PROJECTS
+ 
+ Financial projects table.
+ 
+ ```sql
+ CREATE TABLE projects (
+   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   name varchar(255) NOT NULL,
+   description text NULL,
+   currency varchar(3) NOT NULL DEFAULT 'COP',
+   user_id bigint UNSIGNED NOT NULL,
+   is_personal boolean NOT NULL DEFAULT false,
+   modules json NULL,
+   color varchar(7) NULL,
+   icon varchar(50) NULL,
+   image_path varchar(2048) NULL,
+   theme varchar(50) NOT NULL DEFAULT 'purple-modern',
+   typography varchar(50) NOT NULL DEFAULT 'sans',
+   deleted_at timestamp NULL,
+   created_at timestamp NULL,
+   updated_at timestamp NULL,
+   
+   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+   INDEX idx_user_id (user_id),
+   INDEX idx_deleted_at (deleted_at),
+   INDEX idx_created_at (created_at)
+ );
+ ```
+ 
+ **Fields:**
+ | Field | Type | Description |
+ |-------|------|-------------|
+ | `id` | bigint UNSIGNED | Unique ID |
+ | `name` | varchar(255) | Project name |
+ | `description` | text | Project description |
+ | `currency` | varchar(3) | Currency code (USD, MXN, etc) |
+ | `user_id` | bigint UNSIGNED | Owner (FK to users) |
+ | `is_personal` | boolean | Indicates if it's a personal project |
+ | `modules` | json | Active modules (finance, tasks) |
+ | `color` | varchar(7) | Identifying color |
+ | `icon` | varchar(50) | Icon or emoji |
+ | `image_path` | varchar(2048) | Cover image path |
+ | `theme` | varchar(50) | Specific color theme |
+ | `typography` | varchar(50) | Specific typography |
+ | `deleted_at` | timestamp | Soft delete date |
+ | `created_at` | timestamp | Creation date |
+ | `updated_at` | timestamp | Last update date |
+ 
+ **Features:**
+ - Soft delete: not actually deleted
+ - Belongs to one owner user
+ - Can have multiple members via `project_user`
 
 ---
 

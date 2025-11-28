@@ -32,6 +32,9 @@ class Proyecto extends Model
         'modules',
         'color',
         'icon',
+        'image_path',
+        'theme',
+        'typography',
     ];
 
     /**
@@ -103,6 +106,18 @@ class Proyecto extends Model
     public function propietarioPersonal()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the URL to the project's image.
+     *
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->image_path
+                    ? asset('storage/'.$this->image_path)
+                    : null;
     }
 
     /**

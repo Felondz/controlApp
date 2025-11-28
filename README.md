@@ -1,4 +1,4 @@
-# 🎯 ControlApp: Collaborative Proyect Management Platform
+# 🎯 ControlApp: Collaborative Project Management Platform
 
 > A highly-rated **Full-Stack API-First** project built with **Laravel** and **React**, showcasing modern architecture, robust testing, and clean CI/CD practices.
 
@@ -10,11 +10,11 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 163 / 163 | ✅ **100% Stable** |
-| **Total Assertions** | 440+ | ✅ **Robust Coverage** |
+| **Backend Tests** | 206 / 206 | ✅ **100% Stable** |
+| **Total Assertions** | 689+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.0.0 (Production Ready) | ✅ **Stable** |
+| **Backend Version** | v1.2.0 (Themes & Profile) | ✅ **Stable** |
 | **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -26,26 +26,63 @@ This status reflects the stability achieved through **Continuous Integration (CI
 ControlApp employs an **API-First** architecture, ensuring clear separation of concerns, which is critical for scalability and microservices readiness.
 
 ### Backend (API REST)
-| Component | Technology |
+| Component | Technology | Description |
 | :--- | :--- | :--- |
 | **Framework** | Laravel 11 (PHP 8.2+) | Expertise in MVC, Eloquent ORM, and modern PHP development. |
 | **Authentication** | Laravel Sanctum | Implementation of **stateless JWT-style API tokens** and session management. |
 | **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
 | **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
-| **Features** | |
-| | - **Project Management**: Create, edit, and track projects. |
-| | - **Global Search**: Fast search for projects and users with Meilisearch. |
-| | - **Financial Control**: Manage accounts, income, and expenses (with strict access control). |
-| | - **Collaboration**: Invitation system and roles (Admin, Member, Viewer). |
 
-### Frontend (Web/Mobile Readiness) - 🚧 In Development
+### Frontend (Web/Mobile Readiness)
 | Component | Technology | Status |
 | :--- | :--- | :--- |
 | **Framework** | React 19 + Inertia.js | ✅ **Active** |
 | **Tooling** | Vite | ✅ **Configured** |
 | **Localization (i18n)** | i18next + Custom Hook | ✅ **Implemented** |
 | **UI/UX** | Tailwind CSS + React Components | ✅ **Standardized (Dark Mode Support)** |
+
+---
+
+## 🚀 Key Features
+
+- **Project Management**:
+  - Creation and administration of projects.
+  - **NEW**: Custom themes (colors) and typography per project.
+  - **NEW**: Customizable cover images for each project.
+  - Member invitation and role management.
+
+- **Personal & Project Finance**:
+  - Income and expense tracking.
+  - Bank account and cash management.
+  - Budgets and savings goals.
+
+- **User Profile**:
+  - Personal information management.
+  - **NEW**: Profile photo upload and management.
+  - Global theme preferences (Light/Dark/Custom).
+
+- **Modern Interface**:
+  - Responsive and adaptive design.
+  - Full support for **Dark Mode**.
+  - Internationalization (Spanish/English).
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+The project features a robust test suite using **PHPUnit** for the backend.
+
+- **Coverage**: 206 automated tests.
+- **Tested Areas**:
+  - Authentication and authorization.
+  - CRUD for projects, accounts, and categories.
+  - API Flows (Profile, Projects, Finance).
+  - Security validations and file uploads.
+- **Execution**:
+  ```bash
+  php artisan test
+  ```
 
 ---
 
@@ -61,7 +98,7 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 * **Data Flow**: Use of **Observers** (e.g., `TransaccionObserver`) to automatically synchronize related data (like account balances) on model changes, maintaining data consistency.
 
 ### 3. CI/CD Pipeline
-* **Continuous Integration**: The `tests.yml` workflow runs all 163 tests on every *push* to the `develop` branch, acting as a mandatory quality gate.
+* **Continuous Integration**: The `tests.yml` workflow runs all tests on every *push* to the `develop` branch, acting as a mandatory quality gate.
 * **Controlled Deployment**: Deployment to the Homelab/Production environment is restricted to the **`main`** branch (`deploy.yml`), enforcing stability.
 
 ---
@@ -82,23 +119,10 @@ Complete documentation is available in **English** and **Spanish**:
 - ✅ [Guía de Instalación](./docs/es/02-development/INSTALLATION.md) (Spanish)
 - 📖 [API Documentation](./docs/en/02-development/API.md) (English)
 - 📖 [Documentación de API](./docs/es/02-development/API.md) (Spanish)
+
 **For QA & Testing:**
 - 🧪 [Testing Architecture](./docs/en/04-testing/TESTING_ARCHITECTURE.md) (English)
 - 🧪 [Arquitectura de Testing](./docs/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
-
-## 🧪 Testing
-
-The project uses **PHPUnit** with **in-memory SQLite** for fast and isolated execution.
-
-```bash
-# Run all tests
-php artisan test
-
-# Or using Sail
-./vendor/bin/sail test
-```
-
-For more details, see [Testing Architecture](docs/en/04-testing/TESTING_ARCHITECTURE.md).
 
 ---
 
@@ -113,7 +137,7 @@ The project is easily runnable using Docker and Laravel Sail.
 ### Setup Steps
 1.  **Clone Repository:**
     ```bash
-    git clone [https://github.com/Felondz/controlApp.git](https://github.com/Felondz/controlApp.git)
+    git clone https://github.com/Felondz/controlApp.git
     cd controlApp
     ```
 2.  **Configure Environment:**
@@ -132,7 +156,7 @@ The project is easily runnable using Docker and Laravel Sail.
     ```
 4.  **Verify Quality Gate:**
     ```bash
-    # This must return 163 tests passing with a green output.
+    # This must return 206 tests passing with a green output.
     ./vendor/bin/sail artisan test --testdox
     ```
-* **Application URL**: `http://
+* **Application URL**: `http://localhost`

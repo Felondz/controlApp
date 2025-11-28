@@ -39,7 +39,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    ...$request->user()->toArray(),
+                    'global_theme' => $request->user()->global_theme ?? 'purple-modern',
+                ] : null,
             ],
             // Compartir las traducciones como prop global
             'locale' => $locale,

@@ -20,6 +20,11 @@ class ProyectoUiWebController extends Controller
         // El FormRequest también maneja la autorización (si la tiene).
         $validatedData = $request->validated(); // ✅ USANDO EL MÉTODO LIMPIO
         
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('project-images', 'public');
+        }
+
         // 1. Crear el proyecto usando los datos validados
         $proyecto = Proyecto::create([
             'nombre' => $validatedData['nombre'],
@@ -31,6 +36,9 @@ class ProyectoUiWebController extends Controller
             'modules' => $validatedData['modules'],
             'color' => $validatedData['color'] ?? null,
             'icon' => $validatedData['icon'] ?? null,
+            'image_path' => $imagePath,
+            'theme' => $validatedData['theme'] ?? 'purple-modern',
+            'typography' => $validatedData['typography'] ?? 'sans',
         ]);
         
         // 2. Adjuntar al creador como miembro y administrador
@@ -43,8 +51,8 @@ class ProyectoUiWebController extends Controller
 
     public function create()
     {
-        // Renderiza el componente de React en resources/js/Pages/Projects/Create.jsx
-        return Inertia::render('Projects/Create');
+        // Renderiza el componente de React en resources/js/Pages/Projects/CreateProject.jsx
+        return Inertia::render('Projects/CreateProject');
     }
 
     public function show(Request $request, Proyecto $mis_proyecto)

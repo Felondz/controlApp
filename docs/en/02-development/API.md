@@ -153,6 +153,49 @@ Accept: application/json
 }
 ```
 
+### Update Profile Photo
+`POST /api/profile/photo`
+
+Uploads or updates the user's profile photo.
+
+**Headers:**
+- `Content-Type: multipart/form-data`
+- `Authorization: Bearer <token>`
+
+**Body:**
+- `profile_photo`: Image file (jpg, jpeg, png, webp, gif). Max 3MB.
+
+**Success Response (200 OK):**
+```json
+{
+    "message": "Profile photo updated successfully",
+    "profile_photo_url": "http://localhost/storage/profile-photos/..."
+}
+```
+
+### Delete Profile Photo
+`DELETE /api/profile/photo`
+
+Deletes the user's current profile photo.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Success Response (200 OK):**
+```json
+{
+    "message": "Profile photo deleted successfully"
+}
+```
+
+### Delete Account
+`DELETE /api/profile`
+
+Deletes the user's account permanently.
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
 ---
 
 ## 🚀 Projects

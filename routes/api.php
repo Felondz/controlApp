@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\EmailVerificationController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\FinanzasPersonalesController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -64,8 +65,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn(Request $request) => $request->user());
 
-    // --- Usuario: Preferencias ---
+    // --- Usuario: Preferencias y Perfil ---
     Route::put('/user/locale', [UserController::class, 'updateLocale']);
+    
+    // Perfil (Sincronizado con Web)
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/password', [ProfileController::class, 'updatePassword']);
+    Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     // --- Rutas CRUD (Forma Limpia) ---
     // Proyectos (CRUD completo)
