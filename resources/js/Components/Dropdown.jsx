@@ -86,17 +86,16 @@ const Content = ({
     );
 };
 
+import { getDropdownLinkClasses } from '@/Utils/navStyles';
+import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
+
 const DropdownLink = ({ className = '', active = false, children, ...props }) => {
+    const { theme, isDark } = useGlobalTheme();
+
     return (
         <Link
             {...props}
-            className={
-                'block w-full px-4 py-2 text-start text-sm leading-5 transition duration-150 ease-in-out focus:outline-none ' +
-                (active
-                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-semibold '
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-200 ') +
-                className
-            }
+            className={`${getDropdownLinkClasses(theme, isDark, active)} ${className}`}
         >
             {children}
         </Link>

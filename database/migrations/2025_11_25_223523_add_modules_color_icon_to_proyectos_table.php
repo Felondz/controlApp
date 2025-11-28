@@ -14,11 +14,12 @@ return new class extends Migration
     {
         Schema::table('proyectos', function (Blueprint $table) {
             $table->json('modules')->nullable()->after('descripcion');
-            // Asignamos el valor por defecto a los registros existentes manualmente
-            DB::table('proyectos')->update(['modules' => json_encode(['finance'])]);
             $table->string('color')->nullable()->after('modules');
             $table->string('icon')->nullable()->after('color');
         });
+
+        // Asignamos el valor por defecto a los registros existentes manualmente
+        DB::table('proyectos')->update(['modules' => json_encode(['finance'])]);
     }
 
     /**

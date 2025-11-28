@@ -56,11 +56,27 @@ class StoreProyectoRequest extends FormRequest
                 'string',
                 'in:finance,tasks',
             ],
+            'image' => [
+                'nullable',
+                'image',
+                'max:3072', // 3MB
+            ],
+            'theme' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+            'typography' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
             'color' => [
                 'nullable',
                 'string',
                 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/',
             ],
+            // Icon kept for backward compatibility or emoji usage if image is not provided
             'icon' => [
                 'nullable',
                 'string',

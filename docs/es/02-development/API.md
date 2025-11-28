@@ -179,7 +179,9 @@ Accept: application/json
 
 ---
 
-## 👤 Usuarios
+---
+
+## 👤 Usuarios y Perfil
 
 ### Get Profile - Obtener Perfil
 Obtiene la información del usuario autenticado.
@@ -197,8 +199,119 @@ Accept: application/json
   "name": "Juan Pérez",
   "email": "juan@example.com",
   "email_verified_at": "2025-11-15 10:30:00",
+  "profile_photo_path": "profile-photos/hash.jpg",
+  "profile_photo_url": "http://localhost/storage/profile-photos/hash.jpg",
   "created_at": "2025-11-15 09:45:00",
   "updated_at": "2025-11-15 09:45:00"
+}
+```
+
+### Update Profile - Actualizar Información
+Actualiza el nombre y correo electrónico del usuario.
+
+```http
+PUT /api/profile
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Juan Pérez Actualizado",
+  "email": "juan.nuevo@example.com"
+}
+```
+
+**Response (200)**
+```json
+{
+  "message": "Perfil actualizado correctamente",
+  "user": { ... }
+}
+```
+**Nota**: Si se cambia el email, `email_verified_at` se restablece a null.
+
+### Update Password - Cambiar Contraseña
+Actualiza la contraseña del usuario.
+
+```http
+PUT /api/password
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "current_password": "password123",
+  "password": "newpassword123",
+  "password_confirmation": "newpassword123"
+}
+```
+
+**Response (200)**
+```json
+{
+  "message": "Contraseña actualizada correctamente"
+}
+```
+
+### Upload Photo - Subir Foto de Perfil
+Sube o actualiza la foto de perfil.
+
+```http
+POST /api/profile/photo
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+Accept: application/json
+
+profile_photo: (binary file)
+```
+
+**Validación**:
+- Imagen (jpg, jpeg, png, webp)
+- Máx 3MB
+- Dimensiones máx 2048x2048
+
+**Response (200)**
+```json
+{
+  "message": "Foto de perfil actualizada",
+  "profile_photo_url": "http://localhost/storage/profile-photos/hash.jpg"
+}
+```
+
+### Delete Photo - Eliminar Foto
+Elimina la foto de perfil actual.
+
+```http
+DELETE /api/profile/photo
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "message": "Foto de perfil eliminada"
+}
+```
+
+### Delete Account - Eliminar Cuenta
+Elimina permanentemente la cuenta del usuario.
+
+```http
+DELETE /api/profile
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "password": "password123"
+}
+```
+
+**Response (200)**
+```json
+{
+  "message": "Cuenta eliminada correctamente"
 }
 ```
 

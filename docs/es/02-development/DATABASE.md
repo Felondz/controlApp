@@ -82,83 +82,107 @@ ControlApp utiliza **MySQL 8.0** con las siguientes características:
 ## 📑 Tablas
 
 ### 1. USERS
-
-Tabla de usuarios del sistema.
-
-```sql
-CREATE TABLE users (
-  id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name varchar(255) NOT NULL,
-  email varchar(255) UNIQUE NOT NULL,
-  email_verified_at timestamp NULL,
-  password varchar(255) NOT NULL,
-  remember_token varchar(100) NULL,
-  created_at timestamp NULL,
-  updated_at timestamp NULL,
-  
-  INDEX idx_email (email),
-  INDEX idx_created_at (created_at)
-);
-```
-
-**Campos:**
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | bigint UNSIGNED | ID único auto-incrementado |
-| `name` | varchar(255) | Nombre completo del usuario |
-| `email` | varchar(255) | Email único para login |
-| `email_verified_at` | timestamp | Fecha de verificación de email |
-| `password` | varchar(255) | Contraseña encriptada (bcrypt) |
-| `remember_token` | varchar(100) | Token para "recordarme" |
-| `created_at` | timestamp | Fecha de creación |
-| `updated_at` | timestamp | Fecha de última actualización |
-
-**Ejemplos:**
-```sql
--- Consultar usuario por email
-SELECT * FROM users WHERE email = 'juan@example.com';
-
--- Usuarios con email verificado
-SELECT * FROM users WHERE email_verified_at IS NOT NULL;
-
--- Contar usuarios registrados en los últimos 7 días
-SELECT COUNT(*) FROM users 
-WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY);
-```
-
----
-
-### 2. PROYECTOS
-
-Tabla de proyectos financieros.
-
-```sql
-CREATE TABLE proyectos (
-  id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nombre varchar(255) NOT NULL,
-  moneda varchar(3) NOT NULL DEFAULT 'COP',
-  user_id bigint UNSIGNED NOT NULL,
-  deleted_at timestamp NULL,
-  created_at timestamp NULL,
-  updated_at timestamp NULL,
-  
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_user_id (user_id),
-  INDEX idx_deleted_at (deleted_at),
-  INDEX idx_created_at (created_at)
-);
-```
-
-**Campos:**
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | bigint UNSIGNED | ID único |
-| `nombre` | varchar(255) | Nombre del proyecto |
-| `moneda` | varchar(3) | Código de moneda (USD, MXN, etc) |
-| `user_id` | bigint UNSIGNED | Propietario (FK a users) |
-| `deleted_at` | timestamp | Fecha soft delete |
-| `created_at` | timestamp | Fecha de creación |
-| `updated_at` | timestamp | Fecha de última actualización |
+ 
+ Tabla de usuarios del sistema.
+ 
+ ```sql
+ CREATE TABLE users (
+   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   name varchar(255) NOT NULL,
+   email varchar(255) UNIQUE NOT NULL,
+   email_verified_at timestamp NULL,
+   password varchar(255) NOT NULL,
+   remember_token varchar(100) NULL,
+   is_super_admin boolean NOT NULL DEFAULT false,
+   locale varchar(5) NOT NULL DEFAULT 'es',
+   profile_photo_path varchar(2048) NULL,
+   global_theme varchar(50) NOT NULL DEFAULT 'purple-modern',
+   created_at timestamp NULL,
+   updated_at timestamp NULL,
+   
+   INDEX idx_email (email),
+   INDEX idx_created_at (created_at)
+ );
+ ```
+ 
+ **Campos:**
+ | Campo | Tipo | Descripción |
+ |-------|------|-------------|
+ | `id` | bigint UNSIGNED | ID único auto-incrementado |
+ | `name` | varchar(255) | Nombre completo del usuario |
+ | `email` | varchar(255) | Email único para login |
+ | `email_verified_at` | timestamp | Fecha de verificación de email |
+ | `password` | varchar(255) | Contraseña encriptada (bcrypt) |
+ | `remember_token` | varchar(100) | Token para "recordarme" |
+ | `is_super_admin` | boolean | Indica si es super administrador |
+ | `locale` | varchar(5) | Preferencia de idioma (es/en) |
+ | `profile_photo_path` | varchar(2048) | Ruta de la foto de perfil |
+ | `global_theme` | varchar(50) | Tema global preferido |
+ | `created_at` | timestamp | Fecha de creación |
+ | `updated_at` | timestamp | Fecha de última actualización |
+ 
+ **Ejemplos:**
+ ```sql
+ -- Consultar usuario por email
+ SELECT * FROM users WHERE email = 'juan@example.com';
+ 
+ -- Usuarios con email verificado
+ SELECT * FROM users WHERE email_verified_at IS NOT NULL;
+ 
+ -- Contar usuarios registrados en los últimos 7 días
+ SELECT COUNT(*) FROM users 
+ WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY);
+ ```
+ 
+ ---
+ 
+ ### 2. PROYECTOS
+ 
+ Tabla de proyectos financieros.
+ 
+ ```sql
+ CREATE TABLE proyectos (
+   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   nombre varchar(255) NOT NULL,
+   description text NULL,
+   moneda varchar(3) NOT NULL DEFAULT 'COP',
+   user_id bigint UNSIGNED NOT NULL,
+   is_personal boolean NOT NULL DEFAULT false,
+   modules json NULL,
+   color varchar(7) NULL,
+   icon varchar(50) NULL,
+   image_path varchar(2048) NULL,
+   theme varchar(50) NOT NULL DEFAULT 'purple-modern',
+   typography varchar(50) NOT NULL DEFAULT 'sans',
+   deleted_at timestamp NULL,
+   created_at timestamp NULL,
+   updated_at timestamp NULL,
+   
+   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+   INDEX idx_user_id (user_id),
+   INDEX idx_deleted_at (deleted_at),
+   INDEX idx_created_at (created_at)
+ );
+ ```
+ 
+ **Campos:**
+ | Campo | Tipo | Descripción |
+ |-------|------|-------------|
+ | `id` | bigint UNSIGNED | ID único |
+ | `nombre` | varchar(255) | Nombre del proyecto |
+ | `description` | text | Descripción del proyecto |
+ | `moneda` | varchar(3) | Código de moneda (USD, MXN, etc) |
+ | `user_id` | bigint UNSIGNED | Propietario (FK a users) |
+ | `is_personal` | boolean | Indica si es un proyecto personal |
+ | `modules` | json | Módulos activos (finanzas, tareas) |
+ | `color` | varchar(7) | Color identificativo |
+ | `icon` | varchar(50) | Icono o emoji |
+ | `image_path` | varchar(2048) | Imagen de portada |
+ | `theme` | varchar(50) | Tema de color específico |
+ | `typography` | varchar(50) | Tipografía específica |
+ | `deleted_at` | timestamp | Fecha soft delete |
+ | `created_at` | timestamp | Fecha de creación |
+ | `updated_at` | timestamp | Fecha de última actualización |
 
 **Características:**
 - Soft delete: no se eliminan realmente

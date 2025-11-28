@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
@@ -9,12 +9,34 @@ import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import BottomNavigation from '@/Components/BottomNavigation';
+import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, children, projectTheme = null }) {
     const user = usePage().props.auth.user;
+
+    return (
+        <LayoutContent user={user} header={header} projectTheme={projectTheme}>{children}</LayoutContent>
+    );
+}
+
+function LayoutContent({ user, header, children, projectTheme }) {
     const { t } = useTranslate();
+    const { theme, isDark, setThemeLocal } = useGlobalTheme();
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    // Sync project theme
+    useEffect(() => {
+        if (projectTheme) {
+            setThemeLocal(projectTheme);
+        } else if (user.global_theme) {
+            setThemeLocal(user.global_theme);
+        }
+    }, [projectTheme, user.global_theme, setThemeLocal]);
+
+    // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
+    const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
 
     return (
         <div className="h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex">
@@ -29,12 +51,12 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex-1 flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none transition-transform duration-200"
+                            className="focus:outline-none transition-all duration-200"
                         >
                             {isSidebarOpen ? (
-                                <MenuFoldIcon className="h-6 w-6" />
+                                <MenuFoldIcon className={`h-6 w-6 ${iconClasses}`} />
                             ) : (
-                                <MenuUnfoldIcon className="h-6 w-6" />
+                                <MenuUnfoldIcon className={`h-6 w-6 ${iconClasses}`} />
                             )}
                         </button>
                         {header}
@@ -46,7 +68,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Dropdown.Trigger className="flex items-center">
                                     <button
                                         type="button"
-                                        className="inline-flex items-center border border-transparent text-sm leading-4 font-medium rounded-full text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150"
+                                        className="inline-flex items-center border border-transparent text-sm leading-4 font-medium rounded-full bg-white dark:bg-gray-800 hover:opacity-80 focus:outline-none transition ease-in-out duration-150"
                                     >
                                         {user.profile_photo_url ? (
                                             <img
@@ -55,7 +77,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 alt={user.name}
                                             />
                                         ) : (
-                                            <UserCircleIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                                            <UserCircleIcon className={`h-8 w-8 ${iconClasses}`} />
                                         )}
                                     </button>
                                 </Dropdown.Trigger>
@@ -99,6 +121,13 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                     <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
 
+                                    {/* Theme Settings */}
+                                    <Dropdown.Link href={route('settings.theme')}>
+                                        {t('settings.theme.title', 'Tema Global')}
+                                    </Dropdown.Link>
+
+                                    <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+
                                     {/* Authentication */}
                                     <Dropdown.Link href={route('logout')} method="post" as="button">
                                         {t('auth.logout', 'Cerrar Sesión')}
@@ -116,7 +145,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <div className="flex">
                                 <div className="shrink-0 flex items-center">
                                     <Link href={route('dashboard')}>
-                                        <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                                        <ApplicationLogo className="block h-9 w-auto fill-current text-primary-600 dark:text-primary-400" />
                                     </Link>
                                 </div>
                             </div>

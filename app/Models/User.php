@@ -45,6 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'locale',
         'profile_photo_path',
+        'global_theme',
     ];
 
     /**

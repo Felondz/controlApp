@@ -40,27 +40,44 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
+    
+    // Settings
+    Route::get('/settings/theme', function () {
+        return Inertia::render('Settings/GlobalTheme');
+    })->name('settings.theme');
+    
+    // User Preferences
+    Route::post('/preferences/theme', [\App\Http\Controllers\UserPreferencesController::class, 'updateTheme'])
+        ->name('preferences.theme.update');
 });
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
 
 require __DIR__ . '/auth.php';
 
-Route::get('/test-phase1', function () {
-    $user = \App\Models\User::first() ?? \App\Models\User::factory()->create();
-    
-    $project = \App\Models\Proyecto::create([
-        'nombre' => 'Test Project Dynamic',
-        'user_id' => $user->id,
-        'modules' => ['finance', 'tasks'],
-        'color' => '#FF5733',
-        'icon' => '🚀',
-    ]);
 
-    return response()->json([
-        'project' => $project,
-        'modules_type' => gettype($project->modules),
-        'factory_project' => \App\Models\Proyecto::factory()->create(['user_id' => $user->id]),
-    ]);
+
+Route::get('/fix-migrations-table', function () {
+    try {
+        $wrongMigration = '2025_11_28_023700_add_image_path_theme_typography_to_proyectos_table';
+        $correctMigration = '2025_11_28_021238_add_theme_and_image_to_proyectos_table';
+        
+        // Remove wrong one
+        \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $wrongMigration)->delete();
+        
+        // Add correct one if not exists
+        $exists = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $correctMigration)->exists();
+        if (!$exists) {
+            \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                'migration' => $correctMigration,
+                'batch' => \Illuminate\Support\Facades\DB::table('migrations')->max('batch')
+            ]);
+            return 'Migrations table fixed: Swapped 023700 for 021238.';
+        }
+        return 'Migrations table already has correct migration.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
 });

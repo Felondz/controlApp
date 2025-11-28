@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2025-11-28
+
+### Added
+- **Project Themes**: Projects can now have a custom color theme (`theme`) and typography (`typography`), independent of the user's global theme.
+- **Project Images**: Added support for uploading custom cover images (`image_path`) for projects, replacing static icons.
+- **Profile Photo**: Users can now upload, update, and delete their profile photo via Web and API.
+- **API Endpoints**:
+  - `POST /api/profile/photo`: Upload profile photo.
+  - `DELETE /api/profile/photo`: Remove profile photo.
+- **Global Theme System**:
+  - `GlobalThemeContext` now supports `forceTheme` to override global settings (used in Project views).
+  - `AuthenticatedLayout` accepts `projectTheme` prop.
+- **UI Components**:
+  - `CreateProject.jsx`: Completely redesigned with image upload, theme selector, and typography selector.
+  - `ProjectCard.jsx`: Updated to display project cover image and use project-specific colors.
+  - `TypographySelector.jsx`: New component for selecting fonts with preview.
+
+### Changed
+- **Database**: Added `image_path`, `theme`, and `typography` columns to `proyectos` table.
+- **Styles**: Standardized all primary colors to use CSS variables (`--color-primary-*`), enabling dynamic theming.
+- **Landing Page**: Fixed rendering issues and hardcoded texts.
+- **Tests**: Added validation tests for profile photo upload (`ProfilePhotoValidationTest`).
+
+### Fixed
+- **Landing Page**: Resolved `useGlobalTheme` context error by moving provider to `app.jsx`.
+- **Migrations**: Resolved conflict with duplicate migration files for project themes.
+
+---
+
 ## [1.1.0] - 2025-11-25
 
 ### Added
