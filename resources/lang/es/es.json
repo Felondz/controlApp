@@ -273,6 +273,7 @@
         "members": "Miembros",
         "create": "Crear Proyecto",
         "edit": "Editar Proyecto",
+        "update": "Actualizar Proyecto",
         "delete": "Eliminar Proyecto",
         "add_member": "Agregar Miembro",
         "remove_member": "Remover Miembro",
@@ -284,7 +285,18 @@
         "create_new": "Crear Nuevo",
         "modules": "Módulos Activos",
         "color": "Color",
-        "icon": "Icono (Emoji)"
+        "icon": "Icono (Emoji)",
+        "image": "Imagen del Proyecto",
+        "theme": "Tema",
+        "typography": "Tipografía",
+        "general_settings": "Configuración General",
+        "general_settings_desc": "Actualiza la información básica de tu proyecto.",
+        "danger_zone": "Zona de Peligro",
+        "delete_warning": "Una vez que elimines este proyecto, no hay vuelta atrás. Por favor, ten cuidado.",
+        "delete_confirmation_title": "¿Estás seguro de que quieres eliminar este proyecto?",
+        "delete_confirmation_desc": "Esta acción eliminará permanentemente todos los datos, cuentas y transacciones asociadas. Por favor ingresa tu contraseña para confirmar.",
+        "delete_project": "Eliminar Proyecto",
+        "no_description": "Sin descripción."
     },
     "modules": {
         "finance": "Finanzas",
@@ -303,5 +315,8 @@
         "edit": "Editar Transacción",
         "delete": "Eliminar Transacción",
         "type": "Tipo"
+    },
+    "validation": {
+        "checkbox_required": "Validar esta casilla si desea continuar"
     }
 }

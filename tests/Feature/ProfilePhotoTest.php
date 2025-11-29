@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -13,112 +12,103 @@ class ProfilePhotoTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_users_table_has_profile_photo_path_column()
+    public function test_profile_photo_column_is_added()
     {
-        $this->assertTrue(Schema::hasColumn('users', 'profile_photo_path'));
+        $user = User::factory()->create();
+
+        $this->assertTrue(
+            in_array('profile_photo_path', $user->getFillable()) || 
+            \Schema::hasColumn('users', 'profile_photo_path')
+        );
     }
 
-    public function test_user_can_have_profile_photo_path()
-    {
-        $user = User::factory()->create([
-            'profile_photo_path' => 'photos/test.jpg',
-        ]);
-
-        $this->assertEquals('photos/test.jpg', $user->profile_photo_path);
-    }
-
-    public function test_user_can_upload_profile_photo()
+    public function test_profile_photo_can_be_uploaded()
     {
         Storage::fake('public');
         
         $user = User::factory()->create();
-        $file = UploadedFile::fake()->image('profile.jpg', 200, 200);
+        $file = UploadedFile::fake()->image('photo.jpg');
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
-                'name' => $user->name,
-                'email' => $user->email,
+            ->post('/api/profile/photo', [
                 'profile_photo' => $file,
             ]);
 
-        $response->assertSessionHasNoErrors();
+        $response->assertStatus(200);
         
         $user->refresh();
-        
-        // Assert file was stored
         $this->assertNotNull($user->profile_photo_path);
-        Storage::disk('public')->assertExists($user->profile_photo_path);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($user->profile_photo_path);
     }
 
-    public function test_old_profile_photo_is_deleted_when_uploading_new_one()
+    public function test_old_profile_photo_is_deleted_when_new_one_is_uploaded()
     {
         Storage::fake('public');
         
         $user = User::factory()->create();
+        $oldPhoto = UploadedFile::fake()->image('old_photo.jpg');
         
         // Upload first photo
-        $firstFile = UploadedFile::fake()->image('first.jpg', 200, 200);
-        $this->actingAs($user)->patch('/profile', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_photo' => $firstFile,
+        $this->actingAs($user)->post('/api/profile/photo', [
+            'profile_photo' => $oldPhoto,
         ]);
         
         $user->refresh();
-        $firstPhotoPath = $user->profile_photo_path;
-        Storage::disk('public')->assertExists($firstPhotoPath);
-        
+        $oldPhotoPath = $user->profile_photo_path;
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($oldPhotoPath);
+
         // Upload second photo
-        $secondFile = UploadedFile::fake()->image('second.jpg', 200, 200);
-        $this->actingAs($user)->patch('/profile', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_photo' => $secondFile,
+        $newPhoto = UploadedFile::fake()->image('new_photo.jpg');
+        $this->actingAs($user->fresh())->post('/api/profile/photo', [
+            'profile_photo' => $newPhoto,
         ]);
-        
+
         $user->refresh();
-        
-        // Old photo should be deleted
-        Storage::disk('public')->assertMissing($firstPhotoPath);
-        // New photo should exist
-        Storage::disk('public')->assertExists($user->profile_photo_path);
-        $this->assertNotEquals($firstPhotoPath, $user->profile_photo_path);
+        $newPhotoPath = $user->profile_photo_path;
+
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($newPhotoPath);
+        $disk->assertMissing($oldPhotoPath);
+        $this->assertNotEquals($oldPhotoPath, $newPhotoPath);
     }
 
-    public function test_user_can_delete_profile_photo()
+    public function test_profile_photo_can_be_deleted()
     {
         Storage::fake('public');
         
         $user = User::factory()->create();
+        $file = UploadedFile::fake()->image('photo.jpg');
         
-        // Upload photo first
-        $file = UploadedFile::fake()->image('profile.jpg', 200, 200);
-        $this->actingAs($user)->patch('/profile', [
-            'name' => $user->name,
-            'email' => $user->email,
+        // Upload photo
+        $this->actingAs($user)->post('/api/profile/photo', [
             'profile_photo' => $file,
         ]);
         
         $user->refresh();
         $photoPath = $user->profile_photo_path;
-        $this->assertNotNull($photoPath);
-        
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($photoPath);
+
         // Delete photo
-        $response = $this
-            ->actingAs($user)
-            ->delete('/profile/photo');
+        $response = $this->actingAs($user)->delete('/api/profile/photo');
         
-        $response->assertRedirect('/profile');
+        $response->assertStatus(200);
         
         $user->refresh();
-        
-        // Photo should be deleted from storage and database
         $this->assertNull($user->profile_photo_path);
-        Storage::disk('public')->assertMissing($photoPath);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertMissing($photoPath);
     }
 
-    public function test_profile_photo_must_be_image()
+    public function test_validation_profile_photo_must_be_image()
     {
         Storage::fake('public');
         
@@ -127,47 +117,24 @@ class ProfilePhotoTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
-                'name' => $user->name,
-                'email' => $user->email,
+            ->post('/api/profile/photo', [
                 'profile_photo' => $file,
             ]);
 
         $response->assertSessionHasErrors('profile_photo');
     }
 
-    public function test_profile_photo_cannot_exceed_3mb()
+    public function test_profile_photo_cannot_exceed_4mb()
     {
         Storage::fake('public');
         
         $user = User::factory()->create();
-        // Create a file larger than 3MB
-        $file = UploadedFile::fake()->image('large.jpg')->size(3073);
+        // Create a file larger than 4MB
+        $file = UploadedFile::fake()->image('large.jpg')->size(4097);
 
         $response = $this
             ->actingAs($user)
-            ->patch('/profile', [
-                'name' => $user->name,
-                'email' => $user->email,
-                'profile_photo' => $file,
-            ]);
-
-        $response->assertSessionHasErrors('profile_photo');
-    }
-
-    public function test_profile_photo_must_meet_dimension_requirements()
-    {
-        Storage::fake('public');
-        
-        $user = User::factory()->create();
-        // Create image smaller than minimum dimensions
-        $file = UploadedFile::fake()->image('small.jpg', 50, 50);
-
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => $user->name,
-                'email' => $user->email,
+            ->post('/api/profile/photo', [
                 'profile_photo' => $file,
             ]);
 

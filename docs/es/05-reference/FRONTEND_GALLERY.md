@@ -1,5 +1,7 @@
 # Galería de Componentes Frontend
 
+> **Nota**: Para una guía detallada sobre el sistema de temas (Temas Globales, Temas por Proyecto, Modo Oscuro), por favor consulta la [Documentación del Sistema de Temas](../02-development/THEMING_SYSTEM.md).
+
 ## Widgets
 
 ### SearchInput
@@ -29,6 +31,27 @@
   - Muestra el balance total.
   - Indicador visual de salud financiera.
   - **Restringido**: Solo se renderiza para admins.
+
+## Componentes de Formulario
+
+### ImageUploader
+- **Ruta**: `resources/js/Components/ImageUploader.jsx`
+- **Descripción**: Componente reutilizable para cargar y previsualizar imágenes, con soporte para diferentes formas y validaciones.
+- **Características**:
+  - **Formas**: Cuadrada (`square`) o Circular (`circle`).
+  - **Tamaños**: Predefinidos (`sm`, `md`, `lg`).
+  - **Validación**: Límite de tamaño configurable y feedback visual de errores.
+  - **Interacción**: Click para cambiar, botón opcional para eliminar.
+- **Uso**:
+  ```jsx
+  <ImageUploader
+      value={data.image}
+      onChange={(file) => setData('image', file)}
+      shape="square"
+      size="lg"
+      maxSizeMB={4}
+  />
+  ```
 
 ## Iconos (`resources/js/Components/Icons.jsx`)
 

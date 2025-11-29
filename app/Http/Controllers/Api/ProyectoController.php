@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Proyecto;
+use App\Http\Requests\StoreProyectoRequest;
+use App\Http\Requests\UpdateProyectoRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProyectoController extends Controller
 {
@@ -20,16 +23,31 @@ class ProyectoController extends Controller
     /**
      * Almacena un nuevo proyecto.
      */
-    public function store(Request $request)
+    public function store(StoreProyectoRequest $request)
     {
-        $datosValidados = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'moneda_default' => 'nullable|string|max:3',
+        $validatedData = $request->validated();
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('project-images', 'public');
+        }
+
+        $proyecto = Proyecto::create([
+            'nombre' => $validatedData['nombre'],
+            'descripcion' => $validatedData['descripcion'] ?? null,
+            'moneda_default' => $validatedData['moneda_default'],
+            'user_id' => $request->user()->id,
+            'es_personal' => false,
+            'visible_en_listado' => true,
+            'modules' => $validatedData['modules'],
+            'color' => $validatedData['color'] ?? null,
+            'icon' => $validatedData['icon'] ?? null,
+            'image_path' => $imagePath,
+            'theme' => $validatedData['theme'] ?? 'purple-modern',
+            'typography' => $validatedData['typography'] ?? 'sans',
         ]);
 
-        $usuario = $request->user();
-        $proyecto = Proyecto::create($datosValidados);
-        $proyecto->miembros()->attach($usuario->id, ['rol' => 'admin']);
+        $proyecto->miembros()->attach($request->user()->id, ['rol' => 'admin']);
 
         return response()->json($proyecto->load('miembros'), 201);
     }
@@ -56,17 +74,31 @@ class ProyectoController extends Controller
     /**
      * Actualiza un proyecto específico.
      */
-    public function update(Request $request, Proyecto $proyecto)
+    public function update(UpdateProyectoRequest $request, Proyecto $proyecto)
     {
         // solo un 'admin' puede editar.
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
 
-        $datosValidados = $request->validate([
-            'nombre' => 'sometimes|string|max:255',
-            'moneda_default' => 'sometimes|string|max:3',
-        ]);
+        $validatedData = $request->validated();
+        $dataToUpdate = [];
 
-        $proyecto->update($datosValidados);
+        $fields = ['nombre', 'descripcion', 'moneda_default', 'color', 'icon', 'theme', 'typography'];
+        foreach ($fields as $field) {
+            if (isset($validatedData[$field])) {
+                $dataToUpdate[$field] = $validatedData[$field];
+            }
+        }
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists (optional but recommended)
+            if ($proyecto->image_path) {
+                Storage::disk('public')->delete($proyecto->image_path);
+            }
+            $imagePath = $request->file('image')->store('project-images', 'public');
+            $dataToUpdate['image_path'] = $imagePath;
+        }
+
+        $proyecto->update($dataToUpdate);
         return response()->json($proyecto);
     }
 

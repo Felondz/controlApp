@@ -56,7 +56,7 @@ class ProfileController extends Controller
     public function uploadPhoto(Request $request)
     {
         $request->validate([
-            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072', 'dimensions:max_width=2048,max_height=2048'],
+            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2048,max_height=2048'],
         ]);
 
         $user = $request->user();
@@ -69,14 +69,15 @@ class ProfileController extends Controller
         // Store new photo
         $file = $request->file('profile_photo');
         $extension = $file->getClientOriginalExtension();
-        $filename = hash('sha256', $user->id . time()) . '.' . $extension;
+        $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
         
         $path = $file->storeAs('profile-photos', $filename, 'public');
-        $user->profile_photo_path = $path;
-        $user->save();
+        $user->forceFill([
+            'profile_photo_path' => $path,
+        ])->save();
 
         return response()->json([
-            'message' => 'Foto de perfil actualizada',
+            'message' => 'Foto de perfil actualizada correctamente.',
             'profile_photo_url' => Storage::url($path),
         ]);
     }

@@ -42,9 +42,9 @@ export default function TypographySelector({ value, onChange, typographies }) {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative w-full cursor-default rounded-lg bg-white dark:bg-gray-800 py-3 pl-4 pr-10 text-left border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm shadow-sm transition-all hover:border-primary-400"
+                className="relative w-full cursor-default rounded-md bg-white dark:bg-gray-700 py-2 pl-3 pr-10 text-left border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm shadow-sm transition-all"
             >
-                <span className={`block truncate text-lg ${selectedFont ? `font-${selectedFont.id}` : ''}`}>
+                <span className={`block truncate ${selectedFont ? `font-${selectedFont.id}` : ''}`}>
                     {selectedFont ? selectedFont.name : 'Select Typography'}
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -92,7 +92,7 @@ export default function TypographySelector({ value, onChange, typographies }) {
                                     }}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <span className={`block truncate text-lg font-${font.id}`}>
+                                        <span className={`block truncate font-${font.id}`}>
                                             {font.name}
                                         </span>
                                         {value === font.id && (

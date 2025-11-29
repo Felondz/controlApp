@@ -6,7 +6,7 @@
 
 ## 1. 🎯 Filosofía de Testing y QA
 
-* **Estado Actual**: 176 tests pasando con 557 assertions (100% de cobertura en módulos principales de autenticación y finanzas).
+* **Estado Actual**: 206 tests pasando con 677 assertions (100% de cobertura en módulos principales de autenticación y finanzas).
 * **Regla de Oro (Quality Gate)**: Si los tests fallan, el código tiene un error. **No hagas commit/push hasta que todos pasen**.
 * **Convención**: Usar nombres descriptivos para los tests: `test_admin_puede_crear_usuario`.
 

@@ -9,27 +9,14 @@ export default function FinanceWidget({ project }) {
     const currency = project.moneda_default || 'USD';
 
     return (
-        <div className="space-y-4">
+        <div className="flex flex-col justify-center items-center h-full text-center">
             <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                     {t('finance.balance', 'Balance Actual')}
                 </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-lg font-bold text-primary-600 dark:text-primary-400">
                     {new Intl.NumberFormat('es-CO', { style: 'currency', currency: currency }).format(balance)}
                 </p>
-            </div>
-
-            <div>
-                <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-600 dark:text-gray-300">{t('finance.budget', 'Presupuesto Mensual')}</span>
-                    <span className="font-medium text-gray-900 dark:text-white">{budgetUsed}%</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                        className="bg-primary-600 h-2 rounded-full"
-                        style={{ width: `${budgetUsed}%` }}
-                    ></div>
-                </div>
             </div>
         </div>
     );

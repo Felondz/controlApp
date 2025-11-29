@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon } from '@/Components/Icons';
+import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon } from '@/Components/Icons';
 import Dropdown from '@/Components/Dropdown';
 import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
@@ -11,16 +11,17 @@ import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import BottomNavigation from '@/Components/BottomNavigation';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
+import { getThemeStyle } from '@/Utils/themeStyles';
 
-export default function AuthenticatedLayout({ header, children, projectTheme = null }) {
+export default function AuthenticatedLayout({ header, children, projectTheme = null, project = null }) {
     const user = usePage().props.auth.user;
 
     return (
-        <LayoutContent user={user} header={header} projectTheme={projectTheme}>{children}</LayoutContent>
+        <LayoutContent user={user} header={header} projectTheme={projectTheme} project={project}>{children}</LayoutContent>
     );
 }
 
-function LayoutContent({ user, header, children, projectTheme }) {
+function LayoutContent({ user, header, children, projectTheme, project }) {
     const { t } = useTranslate();
     const { theme, isDark, setThemeLocal } = useGlobalTheme();
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -28,12 +29,17 @@ function LayoutContent({ user, header, children, projectTheme }) {
 
     // Sync project theme
     useEffect(() => {
-        if (projectTheme) {
+        if (project?.es_personal) {
+            // Personal Finance ALWAYS uses Global Theme
+            setThemeLocal(user.global_theme);
+        } else if (projectTheme) {
             setThemeLocal(projectTheme);
+        } else if (project?.theme) {
+            setThemeLocal(project.theme);
         } else if (user.global_theme) {
             setThemeLocal(user.global_theme);
         }
-    }, [projectTheme, user.global_theme, setThemeLocal]);
+    }, [projectTheme, project, user.global_theme, setThemeLocal]);
 
     // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
     const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
@@ -41,13 +47,15 @@ function LayoutContent({ user, header, children, projectTheme }) {
     return (
         <div className="h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex">
             {/* Desktop Sidebar */}
-            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} />
+            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} />
 
             {/* Mobile Header & Content Wrapper */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
                 {/* Desktop Topbar */}
-                <header className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700">
+                <header
+                    className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
+                >
                     <div className="flex-1 flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -58,6 +66,13 @@ function LayoutContent({ user, header, children, projectTheme }) {
                             ) : (
                                 <MenuUnfoldIcon className={`h-6 w-6 ${iconClasses}`} />
                             )}
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className="focus:outline-none transition-all duration-200"
+                            title="Go Back"
+                        >
+                            <ArrowLeftIcon className={`h-6 w-6 ${iconClasses}`} />
                         </button>
                         {header}
                     </div>

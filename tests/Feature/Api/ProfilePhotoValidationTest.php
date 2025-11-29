@@ -27,12 +27,12 @@ class ProfilePhotoValidationTest extends TestCase
             ->assertJsonValidationErrors(['profile_photo']);
     }
 
-    public function test_profile_photo_must_not_exceed_3mb(): void
+    public function test_profile_photo_must_not_exceed_4mb(): void
     {
         Storage::fake('public');
         $user = User::factory()->create();
-        // 3MB = 3072KB. Create a file slightly larger (3100KB)
-        $file = UploadedFile::fake()->image('large_avatar.jpg')->size(3100);
+        // 4MB = 4096KB. Create a file slightly larger (4100KB)
+        $file = UploadedFile::fake()->image('large_avatar.jpg')->size(4100);
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson('/api/profile/photo', [

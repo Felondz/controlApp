@@ -1,5 +1,7 @@
 # Frontend Component Gallery
 
+> **Note**: For a detailed guide on the theming system (Global Themes, Project Themes, Dark Mode), please refer to the [Theming System Documentation](../02-development/THEMING_SYSTEM.md).
+
 ## Widgets
 
 ### SearchInput
@@ -29,6 +31,27 @@
   - Shows total balance.
   - Visual indicator of financial health.
   - **Restricted**: Only rendered for admins.
+
+## Form Components
+
+### ImageUploader
+- **Path**: `resources/js/Components/ImageUploader.jsx`
+- **Description**: Reusable component for uploading and previewing images, supporting different shapes and validations.
+- **Features**:
+  - **Shapes**: Square (`square`) or Circle (`circle`).
+  - **Sizes**: Predefined (`sm`, `md`, `lg`).
+  - **Validation**: Configurable size limit and visual error feedback.
+  - **Interaction**: Click to change, optional delete button.
+- **Usage**:
+  ```jsx
+  <ImageUploader
+      value={data.image}
+      onChange={(file) => setData('image', file)}
+      shape="square"
+      size="lg"
+      maxSizeMB={4}
+  />
+  ```
 
 ## Icons (`resources/js/Components/Icons.jsx`)
 

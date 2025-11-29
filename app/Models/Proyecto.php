@@ -25,6 +25,7 @@ class Proyecto extends Model
      */
     protected $fillable = [
         'nombre',
+        'descripcion',
         'moneda_default',
         'user_id',
         'es_personal',
