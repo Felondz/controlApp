@@ -4,6 +4,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
+use App\Http\Controllers\ToolController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;

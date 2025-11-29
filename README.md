@@ -14,7 +14,7 @@ This status reflects the stability achieved through **Continuous Integration (CI
 | **Total Assertions** | 764+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.3.0 (Financial Tools) | ✅ **Stable** |
+| **Backend Version** | v1.3.1 (Tools API \u0026 UI Polish) | ✅ **Stable** |
 | **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -59,6 +59,7 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
   - **Modes**: Basic (quick calculation) and Advanced (detailed breakdown with insurance).
   - **Export**: Generate professional PDF reports with amortization charts.
   - **Visualizations**: Interactive charts for principal vs. interest analysis.
+  - **API**: RESTful endpoints for tool management (`GET /api/tools`, `POST /api/tools/toggle`).
 
 - **Personal & Project Finance**:
   - Income and expense tracking.

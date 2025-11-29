@@ -164,7 +164,7 @@ export default function FinancialCalculator({ auth }) {
                                 <CalculatorIcon className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400">
                                     {t('dashboard.calculator', 'Calculadora Financiera')}
                                 </h1>
                                 <p className="text-gray-500 dark:text-gray-400 text-sm">

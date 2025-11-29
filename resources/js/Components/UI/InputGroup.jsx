@@ -32,7 +32,7 @@ export default function InputGroup({
                     className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all pr-8"
                 />
                 {suffix && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-600 dark:text-primary-400 text-sm font-bold">
                         {suffix}
                     </span>
                 )}

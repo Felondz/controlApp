@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2025-11-29
+
+### Added
+- **Tools API**:
+  - `Api/ToolController` with `index` and `toggle` methods for managing user tool preferences via API.
+  - `GET /api/tools`: Returns list of available tools with translation keys and enabled status.
+  - `POST /api/tools/toggle`: Enables/disables tools for authenticated users.
+- **Tests**:
+  - `Feature/Api/ToolTest` for Tools API endpoints.
+- **Translations**:
+  - Added `common.language` and related keys to `en.json` for language selection UI.
+  - Synchronized missing sections between `es.json` and `en.json` (`calculator`, `currency`, `preferences`, `docs`, `finance`).
+
+### Changed
+- **Financial Calculator UI**:
+  - Updated `QuantityInput` component to use semantic theme colors (`text-primary-600`) for +/- buttons.
+  - Updated calculator title to use theme colors (`text-primary-600 dark:text-primary-400`).
+  - Updated `InputGroup` suffix (%) to use theme colors with bold styling.
+
+---
+
 ## [1.3.0] - 2025-11-29
 
 ### Added

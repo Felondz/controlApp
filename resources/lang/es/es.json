@@ -153,7 +153,11 @@
         "tip": "Consejo",
         "months": "Meses",
         "years": "Años",
-        "month": "Mes"
+        "month": "Mes",
+        "active": "Activo",
+        "unavailable": "No disponible",
+        "deactivate": "Desactivar",
+        "activate": "Activar"
     },
     "calculator": {
         "title": "Calculadora Financiera",
@@ -211,7 +215,9 @@
         "tools": "Herramientas",
         "calendar": "Calendario",
         "marketplace": "Mercado",
-        "calculator": "Calculadora Financiera"
+        "calculator": "Calculadora Financiera",
+        "calculator_desc": "Calcula cuotas, intereses y tablas de amortización para préstamos.",
+        "calendar_desc": "Gestiona tus eventos y fechas importantes."
     },
     "docs": {
         "hub_title": "Centro de Documentación",

@@ -118,5 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/finanzas-personales/categorias', [FinanzasPersonalesController::class, 'categorias']);
 
     // --- Herramientas ---
+    Route::get('/tools', [App\Http\Controllers\Api\ToolController::class, 'index']);
+    Route::post('/tools/toggle', [App\Http\Controllers\Api\ToolController::class, 'toggle']);
     Route::post('/tools/calculator/calculate', [CalculatorController::class, 'calculate']);
 });

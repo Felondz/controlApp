@@ -62,9 +62,9 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                             className="focus:outline-none transition-all duration-200"
                         >
                             {isSidebarOpen ? (
-                                <MenuFoldIcon className={`h-6 w-6 ${iconClasses}`} />
+                                <MenuFoldIcon className={`h-5 w-5 ${iconClasses}`} />
                             ) : (
-                                <MenuUnfoldIcon className={`h-6 w-6 ${iconClasses}`} />
+                                <MenuUnfoldIcon className={`h-5 w-5 ${iconClasses}`} />
                             )}
                         </button>
                         <button
@@ -72,7 +72,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                             className="focus:outline-none transition-all duration-200"
                             title="Go Back"
                         >
-                            <ArrowLeftIcon className={`h-6 w-6 ${iconClasses}`} />
+                            <ArrowLeftIcon className={`h-5 w-5 ${iconClasses}`} />
                         </button>
                         {header}
                     </div>
