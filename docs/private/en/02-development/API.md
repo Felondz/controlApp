@@ -80,7 +80,23 @@ Accept: application/json
 
 ---
 
-### Login - Sign In
+#### Resend Verification Email
+Resends the email verification link to the user. This action invalidates any previously sent verification links.
+
+- **Endpoint**: `POST /api/email/resend-verification`
+- **Auth**: Public (Rate limited: 3 requests per minute)
+- **Body**:
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Response**:
+  - `200 OK`: `{"message": "Verification link sent"}`
+  - `422 Unprocessable Entity`: If email is invalid or already verified.
+
+#### Login
+ - Sign In
 Authenticates a user and returns a token.
 
 ```http
@@ -109,7 +125,7 @@ Accept: application/json
 
 **Errors**
 - `401` - Invalid credentials
-- `422` - Email not verified
+- `403` - Email not verified (returns `error: email_not_verified`)
 
 ---
 

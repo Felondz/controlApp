@@ -9,12 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.1] - 2025-11-29
 
+### Added
+- **Authentication**: Added password visibility toggle (eye icon) to all password inputs.
+- **Authentication**: Added "Resend Verification Email" functionality on login page for unverified users.
+- **Security**: Public endpoint `/api/email/resend-verification` with rate limiting (3/min) and automatic invalidation of previous verification links.
+- **UX**: Improved error handling for unverified email login attempts.
+- **API**: Synchronized API login logic with Web login. Unverified users now receive a 403 error before token issuance.
+
 ### Fixed
-- **Email Verification**:
-  - Fixed 403 "invalid signature" error when users click email verification links
+- **Authentication**: Fixed 403 error when verifying email by removing signed URL requirement for verification link.
   - Overrode `verificationUrl()` in `VerificacionEmailNotification` to generate simple hash URLs
   - Removed signed URL signature parameter that was causing validation conflicts
   - Email verification now uses only `id` and `hash` parameters for validation
+- **Authentication**: Fixed bug where "Email not verified" error was not appearing on Login page.
+  - Refactored `LoginRequest` to check verification before `Auth::attempt` to preserve session flash data.
+  - Updated `HandleInertiaRequests` to share `old` input, preventing email field clearing on redirect.
 
 ### Technical Details
 - Modified `app/Notifications/VerificacionEmailNotification.php` to override `verificationUrl()` method

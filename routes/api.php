@@ -59,6 +59,13 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
     ->middleware('throttle:5,1')
     ->name('api.password.reset');
 
+// --- Ruta Pública de Reenvío de Verificación de Email ---
+// Permite reenviar el email de verificación sin estar autenticado
+// SECURITY: Rate limiting estricto (3 intentos por minuto) para prevenir abuso
+Route::post('/email/resend-verification', [EmailVerificationController::class, 'resend'])
+    ->middleware('throttle:3,1')
+    ->name('api.verification.resend');
+
 // --- RUTAS PROTEGIDAS (Requieren Token) ---
 Route::middleware('auth:sanctum')->group(function () {
 

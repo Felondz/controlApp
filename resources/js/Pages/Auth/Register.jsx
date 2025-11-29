@@ -4,6 +4,7 @@ import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import PasswordInput from '@/Components/PasswordInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import Checkbox from '@/Components/Checkbox';
@@ -91,14 +92,14 @@ export default function Register() {
 
                 <div>
                     <InputLabel htmlFor="password" value={t('auth.password')} />
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
+                        error={errors.password}
                         required
                     />
                     <InputError message={errors.password} className="mt-1" />
@@ -106,14 +107,14 @@ export default function Register() {
 
                 <div>
                     <InputLabel htmlFor="password_confirmation" value={t('auth.confirm_password')} />
-                    <TextInput
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                         onChange={(e) => setData('password_confirmation', e.target.value)}
+                        error={errors.password_confirmation}
                         required
                     />
                     <InputError message={errors.password_confirmation} className="mt-1" />

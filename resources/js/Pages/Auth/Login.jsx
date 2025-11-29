@@ -1,4 +1,5 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import SecondaryLink from '@/Components/SecondaryLink';
 import { useTranslate } from '@/Hooks/useTranslate';
 import AuthLayout from '@/Layouts/AuthLayout';
@@ -6,22 +7,66 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import PasswordInput from '@/Components/PasswordInput';
 import Checkbox from '@/Components/Checkbox';
+import axios from 'axios';
 
 export default function Login({ status, canResetPassword }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
+    const { errors: pageErrors, old } = usePage().props;
+
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
+        email: old?.email || '',
         password: '',
         remember: false,
     });
 
     const { t } = useTranslate();
+    const [verificationError, setVerificationError] = useState(null);
+    const [resending, setResending] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState(false);
+
+    // Combine form errors and page errors for maximum reliability
+    const activeErrors = Object.keys(errors).length > 0 ? errors : pageErrors;
+
+    useEffect(() => {
+        if (activeErrors.email) {
+            const errorStr = Array.isArray(activeErrors.email) ? activeErrors.email[0] : activeErrors.email;
+            if (typeof errorStr === 'string' && (
+                errorStr.toLowerCase().includes('verificar') ||
+                errorStr.toLowerCase().includes('verify')
+            )) {
+                setVerificationError(errorStr);
+            }
+        } else {
+            setVerificationError(null);
+        }
+    }, [activeErrors]);
 
     const submit = (e) => {
         e.preventDefault();
+        setVerificationError(null);
+        setResendSuccess(false);
+
         post(route('login'), {
             onFinish: () => reset('password'),
         });
+    };
+
+    const handleResendVerification = async () => {
+        setResending(true);
+        setResendSuccess(false);
+
+        try {
+            await axios.post('/api/email/resend-verification', {
+                email: data.email
+            });
+            setResendSuccess(true);
+            clearErrors('email');
+        } catch (error) {
+            // console.error('Error resending verification:', error);
+        } finally {
+            setResending(false);
+        }
     };
 
     return (
@@ -29,6 +74,31 @@ export default function Login({ status, canResetPassword }) {
             {status && (
                 <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
                     {status}
+                </div>
+            )}
+
+            {verificationError && (
+                <div className="mb-6 p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-md">
+                    <h3 className="text-sm font-semibold text-warning-800 dark:text-warning-200 mb-2">
+                        {t('auth.email_not_verified') || 'Email no verificado'}
+                    </h3>
+                    <p className="text-sm text-warning-700 dark:text-warning-300 mb-3">
+                        {t('auth.check_inbox') || 'Revisa tu bandeja de entrada'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={resending}
+                        className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {resending ? t('auth.sending') : t('auth.resend_verification_email')}
+                    </button>
+                </div>
+            )}
+
+            {resendSuccess && (
+                <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
+                    {t('auth.verification_email_sent')}
                 </div>
             )}
 
@@ -61,14 +131,14 @@ export default function Login({ status, canResetPassword }) {
                             </Link>
                         )}
                     </div>
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
+                        error={errors.password}
                         required
                     />
                     <InputError message={errors.password} className="mt-1" />
@@ -106,6 +176,7 @@ export default function Login({ status, canResetPassword }) {
                         )}
                     </PrimaryButton>
                 </div>
+
             </form>
             <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
                 {t('auth.dont_have_account')}{' '}
@@ -116,4 +187,3 @@ export default function Login({ status, canResetPassword }) {
         </AuthLayout>
     );
 }
-

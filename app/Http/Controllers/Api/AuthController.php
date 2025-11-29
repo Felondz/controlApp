@@ -52,26 +52,37 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // 2. Intentar autenticar al usuario
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            // Si falla, lanzar un error
+        $credentials = $request->only('email', 'password');
+
+        // 2. Validar credenciales SIN iniciar sesión (Auth::validate)
+        if (!Auth::validate($credentials)) {
             throw ValidationException::withMessages([
                 'email' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
         }
 
-        // 3. Si las credenciales son correctas, obtener el usuario
-        $usuario = User::where('email', $request->email)->firstOrFail();
+        // 3. Obtener el usuario
+        $usuario = User::where('email', $request->email)->first();
 
-        // 4. Crear el token de acceso
+        // 4. Verificar que el email esté verificado
+        if ($usuario && !$usuario->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Tu email no ha sido verificado. Por favor, verifica tu correo electrónico.',
+                'error' => 'email_not_verified',
+                'email' => $usuario->email
+            ], 403); // 403 Forbidden
+        }
+
+        // 5. Crear el token de acceso
+        // Nota: No necesitamos Auth::attempt() porque usamos tokens, no sesiones
         $token = $usuario->createToken('auth_token')->plainTextToken;
 
-        // 5. Devolver la respuesta con el token
+        // 6. Devolver la respuesta con el token
         return response()->json([
             'message' => '¡Inicio de sesión exitoso!',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $usuario // Devolvemos el usuario (útil para el frontend)
+            'user' => $usuario
         ]);
     }
 

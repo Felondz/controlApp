@@ -2,6 +2,16 @@
 
 ## Reusable Components
 
+### PasswordInput
+A wrapper around the native `input` element that adds a visibility toggle button.
+- **Path**: `resources/js/Components/PasswordInput.jsx`
+- **Props**: Accepts all standard input props plus `error` (string) for validation styling.
+- **Features**:
+  - Toggles between `password` and `text` types.
+  - Theme-aware styling (light/dark mode).
+  - Integrated `EyeIcon` and `EyeOffIcon`.
+  - Error state styling support.
+
 ### Alert
 Component for displaying status messages (info, warning, success, error) with standardized styles.
 
