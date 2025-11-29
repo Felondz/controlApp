@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.4] - 2025-11-29
+
+### Added
+- **Components**: Created reusable `Alert` component (`resources/js/Components/Alert.jsx`) for standardized information, warning, success, and error messages.
+- **Icons**: Added `InfoIcon` to `Icons.jsx`.
+
+### Changed
+- **Documentation Hub**:
+  - Refactored `DevDocs.jsx` to use the new `Alert` component for security notes.
+  - Updated `Hub.jsx` to use specific `info` colors for the Developer card, ensuring visual distinction without affecting the global theme.
+- **Theme**: Reverted `secondary` color in `tailwind.config.js` to `colors.gray` to fix dark mode background issues.
+- **Welcome Page**: Improved "Documentation" link hover style to use `primary` color for better visibility.
+
+## [1.2.3] - 2025-11-29
+
+### Changed
+- **Auth UI**: Refactored all authentication views (`Login`, `Register`, `ForgotPassword`, etc.) to use the project's semantic color system (`primary`, `success`, `danger`) instead of hardcoded colors.
+- **Components**: Replaced hardcoded HTML elements (`input`, `label`) in auth views with reusable React components (`TextInput`, `InputLabel`).
+- **Styling**: Fixed disproportionate button sizes in auth forms by introducing `SecondaryLink` for "Cancel" actions, matching `PrimaryButton` dimensions.
+
+### Added
+- **SecondaryLink**: New component for rendering links with `SecondaryButton` styling.
+
+## [1.2.2] - 2025-11-28
+
+### Fixed
+- **Critical Crash**: Resolved `BindingResolutionException` in `bootstrap/app.php` caused by an incorrect middleware alias (`verified`).
+- **API Validation**: Restored `StoreProyectoRequest` and `UpdateProyectoRequest` in `ProyectoController` to ensure proper validation for projects.
+- **Test Environment**: Fixed `Facade root has not been set` error by bypassing `ParallelTesting` callbacks in `TestCase.php`.
+- **Tests**:
+  - Updated `ProyectosApiTest` to handle `SoftDeletes` and `UserObserver` side effects.
+  - Fixed `ProfilePhotoTest` assertions by handling stale user instances and ensuring unique filenames.
+  - Updated `ProfilePhotoValidationTest` to reflect the new 4MB upload limit.
+
+## [1.2.1] - 2025-11-28
+
+### Fixed
+- **Project Updates**: Resolved critical bug where project updates failed due to incorrect unique name validation (`mis_proyecto` route parameter).
+- **Image Uploads**: Increased upload limit to 4MB (was 2MB) for both Projects and Profile to accommodate modern image sizes.
+- **Form Submission**: Unified project edit form to always use `POST` with `_method: put` and `forceFormData: true` for consistent file handling.
+
+### Added
+- **Components**: New reusable `ImageUploader` component with support for square/circle shapes and configurable sizes.
+
+### Changed
+- **Profile UI**:
+  - Updated profile photo uploader to match Project style (square, large).
+  - Centered profile edit view (`max-w-4xl`) for consistency with Project views.
+  - Disabled email editing in profile form for security/stability.
+- **Refactoring**: Refactored `Projects/Edit.jsx` and `UpdateProfileInformationForm.jsx` to use the new `ImageUploader` component, removing ~120 lines of duplicated code.
+
 ## [1.2.0] - 2025-11-28
 
 ### Added

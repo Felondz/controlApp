@@ -102,18 +102,48 @@ class ProyectoUiWebController extends Controller
      */
     public function update(UpdateProyectoRequest $request, Proyecto $mis_proyecto)
     {
-        // La autorización ya debería estar en el FormRequest, pero por seguridad:
         if (!$request->user()->esAdminDe($mis_proyecto)) {
             abort(403, 'Solo los administradores pueden actualizar este proyecto.');
         }
 
         $validatedData = $request->validated();
 
-        $mis_proyecto->update([
-            'nombre' => $validatedData['nombre'],
-            'descripcion' => $validatedData['descripcion'] ?? $mis_proyecto->descripcion,
-            'moneda_default' => $validatedData['moneda_default'],
-        ]);
+        $dataToUpdate = [];
+        
+        if (isset($validatedData['nombre'])) {
+            $dataToUpdate['nombre'] = $validatedData['nombre'];
+        }
+        
+        if (isset($validatedData['descripcion'])) {
+            $dataToUpdate['descripcion'] = $validatedData['descripcion'];
+        }
+        
+        if (isset($validatedData['moneda_default'])) {
+            $dataToUpdate['moneda_default'] = $validatedData['moneda_default'];
+        }
+        
+        if (isset($validatedData['color'])) {
+            $dataToUpdate['color'] = $validatedData['color'];
+        }
+        
+        if (isset($validatedData['icon'])) {
+            $dataToUpdate['icon'] = $validatedData['icon'];
+        }
+        
+        if (isset($validatedData['theme'])) {
+            $dataToUpdate['theme'] = $validatedData['theme'];
+        }
+        
+        if (isset($validatedData['typography'])) {
+            $dataToUpdate['typography'] = $validatedData['typography'];
+        }
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('project-images', 'public');
+            $dataToUpdate['image_path'] = $imagePath;
+        }
+
+        $mis_proyecto->update($dataToUpdate);
 
         return redirect()->route('mis-proyectos.show', $mis_proyecto)
             ->with('success', 'Proyecto actualizado correctamente.');
@@ -133,5 +163,33 @@ class ProyectoUiWebController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Proyecto eliminado correctamente.');
+    }
+    /**
+     * Muestra el dashboard financiero del proyecto.
+     */
+    public function finance(Request $request, Proyecto $mis_proyecto)
+    {
+        // 1. Autorización
+        if (!$request->user()->esMiembroDe($mis_proyecto)) {
+            abort(403, 'No tienes permiso para acceder a este proyecto.');
+        }
+
+        // 2. Verificar si es admin para cargar datos financieros
+        $isAdmin = $request->user()->esAdminDe($mis_proyecto);
+
+        // 3. Eager Loading específico para finanzas
+        $relations = [];
+        
+        if ($isAdmin) {
+            $relations[] = 'cuentas';
+            // $relations[] = 'transacciones'; // Future: Load recent transactions
+        }
+
+        $mis_proyecto->load($relations); 
+        
+        return Inertia::render('Projects/Finance/ProjectDashboard', [
+            'proyecto' => $mis_proyecto,
+            'isAdmin' => $isAdmin,
+        ]);
     }
 }

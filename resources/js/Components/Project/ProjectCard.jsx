@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PlusIcon, MinusIcon, EllipsisVerticalIcon } from '@/Components/Icons';
+import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon } from '@/Components/Icons';
 import FinanceWidget from '@/Components/Widgets/FinanceWidget';
 import TasksWidget from '@/Components/Widgets/TasksWidget';
 import { getThemeStyle } from '@/Utils/themeStyles';
@@ -11,6 +11,14 @@ export default function ProjectCard({ proyecto }) {
     // Determine primary module (default to finance if none or multiple)
     const modules = proyecto.modules || ['finance'];
     const primaryModule = modules[0];
+
+    const getModuleIcon = (moduleName) => {
+        switch (moduleName) {
+            case 'finance': return <CurrencyDollarIcon className="h-4 w-4" />;
+            case 'tasks': return <CheckListIcon className="h-4 w-4" />;
+            default: return null;
+        }
+    };
 
     const renderWidget = () => {
         // Security Check: If finance module is active but user is NOT admin, show restricted state
@@ -50,8 +58,8 @@ export default function ProjectCard({ proyecto }) {
     return (
         <Link
             href={route('mis-proyectos.show', { mis_proyecto: proyecto.id })}
-            className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col min-h-[200px] relative group"
-            style={getThemeStyle(proyecto.theme)}
+            className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col min-h-[200px] relative group border-2 border-transparent hover:border-primary-300 dark:hover:border-primary-800"
+            style={proyecto.es_personal ? {} : getThemeStyle(proyecto.theme)}
         >
             {/* Color Accent Line */}
             <div
@@ -61,26 +69,76 @@ export default function ProjectCard({ proyecto }) {
 
             <div className="p-4 sm:p-6 flex-1 flex flex-col">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center">
-                        <span className="text-2xl mr-3">{proyecto.icon || '📁'}</span>
-                        <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                {proyecto.nombre}
-                            </h3>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                                {t(`modules.${primaryModule}`, primaryModule)}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Options Menu */}
+                <div className="flex flex-col items-center text-center mb-4 relative">
+                    {/* Options Menu - Absolute Positioned */}
                     <button
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                        className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 opacity-0 group-hover:opacity-100 transition-all p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="absolute top-0 right-0 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 opacity-0 group-hover:opacity-100 transition-all p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                         <EllipsisVerticalIcon className="h-5 w-5" />
                     </button>
+
+                    <div className="flex-shrink-0 mb-3">
+                        {(() => {
+                            // Robust Image Detection
+                            const imageUrl = proyecto.image_url
+                                || proyecto.imagen
+                                || (proyecto.image_path ? `/storage/${proyecto.image_path}` : null)
+                                || (proyecto.icon && (proyecto.icon.startsWith('http') || proyecto.icon.startsWith('/')) ? proyecto.icon : null);
+
+                            if (imageUrl) {
+                                return (
+                                    <img
+                                        src={imageUrl}
+                                        alt={proyecto.nombre}
+                                        className="h-12 w-12 rounded-md object-cover mx-auto"
+                                    />
+                                );
+                            }
+
+                            // Personal Finance Exception: Always use PersonalFinanceIcon
+                            if (proyecto.es_personal) {
+                                return (
+                                    <span className="text-4xl text-primary-600 dark:text-primary-400">
+                                        <PersonalFinanceIcon className="h-12 w-12" />
+                                    </span>
+                                );
+                            }
+
+                            // Fallback to Icon from Gallery
+                            const IconComponent = {
+                                'folder': FolderIcon,
+                                'puzzle': PuzzleIcon,
+                                'calendar': CalendarIcon,
+                                'calculator': CalculatorIcon,
+                                'finance': CurrencyDollarIcon,
+                                'tasks': CheckListIcon,
+                            }[proyecto.icon] || FolderIcon;
+
+                            return (
+                                <span className="text-4xl text-primary-600 dark:text-primary-400">
+                                    <IconComponent className="h-12 w-12" />
+                                </span>
+                            );
+                        })()}
+                    </div>
+                    <div className="w-full min-w-0">
+                        <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 leading-tight group-hover:text-primary-800 dark:group-hover:text-primary-200 transition-colors line-clamp-2 h-[3.5rem] flex items-center justify-center">
+                            {proyecto.nombre}
+                        </h3>
+                        {proyecto.descripcion && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 text-center px-2">
+                                {proyecto.descripcion}
+                            </p>
+                        )}
+                        <div className="flex items-center justify-center gap-2 mt-2 text-primary-500 dark:text-primary-400">
+                            {modules.map(mod => (
+                                <span key={mod} title={t(`modules.${mod}`, mod)} className="flex items-center">
+                                    {getModuleIcon(mod)}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Widget Body */}
@@ -89,7 +147,7 @@ export default function ProjectCard({ proyecto }) {
                 </div>
 
                 {/* Footer */}
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end items-center">
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-center items-center">
                     {/* Quick Actions - Only for Admins if Finance */}
                     {modules.includes('finance') && proyecto.isAdmin && (
                         <div className="flex gap-2">

@@ -107,6 +107,9 @@
         "delete": "Eliminar Categoría"
     },
     "common": {
+        "documentation": "Documentación",
+        "security_note_title": "Nota de Seguridad",
+        "security_note_desc": "La documentación técnica detallada está restringida a colaboradores verificados.",
         "save": "Guardar",
         "add_account": "Nueva Cuenta",
         "cancel": "Cancelar",
@@ -172,6 +175,35 @@
         "calendar": "Calendario",
         "marketplace": "Mercado",
         "calculator": "Calculadora Financiera"
+    },
+    "docs": {
+        "hub_title": "Centro de Documentación",
+        "hub_user_title": "Soy Usuario",
+        "hub_user_desc": "Guía visual paso a paso para aprender a usar todas las funcionalidades de la plataforma.",
+        "hub_dev_title": "Soy Desarrollador",
+        "hub_dev_desc": "Documentación técnica, estructura de base de datos y guías de contribución.",
+        "view_user_guide": "Ver Guía de Usuario",
+        "explore_code": "Explorar Código",
+        "user_guide_title": "Guía de Usuario",
+        "user_guide_intro_title": "Bienvenido a ControlApp",
+        "user_guide_intro_desc": "Tu plataforma integral para gestionar proyectos personales, finanzas y colaboración de manera sencilla y eficiente.",
+        "dev_docs_title": "Documentación de Desarrollo",
+        "dev_docs_empty": "No hay archivos en este directorio.",
+        "features": {
+            "projects_title": "Gestión de Proyectos",
+            "projects_desc": "Organiza tus ideas en proyectos concretos. Crea nuevos proyectos, asigna categorías y mantén todo ordenado en un solo lugar.",
+            "projects_list_1": "Creación ilimitada de proyectos",
+            "projects_list_2": "Categorización inteligente",
+            "finance_title": "Control Financiero",
+            "finance_desc": "Lleva un registro detallado de los ingresos y gastos de cada proyecto. Visualiza el balance general y toma decisiones informadas.",
+            "finance_list_1": "Registro de transacciones",
+            "finance_list_2": "Balance en tiempo real"
+        },
+        "cta": {
+            "start_title": "¿Listo para empezar?",
+            "create_account": "Crear Cuenta",
+            "login": "Iniciar Sesión"
+        }
     },
     "errors": {
         "404": "Página no encontrada",
@@ -273,6 +305,7 @@
         "members": "Miembros",
         "create": "Crear Proyecto",
         "edit": "Editar Proyecto",
+        "update": "Actualizar Proyecto",
         "delete": "Eliminar Proyecto",
         "add_member": "Agregar Miembro",
         "remove_member": "Remover Miembro",
@@ -284,7 +317,18 @@
         "create_new": "Crear Nuevo",
         "modules": "Módulos Activos",
         "color": "Color",
-        "icon": "Icono (Emoji)"
+        "icon": "Icono (Emoji)",
+        "image": "Imagen del Proyecto",
+        "theme": "Tema",
+        "typography": "Tipografía",
+        "general_settings": "Configuración General",
+        "general_settings_desc": "Actualiza la información básica de tu proyecto.",
+        "danger_zone": "Zona de Peligro",
+        "delete_warning": "Una vez que elimines este proyecto, no hay vuelta atrás. Por favor, ten cuidado.",
+        "delete_confirmation_title": "¿Estás seguro de que quieres eliminar este proyecto?",
+        "delete_confirmation_desc": "Esta acción eliminará permanentemente todos los datos, cuentas y transacciones asociadas. Por favor ingresa tu contraseña para confirmar.",
+        "delete_project": "Eliminar Proyecto",
+        "no_description": "Sin descripción."
     },
     "modules": {
         "finance": "Finanzas",
@@ -303,5 +347,8 @@
         "edit": "Editar Transacción",
         "delete": "Eliminar Transacción",
         "type": "Tipo"
+    },
+    "validation": {
+        "checkbox_required": "Validar esta casilla si desea continuar"
     }
 }

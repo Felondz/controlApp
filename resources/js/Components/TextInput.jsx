@@ -1,10 +1,12 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import InputError from './InputError';
 
 export default forwardRef(function TextInput(
     { type = 'text', className = '', isFocused = false, ...props },
     ref,
 ) {
     const localRef = useRef(null);
+    const [validationMessage, setValidationMessage] = useState('');
 
     useImperativeHandle(ref, () => ({
         focus: () => localRef.current?.focus(),
@@ -28,17 +30,31 @@ export default forwardRef(function TextInput(
         'dark:border-secondary-500 dark:focus:border-primary-500 dark:focus:ring-primary-500 ' +
         'dark:placeholder-secondary-300 ';
 
+    const { onChange, onInvalid, ...otherProps } = props;
+
     return (
-        <input
-            {...props}
-            type={type}
-            className={`
+        <>
+            <input
+                {...otherProps}
+                type={type}
+                className={`
                 ${baseStyles}
                 ${lightStyles}
                 ${darkStyles}
                 ${className}
             `.trim()}
-            ref={localRef}
-        />
+                ref={localRef}
+                onInvalid={(e) => {
+                    e.preventDefault();
+                    setValidationMessage(e.target.validationMessage);
+                    if (onInvalid) onInvalid(e);
+                }}
+                onChange={(e) => {
+                    setValidationMessage('');
+                    if (onChange) onChange(e);
+                }}
+            />
+            <InputError message={validationMessage} className="mt-1" />
+        </>
     );
 });

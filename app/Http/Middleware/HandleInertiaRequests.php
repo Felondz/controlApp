@@ -30,8 +30,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        // Obtener el idioma actual (por defecto 'es')
-        $locale = app()->getLocale();
+        // Determine locale: User preference > Browser > Default (en)
+        $locale = $request->user()->locale
+            ?? $request->getPreferredLanguage(['es', 'en'])
+            ?? 'en';
+
+        // Set the application locale
+        app()->setLocale($locale);
 
         // Cargar las traducciones del archivo JSON correspondiente
         $translations = $this->loadTranslations($locale);

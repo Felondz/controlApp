@@ -32,3 +32,4 @@ Thumbs.db
 
 # Incident reports (local only)
 /docs/incidents/
+/docs/private

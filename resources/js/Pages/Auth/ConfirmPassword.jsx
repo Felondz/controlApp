@@ -1,9 +1,10 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryLink from '@/Components/SecondaryLink';
 import TextInput from '@/Components/TextInput';
 import AuthLayout from '@/Layouts/AuthLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function ConfirmPassword() {
@@ -43,9 +44,12 @@ export default function ConfirmPassword() {
                     <InputError message={errors.password} className="mt-1" />
                 </div>
 
-                <div className="flex items-center mt-6 space-x-4">
+                <div className="flex items-center justify-end mt-6 space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
                     <PrimaryButton
-                        className="flex-1 justify-center"
+                        className="ml-4"
                         disabled={processing}
                     >
                         {processing ? (
@@ -60,9 +64,6 @@ export default function ConfirmPassword() {
                             t('auth.confirm_password_submit')
                         )}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
             </form>
         </AuthLayout>

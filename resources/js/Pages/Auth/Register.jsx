@@ -9,6 +9,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import Checkbox from '@/Components/Checkbox';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
+import SecondaryLink from '@/Components/SecondaryLink';
 
 export default function Register() {
     const { t } = useTranslate();
@@ -130,7 +131,7 @@ export default function Register() {
                             {t('auth.agree_terms_text_1')}
                             <button
                                 type="button"
-                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
                                 onClick={() => setActiveModal('terms')}
                             >
                                 {t('auth.terms_of_service')}
@@ -138,7 +139,7 @@ export default function Register() {
                             {t('auth.agree_terms_text_2')}
                             <button
                                 type="button"
-                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
                                 onClick={() => setActiveModal('privacy')}
                             >
                                 {t('auth.privacy_policy')}
@@ -148,20 +149,20 @@ export default function Register() {
                     <InputError message={errors.terms} className="mt-1" />
                 </div>
 
-                <div className="mt-6 flex items-center space-x-4">
-                    <PrimaryButton className="flex-1" disabled={processing}>
+                <div className="mt-6 flex items-center justify-end space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
+                    <PrimaryButton className="ml-4" disabled={processing}>
                         {t('auth.register')}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
             </form>
 
             <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
                 <Link
                     href={route('login')}
-                    className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline"
+                    className="text-primary-600 hover:text-primary-500 dark:text-primary-400 hover:underline"
                 >
                     {t('auth.already_registered')}
                 </Link>
