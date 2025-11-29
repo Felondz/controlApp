@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2025-11-29
+
+### Fixed
+- **Email Verification**:
+  - Fixed 403 "invalid signature" error when users click email verification links
+  - Overrode `verificationUrl()` in `VerificacionEmailNotification` to generate simple hash URLs
+  - Removed signed URL signature parameter that was causing validation conflicts
+  - Email verification now uses only `id` and `hash` parameters for validation
+
+### Technical Details
+- Modified `app/Notifications/VerificacionEmailNotification.php` to override `verificationUrl()` method
+- URLs now generated as `/api/email/verify/{id}/{hash}` without signature parameter
+- Maintains SHA1 hash validation in `EmailVerificationController` for security
+- Eliminates dependency on `APP_URL` configuration for email verification
+
+---
+
 ## [1.4.0] - 2025-11-29
 
 ### Added
