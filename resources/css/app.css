@@ -108,7 +108,7 @@
     }
 
     /* Aliases/New Themes matching CreateProject.jsx */
-    
+
     [data-theme="emerald-nature"] {
         /* Emerald (Same as forest-green) */
         --color-primary-50: 236 253 245;
@@ -186,39 +186,52 @@
 }
 
 @layer utilities {
+
     /* Custom Scrollbar */
     .scrollbar-thin {
         scrollbar-width: thin;
         scrollbar-color: rgb(var(--color-primary-300)) transparent;
     }
-    
+
     .dark .scrollbar-thin {
         scrollbar-color: rgb(var(--color-primary-700)) transparent;
     }
-    
+
     .scrollbar-thin::-webkit-scrollbar {
         width: 6px;
         height: 6px;
     }
-    
+
     .scrollbar-thin::-webkit-scrollbar-track {
         background: transparent;
     }
-    
+
     .scrollbar-thin::-webkit-scrollbar-thumb {
         background-color: rgb(var(--color-primary-300));
         border-radius: 20px;
     }
-    
+
     .dark .scrollbar-thin::-webkit-scrollbar-thumb {
         background-color: rgb(var(--color-primary-700));
     }
-    
+
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background-color: rgb(var(--color-primary-400));
     }
-    
+
     .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background-color: rgb(var(--color-primary-600));
+    }
+
+    /* Hide Chrome, Safari, Edge default spin buttons */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Hide Firefox default spin buttons */
+    input[type=number] {
+        -moz-appearance: textfield;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
@@ -59,6 +60,24 @@ Route::middleware('auth')->group(function () {
     // User Preferences
     Route::post('/preferences/theme', [\App\Http\Controllers\UserPreferencesController::class, 'updateTheme'])
         ->name('preferences.theme.update');
+
+    // Tools Market
+    Route::prefix('tools')->name('tools.')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('Tools/Index');
+        })->name('index');
+
+        Route::get('/financial-calculator', function () {
+            return Inertia::render('Tools/FinancialCalculator');
+        })->name('calculator');
+
+        Route::post('/toggle', [ToolController::class, 'toggle'])->name('toggle');
+
+        // Financial Calculator Routes
+        Route::post('/calculator/calculate', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
+        Route::get('/calculator/export/csv', [CalculatorController::class, 'exportCsv'])->name('calculator.export.csv');
+        Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
+    });
 });
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');

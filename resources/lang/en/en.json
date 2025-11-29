@@ -155,21 +155,6 @@
             "back": "Back",
             "next": "Next",
             "previous": "Previous",
-            "submit": "Submit",
-            "language": "Language",
-            "projects": "Projects",
-            "project": "Project",
-            "coming_soon": "Coming Soon",
-            "light": "Light",
-            "dark": "Dark",
-            "tip": "Tip"
-        },
-        "currency": {
-            "cop": "COP (Colombian Peso)",
-            "usd": "USD (American Dollar)",
-            "eur": "EUR (Euro)"
-        },
-        "dashboard": {
             "title": "Dashboard",
             "welcome": "Welcome, :name",
             "my_projects": "My Projects",

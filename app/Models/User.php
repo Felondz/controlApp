@@ -46,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'locale',
         'profile_photo_path',
         'global_theme',
+        'enabled_tools',
     ];
 
     /**
@@ -78,6 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'enabled_tools' => 'array',
         ];
     }
 
@@ -178,8 +180,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getProfilePhotoUrlAttribute()
     {
         return $this->profile_photo_path
-                    ? asset('storage/'.$this->profile_photo_path)
-                    : null;
+            ? asset('storage/' . $this->profile_photo_path)
+            : null;
     }
 
     /**

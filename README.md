@@ -10,11 +10,11 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 206 / 206 | ✅ **100% Stable** |
-| **Total Assertions** | 677+ | ✅ **Robust Coverage** |
+| **Backend Tests** | 214 / 214 | ✅ **100% Stable** |
+| **Total Assertions** | 764+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.2.2 (Stability & Fixes) | ✅ **Stable** |
+| **Backend Version** | v1.3.0 (Financial Tools) | ✅ **Stable** |
 | **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -33,6 +33,8 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 | **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
 | **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
+| **Search** | Meilisearch + Scout | Fast, relevant, and secure full-text search implementation. |
+| **PDF Export** | DomPDF + HTML2Canvas | High-quality PDF generation for financial reports and amortization schedules. |
 
 ### Frontend (Web/Mobile Readiness)
 | Component | Technology | Status |
@@ -51,6 +53,12 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
   - **NEW**: Custom themes (colors) and typography per project.
   - **NEW**: Customizable cover images for each project.
   - Member invitation and role management.
+
+- **Financial Tools (NEW)**:
+  - **Financial Calculator**: Advanced loan and amortization calculator.
+  - **Modes**: Basic (quick calculation) and Advanced (detailed breakdown with insurance).
+  - **Export**: Generate professional PDF reports with amortization charts.
+  - **Visualizations**: Interactive charts for principal vs. interest analysis.
 
 - **Personal & Project Finance**:
   - Income and expense tracking.
@@ -73,15 +81,16 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 
 The project features a robust test suite using **PHPUnit** for the backend.
 
-- **Coverage**: 206 automated tests.
+- **Coverage**: 214 automated tests.
 - **Tested Areas**:
   - Authentication and authorization.
   - CRUD for projects, accounts, and categories.
   - API Flows (Profile, Projects, Finance).
   - Security validations and file uploads.
+  - **Financial Calculator Logic & API**.
 - **Execution**:
   ```bash
-  php artisan test
+  ./vendor/bin/sail test
   ```
 
 ---
@@ -111,20 +120,20 @@ Complete documentation is available in **English** and **Spanish**:
 
 | Language | Link | Contents |
 | :--- | :--- | :--- |
-| 🇬🇧 **English** | [`/docs/public/en/`](./docs/public/en/README.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
-| 🇪🇸 **Spanish** | [`/docs/public/es/`](./docs/public/es/README.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
+| 🇬🇧 **English** | [`/docs/private/en/`](./docs/private/en/01-core/INDEX.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
+| 🇪🇸 **Spanish** | [`/docs/private/es/`](./docs/private/es/01-core/INDEX.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
 
 ### Quick Navigation
 
 **For Developers:**
-- ✅ [Installation Guide](./docs/public/en/02-development/INSTALLATION.md) (English)
-- ✅ [Guía de Instalación](./docs/public/es/02-development/INSTALLATION.md) (Spanish)
-- 📖 [API Documentation](./docs/public/en/02-development/API.md) (English)
-- 📖 [Documentación de API](./docs/public/es/02-development/API.md) (Spanish)
+- ✅ [Installation Guide](./docs/private/en/02-development/INSTALLATION.md) (English)
+- ✅ [Guía de Instalación](./docs/private/es/02-development/INSTALLATION.md) (Spanish)
+- 📖 [API Documentation](./docs/private/en/02-development/API.md) (English)
+- 📖 [Documentación de API](./docs/private/es/02-development/API.md) (Spanish)
 
 **For QA & Testing:**
-- 🧪 [Testing Architecture](./docs/public/en/04-testing/TESTING_ARCHITECTURE.md) (English)
-- 🧪 [Arquitectura de Testing](./docs/public/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
+- 🧪 [Testing Architecture](./docs/private/en/04-testing/TESTING_ARCHITECTURE.md) (English)
+- 🧪 [Arquitectura de Testing](./docs/private/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
 
 ---
 
@@ -158,7 +167,7 @@ The project is easily runnable using Docker and Laravel Sail.
     ```
 4.  **Verify Quality Gate:**
     ```bash
-    # This must return 206 tests passing with a green output.
-    ./vendor/bin/sail artisan test --testdox
+    # This must return 214 tests passing with a green output.
+    ./vendor/bin/sail test
     ```
 * **Application URL**: `http://localhost`

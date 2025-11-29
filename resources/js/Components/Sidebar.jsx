@@ -12,6 +12,7 @@ import { getThemeStyle } from '@/Utils/themeStyles';
 export default function Sidebar({ user, className = '', collapsed = false, project = null }) {
     const { t } = useTranslate();
     const { theme, isDark } = useGlobalTheme();
+    const enabledTools = user?.enabled_tools || [];
 
     const renderGlobalMenu = () => (
         <>
@@ -20,7 +21,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {!collapsed && t('dashboard.title')}
             </ResponsiveNavLink>
 
-            <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
+            <ResponsiveNavLink href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
                 <PuzzleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('dashboard.marketplace', 'Mercado')}
             </ResponsiveNavLink>
@@ -34,15 +35,19 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
             )}
             {collapsed && <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>}
 
-            <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
-                <CalendarIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                {!collapsed && t('dashboard.calendar', 'Calendario')}
-            </ResponsiveNavLink>
+            {enabledTools.includes('calendar') && (
+                <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
+                    <CalendarIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                    {!collapsed && t('dashboard.calendar', 'Calendario')}
+                </ResponsiveNavLink>
+            )}
 
-            <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
-                <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
-            </ResponsiveNavLink>
+            {enabledTools.includes('financial-calculator') && (
+                <ResponsiveNavLink href={route('tools.calculator')} active={route().current('tools.calculator')} collapsed={collapsed}>
+                    <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                    {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
+                </ResponsiveNavLink>
+            )}
         </>
     );
 
@@ -148,7 +153,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {/* Global Tools Section (Accessible from Project) */}
                 <div className="border-t border-gray-200 dark:border-gray-700 my-4 opacity-50"></div>
 
-                <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
+                <ResponsiveNavLink href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
                     <PuzzleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                     {!collapsed && t('dashboard.marketplace', 'Mercado')}
                 </ResponsiveNavLink>
@@ -162,15 +167,19 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 )}
                 {collapsed && <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>}
 
-                <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
-                    <CalendarIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                    {!collapsed && t('dashboard.calendar', 'Calendario')}
-                </ResponsiveNavLink>
+                {enabledTools.includes('calendar') && (
+                    <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
+                        <CalendarIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && t('dashboard.calendar', 'Calendario')}
+                    </ResponsiveNavLink>
+                )}
 
-                <ResponsiveNavLink as="button" disabled className="opacity-50 cursor-not-allowed" collapsed={collapsed}>
-                    <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                    {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
-                </ResponsiveNavLink>
+                {enabledTools.includes('financial-calculator') && (
+                    <ResponsiveNavLink href={route('tools.calculator')} active={route().current('tools.calculator')} collapsed={collapsed}>
+                        <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
+                    </ResponsiveNavLink>
+                )}
             </>
         );
     };
