@@ -2,6 +2,10 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import SecondaryLink from '@/Components/SecondaryLink';
 
 export default function ForgotPassword({ status }) {
     const { t } = useTranslate();
@@ -21,32 +25,31 @@ export default function ForgotPassword({ status }) {
             </div>
 
             {status && (
-                <div className="mb-6 p-4 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded-lg">
+                <div className="mb-6 p-4 text-sm font-medium text-success-600 bg-success-50 dark:bg-success-900/20 dark:text-success-400 rounded-lg">
                     {status}
                 </div>
             )}
 
             <form onSubmit={submit} className="space-y-6">
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('auth.email')}
-                    </label>
-                    <input
+                    <InputLabel htmlFor="email" value={t('auth.email')} />
+                    <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        autoComplete="email"
-                        autoFocus
+                        className="mt-1 block w-full"
+                        isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
-                        required
                     />
-                    {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.email}</p>}
+                    <InputError message={errors.email} className="mt-1" />
                 </div>
 
-                <div className="flex items-center justify-center mt-4 space-x-4">
-                    <PrimaryButton className="justify-center !px-2 !py-1" disabled={processing}>
+                <div className="flex items-center justify-end mt-4 space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
+                    <PrimaryButton className="ml-4" disabled={processing}>
                         {processing ? (
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -55,16 +58,13 @@ export default function ForgotPassword({ status }) {
                         ) : null}
                         {t('auth.email_password_reset_link')}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
             </form>
 
             <div className="mt-4 text-center">
                 <Link
                     href={route('login')}
-                    className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 hover:underline"
+                    className="text-sm text-primary-600 hover:text-primary-500 dark:text-primary-400 hover:underline"
                 >
                     {t('auth.back_to_login')}
                 </Link>

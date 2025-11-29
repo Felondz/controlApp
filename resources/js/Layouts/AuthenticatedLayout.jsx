@@ -87,7 +87,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                     >
                                         {user.profile_photo_url ? (
                                             <img
-                                                className="h-8 w-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                                                className="h-8 w-8 rounded-full object-cover border-2 border-primary-600 dark:border-primary-400"
                                                 src={user.profile_photo_url}
                                                 alt={user.name}
                                             />

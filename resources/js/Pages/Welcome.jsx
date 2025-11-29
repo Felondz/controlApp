@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 
 import ThemeToggle from '@/Components/ThemeToggle';
+import Dropdown from '@/Components/Dropdown';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const { t } = useTranslate();
@@ -27,6 +28,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     </span>
                 </div>
                 <nav className="flex items-center space-x-6">
+                    <Link
+                        href={route('docs.index')}
+                        className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-150"
+                    >
+                        {t('common.documentation')}
+                    </Link>
+
                     <ThemeToggle />
                     {auth.user ? (
                         <Link

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.4] - 2025-11-29
+
+### Added
+- **Components**: Created reusable `Alert` component (`resources/js/Components/Alert.jsx`) for standardized information, warning, success, and error messages.
+- **Icons**: Added `InfoIcon` to `Icons.jsx`.
+
+### Changed
+- **Documentation Hub**:
+  - Refactored `DevDocs.jsx` to use the new `Alert` component for security notes.
+  - Updated `Hub.jsx` to use specific `info` colors for the Developer card, ensuring visual distinction without affecting the global theme.
+- **Theme**: Reverted `secondary` color in `tailwind.config.js` to `colors.gray` to fix dark mode background issues.
+- **Welcome Page**: Improved "Documentation" link hover style to use `primary` color for better visibility.
+
+## [1.2.3] - 2025-11-29
+
+### Changed
+- **Auth UI**: Refactored all authentication views (`Login`, `Register`, `ForgotPassword`, etc.) to use the project's semantic color system (`primary`, `success`, `danger`) instead of hardcoded colors.
+- **Components**: Replaced hardcoded HTML elements (`input`, `label`) in auth views with reusable React components (`TextInput`, `InputLabel`).
+- **Styling**: Fixed disproportionate button sizes in auth forms by introducing `SecondaryLink` for "Cancel" actions, matching `PrimaryButton` dimensions.
+
+### Added
+- **SecondaryLink**: New component for rendering links with `SecondaryButton` styling.
+
 ## [1.2.2] - 2025-11-28
 
 ### Fixed

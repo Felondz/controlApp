@@ -105,24 +105,26 @@ The project features a robust test suite using **PHPUnit** for the backend.
 
 ## 📚 Documentation
 
+> **Security Note**: Detailed technical documentation is only shared with verified collaborators.
+
 Complete documentation is available in **English** and **Spanish**:
 
 | Language | Link | Contents |
 | :--- | :--- | :--- |
-| 🇬🇧 **English** | [`/docs/en/`](./docs/en/README.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
-| 🇪🇸 **Spanish** | [`/docs/es/`](./docs/es/README.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
+| 🇬🇧 **English** | [`/docs/public/en/`](./docs/public/en/README.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
+| 🇪🇸 **Spanish** | [`/docs/public/es/`](./docs/public/es/README.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
 
 ### Quick Navigation
 
 **For Developers:**
-- ✅ [Installation Guide](./docs/en/02-development/INSTALLATION.md) (English)
-- ✅ [Guía de Instalación](./docs/es/02-development/INSTALLATION.md) (Spanish)
-- 📖 [API Documentation](./docs/en/02-development/API.md) (English)
-- 📖 [Documentación de API](./docs/es/02-development/API.md) (Spanish)
+- ✅ [Installation Guide](./docs/public/en/02-development/INSTALLATION.md) (English)
+- ✅ [Guía de Instalación](./docs/public/es/02-development/INSTALLATION.md) (Spanish)
+- 📖 [API Documentation](./docs/public/en/02-development/API.md) (English)
+- 📖 [Documentación de API](./docs/public/es/02-development/API.md) (Spanish)
 
 **For QA & Testing:**
-- 🧪 [Testing Architecture](./docs/en/04-testing/TESTING_ARCHITECTURE.md) (English)
-- 🧪 [Arquitectura de Testing](./docs/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
+- 🧪 [Testing Architecture](./docs/public/en/04-testing/TESTING_ARCHITECTURE.md) (English)
+- 🧪 [Arquitectura de Testing](./docs/public/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
 
 ---
 
