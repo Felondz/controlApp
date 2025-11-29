@@ -34,6 +34,16 @@
 
 ## Form Components
 
+### SecondaryLink
+- **Path**: `resources/js/Components/SecondaryLink.jsx`
+- **Description**: A link component (Inertia `Link`) with the same visual style as a `SecondaryButton`. Ideal for secondary navigation actions (e.g., "Cancel") alongside primary buttons.
+- **Usage**:
+  ```jsx
+  <SecondaryLink href={route('home')}>
+      Cancel
+  </SecondaryLink>
+  ```
+
 ### ImageUploader
 - **Path**: `resources/js/Components/ImageUploader.jsx`
 - **Description**: Reusable component for uploading and previewing images, supporting different shapes and validations.

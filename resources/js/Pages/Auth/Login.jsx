@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import SecondaryLink from '@/Components/SecondaryLink';
 import { useTranslate } from '@/Hooks/useTranslate';
 import AuthLayout from '@/Layouts/AuthLayout';
 import InputError from '@/Components/InputError';
@@ -26,7 +27,7 @@ export default function Login({ status, canResetPassword }) {
     return (
         <AuthLayout title={t('auth.login')}>
             {status && (
-                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm rounded-md">
+                <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
                     {status}
                 </div>
             )}
@@ -54,7 +55,7 @@ export default function Login({ status, canResetPassword }) {
                         {canResetPassword && (
                             <Link
                                 href={route('password.request')}
-                                className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
+                                className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
                             >
                                 {t('auth.forgot_password')}
                             </Link>
@@ -84,9 +85,12 @@ export default function Login({ status, canResetPassword }) {
                     </span>
                 </div>
 
-                <div className="mt-6 flex items-center space-x-4">
+                <div className="mt-6 flex items-center justify-end space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
                     <PrimaryButton
-                        className="flex-1"
+                        className="ml-4"
                         disabled={processing}
                     >
                         {processing ? (
@@ -101,14 +105,11 @@ export default function Login({ status, canResetPassword }) {
                             t('auth.login_button')
                         )}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
             </form>
             <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
                 {t('auth.dont_have_account')}{' '}
-                <Link href={route('register')} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium">
+                <Link href={route('register')} className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium">
                     {t('auth.register')}
                 </Link>
             </div>

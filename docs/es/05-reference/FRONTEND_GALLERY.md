@@ -34,6 +34,16 @@
 
 ## Componentes de Formulario
 
+### SecondaryLink
+- **Ruta**: `resources/js/Components/SecondaryLink.jsx`
+- **Descripción**: Un componente de enlace (`Link` de Inertia) con el mismo estilo visual que un `SecondaryButton`. Ideal para acciones de navegación secundarias (ej. "Cancelar") junto a botones primarios.
+- **Uso**:
+  ```jsx
+  <SecondaryLink href={route('home')}>
+      Cancelar
+  </SecondaryLink>
+  ```
+
 ### ImageUploader
 - **Ruta**: `resources/js/Components/ImageUploader.jsx`
 - **Descripción**: Componente reutilizable para cargar y previsualizar imágenes, con soporte para diferentes formas y validaciones.

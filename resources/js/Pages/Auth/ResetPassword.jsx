@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import SecondaryLink from '@/Components/SecondaryLink';
 
 export default function ResetPassword({ token, email, status }) {
     const [validationError, setValidationError] = useState(null);
@@ -30,13 +34,13 @@ export default function ResetPassword({ token, email, status }) {
     if (validationError) {
         return (
             <AuthLayout title={t('auth.reset_password_title')}>
-                <div className="p-4 text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg">
+                <div className="p-4 text-danger-600 bg-danger-50 dark:bg-danger-900/20 dark:text-danger-400 rounded-lg">
                     {validationError}
                 </div>
                 <div className="mt-4 text-center">
                     <Link
                         href={route('password.request')}
-                        className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 text-sm font-medium"
+                        className="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium"
                     >
                         {t('auth.request_new_password')}
                     </Link>
@@ -52,63 +56,58 @@ export default function ResetPassword({ token, email, status }) {
             </p>
 
             {status && (
-                <div className="mb-6 p-4 text-sm font-medium text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded-lg">
+                <div className="mb-6 p-4 text-sm font-medium text-success-600 bg-success-50 dark:bg-success-900/20 dark:text-success-400 rounded-lg">
                     {status}
                 </div>
             )}
 
             <form onSubmit={submit} className="space-y-6">
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('auth.email')}
-                    </label>
-                    <input
+                    <InputLabel htmlFor="email" value={t('auth.email')} />
+                    <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full"
                         disabled
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('auth.new_password')}
-                    </label>
-                    <input
+                    <InputLabel htmlFor="password" value={t('auth.new_password')} />
+                    <TextInput
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full"
                         autoComplete="new-password"
-                        autoFocus
+                        isFocused={true}
                         onChange={(e) => setData('password', e.target.value)}
-                        required
                     />
-                    {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.password}</p>}
+                    <InputError message={errors.password} className="mt-1" />
                 </div>
 
                 <div>
-                    <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {t('auth.confirm_password')}
-                    </label>
-                    <input
+                    <InputLabel htmlFor="password_confirmation" value={t('auth.confirm_password')} />
+                    <TextInput
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        className="mt-1 block w-full"
                         autoComplete="new-password"
                         onChange={(e) => setData('password_confirmation', e.target.value)}
-                        required
                     />
-                    {errors.password_confirmation && <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.password_confirmation}</p>}
+                    <InputError message={errors.password_confirmation} className="mt-1" />
                 </div>
 
-                <div className="flex items-center mt-4 space-x-4">
-                    <PrimaryButton className="flex-1 justify-center" disabled={processing}>
+                <div className="flex items-center justify-end mt-4 space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
+                    <PrimaryButton className="ml-4" disabled={processing}>
                         {processing ? (
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -117,9 +116,6 @@ export default function ResetPassword({ token, email, status }) {
                         ) : null}
                         {t('auth.reset_password_submit')}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
             </form>
         </AuthLayout>

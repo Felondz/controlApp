@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import AuthLayout from '@/Layouts/AuthLayout';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryLink from '@/Components/SecondaryLink';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -19,15 +20,18 @@ export default function VerifyEmail({ status }) {
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm rounded-md">
+                <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
                     {t('auth.verification_link_sent')}
                 </div>
             )}
 
             <form onSubmit={submit} className="space-y-4">
-                <div className="mt-6 flex items-center space-x-4">
+                <div className="mt-6 flex items-center justify-end space-x-4">
+                    <SecondaryLink href="/">
+                        {t('auth.cancel')}
+                    </SecondaryLink>
                     <PrimaryButton
-                        className="flex-1 justify-center"
+                        className="ml-4"
                         disabled={processing}
                     >
                         {processing ? (
@@ -42,15 +46,12 @@ export default function VerifyEmail({ status }) {
                             t('auth.resend_verification')
                         )}
                     </PrimaryButton>
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-200">
-                        {t('auth.cancel')}
-                    </Link>
                 </div>
 
                 <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
                     <Link
                         href={route('login')}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium"
+                        className="text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300 font-medium"
                     >
                         {t('auth.back_to_login')}
                     </Link>
