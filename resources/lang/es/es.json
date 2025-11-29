@@ -95,7 +95,15 @@
         "test_mode_banner": "Este sitio está en modo de pruebas. Toda la información es borrada periódicamente.",
         "new_password": "Nueva contraseña",
         "reset_password_instructions": "Por favor ingresa tu nueva contraseña a continuación.",
-        "sending": "Enviando..."
+        "sending": "Enviando...",
+        "email_not_verified": "Tu email no ha sido verificado",
+        "check_inbox": "Revisa tu bandeja de entrada para verificar tu cuenta",
+        "resend_verification_email": "Reenviar email de verificación",
+        "verification_sent": "Email de verificación enviado",
+        "already_verified": "Este email ya está verificado",
+        "show_password": "Mostrar contraseña",
+        "hide_password": "Ocultar contraseña",
+        "verification_email_sent": "Se ha enviado un nuevo email de verificación a tu correo"
     },
     "categories": {
         "title": "Categorías",

@@ -39,9 +39,14 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        \Illuminate\Support\Facades\Log::info('LoginRequest: Start. Auth::check() = ' . (Auth::check() ? 'TRUE' : 'FALSE'));
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = $this->only('email', 'password');
+
+        // 1. Validar credenciales sin iniciar sesión
+        if (!Auth::validate($credentials)) {
+            \Illuminate\Support\Facades\Log::info('LoginRequest: Credentials validation failed');
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -49,12 +54,29 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Verificar que el email esté verificado
-        if (! Auth::user()->hasVerifiedEmail()) {
-            Auth::logout();
-            
+        // 2. Obtener usuario para verificar status de email
+        // Usamos el proveedor de autenticación para ser agnósticos del modelo
+        $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+        \Illuminate\Support\Facades\Log::info('LoginRequest: User retrieved: ' . ($user ? $user->email : 'NONE'));
+
+        // 3. Verificar si el email está verificado
+        if ($user && !$user->hasVerifiedEmail()) {
+            \Illuminate\Support\Facades\Log::info('LoginRequest: User email NOT verified. Throwing exception.');
+
             throw ValidationException::withMessages([
                 'email' => 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+            ]);
+        }
+
+        \Illuminate\Support\Facades\Log::info('LoginRequest: User email IS verified. Attempting login.');
+
+        // 4. Si todo está bien, iniciamos sesión
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
             ]);
         }
 
@@ -68,7 +90,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -89,6 +111,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

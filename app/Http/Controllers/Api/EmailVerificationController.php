@@ -70,4 +70,41 @@ class EmailVerificationController extends Controller
             'message' => 'Enlace de verificación enviado a tu email.'
         ]);
     }
+
+    /**
+     * Reenvía el enlace de verificación de email (endpoint público).
+     * No requiere autenticación - el usuario puede reenviar sin estar logueado.
+     * POST /api/email/resend-verification
+     */
+    public function resend(Request $request)
+    {
+        // 1. Validar que el email existe
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ]);
+
+        // 2. Buscar el usuario
+        $user = User::where('email', $request->email)->first();
+
+        // 3. Verificar si ya está verificado
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Este email ya está verificado.'
+            ], 422);
+        }
+
+        // 4. SEGURIDAD: Resetear email_verified_at a null
+        // Esto invalida cualquier hash anterior porque el hash se calcula con sha1(email)
+        // y Laravel verifica que email_verified_at sea null antes de marcar como verificado
+        $user->email_verified_at = null;
+        $user->save();
+
+        // 5. Enviar nuevo email de verificación (con nuevo hash)
+        $user->sendEmailVerificationNotification();
+
+        // 6. Devolver respuesta
+        return response()->json([
+            'message' => 'Email de verificación enviado. Revisa tu bandeja de entrada.'
+        ]);
+    }
 }

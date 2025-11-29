@@ -4,6 +4,7 @@ import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import PasswordInput from '@/Components/PasswordInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import SecondaryLink from '@/Components/SecondaryLink';
@@ -76,29 +77,29 @@ export default function ResetPassword({ token, email, status }) {
 
                 <div>
                     <InputLabel htmlFor="password" value={t('auth.new_password')} />
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                         isFocused={true}
                         onChange={(e) => setData('password', e.target.value)}
+                        error={errors.password}
                     />
                     <InputError message={errors.password} className="mt-1" />
                 </div>
 
                 <div>
                     <InputLabel htmlFor="password_confirmation" value={t('auth.confirm_password')} />
-                    <TextInput
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         name="password_confirmation"
                         value={data.password_confirmation}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
                         onChange={(e) => setData('password_confirmation', e.target.value)}
+                        error={errors.password_confirmation}
                     />
                     <InputError message={errors.password_confirmation} className="mt-1" />
                 </div>

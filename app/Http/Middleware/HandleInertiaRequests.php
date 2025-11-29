@@ -53,6 +53,9 @@ class HandleInertiaRequests extends Middleware
             // Compartir las traducciones como prop global
             'locale' => $locale,
             'translations' => $translations,
+            'old' => function () use ($request) {
+                return $request->session()->getOldInput();
+            },
         ];
     }
 

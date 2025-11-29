@@ -3,6 +3,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryLink from '@/Components/SecondaryLink';
 import TextInput from '@/Components/TextInput';
+import PasswordInput from '@/Components/PasswordInput';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
@@ -30,14 +31,14 @@ export default function ConfirmPassword() {
             <form onSubmit={submit} className="space-y-4">
                 <div>
                     <InputLabel htmlFor="password" value={t('auth.password')} />
-                    <TextInput
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
                         isFocused={true}
                         onChange={(e) => setData('password', e.target.value)}
+                        error={errors.password}
                         required
                         autoComplete="current-password"
                     />
