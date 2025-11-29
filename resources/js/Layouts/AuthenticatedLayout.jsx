@@ -223,12 +223,15 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                             </div>
                         </header>
                     )}
-                    <div className="py-6">
+                    <div className="py-6 pb-20 md:pb-6">
                         <div className="w-full px-4 sm:px-6 lg:px-8">
                             {children}
                         </div>
                     </div>
                 </main>
+
+                {/* Mobile Bottom Navigation */}
+                <BottomNavigation user={user} project={project} />
             </div >
         </div >
     );

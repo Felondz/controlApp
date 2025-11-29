@@ -37,7 +37,7 @@ export default function Dashboard({ auth, proyectos = [] }) {
             {/* Floating Action Button (FAB) */}
             <Link
                 href={route('mis-proyectos.create')}
-                className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 p-3 md:p-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-40 p-3 md:p-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 aria-label={t('projects.create')}
             >
                 <PlusIcon className="h-5 w-5 md:h-6 md:w-6" />
