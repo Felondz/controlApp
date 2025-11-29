@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\FinanzasPersonalesController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\CalculatorController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -67,7 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Usuario: Preferencias y Perfil ---
     Route::put('/user/locale', [UserController::class, 'updateLocale']);
-    
+
     // Perfil (Sincronizado con Web)
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::put('/password', [ProfileController::class, 'updatePassword']);
@@ -115,4 +116,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/finanzas-personales/transacciones', [FinanzasPersonalesController::class, 'transacciones']);
     Route::get('/finanzas-personales/cuentas', [FinanzasPersonalesController::class, 'cuentas']);
     Route::get('/finanzas-personales/categorias', [FinanzasPersonalesController::class, 'categorias']);
+
+    // --- Herramientas ---
+    Route::get('/tools', [App\Http\Controllers\Api\ToolController::class, 'index']);
+    Route::post('/tools/toggle', [App\Http\Controllers\Api\ToolController::class, 'toggle']);
+    Route::post('/tools/calculator/calculate', [CalculatorController::class, 'calculate']);
 });
