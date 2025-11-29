@@ -7,6 +7,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2025-11-29
+
+### Added
+- **Mobile & Tablet Responsive Design**:
+  - Comprehensive responsive design implementation across all major views
+  - Bottom navigation bar for mobile devices (< 768px)
+  - Project-aware navigation showing context-specific items
+  - Proper breakpoint handling (mobile < 768px, tablet 768-1024px, desktop > 1024px)
+  - Hamburger menu for Welcome page on mobile devices
+- **Icons**:
+  - `MenuIcon` - Hamburger menu icon for mobile navigation
+  - `XIcon` - Close icon for mobile menu
+  - `LoginIcon` - Login icon for mobile authentication button
+  - `UserPlusIcon` - Register icon for mobile authentication button
+
+### Changed
+- **BottomNavigation Component**:
+  - Modernized to use CSS variables directly (`text-primary-600 dark:text-primary-400`)
+  - Removed dependency on `navStyles.js` helper function
+  - Added dynamic navigation based on context (global vs project)
+  - Now accepts `user` and `project` props for context-aware navigation
+  - Flexible grid layout (3-4 columns based on navigation items)
+  - Smart route matching with `matchRoutes` for accurate active states
+- **AuthenticatedLayout**:
+  - Added `BottomNavigation` rendering for mobile devices
+  - Added bottom padding (`pb-20 md:pb-6`) to main content to prevent overlap with bottom navigation
+- **Welcome Page**:
+  - Made header fully responsive for mobile devices
+  - Added icon-only buttons for Login/Register on mobile (LoginIcon and UserPlusIcon)
+  - ThemeToggle now always visible on mobile (moved from dropdown)
+  - Hamburger menu uses theme-aware colors (`text-primary-600 dark:text-primary-400`)
+  - Mobile menu simplified to show only documentation link
+  - Improved spacing with `space-x-2` for better icon alignment
+  - All icons now use consistent theme colors
+  - Improved logo sizing for mobile (`text-xl sm:text-2xl`)
+- **Dashboard**:
+  - Adjusted FAB (Floating Action Button) position from `bottom-4` to `bottom-20` on mobile
+  - Changed FAB z-index from `z-50` to `z-40` (bottom nav is `z-50`)
+- **Projects/Show**:
+  - Removed excessive `py-12` wrapper for better mobile spacing
+  - Updated grid spacing from `gap-6` to `gap-4 md:gap-6`
+  - Simplified structure for better mobile rendering
+- **Projects/Edit**:
+  - Made forms fully responsive with single column on mobile
+  - Updated card padding from `p-6` to `p-4 sm:p-6`
+  - Changed theme selector grid from `grid-cols-3` to `grid-cols-2 sm:grid-cols-3`
+  - Updated theme text size from `text-sm` to `text-xs sm:text-sm`
+- **Financial Calculator**:
+  - Made header fully responsive with vertical stacking on mobile
+  - Updated title size from `text-2xl` to `text-xl sm:text-2xl`
+  - Updated subtitle size from `text-sm` to `text-xs sm:text-sm`
+  - Changed layout to stack controls vertically on mobile
+  - Made toggle full-width on mobile with `flex-1`
+  - Made export button full-width on mobile `w-full sm:w-auto`
+  - Updated content padding from `p-8` to `p-4 sm:p-8`
+  - Adjusted min-height from `min-h-[600px]` to `min-h-[400px] sm:min-h-[600px]`
+
+### Technical Details
+- All responsive changes follow mobile-first approach
+- Consistent use of Tailwind CSS breakpoints (`sm:`, `md:`, `lg:`)
+- No breaking changes to existing functionality
+- All views maintain theme system integration
+- Build successful with no errors
+
+---
+
 ## [1.3.1] - 2025-11-29
 
 ### Added

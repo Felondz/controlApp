@@ -157,31 +157,45 @@ export default function FinancialCalculator({ auth }) {
 
             <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-sans selection:bg-primary-500/30">
                 {/* Header & Toggle */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-4 sm:pb-6">
+                    <div className="flex flex-col gap-4">
+                        {/* Title Section */}
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
                                 <CalculatorIcon className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400">
+                                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-primary-600 dark:text-primary-400">
                                     {t('dashboard.calculator', 'Calculadora Financiera')}
                                 </h1>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                                <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
                                     {t('calculator.subtitle', 'Proyecta tus créditos con precisión')}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        {/* Controls Section */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                            {/* Mode Toggle Switch */}
+                            <div className="flex-1">
+                                <ToggleGroup
+                                    value={mode}
+                                    onChange={setMode}
+                                    options={[
+                                        { label: t('calculator.basic_mode', 'Básico'), value: 'basic' },
+                                        { label: t('calculator.advanced_mode', 'Avanzado'), value: 'advanced' },
+                                    ]}
+                                />
+                            </div>
+
                             {/* Export Dropdown */}
                             {results && (
                                 <Dropdown>
                                     <Dropdown.Trigger>
-                                        <span className="inline-flex rounded-md">
+                                        <span className="inline-flex rounded-md w-full sm:w-auto">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 focus:outline-none transition ease-in-out duration-150"
+                                                className="w-full sm:w-auto inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 focus:outline-none transition ease-in-out duration-150"
                                             >
                                                 {t('common.export', 'Exportar')}
                                                 <ChevronDownIcon className="ml-2 -mr-0.5 h-4 w-4" />
@@ -207,23 +221,13 @@ export default function FinancialCalculator({ auth }) {
                                     </Dropdown.Content>
                                 </Dropdown>
                             )}
-
-                            {/* Mode Toggle Switch */}
-                            <ToggleGroup
-                                value={mode}
-                                onChange={setMode}
-                                options={[
-                                    { label: t('calculator.basic_mode', 'Modo Básico'), value: 'basic' },
-                                    { label: t('calculator.advanced_mode', 'Avanzado'), value: 'advanced' },
-                                ]}
-                            />
                         </div>
                     </div>
                 </div>
 
                 {/* Main Content Area */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-                    <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-gray-700/50 shadow-xl overflow-hidden min-h-[600px] p-8 relative">
+                    <div className="bg-white dark:bg-gray-800/50 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-gray-700/50 shadow-xl overflow-hidden min-h-[400px] sm:min-h-[600px] p-4 sm:p-8 relative">
                         {loading && (
                             <div className="absolute top-4 right-4 z-50">
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
