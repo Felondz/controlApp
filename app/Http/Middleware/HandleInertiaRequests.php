@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() ? [
                     ...$request->user()->toArray(),
                     'global_theme' => $request->user()->global_theme ?? 'purple-modern',
+                    'enabled_tools' => $request->user()->enabled_tools ?? [],
                 ] : null,
             ],
             // Compartir las traducciones como prop global

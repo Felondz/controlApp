@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2025-11-29
+
+### Added
+- **Tools API**:
+  - `Api/ToolController` with `index` and `toggle` methods for managing user tool preferences via API.
+  - `GET /api/tools`: Returns list of available tools with translation keys and enabled status.
+  - `POST /api/tools/toggle`: Enables/disables tools for authenticated users.
+- **Tests**:
+  - `Feature/Api/ToolTest` for Tools API endpoints.
+- **Translations**:
+  - Added `common.language` and related keys to `en.json` for language selection UI.
+  - Synchronized missing sections between `es.json` and `en.json` (`calculator`, `currency`, `preferences`, `docs`, `finance`).
+
+### Changed
+- **Financial Calculator UI**:
+  - Updated `QuantityInput` component to use semantic theme colors (`text-primary-600`) for +/- buttons.
+  - Updated calculator title to use theme colors (`text-primary-600 dark:text-primary-400`).
+  - Updated `InputGroup` suffix (%) to use theme colors with bold styling.
+
+---
+
+## [1.3.0] - 2025-11-29
+
+### Added
+- **Financial Calculator**:
+  - **Backend**: `FinancialCalculatorService` for reusable loan logic (Amortization, Interest, Rates).
+  - **API**: `POST /api/tools/calculator/calculate` endpoint for external integrations.
+  - **Frontend**: `FinancialCalculator.jsx` tool with Basic (Visual) and Advanced (Detailed) modes.
+  - **Export**: Ability to export amortization tables to **CSV** and **PDF** (including charts).
+- **Tests**:
+  - Unit tests for `FinancialCalculatorService`.
+  - Feature tests for Calculator API endpoint.
+
+### Changed
+- **PDF Export**: Optimized layout for compact reports and fixed chart rendering issues in Dark Mode.
+- **Workflows**: Updated `tests.yml` to include `bcmath`, `dom`, `xml`, and `gd` extensions for PDF generation support.
+
 ## [1.2.4] - 2025-11-29
 
 ### Added
@@ -130,11 +167,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ 136 translation keys synchronized (Spanish and English)
 - ✅ Tests: `UserLocaleApiTest` with full coverage
 
-#### Audit and Diagnosis
-- ✅ Full audit of all API controllers (12 reviewed)
-- ✅ Identification of incomplete CRUDs and their status
-- ✅ Exhaustive technical debt documentation (45+ tasks)
-- ✅ Categorization by priority (HIGH, MEDIUM-HIGH, MEDIUM, LOW)
+#### Codebase Audit
+- ✅ Comprehensive audit of API controllers and CRUD operations.
+- ✅ Identification and documentation of technical improvements.
 
 #### Validation Fixes
 - ✅ Removed invalid `'uppercase'` rule in `StoreProyectoRequest`
@@ -166,16 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🔧 IDE cache errors: false diagnostics disabled
 - 🔧 Desynchronized translation: both languages now have 136 keys
 
-### To Do
 
-- 📋 Complete `ProyectoMiembroController` (missing store/show)
-- 📋 Create UPDATE Form Requests for Project, Account, Category
-- 📋 Complete `ProyectoUiWebController` web (missing index/edit/update/destroy)
-- 📋 Complete `ProjectAccountUiWebController` web
-- 📋 Create `TransaccionUiWebController`
-- 📋 Create `CategoriaUiWebController`
-- 📋 Implement `SuperAdminOnly` middleware
-- 📋 See session documentation: `docs/sessions/2025-11-19.md`
 
 ---
 

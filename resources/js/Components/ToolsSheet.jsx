@@ -17,8 +17,8 @@ export default function ToolsSheet({ isOpen, onClose }) {
         {
             name: t('dashboard.calculator', 'Calculadora Financiera'),
             icon: CalculatorIcon,
-            route: 'dashboard', // TODO: Update when calculator is implemented
-            disabled: true,
+            route: 'tools.calculator',
+            disabled: false,
         },
     ];
 
