@@ -16,8 +16,8 @@ export const getResponsiveNavLinkClasses = (themeId, isDark, active, collapsed) 
     const fontWeight = active ? 'font-semibold' : 'font-medium';
 
     // Dynamic classes using CSS variables
-    const activeClasses = 'bg-primary-50/50 dark:bg-primary-900/5 text-primary-600 dark:text-primary-400 border-l-2 border-primary-500 dark:border-primary-400';
-    const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 hover:text-primary-700 dark:hover:text-primary-300 border-l-4 border-transparent hover:border-primary-200 dark:hover:border-primary-800';
+    const activeClasses = 'bg-primary-50/50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 border-l-2 border-primary-500 dark:border-primary-400';
+    const inactiveClasses = 'text-gray-600 dark:text-gray-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-700 dark:hover:text-primary-300 border-l-4 border-transparent hover:border-primary-200 dark:hover:border-primary-600';
 
     const stateClasses = active ? activeClasses : inactiveClasses;
 

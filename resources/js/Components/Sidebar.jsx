@@ -192,7 +192,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
             {project && !collapsed && <div className="h-6"></div>}
 
             {/* Navigation Links */}
-            <nav className="flex-1 px-2 py-6 space-y-2 overflow-y-auto">
+            <nav className="flex-1 px-2 py-6 space-y-2 overflow-y-auto scrollbar-thin">
                 {project ? renderProjectMenu() : renderGlobalMenu()}
             </nav>
 
