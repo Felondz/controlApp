@@ -254,6 +254,7 @@
         "members": "Members",
         "create": "Create Project",
         "edit": "Edit Project",
+        "update": "Update Project",
         "delete": "Delete Project",
         "add_member": "Add Member",
         "remove_member": "Remove Member",
@@ -265,7 +266,18 @@
         "create_new": "Create New",
         "modules": "Active Modules",
         "color": "Color",
-        "icon": "Icon (Emoji)"
+        "icon": "Icon (Emoji)",
+        "image": "Project Image",
+        "theme": "Theme",
+        "typography": "Typography",
+        "general_settings": "General Settings",
+        "general_settings_desc": "Update your project's basic information.",
+        "danger_zone": "Danger Zone",
+        "delete_warning": "Once you delete a project, there is no going back. Please be certain.",
+        "delete_confirmation_title": "Are you sure you want to delete this project?",
+        "delete_confirmation_desc": "This action will permanently delete all associated data, accounts, and transactions. Please enter your password to confirm.",
+        "delete_project": "Delete Project",
+        "no_description": "No description provided."
     },
     "modules": {
         "finance": "Finance",
@@ -284,5 +296,8 @@
         "edit": "Edit Transaction",
         "delete": "Delete Transaction",
         "type": "Type"
+    },
+    "validation": {
+        "checkbox_required": "Please check this box to continue"
     }
 }

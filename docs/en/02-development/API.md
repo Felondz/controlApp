@@ -163,7 +163,7 @@ Uploads or updates the user's profile photo.
 - `Authorization: Bearer <token>`
 
 **Body:**
-- `profile_photo`: Image file (jpg, jpeg, png, webp, gif). Max 3MB.
+- `profile_photo`: Image file (jpg, jpeg, png, webp, gif). Max 4MB.
 
 **Success Response (200 OK):**
 ```json
@@ -218,7 +218,8 @@ Accept: application/json
     {
       "id": 1,
       "name": "Budget 2025",
-      "currency": "COP",
+      "name": "Budget 2025",
+      "moneda_default": "COP",
       "user_id": 1,
       "created_at": "2025-11-15 10:00:00",
       "updated_at": "2025-11-15 10:00:00"
@@ -240,8 +241,18 @@ Accept: application/json
 
 {
   "name": "Quarterly Budget",
-  "currency": "COP"
+  "moneda_default": "COP",
+  "modules": ["finance", "tasks"],
+  "theme": "purple-modern",
+  "typography": "sans",
+  "description": "My quarterly budget plan",
+  "color": "#FF0000",
+  "icon": "💰"
 }
+```
+
+**Note**: To upload an image, use `multipart/form-data`.
+- `image`: File (jpg, jpeg, png, webp). Max 4MB.
 ```
 
 **Response (201)**
@@ -249,7 +260,8 @@ Accept: application/json
 {
   "id": 2,
   "name": "Quarterly Budget",
-  "currency": "COP",
+  "name": "Quarterly Budget",
+  "moneda_default": "COP",
   "user_id": 1,
   "created_at": "2025-11-15 11:30:00",
   "updated_at": "2025-11-15 11:30:00"
@@ -258,7 +270,14 @@ Accept: application/json
 
 **Validation**
 - `name` - Required, string, 3-255 characters
-- `currency` - Required, string exactly 3 characters (ISO 4217), uppercase
+- `moneda_default` - Required, string exactly 3 characters (ISO 4217), uppercase (e.g. COP, USD, EUR)
+- `description` - Optional, string, max 1000 characters
+- `color` - Optional, hex code (e.g. #FF0000)
+- `icon` - Optional, string
+- `theme` - Optional, string (e.g. purple-modern)
+- `typography` - Optional, string (e.g. sans)
+- `modules` - Required, array of strings (e.g. ["finance", "tasks"])
+- `image` - Optional, image file, max 4MB
 
 **Errors**
 - `422` - Validation failed
@@ -280,7 +299,8 @@ Accept: application/json
 {
   "id": 1,
   "name": "Budget 2025",
-  "currency": "COP",
+  "name": "Budget 2025",
+  "moneda_default": "COP",
   "user_id": 1,
   "members": [
     {
@@ -314,7 +334,14 @@ Accept: application/json
 
 {
   "name": "Budget 2025 - Updated",
-  "currency": "MXN"
+  "moneda_default": "MXN",
+  "theme": "dark-blue",
+  "typography": "serif",
+  "modules": ["finance"]
+}
+```
+
+**Note**: To upload a new image, use `POST` with `_method: PUT` and `Content-Type: multipart/form-data`.
 }
 ```
 
@@ -323,7 +350,8 @@ Accept: application/json
 {
   "id": 1,
   "name": "Budget 2025 - Updated",
-  "currency": "MXN",
+  "name": "Budget 2025 - Updated",
+  "moneda_default": "MXN",
   "user_id": 1,
   "updated_at": "2025-11-15 12:00:00"
 }

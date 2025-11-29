@@ -17,16 +17,12 @@ export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', 
 
     const [theme, setTheme] = useState(effectiveTheme);
     const [isDark, setIsDark] = useState(() => {
-        // Check localStorage first
         if (typeof window !== 'undefined') {
             const stored = localStorage.getItem('darkMode');
             if (stored !== null) {
-                console.log('Loading dark mode from localStorage:', stored);
                 return stored === 'true';
             }
-            // Fallback to system preference only if localStorage is empty
             const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            console.log('No localStorage found, using system preference:', systemPreference);
             return systemPreference;
         }
         return false;
@@ -35,33 +31,25 @@ export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', 
     // Sync theme with props changes (or forceTheme changes)
     useEffect(() => {
         if (forceTheme) {
-            console.log('Forcing project theme:', forceTheme);
             setTheme(forceTheme);
         } else if (userTheme && userTheme !== theme) {
-            console.log('Syncing theme from backend:', userTheme);
             setTheme(userTheme);
         }
     }, [userTheme, forceTheme]);
 
     // Apply dark mode class to html element and save to localStorage
     useEffect(() => {
-        console.log('Dark mode changed to:', isDark);
-
         if (isDark) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
-
-        // Save to localStorage
         localStorage.setItem('darkMode', isDark.toString());
-        console.log('Saved to localStorage:', isDark.toString());
     }, [isDark]);
 
     // Apply theme data attribute
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
-        console.log('Applied theme:', theme, 'isDark:', isDark);
     }, [theme, isDark]);
 
     /**
@@ -69,24 +57,20 @@ export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', 
      * Persists to backend via API
      */
     const changeTheme = (newTheme) => {
-        console.log('Changing theme to:', newTheme);
-        setTheme(newTheme); // Update immediately for instant feedback
+        setTheme(newTheme);
 
         router.post(route('preferences.theme.update'), {
             global_theme: newTheme,
         }, {
             preserveScroll: true,
-            preserveState: true, // Keep dark mode state
+            preserveState: true,
             onSuccess: (page) => {
-                console.log('Theme updated successfully');
-                // Sync with the new user data from backend
                 if (page.props.auth?.user?.global_theme) {
                     setTheme(page.props.auth.user.global_theme);
                 }
             },
             onError: (errors) => {
                 console.error('Failed to update theme:', errors);
-                // Revert on error
                 setTheme(userTheme);
             },
         });

@@ -267,7 +267,7 @@ profile_photo: (binary file)
 
 **Validación**:
 - Imagen (jpg, jpeg, png, webp)
-- Máx 3MB
+- Máx 4MB
 - Dimensiones máx 2048x2048
 
 **Response (200)**
@@ -337,7 +337,8 @@ Accept: application/json
     {
       "id": 1,
       "nombre": "Presupuesto 2025",
-      "moneda": "COP",
+      "nombre": "Presupuesto 2025",
+      "moneda_default": "COP",
       "user_id": 1,
       "created_at": "2025-11-15 10:00:00",
       "updated_at": "2025-11-15 10:00:00"
@@ -359,8 +360,18 @@ Accept: application/json
 
 {
   "nombre": "Presupuesto Trimestral",
-  "moneda": "COP"
+  "moneda_default": "COP",
+  "modules": ["finance", "tasks"],
+  "theme": "purple-modern",
+  "typography": "sans",
+  "descripcion": "Mi plan de presupuesto trimestral",
+  "color": "#FF0000",
+  "icon": "💰"
 }
+```
+
+**Nota**: Para subir una imagen, usar `multipart/form-data`.
+- `image`: Archivo (jpg, jpeg, png, webp). Máx 4MB.
 ```
 
 **Response (201)**
@@ -368,7 +379,8 @@ Accept: application/json
 {
   "id": 2,
   "nombre": "Presupuesto Trimestral",
-  "moneda": "COP",
+  "nombre": "Presupuesto Trimestral",
+  "moneda_default": "COP",
   "user_id": 1,
   "created_at": "2025-11-15 11:30:00",
   "updated_at": "2025-11-15 11:30:00"
@@ -377,7 +389,14 @@ Accept: application/json
 
 **Validación** (FormRequest: `StoreProyectoRequest`)
 - `nombre` - Requerido, string, 3-255 caracteres
-- `moneda` - Requerido, string exacto 3 caracteres (ISO 4217), mayúsculas (ej: USD, COP, EUR)
+- `moneda_default` - Requerido, string exacto 3 caracteres (ISO 4217), mayúsculas (ej: USD, COP, EUR)
+- `descripcion` - Opcional, string, máx 1000 caracteres
+- `color` - Opcional, hex code (ej: #FF0000)
+- `icon` - Opcional, string
+- `theme` - Opcional, string (ej: purple-modern)
+- `typography` - Opcional, string (ej: sans)
+- `modules` - Requerido, array de strings (ej: ["finance", "tasks"])
+- `image` - Opcional, imagen (jpg, png, etc), máx 4MB
 
 **Autorización**
 - ✅ Cualquier usuario autenticado puede crear
@@ -402,7 +421,8 @@ Accept: application/json
 {
   "id": 1,
   "nombre": "Presupuesto 2025",
-  "moneda": "COP",
+  "nombre": "Presupuesto 2025",
+  "moneda_default": "COP",
   "user_id": 1,
   "miembros": [
     {
@@ -436,7 +456,14 @@ Accept: application/json
 
 {
   "nombre": "Presupuesto 2025 - Actualizado",
-  "moneda": "MXN"
+  "moneda_default": "MXN",
+  "theme": "dark-blue",
+  "typography": "serif",
+  "modules": ["finance"]
+}
+```
+
+**Nota**: Para subir una nueva imagen, usar `POST` con `_method: PUT` y `Content-Type: multipart/form-data`.
 }
 ```
 
@@ -445,7 +472,8 @@ Accept: application/json
 {
   "id": 1,
   "nombre": "Presupuesto 2025 - Actualizado",
-  "moneda": "MXN",
+  "nombre": "Presupuesto 2025 - Actualizado",
+  "moneda_default": "MXN",
   "user_id": 1,
   "updated_at": "2025-11-15 12:00:00"
 }

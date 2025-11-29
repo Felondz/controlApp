@@ -16,7 +16,7 @@ export default function Dashboard({ auth, proyectos = [] }) {
             header={
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-4">
-                        <h2 className="font-semibold text-xl text-primary-800 dark:text-primary-200 leading-tight">
+                        <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">
                             {t('dashboard.title')}
                         </h2>
                     </div>

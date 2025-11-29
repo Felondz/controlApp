@@ -11,6 +11,10 @@ use Inertia\Inertia;
 Route::resource('mis-proyectos', ProyectoUiWebController::class)
     ->middleware(['auth', 'verified']);
 
+Route::get('mis-proyectos/{mis_proyecto}/finance', [ProyectoUiWebController::class, 'finance'])
+    ->name('mis-proyectos.finance')
+    ->middleware(['auth', 'verified']);
+
 Route::resource('mis-proyectos.cuentas', ProjectAccountUiWebController::class)
     ->only(['create', 'store'])
     ->middleware(['cuentas', 'cuenta']);

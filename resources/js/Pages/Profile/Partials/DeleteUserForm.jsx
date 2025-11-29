@@ -50,7 +50,7 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-primary-800 dark:text-primary-200">
+                <h2 className="text-lg font-medium text-red-600 dark:text-red-400">
                     {t('profile.delete_account', 'Eliminar Cuenta')}
                 </h2>
 

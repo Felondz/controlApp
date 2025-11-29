@@ -86,6 +86,13 @@ Use **Conventional Commits**:
 - **Config**: Use semantic colors (`bg-primary`, `text-danger`) defined in `tailwind.config.js`.
 - **Responsive**: Mobile-first (`w-full md:w-1/2`).
 
+### 5.1 Strict UI/UX Rules
+- **No Hardcoded Text**: ALL user-facing text MUST use `useTranslate` hook or `t()` function.
+- **Theme Adherence**: MUST use `getThemeStyle` or CSS variables (e.g., `text-primary-600`). NEVER hardcode hex colors for main elements.
+- **No Hardcoded Colors**: Do NOT use arbitrary Tailwind colors like `bg-blue-500` or `text-green-600` unless they are semantic (e.g., `success`, `danger`, `warning`, `info`). Use `primary` and `secondary` for branding.
+- **Icon Usage**: MUST use icons from `Icons.jsx`. Do NOT use emojis or raw SVGs in components unless adding them to `Icons.jsx` first.
+- **Images vs Icons**: If a project has an image, it takes precedence over the icon.
+
 ---
 
 ## 6. 🧪 Testing

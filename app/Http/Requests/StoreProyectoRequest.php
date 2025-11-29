@@ -59,18 +59,14 @@ class StoreProyectoRequest extends FormRequest
             'image' => [
                 'nullable',
                 'image',
-                'max:3072', // 3MB
+                'max:4096', // 4MB
             ],
             'theme' => [
                 'nullable',
                 'string',
                 'max:50',
             ],
-            'typography' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
+
             'color' => [
                 'nullable',
                 'string',
@@ -80,7 +76,12 @@ class StoreProyectoRequest extends FormRequest
             'icon' => [
                 'nullable',
                 'string',
-                'max:5',
+                'max:50',
+            ],
+            'typography' => [
+                'nullable',
+                'string',
+                'in:sans,serif,mono,roboto,opensans,lato,montserrat,nunito,raleway,playfair,merriweather',
             ],
         ];
     }

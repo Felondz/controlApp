@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] - 2025-11-28
+
+### Fixed
+- **Critical Crash**: Resolved `BindingResolutionException` in `bootstrap/app.php` caused by an incorrect middleware alias (`verified`).
+- **API Validation**: Restored `StoreProyectoRequest` and `UpdateProyectoRequest` in `ProyectoController` to ensure proper validation for projects.
+- **Test Environment**: Fixed `Facade root has not been set` error by bypassing `ParallelTesting` callbacks in `TestCase.php`.
+- **Tests**:
+  - Updated `ProyectosApiTest` to handle `SoftDeletes` and `UserObserver` side effects.
+  - Fixed `ProfilePhotoTest` assertions by handling stale user instances and ensuring unique filenames.
+  - Updated `ProfilePhotoValidationTest` to reflect the new 4MB upload limit.
+
+## [1.2.1] - 2025-11-28
+
+### Fixed
+- **Project Updates**: Resolved critical bug where project updates failed due to incorrect unique name validation (`mis_proyecto` route parameter).
+- **Image Uploads**: Increased upload limit to 4MB (was 2MB) for both Projects and Profile to accommodate modern image sizes.
+- **Form Submission**: Unified project edit form to always use `POST` with `_method: put` and `forceFormData: true` for consistent file handling.
+
+### Added
+- **Components**: New reusable `ImageUploader` component with support for square/circle shapes and configurable sizes.
+
+### Changed
+- **Profile UI**:
+  - Updated profile photo uploader to match Project style (square, large).
+  - Centered profile edit view (`max-w-4xl`) for consistency with Project views.
+  - Disabled email editing in profile form for security/stability.
+- **Refactoring**: Refactored `Projects/Edit.jsx` and `UpdateProfileInformationForm.jsx` to use the new `ImageUploader` component, removing ~120 lines of duplicated code.
+
 ## [1.2.0] - 2025-11-28
 
 ### Added

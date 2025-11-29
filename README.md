@@ -11,10 +11,10 @@ This status reflects the stability achieved through **Continuous Integration (CI
 | Metric | Value | Status |
 | :--- | :--- | :--- |
 | **Backend Tests** | 206 / 206 | ✅ **100% Stable** |
-| **Total Assertions** | 689+ | ✅ **Robust Coverage** |
+| **Total Assertions** | 677+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.2.0 (Themes & Profile) | ✅ **Stable** |
+| **Backend Version** | v1.2.2 (Stability & Fixes) | ✅ **Stable** |
 | **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
