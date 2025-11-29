@@ -1,12 +1,14 @@
 import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-
+import { useState } from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
 import Dropdown from '@/Components/Dropdown';
+import { MenuIcon, XIcon, LoginIcon, UserPlusIcon } from '@/Components/Icons';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const { t } = useTranslate();
     const currentYear = new Date().getFullYear();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-info-50 to-primary-100 dark:from-secondary-900 dark:to-secondary-800">
@@ -18,48 +20,116 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             </div>
 
             {/* Header */}
-            <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                    <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                        {t('app.name')}
-                    </span>
-                </div>
-                <nav className="flex items-center space-x-6">
-                    <Link
-                        href={route('docs.index')}
-                        className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-150"
-                    >
-                        {t('common.documentation')}
-                    </Link>
+            <header className="container mx-auto px-4 py-6">
+                <div className="flex justify-between items-center">
+                    {/* Logo */}
+                    <div className="flex items-center space-x-2">
+                        <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                            {t('app.name')}
+                        </span>
+                    </div>
 
-                    <ThemeToggle />
-                    {auth.user ? (
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center space-x-6">
                         <Link
-                            href={route('dashboard')}
-                            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                            href={route('docs.index')}
+                            className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-150"
                         >
-                            {t('dashboard.title')}
+                            {t('common.documentation')}
                         </Link>
-                    ) : (
-                        <>
+
+                        <ThemeToggle />
+
+                        {auth.user ? (
                             <Link
-                                href={route('login')}
-                                className="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
-                            >
-                                {t('auth.login')}
-                            </Link>
-                            <Link
-                                href={route('register')}
+                                href={route('dashboard')}
                                 className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
                             >
-                                {t('auth.register')}
+                                {t('dashboard.title')}
                             </Link>
-                        </>
-                    )}
-                </nav>
+                        ) : (
+                            <>
+                                <Link
+                                    href={route('login')}
+                                    className="text-secondary-700 dark:text-secondary-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-200"
+                                >
+                                    {t('auth.login')}
+                                </Link>
+                                <Link
+                                    href={route('register')}
+                                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                                >
+                                    {t('auth.register')}
+                                </Link>
+                            </>
+                        )}
+                    </nav>
+
+                    {/* Mobile Navigation */}
+                    <div className="flex md:hidden items-center space-x-2">
+                        {/* Auth Buttons - Icon Only */}
+                        {auth.user ? (
+                            <Link
+                                href={route('dashboard')}
+                                className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                                title={t('dashboard.title')}
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link
+                                    href={route('login')}
+                                    className="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors duration-200"
+                                    title={t('auth.login')}
+                                >
+                                    <LoginIcon className="w-5 h-5" />
+                                </Link>
+                                <Link
+                                    href={route('register')}
+                                    className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                                    title={t('auth.register')}
+                                >
+                                    <UserPlusIcon className="w-5 h-5" />
+                                </Link>
+                            </>
+                        )}
+
+                        {/* Theme Toggle - Always Visible */}
+                        <ThemeToggle />
+
+                        {/* Hamburger Menu Button */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? (
+                                <XIcon className="h-6 w-6" />
+                            ) : (
+                                <MenuIcon className="h-6 w-6" />
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Menu Dropdown */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <Link
+                            href={route('docs.index')}
+                            className="block py-3 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors duration-150"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            {t('common.documentation')}
+                        </Link>
+                    </div>
+                )}
             </header>
 
             {/* Hero Section */}
