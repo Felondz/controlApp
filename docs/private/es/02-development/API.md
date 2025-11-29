@@ -112,7 +112,24 @@ Accept: application/json
 
 **Errors**
 - `401` - Credenciales inválidas
-- `422` - Email no verificado
+- `403` - Email no verificado (retorna `error: email_not_verified`)
+
+---
+
+### Resend Verification Email - Reenviar Email de Verificación
+Reenvia el email de verificación al usuario. Este endpoint es público y tiene rate limiting estricto.
+
+- **Endpoint**: `POST /api/email/resend-verification`
+- **Auth**: Pública (Rate limited: 3 peticiones por minuto)
+- **Body**:
+  ```json
+  {
+    "email": "usuario@ejemplo.com"
+  }
+  ```
+- **Response**:
+  - `200 OK`: `{"message": "Email de verificación enviado. Revisa tu bandeja de entrada."}`
+  - `422 Unprocessable Entity`: Si el email es inválido o ya está verificado.
 
 ---
 
