@@ -10,7 +10,8 @@ use App\Models\User;
 use App\Models\Cuenta;
 use App\Models\Categoria;
 use App\Models\Transaccion;
-use App\Models\Invitacion; // <-- ¡La importación!
+use App\Models\Invitacion;
+use App\Models\Message;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -52,6 +53,13 @@ class Proyecto extends Model
         'visible_en_listado' => 'boolean',
         'modules' => 'array',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['has_messaging_feature'];
 
     /**
      * Relación Miembros (muchos a muchos)
@@ -117,8 +125,8 @@ class Proyecto extends Model
     public function getImageUrlAttribute()
     {
         return $this->image_path
-                    ? asset('storage/'.$this->image_path)
-                    : null;
+            ? asset('storage/' . $this->image_path)
+            : null;
     }
 
     /**
@@ -133,5 +141,30 @@ class Proyecto extends Model
             'nombre' => $this->nombre,
             'user_id' => $this->user_id,
         ];
+    }
+    /**
+     * Relación Mensajes (uno a muchos)
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Verifica si el proyecto tiene habilitada la mensajería.
+     * (Requiere que el módulo 'chat' esté activo)
+     */
+    public function hasMessagingFeature(): bool
+    {
+        $modules = $this->modules ?? [];
+        return in_array('chat', $modules);
+    }
+
+    /**
+     * Accessor for has_messaging_feature
+     */
+    public function getHasMessagingFeatureAttribute(): bool
+    {
+        return $this->hasMessagingFeature();
     }
 }

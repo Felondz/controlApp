@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.2] - 2025-12-01
+
+### Added
+- **Full Frontend Test Coverage**: Achieved 100% component coverage.
+  - 215 tests across 38 test suites.
+  - Added tests for all remaining components (Navigation, UI/UX, Widgets).
+- **Test Organization**:
+  - Reorganized frontend tests into `tests/Frontend/Components` to mirror source structure.
+  - Updated import aliases to use `@/Components`.
+
+### Fixed
+- **Mocking Issues**: Resolved complex mocking scenarios for `@inertiajs/react` (`usePage`) and `ziggy-js` (`route().current()`).
+- **Accessibility**: Improved accessibility in `SelectGroup` and `QuantityInput` to support better testing.
+- **Architecture**: Restored `useGlobalTheme` in `RangeSlider` to adhere to architectural standards.
+- **Navigation & UI**:
+  - Implemented scalable **BottomNavigation** with "Smart Slot" (Chat > Finance) and "Menu" sheet.
+  - Added `NavigationSheet` for unified access to all modules and tools on mobile.
+  - Updated Mobile Header to show User Profile icon instead of generic hamburger menu.
+  - Added **Inbox** and **Language Switcher** to mobile navigation menu.
+  - Fixed "Overview" text color in Project Show page.
+  - Removed text labels from BottomNavigation for a cleaner, modern look.
+
+## [1.5.1] - 2025-12-01
+
+### Added
+- **Frontend Testing Infrastructure**: Comprehensive test suite for React components
+  - 96 tests across 16 test suites (~50% component coverage)
+  - Vitest + Testing Library integration
+  - Global mocks centralized in `test-setup.js`
+  - CI/CD integration with GitHub Actions
+- **Component Tests**: Comprehensive test suites for:
+  - **UI Core**: Checkbox, TextInput, PasswordInput, InputLabel, InputError, PrimaryButton, SecondaryButton, DangerButton, Dropdown, Modal, Alert
+  - **Features**: ImageUploader, Sidebar, ProjectCard, ChatWidget
+  - **Architecture**: ComponentStandards quality tests
+- **Test Utilities**: Automated test execution with `npm run test:ci`
+
+### Fixed
+- JSX syntax errors in test files (escaped characters)
+- Missing mocks for Inertia's `useForm` and `route().current()`
+- `scrollIntoView` undefined error in JSDOM environment
+- Multiple selector issues in component tests
+- Translation key assertions in tests
+
+---
+
+## [1.5.0] - 2025-12-01
+
+### Added
+- **Inbox System**:
+  - **Dropdown**: New Inbox Dropdown in Topbar for quick access to unread messages across all projects.
+  - **Page**: Dedicated Inbox page (`/inbox`) listing projects with unread messages.
+  - **Notifications**: Real-time unread message counts in Topbar and Project Cards.
+- **Dashboard Enhancements**:
+  - **Project Cards**: Now display icons for active modules (Finance, Tasks, Chat).
+  - **Badges**: Chat icon in project cards shows a pulsating red badge for unread messages.
+- **API**:
+  - `POST /api/proyectos/{id}/messages/read`: Endpoint to mark messages as read.
+  - **Private Messaging**: Added support for private messaging in `Api/MessageController` (previously only in Web).
+- **Translations**:
+  - Added comprehensive translations for Inbox and Chat features in `es.json` and `en.json`.
+
+### Changed
+- **API Synchronization**:
+  - Synchronized `Api/MessageController` with `ProjectMessageUiWebController`.
+  - API now supports private messaging (filtering by `recipient_id`) and `markAsRead` functionality.
+- **Chat UI**:
+  - Updated `ChatWidget` to use `ChatIcon` instead of hardcoded emojis.
+  - Applied theme-aware styles (`text-primary-600`) to Chat header and icons.
+  - Improved placeholder and empty state text with translations.
+
+---
+
 ## [1.4.1] - 2025-11-29
 
 ### Added
@@ -15,6 +87,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security**: Public endpoint `/api/email/resend-verification` with rate limiting (3/min) and automatic invalidation of previous verification links.
 - **UX**: Improved error handling for unverified email login attempts.
 - **API**: Synchronized API login logic with Web login. Unverified users now receive a 403 error before token issuance.
+- **UI**: Updated application favicon to use the app logo (SVG).
+- **Feature**: Added optional Project Messaging Module (Team Chat).
+    - Enabled via Project Settings -> Modules.
+    - Real-time communication for project members.
+    - Integrated into Project Dashboard.
+- **Feature**: Enhanced Project Settings to configure active modules (Finance, Tasks, Chat).
 
 ### Fixed
 - **Authentication**: Fixed 403 error when verifying email by removing signed URL requirement for verification link.

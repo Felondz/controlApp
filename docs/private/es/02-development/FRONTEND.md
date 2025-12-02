@@ -12,6 +12,27 @@ Un envoltorio alrededor del elemento `input` nativo que añade un botón para al
   - Integra `EyeIcon` y `EyeOffIcon`.
   - Soporte para estilos de estado de error.
 
+### ChatWidget
+- **Ruta**: `resources/js/Components/Project/ChatWidget.jsx`
+- **Propósito**: Proporciona una interfaz de chat en tiempo real (polled) para los miembros del proyecto.
+- **Props**:
+  - `project`: Objeto del proyecto (debe incluir `id`).
+  - `user`: Usuario autenticado actual.
+- **Características**:
+  - **Mensajería Privada**: Soporte para chats 1 a 1 con miembros del proyecto.
+  - **Chat General**: Chat grupal para todos los miembros.
+  - **Auto-scroll**: Se desplaza automáticamente al mensaje más nuevo.
+  - **Polling**: Actualiza cada 5 segundos.
+  - **Consciente del tema**: Usa `ChatIcon` y colores del tema.
+
+### InboxDropdown
+- **Ruta**: `resources/js/Components/InboxDropdown.jsx` (Integrado en `AuthenticatedLayout`)
+- **Propósito**: Muestra una lista desplegable de proyectos con mensajes no leídos.
+- **Características**:
+  - Badge de conteo de no leídos en tiempo real.
+  - Enlaces directos al chat del proyecto.
+  - Enlace "Ver Todo" a la página `/inbox`.
+
 ### Alert
 Componente para mostrar mensajes de estado (información, advertencia, éxito, error) con estilos estandarizados.
 
@@ -240,3 +261,34 @@ Usar la emulación de dispositivos de DevTools del navegador para probar:
 - [ ] Formularios utilizables en móvil
 - [ ] Gráficos responsivos
 - [ ] Imágenes escalan correctamente
+
+### ChatWidget
+- **Ruta**: `resources/js/Components/Project/ChatWidget.jsx`
+- **Propósito**: Proporciona una interfaz de chat en tiempo real (polled) para los miembros del proyecto.
+- **Props**:
+  - `project`: Objeto del proyecto (debe incluir `id`).
+  - `user`: Usuario autenticado actual.
+- **Características**:
+  - **Mensajería Privada**: Soporte para chats 1 a 1 con miembros del proyecto.
+  - **Chat General**: Chat grupal para todos los miembros.
+  - **Auto-scroll**: Se desplaza automáticamente al mensaje más nuevo.
+  - **Polling**: Actualiza cada 5 segundos.
+  - **Consciente del tema**: Usa `ChatIcon` y colores del tema.
+
+### InboxDropdown
+- **Ruta**: `resources/js/Components/InboxDropdown.jsx` (Integrado en `AuthenticatedLayout`)
+- **Propósito**: Muestra una lista desplegable de proyectos con mensajes no leídos.
+- **Características**:
+  - Badge de conteo de no leídos en tiempo real.
+  - Enlaces directos al chat del proyecto.
+  - Enlace "Ver Todo" a la página `/inbox`.
+
+## Testing
+
+El código frontend está completamente cubierto por pruebas automatizadas utilizando **Vitest** y **React Testing Library**.
+
+- **Cobertura**: 100% de Cobertura de Componentes (215 tests).
+- **Ubicación**: `tests/Frontend/Components`.
+- **Comando**: `npm run test`.
+
+Para detalles sobre la arquitectura de pruebas y guías, consulta [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).

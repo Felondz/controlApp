@@ -10,4 +10,9 @@ export default defineConfig({
         }),
         react(),
     ],
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: 'resources/js/test-setup.js',
+    },
 });

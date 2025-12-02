@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon } from '@/Components/Icons';
+import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon } from '@/Components/Icons';
 import FinanceWidget from '@/Components/Widgets/FinanceWidget';
 import TasksWidget from '@/Components/Widgets/TasksWidget';
 import { getThemeStyle } from '@/Utils/themeStyles';
@@ -16,6 +16,7 @@ export default function ProjectCard({ proyecto }) {
         switch (moduleName) {
             case 'finance': return <CurrencyDollarIcon className="h-4 w-4" />;
             case 'tasks': return <CheckListIcon className="h-4 w-4" />;
+            case 'chat': return <ChatIcon className="h-4 w-4" />;
             default: return null;
         }
     };
@@ -133,9 +134,19 @@ export default function ProjectCard({ proyecto }) {
                         )}
                         <div className="flex items-center justify-center gap-2 mt-2 text-primary-500 dark:text-primary-400">
                             {modules.map(mod => (
-                                <span key={mod} title={t(`modules.${mod}`, mod)} className="flex items-center">
-                                    {getModuleIcon(mod)}
-                                </span>
+                                <div key={mod} className="relative group/icon">
+                                    <span title={t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        {getModuleIcon(mod)}
+                                    </span>
+                                    {mod === 'chat' && proyecto.unread_messages_count > 0 && (
+                                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 text-[8px] text-white justify-center items-center">
+                                                {proyecto.unread_messages_count > 9 ? '9+' : proyecto.unread_messages_count}
+                                            </span>
+                                        </span>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     </div>

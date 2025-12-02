@@ -11,6 +11,8 @@ import TypographySelector from '@/Components/TypographySelector';
 import SecondaryButton from '@/Components/SecondaryButton';
 import Modal from '@/Components/Modal';
 import ImageUploader from '@/Components/ImageUploader';
+import Checkbox from '@/Components/Checkbox';
+import { CurrencyDollarIcon, CheckListIcon, ChatIcon } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 import { useState } from 'react';
 
@@ -46,6 +48,7 @@ export default function Edit({ auth, proyecto }) {
         moneda_default: proyecto.moneda_default || 'COP',
         theme: proyecto.theme || 'purple-modern',
         typography: proyecto.typography || 'sans',
+        modules: proyecto.modules || [],
         image: null,
     });
 
@@ -128,6 +131,69 @@ export default function Edit({ auth, proyecto }) {
                             error={errors.image}
                             className="items-center"
                         />
+
+                        {/* Modules Selection */}
+                        <div>
+                            <h3 className="text-md font-medium text-gray-900 dark:text-gray-100 mb-4">
+                                {t('projects.modules', 'Módulos del Proyecto')}
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    {
+                                        id: 'finance',
+                                        label: t('modules.finance', 'Gestión Financiera'),
+                                        desc: t('modules.finance_desc', 'Control de cuentas, transacciones y presupuestos.'),
+                                        icon: CurrencyDollarIcon
+                                    },
+                                    {
+                                        id: 'tasks',
+                                        label: t('modules.tasks', 'Gestión de Tareas'),
+                                        desc: t('modules.tasks_desc', 'Organización de tareas y seguimiento de progreso.'),
+                                        icon: CheckListIcon
+                                    },
+                                    {
+                                        id: 'chat',
+                                        label: t('modules.chat', 'Chat de Equipo'),
+                                        desc: t('modules.chat_desc', 'Comunicación en tiempo real para los miembros del proyecto.'),
+                                        icon: ChatIcon
+                                    }
+                                ].map((module) => (
+                                    <div
+                                        key={module.id}
+                                        onClick={() => {
+                                            const newModules = data.modules.includes(module.id)
+                                                ? data.modules.filter(m => m !== module.id)
+                                                : [...data.modules, module.id];
+                                            setData('modules', newModules);
+                                        }}
+                                        className={`cursor-pointer border rounded-lg p-4 flex items-start space-x-3 transition-all ${data.modules.includes(module.id)
+                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500'
+                                            : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
+                                            }`}
+                                    >
+                                        <div className={`p-2 rounded-md ${data.modules.includes(module.id) ? 'bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                            <module.icon className="w-6 h-6" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className={`font-medium ${data.modules.includes(module.id) ? 'text-primary-900 dark:text-primary-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                {module.label}
+                                            </h4>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                {module.desc}
+                                            </p>
+                                        </div>
+                                        <div className="ml-auto">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.modules.includes(module.id)}
+                                                onChange={() => { }} // Handled by div click
+                                                className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
                         {/* Nombre del Proyecto */}
                         <div>

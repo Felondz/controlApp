@@ -13,7 +13,8 @@
 7. [Accounts](#accounts)
 8. [Transactions](#transactions)
 9. [Tools](#tools)
-10. [Error Codes](#error-codes)
+10. [Chat](#chat)
+11. [Error Codes](#error-codes)
 
 ---
 
@@ -955,10 +956,94 @@ Accept: application/json
 
 ---
 
-## ❌ Error Codes
+## 💬 Chat
+
+### List Messages
+Gets messages for a project. Supports filtering for private messages.
+
+```http
+GET /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "proyecto_id": 1,
+      "user_id": 1,
+      "recipient_id": null,
+      "content": "Hello everyone!",
+      "type": "text",
+      "created_at": "2025-11-15 10:00:00",
+      "user": {
+        "id": 1,
+        "name": "John Doe",
+        "profile_photo_path": "..."
+      }
+    }
+  ],
+  "links": {...},
+  "meta": {...}
+}
+```
+
+### Send Message
+Sends a message to the project (general) or a specific member (private).
+
+```http
+POST /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Hello!",
+  "type": "text",
+  "recipient_id": 2
+}
+```
+
+**Parameters**
+- `content`: Required, string.
+- `type`: Optional, string (default: 'text').
+- `recipient_id`: Optional, integer. If provided, sends a private message.
+
+**Response (201)**
+```json
+{
+  "id": 2,
+  "content": "Hello!",
+  "recipient_id": 2,
+  "created_at": "2025-11-15 10:05:00"
+}
+```
+
+### Mark as Read
+Marks all relevant messages (general and private) as read for the user in the project.
+
+```http
+POST /api/proyectos/{proyecto}/messages/read
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "status": "success"
+}
+```
+
+---
+
+## 🚨 Error Codes
 
 | Code | Description |
-|--------|-------------|
+|--------|-------------
 | `200` | OK - Request successful |
 | `201` | Created - Resource created |
 | `400` | Bad Request - Invalid request |
@@ -988,3 +1073,57 @@ Accept: application/json
 ---
 
 **Last Updated**: November 15, 2025
+
+## Messaging (Chat)
+
+### List Messages
+**Endpoint:** `GET /api/proyectos/{proyecto}/messages`
+**Auth:** Required (Member)
+**Description:** Retrieves a paginated list of messages for the project.
+
+**Response:**
+```json
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 5,
+            "content": "Hello team!",
+            "type": "text",
+            "created_at": "2023-10-27T10:00:00.000000Z",
+            "user": {
+                "id": 5,
+                "name": "John Doe",
+                "profile_photo_path": null
+            }
+        }
+    ],
+    "total": 50
+}
+```
+
+### Send Message
+**Endpoint:** `POST /api/proyectos/{proyecto}/messages`
+**Auth:** Required (Member)
+**Description:** Sends a new message to the project chat.
+
+**Body:**
+```json
+{
+    "content": "Hello world",
+    "type": "text" // Optional, default: text
+}
+```
+
+**Response:**
+```json
+{
+    "id": 2,
+    "user_id": 5,
+    "content": "Hello world",
+    "type": "text",
+    "created_at": "2023-10-27T10:05:00.000000Z",
+    "user": { ... }
+}
+```

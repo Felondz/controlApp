@@ -12,7 +12,8 @@
 6. [Categorías](#categorías)
 7. [Cuentas](#cuentas)
 8. [Transacciones](#transacciones)
-9. [Códigos de Error](#códigos-de-error)
+9. [Chat](#chat)
+10. [Códigos de Error](#códigos-de-error)
 
 ---
 
@@ -919,6 +920,90 @@ Accept: application/json
 DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
+```
+
+---
+
+## 💬 Chat
+
+### List Messages - Listar Mensajes
+Obtiene los mensajes de un proyecto. Soporta filtrado para mensajes privados.
+
+```http
+GET /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "proyecto_id": 1,
+      "user_id": 1,
+      "recipient_id": null,
+      "content": "¡Hola a todos!",
+      "type": "text",
+      "created_at": "2025-11-15 10:00:00",
+      "user": {
+        "id": 1,
+        "name": "Juan Pérez",
+        "profile_photo_path": "..."
+      }
+    }
+  ],
+  "links": {...},
+  "meta": {...}
+}
+```
+
+### Send Message - Enviar Mensaje
+Envía un mensaje al proyecto (general) o a un miembro específico (privado).
+
+```http
+POST /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "¡Hola!",
+  "type": "text",
+  "recipient_id": 2
+}
+```
+
+**Parámetros**
+- `content`: Requerido, string.
+- `type`: Opcional, string (default: 'text').
+- `recipient_id`: Opcional, integer. Si se proporciona, envía un mensaje privado.
+
+**Response (201)**
+```json
+{
+  "id": 2,
+  "content": "¡Hola!",
+  "recipient_id": 2,
+  "created_at": "2025-11-15 10:05:00"
+}
+```
+
+### Mark as Read - Marcar como Leído
+Marca todos los mensajes relevantes (generales y privados) como leídos para el usuario en el proyecto.
+
+```http
+POST /api/proyectos/{proyecto}/messages/read
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "status": "success"
+}
 ```
 
 ---

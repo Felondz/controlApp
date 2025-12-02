@@ -139,11 +139,16 @@ Consistent use of Tailwind CSS breakpoints across all views:
 #### BottomNavigation (Mobile)
 - **Visibility**: Visible on mobile (`md:hidden`), hidden on tablet and desktop
 - **Location**: `resources/js/Components/BottomNavigation.jsx`
+- **Strategy**: "Smart Slot + Menu"
+  - **Slots 1-2**: Fixed global items (Dashboard, Marketplace) or Project items (Dashboard, Overview).
+  - **Smart Slot (3)**: Dynamically shows the most relevant module (Chat > Finance).
+  - **Menu Slot (4)**: Opens `NavigationSheet` for access to all other modules and tools.
 - **Features**:
   - Fixed at bottom of screen (`fixed bottom-0`)
   - Context-aware navigation (global vs project)
-  - Dynamic grid layout (3-4 columns based on items)
+  - Icon-only design for cleaner look
   - Theme-aware using CSS variables
+  - Unread message badges on Chat icon
 
 **Usage:**
 ```jsx
@@ -157,13 +162,21 @@ import BottomNavigation from '@/Components/BottomNavigation';
 - `project`: Current project object (optional, for project-aware navigation)
 
 **Navigation Items:**
-- **Global Context**: Dashboard, Marketplace, Tools
-- **Project Context**: Dashboard, Current Project, Finance (if enabled)
+- **Global Context**: Dashboard, Marketplace, Menu
+- **Project Context**: Dashboard, Overview, Smart Slot (Chat/Finance), Menu
 
 **Styling:**
 - Active state: `text-primary-600 dark:text-primary-400`
 - Inactive state: `text-gray-500 dark:text-gray-400`
 - Hover: `hover:text-primary-600 dark:hover:text-primary-400`
+
+#### NavigationSheet (Mobile)
+- **Purpose**: A unified bottom sheet menu for accessing all modules and tools that don't fit in the bottom bar.
+- **Location**: `resources/js/Components/NavigationSheet.jsx`
+- **Features**:
+  - Grouped by "Project Modules" and "Global Tools"
+  - Theme-aware styling
+  - Accessible via the "Menu" item in BottomNavigation
 
 ### Layout Considerations
 
@@ -240,4 +253,36 @@ Use browser DevTools device emulation to test:
 - [ ] Forms usable on mobile
 - [ ] Charts responsive
 - [ ] Images scale properly
+
+
+### ChatWidget
+- **Path**: `resources/js/Components/Project/ChatWidget.jsx`
+- **Purpose**: Provides a real-time (polled) chat interface for project members.
+- **Props**:
+  - `project`: Project object (must include `id`).
+  - `user`: Current authenticated user.
+- **Features**:
+  - **Private Messaging**: Support for 1-on-1 chats with project members.
+  - **General Chat**: Group chat for all project members.
+  - **Auto-scroll**: Automatically scrolls to the newest message.
+  - **Polling**: Updates every 5 seconds.
+  - **Theme-aware**: Uses `ChatIcon` and theme colors.
+
+### InboxDropdown
+- **Path**: `resources/js/Components/InboxDropdown.jsx` (Integrated in `AuthenticatedLayout`)
+- **Purpose**: Displays a dropdown list of projects with unread messages.
+- **Features**:
+  - Real-time unread count badge.
+  - Links directly to project chat.
+  - "View All" link to `/inbox` page.
+
+## Testing
+
+The frontend codebase is fully covered by automated tests using **Vitest** and **React Testing Library**.
+
+- **Coverage**: 100% Component Coverage (215 tests).
+- **Location**: `tests/Frontend/Components`.
+- **Command**: `npm run test`.
+
+For detailed testing architecture and guidelines, refer to [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).
 

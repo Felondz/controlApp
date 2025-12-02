@@ -10,12 +10,13 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 214 / 214 | ✅ **100% Stable** |
-| **Total Assertions** | 764+ | ✅ **Robust Coverage** |
+| **Backend Tests** | 240 / 240 | ✅ **100% Stable** |
+| **Frontend Tests** | 215 tests / 38 suites | ✅ **100% Coverage** |
+| **Total Assertions** | 1000+ | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.3.1 (Tools API \u0026 UI Polish) | ✅ **Stable** |
-| **Frontend Status** | 🚧 In Development | 🔄 **Active Development** |
+| **Backend Version** | v1.5.0 (Inbox & Chat Sync) | ✅ **Stable** |
+| **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
 
@@ -53,8 +54,14 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
   - **NEW**: Custom themes (colors) and typography per project.
   - **NEW**: Customizable cover images for each project.
   - Member invitation and role management.
+  - **NEW**: Dashboard with active module indicators.
 
-- **Financial Tools (NEW)**:
+- **Communication & Inbox (NEW)**:
+  - **Inbox**: Centralized dropdown and page for unread messages.
+  - **Chat**: Real-time project chat with private messaging support.
+  - **Notifications**: Visual badges for unread messages.
+
+- **Financial Tools**:
   - **Financial Calculator**: Advanced loan and amortization calculator.
   - **Modes**: Basic (quick calculation) and Advanced (detailed breakdown with insurance).
   - **Export**: Generate professional PDF reports with amortization charts.
@@ -78,21 +85,35 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## 🧪 Testing
 
-The project features a robust test suite using **PHPUnit** for the backend.
+ControlApp maintains comprehensive test coverage to ensure code quality and reliability:
 
-- **Coverage**: 214 automated tests.
-- **Tested Areas**:
-  - Authentication and authorization.
-  - CRUD for projects, accounts, and categories.
-  - API Flows (Profile, Projects, Finance).
-  - Security validations and file uploads.
-  - **Financial Calculator Logic & API**.
-- **Execution**:
-  ```bash
-  ./vendor/bin/sail test
-  ```
+- **Backend Tests**: 100% coverage with PHPUnit
+  - Feature tests for all API endpoints
+  - Unit tests for business logic
+  - Database integration tests
+  
+- **Frontend Tests**: 100% Component Coverage
+| **Frontend** | Vitest + React Testing Library | **215 tests / 38 suites** |
+| **Coverage** | Component Coverage | **100% (38/38 components)** |
+| **E2E** | Laravel Dusk | **Pending** |
+  - Unit tests for core UI components
+  - Integration tests for complex features
+  - Automated CI/CD validation
+  - **Missing tests**: None
+
+Run tests locally:
+```bash
+# Backend tests
+./vendor/bin/sail test
+
+# Frontend tests
+npm run test
+
+# CI mode (both)
+npm run test:ci
+```
 
 ---
 
@@ -168,7 +189,7 @@ The project is easily runnable using Docker and Laravel Sail.
     ```
 4.  **Verify Quality Gate:**
     ```bash
-    # This must return 214 tests passing with a green output.
+    # This must return 240 tests passing with a green output.
     ./vendor/bin/sail test
     ```
 * **Application URL**: `http://localhost`

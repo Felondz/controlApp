@@ -4,6 +4,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
+use App\Http\Controllers\ProjectMessageUiWebController;
 use App\Http\Controllers\ToolController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -17,9 +18,26 @@ Route::get('mis-proyectos/{mis_proyecto}/finance', [ProyectoUiWebController::cla
     ->name('mis-proyectos.finance')
     ->middleware(['auth', 'verified']);
 
+Route::get('mis-proyectos/{mis_proyecto}/chat', [ProyectoUiWebController::class, 'chat'])
+    ->name('mis-proyectos.chat')
+    ->middleware(['auth', 'verified']);
+
 Route::resource('mis-proyectos.cuentas', ProjectAccountUiWebController::class)
     ->only(['create', 'store'])
     ->middleware(['cuentas', 'cuenta']);
+
+Route::get('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])
+    ->name('project.messages.index')
+    ->middleware(['auth', 'verified']);
+
+Route::post('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])
+    ->name('project.messages.store')
+    ->middleware(['auth', 'verified']);
+
+// Added mark-read route
+Route::post('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])
+    ->name('project.messages.read')
+    ->middleware(['auth', 'verified']);
 
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\DocumentationController;
@@ -28,22 +46,9 @@ Route::get('/', WelcomeController::class);
 Route::get('/docs', [DocumentationController::class, 'index'])->name('docs.index');
 Route::get('/docs/user', [DocumentationController::class, 'user'])->name('docs.user');
 Route::get('/docs/dev/{path?}', [DocumentationController::class, 'dev'])->where('path', '.*')->name('docs.dev');
-Route::get('/dashboard', function () {
-    // Cargar proyectos y categorías (que no son sensibles)
-    $user = Auth::user();
-
-    // Obtenemos los proyectos (personales + membresías)
-    // Nota: Como quitamos el $with global, cargamos solo lo necesario para la UI básica
-    $proyectos = $user->proyectosPersonales->merge($user->proyectos);
-
-    // Procesamos para agregar flag de admin
-    $proyectos->transform(function ($proyecto) use ($user) {
-        $proyecto->isAdmin = $user->esAdminDe($proyecto);
-        return $proyecto;
-    });
-
-    return Inertia::render('Dashboard', ['proyectos' => $proyectos]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 
 Route::middleware('auth')->group(function () {
@@ -52,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
+    Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
 
     // Settings
     Route::get('/settings/theme', function () {

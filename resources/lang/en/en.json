@@ -379,11 +379,22 @@
         "delete_confirmation_title": "Are you sure you want to delete this project?",
         "delete_confirmation_desc": "This action will permanently delete all associated data, accounts, and transactions. Please enter your password to confirm.",
         "delete_project": "Delete Project",
-        "no_description": "No description provided."
+        "no_description": "No description provided.",
+        "chat_placeholder": "Type a message...",
+        "chat_general": "General Chat",
+        "chat_empty": "No messages yet. Start the conversation!"
     },
     "modules": {
         "finance": "Finance",
-        "tasks": "Tasks"
+        "tasks": "Tasks",
+        "chat": "Chat"
+    },
+    "inbox": {
+        "title": "Inbox",
+        "empty": "You have no new messages.",
+        "unread_messages": "You have :count unread messages",
+        "unread_count": ":count new messages",
+        "view_all": "View all"
     },
     "transactions": {
         "title": "Transactions",
