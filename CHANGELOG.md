@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added **Inbox** and **Language Switcher** to mobile navigation menu.
   - Fixed "Overview" text color in Project Show page.
   - Removed text labels from BottomNavigation for a cleaner, modern look.
+- **CI/CD**:
+  - Fixed `Vite HMR server` error in CI environment by adding `LARAVEL_BYPASS_ENV_CHECK=1` to `test:ci` script.
 
 ## [1.5.1] - 2025-12-01
 
