@@ -5,11 +5,12 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import {
     DashboardIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon,
-    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon
+    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon
 } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
 export default function Sidebar({ user, className = '', collapsed = false, project = null }) {
+    // Force rebuild v2
     const { t } = useTranslate();
     const { theme, isDark } = useGlobalTheme();
     const enabledTools = user?.enabled_tools || [];
@@ -128,6 +129,24 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     >
                         <CheckListIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                         {!collapsed && t('modules.tasks', 'Tareas')}
+                    </ResponsiveNavLink>
+                )}
+
+                {modules.includes('chat') && (
+                    <ResponsiveNavLink
+                        href={route('mis-proyectos.chat', project.id)}
+                        active={route().current('mis-proyectos.chat', project.id)}
+                        collapsed={collapsed}
+                    >
+                        <div className={`relative shrink-0 ${collapsed ? '' : 'mr-3'}`}>
+                            <ChatIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                            {project.unread_messages_count > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                                    {project.unread_messages_count > 99 ? '99+' : project.unread_messages_count}
+                                </span>
+                            )}
+                        </div>
+                        {!collapsed && t('modules.chat', 'Chat de Equipo')}
                     </ResponsiveNavLink>
                 )}
 

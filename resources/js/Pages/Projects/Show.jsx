@@ -23,7 +23,7 @@ export default function Show({ auth, proyecto, isAdmin }) {
 
             <div className="max-w-7xl mx-auto">
                 {/* Título y Moneda */}
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-4">
                     {t('projects.overview')}
                 </h3>
 
@@ -86,6 +86,10 @@ export default function Show({ auth, proyecto, isAdmin }) {
                         }}
                     />
                 </div>
+
+                {/* CHAT WIDGET (Only if 2+ members) */}
+                {/* CHAT WIDGET (Only if 2+ members) */}
+                {/* Chat has moved to its own dedicated view */}
             </div>
         </AuthenticatedLayout>
     );

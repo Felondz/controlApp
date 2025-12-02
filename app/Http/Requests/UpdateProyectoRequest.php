@@ -40,6 +40,8 @@ class UpdateProyectoRequest extends FormRequest
             'theme' => 'nullable|string|max:50',
             'typography' => 'nullable|string|in:sans,serif,mono,roboto,opensans,lato,montserrat,nunito,raleway,playfair,merriweather',
             'image' => 'nullable|image|max:4096', // 4MB max
+            'modules' => 'nullable|array',
+            'modules.*' => 'string|in:finance,tasks,chat',
         ];
     }
 

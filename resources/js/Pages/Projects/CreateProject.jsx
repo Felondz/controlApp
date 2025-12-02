@@ -233,63 +233,59 @@ export default function CreateProject({ auth }) {
 
                                 {/* Scoped Theme for Modules */}
                                 <div style={getThemeStyle(data.theme)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {/* Finance Module Card */}
-                                    <div
-                                        onClick={() => toggleModule('finance')}
-                                        className={`cursor-pointer border rounded-lg p-4 flex items-start space-x-3 transition-all ${data.modules.includes('finance')
-                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
-                                            }`}
-                                    >
-                                        <div className={`p-2 rounded-md ${data.modules.includes('finance') ? 'bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
-                                            <CurrencyDollarIcon className="w-6 h-6" />
+                                    {[
+                                        {
+                                            id: 'finance',
+                                            label: t('modules.finance', 'Finanzas'),
+                                            desc: t('modules.finance_desc', 'Gestión de ingresos, gastos, presupuestos y cuentas.'),
+                                            icon: CurrencyDollarIcon
+                                        },
+                                        {
+                                            id: 'tasks',
+                                            label: t('modules.tasks', 'Tareas'),
+                                            desc: t('modules.tasks_desc', 'Gestión de tareas, kanban y seguimiento de progreso.'),
+                                            icon: CheckListIcon
+                                        },
+                                        {
+                                            id: 'chat',
+                                            label: t('modules.chat', 'Chat de Equipo'),
+                                            desc: t('modules.chat_desc', 'Comunicación en tiempo real para los miembros del proyecto.'),
+                                            icon: ({ className }) => (
+                                                <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                            )
+                                        }
+                                    ].map((module) => (
+                                        <div
+                                            key={module.id}
+                                            onClick={() => toggleModule(module.id)}
+                                            className={`cursor-pointer border rounded-lg p-4 flex items-start space-x-3 transition-all ${data.modules.includes(module.id)
+                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500'
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
+                                                }`}
+                                        >
+                                            <div className={`p-2 rounded-md ${data.modules.includes(module.id) ? 'bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                                <module.icon className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className={`font-medium ${data.modules.includes(module.id) ? 'text-primary-900 dark:text-primary-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                    {module.label}
+                                                </h4>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                    {module.desc}
+                                                </p>
+                                            </div>
+                                            <div className="ml-auto">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={data.modules.includes(module.id)}
+                                                    onChange={() => { }} // Handled by div click
+                                                    className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
+                                                />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className={`font-medium ${data.modules.includes('finance') ? 'text-primary-900 dark:text-primary-100' : 'text-gray-900 dark:text-gray-100'}`}>
-                                                {t('modules.finance', 'Finanzas')}
-                                            </h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                Gestión de ingresos, gastos, presupuestos y cuentas.
-                                            </p>
-                                        </div>
-                                        <div className="ml-auto">
-                                            <input
-                                                type="checkbox"
-                                                checked={data.modules.includes('finance')}
-                                                onChange={() => { }} // Handled by div click
-                                                className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Tasks Module Card */}
-                                    <div
-                                        onClick={() => toggleModule('tasks')}
-                                        className={`cursor-pointer border rounded-lg p-4 flex items-start space-x-3 transition-all ${data.modules.includes('tasks')
-                                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
-                                            }`}
-                                    >
-                                        <div className={`p-2 rounded-md ${data.modules.includes('tasks') ? 'bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
-                                            <CheckListIcon className="w-6 h-6" />
-                                        </div>
-                                        <div>
-                                            <h4 className={`font-medium ${data.modules.includes('tasks') ? 'text-primary-900 dark:text-primary-100' : 'text-gray-900 dark:text-gray-100'}`}>
-                                                {t('modules.tasks', 'Tareas')}
-                                            </h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                Gestión de tareas, kanban y seguimiento de progreso.
-                                            </p>
-                                        </div>
-                                        <div className="ml-auto">
-                                            <input
-                                                type="checkbox"
-                                                checked={data.modules.includes('tasks')}
-                                                onChange={() => { }} // Handled by div click
-                                                className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
-                                            />
-                                        </div>
-                                    </div>
+                                    ))}
                                 </div>
                                 {errors.modules && <p className="text-sm text-red-600 mt-1">{errors.modules}</p>}
                             </div>

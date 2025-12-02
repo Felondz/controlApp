@@ -33,6 +33,7 @@ export default function QuantityInput({
                     type="button"
                     onClick={decrease}
                     disabled={value <= min}
+                    aria-label="Decrease"
                     className="absolute left-2 p-1.5 rounded-lg text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all z-10"
                 >
                     <MinusIcon className="w-4 h-4" />
@@ -52,6 +53,7 @@ export default function QuantityInput({
                     type="button"
                     onClick={increase}
                     disabled={value >= max}
+                    aria-label="Increase"
                     className="absolute right-2 p-1.5 rounded-lg text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all z-10"
                 >
                     <PlusIcon className="w-4 h-4" />

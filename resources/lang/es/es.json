@@ -165,7 +165,8 @@
         "active": "Activo",
         "unavailable": "No disponible",
         "deactivate": "Desactivar",
-        "activate": "Activar"
+        "activate": "Activar",
+        "menu": "Menú"
     },
     "calculator": {
         "title": "Calculadora Financiera",
@@ -379,11 +380,22 @@
         "delete_confirmation_title": "¿Estás seguro de que quieres eliminar este proyecto?",
         "delete_confirmation_desc": "Esta acción eliminará permanentemente todos los datos, cuentas y transacciones asociadas. Por favor ingresa tu contraseña para confirmar.",
         "delete_project": "Eliminar Proyecto",
-        "no_description": "Sin descripción."
+        "no_description": "Sin descripción.",
+        "chat_placeholder": "Escribe un mensaje...",
+        "chat_general": "Chat General",
+        "chat_empty": "No hay mensajes aún."
     },
     "modules": {
         "finance": "Finanzas",
-        "tasks": "Tareas"
+        "tasks": "Tareas",
+        "chat": "Chat"
+    },
+    "inbox": {
+        "title": "Buzón de entrada",
+        "empty": "No tienes mensajes nuevos.",
+        "unread_messages": "Tienes :count mensajes sin leer",
+        "unread_count": ":count nuevos mensajes",
+        "view_all": "Ver todos"
     },
     "transactions": {
         "title": "Transacciones",

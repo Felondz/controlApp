@@ -56,6 +56,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'profile_photo_url',
+        'unread_messages_count',
+        'unread_projects',
     ];
 
     /**
@@ -88,7 +90,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function proyectos()
     {
-        return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol');
+        return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
 
     /**
@@ -196,5 +198,79 @@ class User extends Authenticatable implements MustVerifyEmail
             'name' => $this->name,
             'email' => $this->email,
         ];
+    }
+
+    /**
+     * Get the total number of unread messages across all projects.
+     *
+     * @return int
+     */
+    public function getUnreadMessagesCountAttribute()
+    {
+        $count = 0;
+        // We need to iterate over projects where the user is a member.
+        // We use the 'proyectos' relationship which includes the pivot data.
+        foreach ($this->proyectos as $proyecto) {
+            if ($proyecto->hasMessagingFeature()) {
+                $lastReadAt = $proyecto->pivot->last_read_at;
+
+                $generalUnread = $proyecto->messages()
+                    ->whereNull('recipient_id')
+                    ->where('user_id', '!=', $this->id)
+                    ->when($lastReadAt, function ($q) use ($lastReadAt) {
+                        $q->where('created_at', '>', $lastReadAt);
+                    })
+                    ->count();
+
+                $privateUnread = $proyecto->messages()
+                    ->where('recipient_id', $this->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                $count += $generalUnread + $privateUnread;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * Get the projects with unread messages.
+     *
+     * @return array
+     */
+    public function getUnreadProjectsAttribute()
+    {
+        $unreadProjects = [];
+        foreach ($this->proyectos as $proyecto) {
+            if ($proyecto->hasMessagingFeature()) {
+                $lastReadAt = $proyecto->pivot->last_read_at;
+
+                $generalUnread = $proyecto->messages()
+                    ->whereNull('recipient_id')
+                    ->where('user_id', '!=', $this->id)
+                    ->when($lastReadAt, function ($q) use ($lastReadAt) {
+                        $q->where('created_at', '>', $lastReadAt);
+                    })
+                    ->count();
+
+                $privateUnread = $proyecto->messages()
+                    ->where('recipient_id', $this->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                $totalUnread = $generalUnread + $privateUnread;
+
+                if ($totalUnread > 0) {
+                    $unreadProjects[] = [
+                        'id' => $proyecto->id,
+                        'nombre' => $proyecto->nombre,
+                        'image_path' => $proyecto->image_path,
+                        'icon' => $proyecto->icon,
+                        'unread_count' => $totalUnread,
+                    ];
+                }
+            }
+        }
+        return $unreadProjects;
     }
 }

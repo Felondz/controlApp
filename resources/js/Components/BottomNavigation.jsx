@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     DashboardIcon,
     PuzzleIcon,
     FolderIcon,
     CurrencyDollarIcon,
-    CalculatorIcon,
-    CalendarIcon
+    ChatIcon,
+    EllipsisHorizontalIcon
 } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
-import ToolsSheet from '@/Components/ToolsSheet';
+import NavigationSheet from '@/Components/NavigationSheet';
 
 export default function BottomNavigation({ user, project = null }) {
+    // Force rebuild v2
     const { t } = useTranslate();
     const currentRoute = route().current();
-    const [showToolsSheet, setShowToolsSheet] = useState(false);
-    const enabledTools = user?.enabled_tools || [];
+    const [showNavSheet, setShowNavSheet] = useState(false);
 
     // Build navigation items based on context (global vs project)
     const getNavItems = () => {
@@ -29,7 +29,7 @@ export default function BottomNavigation({ user, project = null }) {
                     icon: DashboardIcon,
                 },
                 {
-                    name: project.nombre || t('projects.project', 'Proyecto'),
+                    name: t('projects.overview', 'Resumen'),
                     route: 'mis-proyectos.show',
                     routeParams: project.id,
                     icon: FolderIcon,
@@ -37,8 +37,16 @@ export default function BottomNavigation({ user, project = null }) {
                 },
             ];
 
-            // Add finance if module is enabled
-            if (modules.includes('finance')) {
+            // Smart Slot Logic (Priority: Chat > Finance)
+            if (modules.includes('chat')) {
+                items.push({
+                    name: t('modules.chat', 'Chat'),
+                    route: 'mis-proyectos.chat',
+                    routeParams: project.id,
+                    icon: ChatIcon,
+                    badge: project.unread_messages_count
+                });
+            } else if (modules.includes('finance')) {
                 items.push({
                     name: t('modules.finance', 'Finanzas'),
                     route: 'mis-proyectos.finance',
@@ -46,6 +54,13 @@ export default function BottomNavigation({ user, project = null }) {
                     icon: CurrencyDollarIcon,
                 });
             }
+
+            // Menu Item (Always last)
+            items.push({
+                name: t('common.menu', 'Menú'),
+                action: () => setShowNavSheet(true),
+                icon: EllipsisHorizontalIcon,
+            });
 
             return items;
         }
@@ -63,9 +78,9 @@ export default function BottomNavigation({ user, project = null }) {
                 icon: PuzzleIcon,
             },
             {
-                name: t('dashboard.tools', 'Herramientas'),
-                action: () => setShowToolsSheet(true),
-                icon: CalculatorIcon,
+                name: t('common.menu', 'Menú'),
+                action: () => setShowNavSheet(true),
+                icon: EllipsisHorizontalIcon,
             },
         ];
     };
@@ -75,7 +90,7 @@ export default function BottomNavigation({ user, project = null }) {
     return (
         <>
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 safe-area-inset-bottom">
-                <div className={`grid h-16 ${navItems.length === 3 ? 'grid-cols-3' : navItems.length === 4 ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                <div className="flex flex-row h-16 w-full justify-between items-center px-2">
                     {navItems.map((item) => {
                         // Check if current route matches
                         const isActive = item.matchRoutes
@@ -85,7 +100,7 @@ export default function BottomNavigation({ user, project = null }) {
                         const Icon = item.icon;
 
                         // Base classes using CSS variables (modern theme system)
-                        const baseClasses = 'flex flex-col items-center justify-center gap-1 transition-all duration-200';
+                        const baseClasses = 'flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-200 h-full';
                         const activeClasses = 'text-primary-600 dark:text-primary-400';
                         const inactiveClasses = 'text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400';
                         const disabledClasses = 'text-gray-300 dark:text-gray-600 cursor-not-allowed';
@@ -97,9 +112,9 @@ export default function BottomNavigation({ user, project = null }) {
                                     key={item.name}
                                     onClick={item.action}
                                     className={`${baseClasses} ${inactiveClasses}`}
+                                    aria-label={item.name}
                                 >
-                                    <Icon className="h-6 w-6" />
-                                    <span className="text-xs font-medium">{item.name}</span>
+                                    <Icon className="h-7 w-7" />
                                 </button>
                             );
                         }
@@ -111,9 +126,9 @@ export default function BottomNavigation({ user, project = null }) {
                                     key={item.name}
                                     disabled
                                     className={`${baseClasses} ${disabledClasses}`}
+                                    aria-label={item.name}
                                 >
-                                    <Icon className="h-6 w-6" />
-                                    <span className="text-xs font-medium">{item.name}</span>
+                                    <Icon className="h-7 w-7" />
                                 </button>
                             );
                         }
@@ -123,17 +138,29 @@ export default function BottomNavigation({ user, project = null }) {
                                 key={item.name}
                                 href={item.routeParams ? route(item.route, item.routeParams) : route(item.route)}
                                 className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+                                aria-label={item.name}
                             >
-                                <Icon className="h-6 w-6" />
-                                <span className="text-xs font-medium truncate px-1">{item.name}</span>
+                                <div className="relative">
+                                    <Icon className="h-7 w-7" />
+                                    {item.badge > 0 && (
+                                        <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center leading-none">
+                                            {item.badge > 99 ? '99+' : item.badge}
+                                        </span>
+                                    )}
+                                </div>
                             </Link>
                         );
                     })}
                 </div>
             </nav>
 
-            {/* Tools Bottom Sheet */}
-            <ToolsSheet isOpen={showToolsSheet} onClose={() => setShowToolsSheet(false)} />
+            {/* Navigation Sheet */}
+            <NavigationSheet
+                isOpen={showNavSheet}
+                onClose={() => setShowNavSheet(false)}
+                user={user}
+                project={project}
+            />
         </>
     );
 }
