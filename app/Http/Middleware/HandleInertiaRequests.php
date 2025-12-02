@@ -56,6 +56,10 @@ class HandleInertiaRequests extends Middleware
             'old' => function () use ($request) {
                 return $request->session()->getOldInput();
             },
+            'flash' => [
+                'success' => fn() => $request->session()->get('success'),
+                'error' => fn() => $request->session()->get('error'),
+            ],
         ];
     }
 

@@ -3,18 +3,41 @@
 ## Resumen
 ControlApp utiliza **Meilisearch** a través de **Laravel Scout** para proporcionar capacidades de búsqueda rápidas, relevantes y seguras. La funcionalidad de búsqueda está integrada globalmente en la barra superior y soporta la indexación de Usuarios y Proyectos.
 
+**Fallback SQL**: Si Meilisearch no está disponible, el sistema automáticamente utiliza búsqueda SQL con `LIKE` para garantizar que la funcionalidad siempre esté disponible.
+
 ## Arquitectura
 
 ### Backend
-- **Driver**: `meilisearch` (Producción/Desarrollo), `collection` (Pruebas).
+- **Driver**: `meilisearch` (Producción/Desarrollo por defecto), `collection` (Pruebas).
 - **Modelos**: `User`, `Proyecto`.
 - **Trait**: `Laravel\Scout\Searchable`.
-- **Controlador**: `SearchController` maneja las consultas y devuelve resultados al frontend de Inertia.
+- **Controladores**: 
+  - `SearchController` (Web): Maneja consultas y devuelve resultados vía Inertia.
+  - `Api\SearchController` (API): Maneja consultas y devuelve resultados JSON para apps móviles.
 
 ### Frontend
 - **Componente**: `SearchInput.jsx` (Widget de barra superior).
 - **Página**: `SearchResults.jsx` (Muestra resultados).
-- **Lógica**: Búsqueda en tiempo real o por envío que manda consultas a `/search`.
+- **Lógica**: Búsqueda en tiempo real o por envío que manda consultas a `/search` (Web) o `/api/search` (API).
+
+### Endpoints
+- **Web**: `GET /search?query={query}` (Inertia)
+- **API**: `GET /api/search?query={query}` (JSON, requiere autenticación Bearer)
+
+## Motor de Búsqueda
+
+### Meilisearch (Primario)
+- **Ventajas**: Búsqueda rápida, relevante, typo-tolerant
+- **Configuración**: `config/scout.php` → `driver: meilisearch`
+- **Requisitos**: Instancia de Meilisearch corriendo
+
+### SQL Fallback (Secundario)
+- **Activación**: Automática cuando Meilisearch no está disponible
+- **Implementación**: Búsqueda con `LIKE %query%` en campos relevantes
+- **Campos**:
+  - Usuarios: `name`, `email`
+  - Proyectos: `nombre`, `descripcion`
+- **Ventajas**: Garantiza disponibilidad 100% del servicio de búsqueda
 
 ## Seguridad y Control de Acceso
 
@@ -22,15 +45,20 @@ ControlApp utiliza **Meilisearch** a través de **Laravel Scout** para proporcio
 > Los resultados de búsqueda se filtran estrictamente para garantizar la privacidad de los datos y el control de acceso basado en roles.
 
 ### 1. Visibilidad del Proyecto
-- **Miembros**: Los usuarios solo pueden encontrar proyectos de los que son miembros.
-- **Admins**: Los usuarios solo pueden encontrar proyectos donde tienen el rol de `admin` (si el modo estricto está habilitado).
+- **Admins**: Los usuarios solo pueden encontrar proyectos donde tienen el rol de `admin` o son propietarios.
 - **Lógica**:
   ```php
   // SearchController.php
-  $proyectos = Proyecto::search($query)->get()->filter(function ($proyecto) use ($user) {
-      // Solo devolver proyectos donde el usuario es propietario o admin
-      return $user->esAdminDe($proyecto);
-  });
+  $adminProjectIds = $user->proyectosPersonales()->pluck('id')
+      ->merge($user->proyectos()->wherePivot('rol', 'admin')->pluck('proyectos.id'))
+      ->unique()
+      ->values()
+      ->all();
+  
+  $projects = Proyecto::search($query)
+      ->whereIn('id', $adminProjectIds)
+      ->take(10)
+      ->get();
   ```
 
 ### 2. Protección de Datos Financieros
@@ -42,6 +70,13 @@ ControlApp utiliza **Meilisearch** a través de **Laravel Scout** para proporcio
 ### Prerrequisitos
 - Instancia de Meilisearch en ejecución (ej. vía Docker).
 - `MEILISEARCH_HOST` y `MEILISEARCH_KEY` en `.env`.
+
+### Variables de Entorno
+```env
+SCOUT_DRIVER=meilisearch
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_KEY=masterKey
+```
 
 ### Indexación
 Para inicializar el índice:
@@ -55,5 +90,22 @@ Esto está automatizado en:
 - Pipeline de CI/CD (`deploy.yml`)
 
 ## Pruebas
-- **Feature Test**: `tests/Feature/SearchTest.php`
+- **Feature Tests**: 
+  - `tests/Feature/Web/SearchTest.php` (Web)
+  - `tests/Feature/Api/SearchTest.php` (API)
 - **Driver**: Usa el driver `collection` para pruebas en memoria sin necesitar una instancia de Meilisearch corriendo.
+
+## Troubleshooting
+
+### Meilisearch no está disponible
+- **Síntoma**: Búsquedas devuelven resultados vacíos o son lentas
+- **Solución**: El sistema automáticamente usa SQL fallback
+- **Logs**: Revisa `storage/logs/laravel.log` para mensajes como "Search failed, using SQL fallback"
+
+### Resultados no actualizados
+- **Causa**: Índice de Meilisearch desactualizado
+- **Solución**: Re-indexar modelos
+  ```bash
+  php artisan scout:flush "App\Models\User"
+  php artisan scout:import "App\Models\User"
+  ```

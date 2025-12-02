@@ -329,6 +329,69 @@ Accept: application/json
 
 ---
 
+## 🔍 Global Search
+
+### Search - Search Users and Projects
+Searches for users and projects using Meilisearch/Scout. Only returns projects where the user is an administrator (Owner or Admin).
+
+**Search Engine:**
+- **Primary**: Meilisearch (fast, relevant, configured by default)
+- **Fallback**: SQL with `LIKE` (activates automatically if Meilisearch is unavailable)
+
+```http
+GET /api/search?query={query}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Parameters**
+- `query` (string, optional): Search term. If empty, returns empty results.
+
+**Response (200)**
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "profile_photo_url": "http://localhost/storage/profile-photos/hash.jpg"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "nombre": "My Project",
+      "descripcion": "Project description",
+      "icon": "📊",
+      "color": "blue",
+      "image_path": "projects/abc123.jpg"
+    }
+  ],
+  "query": "John"
+}
+```
+
+**Search Fields**
+- **Users**: `name`, `email`
+- **Projects**: `nombre`, `descripcion`
+
+**Security**
+- ✅ Requires Bearer token authentication
+- ✅ Only returns projects where user is Owner or Admin
+- ✅ Automatic SQL fallback if Meilisearch is unavailable
+- ✅ Error logs for debugging (`storage/logs/laravel.log`)
+
+**Errors**
+- `401` - Not authenticated
+
+**Notes**
+- The `image_path` field can be `null` if the project has no image
+- SQL fallback ensures search always works, even without Meilisearch
+- In production, it's recommended to have Meilisearch configured for better performance
+
+---
+
 ## 🚀 Projects
 
 **Authorization**: Only project members can access. Only administrators can modify or manage members.

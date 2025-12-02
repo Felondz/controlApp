@@ -44,8 +44,9 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
         {
             name: t('projects.members', 'Miembros'),
             icon: UserCircleIcon,
-            route: 'mis-proyectos.members', // TODO: Implement route
-            disabled: true,
+            route: 'project.members.index',
+            routeParams: project.id,
+            disabled: false,
             show: true,
         },
         {

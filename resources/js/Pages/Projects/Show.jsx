@@ -79,10 +79,11 @@ export default function Show({ auth, proyecto, isAdmin }) {
                         icon={UserCircleIcon}
                         color="primary"
                         label={t('members.total', 'Total Miembros')}
-                        value="1" // TODO: Count real members
+                        value={proyecto.miembros_count || 1}
                         action={{
                             label: t('common.manage', 'Gestionar'),
-                            disabled: true
+                            disabled: false,
+                            href: route('project.members.index', proyecto.id)
                         }}
                     />
                 </div>
