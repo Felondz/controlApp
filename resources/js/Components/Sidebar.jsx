@@ -151,9 +151,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 )}
 
                 <ResponsiveNavLink
-                    as="button"
-                    disabled // TODO: Implement route
-                    className="opacity-50 cursor-not-allowed"
+                    href={route('project.members.index', project.id)}
+                    active={route().current('project.members.index', project.id)}
                     collapsed={collapsed}
                 >
                     <UserCircleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />

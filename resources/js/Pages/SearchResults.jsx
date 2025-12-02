@@ -1,6 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { FolderIcon, UserCircleIcon } from '@/Components/Icons';
+import PrimaryLink from '@/Components/PrimaryLink';
 
 export default function SearchResults({ auth, users, projects, query }) {
     const { t } = useTranslate();
@@ -9,7 +11,7 @@ export default function SearchResults({ auth, users, projects, query }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">
                     {t('search.results_for', 'Resultados para')}: "{query}"
                 </h2>
             }
@@ -30,23 +32,37 @@ export default function SearchResults({ auth, users, projects, query }) {
                                     <li key={project.id} className="py-4">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex-shrink-0">
-                                                <span className="text-2xl">{project.icon || '📂'}</span>
+                                                {project.image_path ? (
+                                                    <img
+                                                        className="h-12 w-12 rounded-lg object-cover border-2 border-primary-600 dark:border-primary-400"
+                                                        src={`/storage/${project.image_path}`}
+                                                        alt={project.nombre}
+                                                    />
+                                                ) : project.icon ? (
+                                                    <div className="h-12 w-12 rounded-lg flex items-center justify-center">
+                                                        <span className="text-3xl">{project.icon}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-12 w-12 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                                                        <FolderIcon className="h-7 w-7 text-primary-600 dark:text-primary-400" />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                                                     {project.nombre}
                                                 </p>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                                    {project.description || t('common.no_description', 'Sin descripción')}
+                                                    {project.descripcion || t('common.no_description', 'Sin descripción')}
                                                 </p>
                                             </div>
                                             <div>
-                                                <Link
+                                                <PrimaryLink
                                                     href={route('mis-proyectos.show', project.id)}
-                                                    className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                    className="text-xs"
                                                 >
                                                     {t('common.view', 'Ver')}
-                                                </Link>
+                                                </PrimaryLink>
                                             </div>
                                         </div>
                                     </li>
@@ -70,7 +86,15 @@ export default function SearchResults({ auth, users, projects, query }) {
                                     <li key={user.id} className="py-4">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex-shrink-0">
-                                                <img className="h-10 w-10 rounded-full" src={user.profile_photo_url} alt={user.name} />
+                                                {user.profile_photo_url ? (
+                                                    <img
+                                                        className="h-10 w-10 rounded-full object-cover border-2 border-primary-600 dark:border-primary-400"
+                                                        src={user.profile_photo_url}
+                                                        alt={user.name}
+                                                    />
+                                                ) : (
+                                                    <UserCircleIcon className="h-10 w-10 text-gray-400" />
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
@@ -79,6 +103,14 @@ export default function SearchResults({ auth, users, projects, query }) {
                                                 <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                                                     {user.email}
                                                 </p>
+                                            </div>
+                                            <div>
+                                                <PrimaryLink
+                                                    href={route('users.show', user.id)}
+                                                    className="text-xs"
+                                                >
+                                                    {t('common.view_profile', 'Ver Perfil')}
+                                                </PrimaryLink>
                                             </div>
                                         </div>
                                     </li>

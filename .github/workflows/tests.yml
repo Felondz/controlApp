@@ -174,10 +174,8 @@ jobs:
       - name: Install dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: Run Larastan (PHPStan with Laravel support)
-        run: vendor/bin/phpstan analyse --memory-limit=512M
-        continue-on-error: true
-
-      - name: Run PHPStan (backup)
-        run: phpstan analyse app --level=8 --memory-limit=512M || true
-        continue-on-error: true
+      # PHPStan/Larastan is not currently installed in the project
+      # Uncomment these steps after adding larastan/larastan to composer.json require-dev
+      # - name: Run Larastan (PHPStan with Laravel support)
+      #   run: vendor/bin/phpstan analyse --memory-limit=512M
+      #   continue-on-error: true

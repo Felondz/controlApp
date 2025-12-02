@@ -1,20 +1,26 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class SearchController extends Controller
 {
+    /**
+     * Search for users and projects.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function __invoke(Request $request)
     {
         $query = $request->input('query');
 
         if (!$query) {
-            return Inertia::render('SearchResults', [
+            return response()->json([
                 'users' => [],
                 'projects' => [],
                 'query' => '',
@@ -22,13 +28,18 @@ class SearchController extends Controller
         }
 
         try {
-            // Search in Users and Projects using Scout/Meilisearch
-            $users = User::search($query)->take(10)->get();
-
-            // Append profile_photo_url accessor
-            $users->each(function ($user) {
-                $user->append('profile_photo_url');
-            });
+            // Search in Users using Scout/Meilisearch
+            $users = User::search($query)
+                ->take(10)
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'profile_photo_url' => $user->profile_photo_url,
+                    ];
+                });
 
             // Get IDs of projects where the user is an ADMIN (Owner or Admin role)
             $user = auth()->user();
@@ -42,10 +53,19 @@ class SearchController extends Controller
             $projects = Proyecto::search($query)
                 ->whereIn('id', $adminProjectIds)
                 ->take(10)
-                ->get();
+                ->get()
+                ->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'nombre' => $project->nombre,
+                        'description' => $project->description,
+                        'icon' => $project->icon,
+                        'color' => $project->color,
+                    ];
+                });
         } catch (\Exception $e) {
             // If Meilisearch is down or index doesn't exist, fallback to SQL search
-            \Log::warning('Search failed, using SQL fallback: ' . $e->getMessage());
+            \Log::warning('API Search failed, using SQL fallback: ' . $e->getMessage());
 
             // SQL Fallback for Users
             $users = User::where(function ($q) use ($query) {
@@ -53,11 +73,15 @@ class SearchController extends Controller
                     ->orWhere('email', 'like', "%{$query}%");
             })
                 ->take(10)
-                ->get();
-
-            $users->each(function ($user) {
-                $user->append('profile_photo_url');
-            });
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'profile_photo_url' => $user->profile_photo_url,
+                    ];
+                });
 
             // SQL Fallback for Projects
             $user = auth()->user();
@@ -86,7 +110,7 @@ class SearchController extends Controller
                 });
         }
 
-        return Inertia::render('SearchResults', [
+        return response()->json([
             'users' => $users,
             'projects' => $projects,
             'query' => $query,

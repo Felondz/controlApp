@@ -78,6 +78,7 @@ class ProyectoUiWebController extends Controller
         }
 
         $mis_proyecto->load($relations);
+        $mis_proyecto->loadCount('miembros');
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 

@@ -59,6 +59,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
 
+    // Project Members
+    Route::get('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'index'])
+        ->name('project.members.index');
+    Route::post('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'store'])
+        ->name('project.members.store');
+    Route::put('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'update'])
+        ->name('project.members.update');
+    Route::delete('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'destroy'])
+        ->name('project.members.destroy');
+    Route::delete('mis-proyectos/{proyecto}/invitations/{invitation}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'cancelInvitation'])
+        ->name('project.invitations.destroy');
+    Route::post('mis-proyectos/{proyecto}/transfer-ownership', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'transferOwnership'])
+        ->name('project.ownership.transfer');
+    Route::get('mis-proyectos/{proyecto}/users/search', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'searchUsers'])
+        ->name('project.users.search');
+
+    // Accept Invitation
+    Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])
+        ->name('invitation.accept');
+    Route::post('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'processInvitation'])
+        ->name('invitation.process');
+
+    // Public User Profile
+    Route::get('/users/{user}', [\App\Http\Controllers\PublicUserProfileController::class, 'show'])
+        ->name('users.show');
+
     // Settings
     Route::get('/settings/theme', function () {
         return Inertia::render('Settings/GlobalTheme');

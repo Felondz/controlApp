@@ -73,6 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', fn(Request $request) => $request->user());
 
+    // --- Búsqueda Global ---
+    Route::get('/search', [App\Http\Controllers\Api\SearchController::class, '__invoke']);
+
     // --- Usuario: Preferencias y Perfil ---
     Route::put('/user/locale', [UserController::class, 'updateLocale']);
 

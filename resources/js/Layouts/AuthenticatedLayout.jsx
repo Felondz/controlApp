@@ -76,7 +76,16 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                         </button>
                         {header}
                     </div>
-                    <div className="flex items-center space-x-4 pl-4">
+                    <div className="flex items-center gap-4">
+                        {/* Global Search */}
+                        <div className="hidden lg:block w-48 xl:w-56">
+                            <SearchInput
+                                className="w-full"
+                                inputClasses="py-1.5 text-sm bg-gray-50 dark:bg-gray-900"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-3 pl-4">
                         <ThemeToggle />
 
                         {/* Inbox Dropdown */}
@@ -327,7 +336,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                 </nav>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto focus:outline-none">
+                <main className="flex-1 overflow-y-auto focus:outline-none scrollbar-thin">
                     {header && (
                         <header className="md:hidden bg-white dark:bg-gray-800 shadow shrink-0">
                             <div className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">
