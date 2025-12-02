@@ -141,7 +141,7 @@ jobs:
         run: npm ci
 
       - name: Run frontend tests
-        run: npm run test -- --reporter=verbose --run
+        run: npm run test:ci
 
       - name: Upload frontend test results
         if: always()
