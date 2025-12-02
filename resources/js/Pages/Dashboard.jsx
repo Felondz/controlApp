@@ -4,7 +4,6 @@ import ProjectCard from '@/Components/Project/ProjectCard';
 import { useTranslate } from '@/Hooks/useTranslate';
 import TextInput from '@/Components/TextInput';
 import PrimaryLink from '@/Components/PrimaryLink';
-import SearchInput from '@/Components/SearchInput';
 import { SearchIcon, PlusIcon, EmptyStateIcon } from '@/Components/Icons';
 
 export default function Dashboard({ auth, proyectos = [] }) {
@@ -21,14 +20,6 @@ export default function Dashboard({ auth, proyectos = [] }) {
                         </h2>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="relative w-32 md:w-48">
-                            <SearchInput
-                                className="w-full"
-                                inputClasses="pl-9 py-0.5 text-xs bg-gray-50 dark:bg-gray-900 border-none focus:ring-1 focus:ring-primary-500"
-                            />
-                        </div>
-                    </div>
                 </div>
             }
         >
