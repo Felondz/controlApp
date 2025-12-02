@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test": "vitest",
+        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 vitest run --reporter=verbose"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",

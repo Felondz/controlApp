@@ -24,7 +24,7 @@
 | **Estilos** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
 | **DevOps** | Docker | Laravel Sail |
-| **Testing** | PHPUnit / Pest | Feature & Unit tests |
+| **Testing** | PHPUnit / Pest | Feature & Unit tests | vitest y react testing library
 
 ---
 
@@ -61,6 +61,7 @@ Usa **Conventional Commits**:
 - `docs/es/02-development/`: Guías técnicas (API, DB, Auth).
 - `docs/es/03-ia-collaboration/`: TUS guías (este archivo).
 - `docs/es/04-testing/`: Estrategias de prueba.
+- `docs/es/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
 
 ### Flujo de Decisión
 1. ¿Es un cambio de código? -> Actualiza `CHANGELOG.md`.
@@ -84,7 +85,7 @@ Usa **Conventional Commits**:
 - **Inertia**: Usa `useForm` para formularios.
 
 ### CSS (Tailwind)
-- **Utilidades**: Usa clases de utilidad siempre que sea posible.
+- **Utilidades**: Usa clases de utilidad.
 - **Config**: Usa colores semánticos (`bg-primary`, `text-danger`) definidos en `tailwind.config.js`.
 - **Responsive**: Mobile-first (`w-full md:w-1/2`).
 
@@ -93,8 +94,11 @@ Usa **Conventional Commits**:
 ## 6. 🧪 Testing
 
 - **Regla**: "Si no está testeado, no está terminado".
-- **Comando**: `php artisan test` (o `docker compose exec laravel.test php artisan test`).
+- **Comando**: `php artisan test` (o `docker compose exec laravel.test php artisan test`). 'con sail' para ejecutar tests.
 - **Cobertura**: Prioriza Feature tests para flujos críticos.
+- **Frontend**: Use vitest and react testing library.
+- **Backend**: Use phpunit.
+- **Limpieza**: limpiar archivos residuales de tests anteriores.
 
 ---
 

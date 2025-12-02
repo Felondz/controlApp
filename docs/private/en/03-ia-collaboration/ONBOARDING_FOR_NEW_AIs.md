@@ -24,7 +24,7 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 | **Styles** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
 | **DevOps** | Docker | Laravel Sail |
-| **Testing** | PHPUnit / Pest | Feature & Unit tests |
+| **Testing** | PHPUnit / Pest | Feature & Unit tests | vitest and react testing library
 
 ---
 
@@ -59,6 +59,7 @@ Use **Conventional Commits**:
 - `docs/en/02-development/`: Technical guides (API, DB, Auth).
 - `docs/en/03-ia-collaboration/`: YOUR guides (this file).
 - `docs/en/04-testing/`: Testing strategies.
+- `docs/en/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
 
 ### Decision Flow
 1. Is it a code change? -> Update `CHANGELOG.md`.
@@ -100,6 +101,9 @@ Use **Conventional Commits**:
 - **Rule**: "If it's not tested, it's not finished".
 - **Command**: `php artisan test` (o `docker compose exec laravel.test php artisan test`).
 - **Coverage**: Prioritize Feature tests for critical flows.
+- **Frontend**: Use vitest and react testing library.
+- **Backend**: Use phpunit.
+- **Clear**: clear all files from previous tests.
 
 ---
 

@@ -6,23 +6,35 @@
 
 ## 1. 🎯 Testing Philosophy and QA
 
-*   **Current Status**: 214 tests passing with 764+ assertions (100% coverage of main modules).
+*   **Current Status**: 
+    - **Backend**: 240 tests passing with 775+ assertions (100% coverage)
+    - **Frontend**: 215 tests passing (100% component coverage)
+    - **Total**: 455 tests with comprehensive coverage
 *   **Golden Rule (Quality Gate)**: If tests fail, the code has an error. **Do not commit/push until all pass**.
-*   **Convention**: Use descriptive test names: `test_admin_can_create_user`.
-*   **Recent Additions**: Tools API tests (`Feature/Api/ToolTest`) for tool management endpoints.
+*   **Convention**: Use descriptive test names: `test_admin_can_create_user` (backend), `renders correctly` (frontend).
+*   **CI/CD**: All tests run automatically on GitHub Actions for every push/PR.
 
 ---
 
-## 2. 🗄️ Database Isolation (Critical Strategy)
+## 2. 🗄️ Backend Testing (PHPUnit)
 
-### The RefreshDatabase Trait
+### Database Isolation (Critical Strategy)
+
 The test suite uses the `Illuminate\Foundation\Testing\RefreshDatabase` trait in each `TestCase`.
 
 * **Setup**: Data is prepared using **Factories** to generate isolated and realistic instances for each test.
 
----
+### Test Organization
 
-## 3. 🛠️ Execution Commands (Testing Scripts)
+Tests are organized by type in `tests/Feature`:
+
+- **Api**: API endpoint tests (`tests/Feature/Api`)
+- **Web**: Web/Inertia controller tests (`tests/Feature/Web`)
+- **Auth**: Authentication flow tests (`tests/Feature/Auth`)
+- **Mail**: Email content and sending tests (`tests/Feature/Mail`)
+- **Database**: Seeder and migration tests (`tests/Feature/Database`)
+
+### Execution Commands
 
 All tests must be run inside the application container through **Sail**.
 
@@ -34,9 +46,7 @@ All tests must be run inside the application container through **Sail**.
 | **Run tests in parallel** | `./vendor/bin/sail artisan test --parallel` |
 | **Run testing migrations** | `./vendor/bin/sail artisan migrate --env=testing` |
 
----
-
-## 4. 📝 Assertions and Structure
+### Assertions and Structure
 
 * **Test Structure (AAA)**:
     1.  `Arrange`: Prepare data with Factories.
@@ -52,17 +62,76 @@ All tests must be run inside the application container through **Sail**.
 
 ---
 
-## 5. 🎯 Best Practices
+## 3. 🎨 Frontend Testing (Vitest + Testing Library)
+
+### Test Coverage
+
+**Statistics:**
+- **Total Tests**: 215 tests across 38 test suites
+- **Coverage**: 100% of React components
+- **Framework**: Vitest + @testing-library/react
+
+**Test Categories:**
+
+1. **UI Core Components**
+   - Checkbox, TextInput, PasswordInput, InputLabel, InputError
+   - PrimaryButton, SecondaryButton, DangerButton
+   - Dropdown, Modal, Alert
+   - RangeSlider, QuantityInput, SelectGroup, ToggleGroup, InputGroup
+
+2. **Feature Components**
+   - ImageUploader, Sidebar, ProjectCard, ChatWidget
+   - BottomNavigation, ToolsSheet, TypographySelector, ThemeToggle
+   - ApplicationLogo, LocaleSelector, SummaryCard, AccountsList, ToolCard
+   - FinanceWidget, TasksWidget
+
+3. **Architecture Tests**
+   - ComponentStandards quality checks
+
+### Execution Commands
+
+| Purpose | Command |
+| :--- | :--- |
+| **Run all frontend tests** | `npm run test` |
+| **Run tests in CI mode** | `npm run test:ci` |
+| **Run tests in watch mode** | `npm run test:watch` |
+| **Run specific test file** | `npx vitest run ComponentName.test.jsx` |
+
+### Test Infrastructure
+
+**Global Mocks** (`test-setup.js`):
+- `@inertiajs/react` (usePage, router, Link, useForm)
+- `@/hooks/useTranslate`
+- `@/Contexts/GlobalThemeContext`
+- `global.route` (Ziggy)
+- `axios`
+- `Element.prototype.scrollIntoView`
+
+**Test Location**: `tests/Frontend/Components` (Mirroring `resources/js/Components`)
+
+### Best Practices
+
+- ✅ Use semantic queries (`getByRole`, `getByLabelText`)
+- ✅ Test user behavior, not implementation details
+- ✅ Wait for async operations with `waitFor`
+- ✅ Verify translation keys, not translated text
+- ✅ Keep tests isolated and independent
+- ✅ Follow AAA pattern (Arrange, Act, Assert)
+
+---
+
+## 4. 🎯 General Best Practices
 
 - ✅ Each test should be independent
 - ✅ Use descriptive test names
 - ✅ Follow the AAA pattern
-- ✅ Use Factories for test data
-- ✅ Clean up after tests (RefreshDatabase handles this)
+- ✅ Use Factories/Mocks for test data
+- ✅ Clean up after tests (RefreshDatabase/cleanup)
 - ✅ Test both success and failure cases
 - ✅ Run tests locally before pushing
+- ✅ All tests must pass in CI/CD
 
 ---
 
-**Last Updated**: November 29, 2025
-**Status**: ✅ Testing strategy fully configured
+**Last Updated**: December 1, 2025
+**Status**: ✅ Testing strategy fully configured (Backend + Frontend)

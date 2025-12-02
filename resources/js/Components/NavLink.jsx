@@ -14,7 +14,7 @@ export default function NavLink({
                 (active
                     ? 'border-primary-400 text-gray-900 dark:text-gray-100 focus:border-primary-700'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300 focus:border-gray-300 focus:text-gray-700') +
-                className
+                ' ' + className
             }
         >
             {children}

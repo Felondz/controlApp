@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon } from '@/Components/Icons';
+import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon } from '@/Components/Icons';
 import Dropdown from '@/Components/Dropdown';
 import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
@@ -78,6 +78,75 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     </div>
                     <div className="flex items-center space-x-4 pl-4">
                         <ThemeToggle />
+
+                        {/* Inbox Dropdown */}
+                        <div className="relative flex items-center">
+                            <Dropdown width="80" contentClasses="py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <Dropdown.Trigger>
+                                    <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                        <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
+                                        <InboxIcon className={`h-6 w-6 ${iconClasses}`} />
+                                        {user.unread_messages_count > 0 && (
+                                            <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
+                                        )}
+                                    </button>
+                                </Dropdown.Trigger>
+
+                                <Dropdown.Content>
+                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                            {t('inbox.title', 'Buzón de entrada')}
+                                        </span>
+                                    </div>
+
+                                    {user.unread_projects && user.unread_projects.length > 0 ? (
+                                        <div className="max-h-64 overflow-y-auto">
+                                            {user.unread_projects.map((project) => (
+                                                <Dropdown.Link
+                                                    key={project.id}
+                                                    href={route('mis-proyectos.chat', project.id)}
+                                                    className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                                >
+                                                    <div className="shrink-0 mr-3">
+                                                        {project.image_path ? (
+                                                            <img className="h-8 w-8 rounded-full object-cover" src={`/storage/${project.image_path}`} alt="" />
+                                                        ) : (
+                                                            <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                                                                <FolderIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                            {project.nombre}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                            {project.unread_count} mensajes nuevos
+                                                        </p>
+                                                    </div>
+                                                    {project.unread_count > 0 && (
+                                                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                            {project.unread_count}
+                                                        </span>
+                                                    )}
+                                                </Dropdown.Link>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            {t('inbox.empty', 'No tienes mensajes nuevos.')}
+                                        </div>
+                                    )}
+
+                                    <div className="border-t border-gray-100 dark:border-gray-700">
+                                        <Dropdown.Link href={route('inbox')} className="text-center text-primary-600 dark:text-primary-400 text-xs font-medium">
+                                            {t('inbox.view_all', 'Ver todos')}
+                                        </Dropdown.Link>
+                                    </div>
+                                </Dropdown.Content>
+                            </Dropdown>
+                        </div>
+
                         <div className="relative flex items-center">
                             <Dropdown className="flex items-center">
                                 <Dropdown.Trigger className="flex items-center">
@@ -105,6 +174,17 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
 
                                     <Dropdown.Link href={route('profile.edit')}>
                                         {t('profile.edit', 'Editar Perfil')}
+                                    </Dropdown.Link>
+
+                                    <Dropdown.Link href={route('inbox')}>
+                                        <div className="flex justify-between items-center">
+                                            <span>{t('inbox.title', 'Buzón de entrada')}</span>
+                                            {user.unread_messages_count > 0 && (
+                                                <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                                    {user.unread_messages_count}
+                                                </span>
+                                            )}
+                                        </div>
                                     </Dropdown.Link>
 
                                     <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
@@ -169,24 +249,17 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                 <ThemeToggle className="mr-2" />
                                 <button
                                     onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                    className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
+                                    className="relative inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ml-2"
                                 >
-                                    <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                        <path
-                                            className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M4 6h16M4 12h16M4 18h16"
+                                    {user.profile_photo_url ? (
+                                        <img
+                                            className="h-8 w-8 rounded-full object-cover border-2 border-primary-600 dark:border-primary-400"
+                                            src={user.profile_photo_url}
+                                            alt={user.name}
                                         />
-                                        <path
-                                            className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M6 18L18 6M6 6l12 12"
-                                        />
-                                    </svg>
+                                    ) : (
+                                        <UserCircleIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -196,7 +269,17 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' md:hidden'}>
                         <div className="pt-2 pb-3 space-y-1">
                             <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                Dashboard
+                                {t('dashboard.title', 'Dashboard')}
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('inbox')} active={route().current('inbox')}>
+                                <div className="flex items-center justify-between">
+                                    <span>{t('inbox.title', 'Buzón de entrada')}</span>
+                                    {user.unread_messages_count > 0 && (
+                                        <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                            {user.unread_messages_count}
+                                        </span>
+                                    )}
+                                </div>
                             </ResponsiveNavLink>
                         </div>
                         <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
@@ -205,10 +288,39 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                 <div className="font-medium text-sm text-gray-500">{user.email}</div>
                             </div>
                             <div className="mt-3 space-y-1">
-                                <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('profile.edit')}>{t('profile.title', 'Perfil')}</ResponsiveNavLink>
                                 <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                    Log Out
+                                    {t('auth.logout', 'Cerrar Sesión')}
                                 </ResponsiveNavLink>
+                            </div>
+
+                            {/* Mobile Language Switcher */}
+                            <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+                                <div className="px-4 text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold mb-2">
+                                    {t('common.language', 'Idioma')}
+                                </div>
+                                <div className="space-y-1">
+                                    <ResponsiveNavLink
+                                        href={route('language.switch', 'es')}
+                                        method="post"
+                                        as="button"
+                                        active={user.locale === 'es'}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <IconES className="w-5 h-5" />
+                                        <span>Español</span>
+                                    </ResponsiveNavLink>
+                                    <ResponsiveNavLink
+                                        href={route('language.switch', 'en')}
+                                        method="post"
+                                        as="button"
+                                        active={user.locale === 'en'}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <IconEN className="w-5 h-5" />
+                                        <span>English</span>
+                                    </ResponsiveNavLink>
+                                </div>
                             </div>
                         </div>
                     </div>

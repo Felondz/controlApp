@@ -6,56 +6,49 @@
 
 ## 1. 🎯 Filosofía de Testing y QA
 
-* **Estado Actual**: 206 tests pasando con 677 assertions (100% de cobertura en módulos principales de autenticación y finanzas).
+* **Estado Actual**:
+    - **Backend**: 100% de cobertura funcional (240 tests).
+    - **Frontend**: 100% de cobertura de componentes (37/37 componentes testeados).
+    - **Total**: 336 tests con cobertura completa en frontend
 * **Regla de Oro (Quality Gate)**: Si los tests fallan, el código tiene un error. **No hagas commit/push hasta que todos pasen**.
-* **Convención**: Usar nombres descriptivos para los tests: `test_admin_puede_crear_usuario`.
+* **Convención**: Usar nombres descriptivos: `test_admin_puede_crear_usuario` (backend), `renders correctly` (frontend).
+* **CI/CD**: Todos los tests se ejecutan automáticamente en GitHub Actions en cada push/PR.
 
 ---
 
-## 2. 🗄️ Aislamiento de Base de Datos (SQLite In-Memory)
+## 2. 🗄️ Testing Backend (PHPUnit)
+
+### Aislamiento de Base de Datos (SQLite In-Memory)
  
-La suite de tests ahora está configurada para usar **SQLite en memoria** (`:memory:`).
+La suite de tests está configurada para usar **SQLite en memoria** (`:memory:`).
  
 *   **Ventajas**:
-    *   🚀 **Velocidad**: Los tests se ejecutan mucho más rápido al no tocar el disco.
-    *   🛠️ **Simplicidad**: No requiere un servidor MySQL corriendo ni crear una base de datos de testing separada.
-    *   🔄 **Aislamiento**: Cada test inicia con una base de datos fresca en memoria que se destruye al finalizar.
-*   **Trait RefreshDatabase**: Sigue siendo esencial. Se encarga de migrar la base de datos en memoria antes de cada test.
- 
----
- 
-## 3. 🛠️ Comandos de Ejecución (Testing Scripts)
- 
-Puedes ejecutar los tests tanto dentro de Docker (Sail) como en tu máquina local (si tienes PHP instalado), gracias a SQLite.
+    *   🚀 **Velocidad**: Los tests se ejecutan mucho más rápido
+    *   🛠️ **Simplicidad**: No requiere servidor MySQL
+    *   🔄 **Aislamiento**: Base de datos fresca en cada test
+*   **Trait RefreshDatabase**: Migra la base de datos en memoria antes de cada test.
+
+### Organización de Tests
+
+Los tests están organizados por tipo en `tests/Feature`:
+
+- **Api**: Tests de endpoints API (`tests/Feature/Api`)
+- **Web**: Tests de controladores Web/Inertia (`tests/Feature/Web`)
+- **Auth**: Tests de flujos de autenticación (`tests/Feature/Auth`)
+- **Mail**: Tests de contenido y envío de correos (`tests/Feature/Mail`)
+- **Database**: Tests de seeders y migraciones (`tests/Feature/Database`)
+
+### Comandos de Ejecución
  
 | Propósito | Comando (Local) | Comando (Sail/Docker) |
 | :--- | :--- | :--- |
-| **Ejecutar todos los tests** | `php artisan test` | `./vendor/bin/sail test` |
-| **Ejecutar con testdox (Detallado)** | `php artisan test --testdox` | `./vendor/bin/sail test --testdox` |
-| **Ejecutar un archivo específico** | `php artisan test tests/Feature/EjemploTest.php` | `./vendor/bin/sail test ...` |
-| **Ejecutar un test específico** | `php artisan test --filter=nombre_del_test` | `./vendor/bin/sail test ...` |
-| **Ejecutar tests en paralelo** | `php artisan test --parallel` | `./vendor/bin/sail test --parallel` |
- 
-> **Nota:** Ya no es necesario ejecutar comandos de migración manual (`migrate:fresh`) para testing, ya que SQLite se migra automáticamente en memoria.
+| **Ejecutar todos los tests** | `./vendor/bin/sail test` | `./vendor/bin/sail test` |
+| **Ejecutar con testdox** | `./vendor/bin/sail test --testdox` | `./vendor/bin/sail test --testdox` |
+| **Ejecutar archivo específico** | `./vendor/bin/sail test tests/Feature/EjemploTest.php` | `./vendor/bin/sail test ...` |
+| **Ejecutar test específico** | `./vendor/bin/sail test --filter=nombre_del_test` | `./vendor/bin/sail test ...` |
+| **Ejecutar en paralelo** | `./vendor/bin/sail test --parallel` | `./vendor/bin/sail test --parallel` |
 
----
-
-## 4. 🔍 Pruebas de Búsqueda
-- **Driver**: Usamos el driver `collection` para `Laravel Scout` durante las pruebas.
-- **Configuración**: Definida en `.env.testing` (`SCOUT_DRIVER=collection`).
-- **Beneficio**: Permite probar la lógica de búsqueda (como control de acceso y formato de resultados) sin requerir una instancia de Meilisearch en ejecución en el entorno de pruebas.
-- **Test Clave**: `tests/Feature/SearchTest.php` verifica que:
-  - La página de búsqueda es accesible.
-  - Los resultados se devuelven correctamente.
-  - **Seguridad**: Los usuarios solo ven proyectos de los que son miembros (o admins, según el modo estricto).
-
----
-
-## 5. 🚀 Integración Continua (CI)
-
----
-
-## 6. 📝 Assertions y Estructura
+### Assertions y Estructura
 
 *   **Estructura del Test (AAA)**:
     1.  `Arrange`: Preparar datos con Factories.
@@ -71,25 +64,76 @@ Puedes ejecutar los tests tanto dentro de Docker (Sail) como en tu máquina loca
 
 ---
 
-## 5. 🧪 Cobertura de Autenticación (Web + API)
+## 3. 🎨 Testing Frontend (Vitest + Testing Library)
 
-Resumen de los tests clave relacionados con login/registro/verificación y reset de contraseña:
+### Cobertura de Tests
 
-- **Web (Inertia + React)**
-  - `tests/Feature/Auth/AuthenticationTest.php`: pantalla de login (Inertia), login correcto/incorrecto, logout y "remember me".
-  - `tests/Feature/Auth/RegistrationTest.php`: pantalla de registro, creación de usuario, redirección a login y protección por verificación de email.
-  - `tests/Feature/Auth/EmailVerificationTest.php`: flujo de verificación de email en la parte web.
-  - `tests/Feature/Auth/PasswordResetTest.php`: solicitud de enlace, pantalla de reset y validaciones de token/contraseña.
-  - `tests/Feature/Auth/PasswordUpdateTest.php`: cambio de contraseña del usuario autenticado.
+**Estadísticas:**
+- **Total de Tests**: 215 tests en 38 suites de prueba
+- **Cobertura**: 100% de componentes React (38/38 componentes testeados)
+- **Framework**: Vitest + @testing-library/react
 
-- **API**
-  - `tests/Feature/AuthenticationApiTest.php`: registro/login/logout vía API y restricción por email verificado.
-  - `tests/Feature/EmailVerificationApiTest.php`: verificación de email vía enlace (`/api/email/verify/{id}/{hash}`) y reenvío del email.
-  - `tests/Feature/PasswordResetApiTest.php`: endpoints de reset de contraseña (forgot/reset/validaciones).
-  - `tests/Feature/PasswordResetMailTest.php`: contenido y formato del email de reset.
-  - `tests/Feature/VisualEmailTestsInMailpitTest.php`: verificación visual de correos de verificación, invitación y reset en Mailpit.
+**Categorías de Tests:**
 
-## 6. 🗑️ Tarea de Limpieza Final
+1. **Componentes UI Core**
+   - Checkbox, TextInput, PasswordInput, InputLabel, InputError
+   - PrimaryButton, SecondaryButton, DangerButton
+   - Dropdown, Modal, Alert
+   - RangeSlider, QuantityInput, SelectGroup, ToggleGroup, InputGroup
 
-Si no lo has hecho ya, por favor, elimina de la carpeta `docs/04-testing/` los archivos `TESTING.md` y `TESTING_SCRIPTS.md` (y cualquier otro archivo histórico), ya que su contenido ha sido fusionado en este documento.
+2. **Componentes de Funcionalidad (Feature)**
+   - ImageUploader, Sidebar, ProjectCard, ChatWidget
+   - BottomNavigation, ToolsSheet, TypographySelector, ThemeToggle
+   - ApplicationLogo, LocaleSelector, SummaryCard, AccountsList, ToolCard
+   - FinanceWidget, TasksWidget
 
+3. **Tests de Arquitectura**
+   - Verificaciones de calidad ComponentStandards
+
+### Comandos de Ejecución
+
+| Propósito | Comando |
+| :--- | :--- |
+| **Ejecutar todos los tests frontend** | `npm run test` |
+| **Ejecutar en modo CI** | `npm run test:ci` |
+| **Ejecutar en modo watch** | `npm run test:watch` |
+| **Ejecutar archivo específico** | `npx vitest run ComponentName.test.jsx` |
+
+### Infraestructura de Tests
+
+**Mocks Globales** (`test-setup.js`):
+- `@inertiajs/react` (usePage, router, Link, useForm)
+- `@/hooks/useTranslate`
+- `@/Contexts/GlobalThemeContext`
+- `global.route` (Ziggy)
+- `axios`
+- `Element.prototype.scrollIntoView`
+
+**Ubicación de Tests**: `tests/Frontend/Components` (Reflejando `resources/js/Components`)
+
+### Mejores Prácticas
+
+- ✅ Usar queries semánticas (`getByRole`, `getByLabelText`)
+- ✅ Testear comportamiento del usuario, no detalles de implementación
+- ✅ Esperar operaciones asíncronas con `waitFor`
+- ✅ Verificar claves de traducción, no texto traducido
+- ✅ Mantener tests aislados e independientes
+- ✅ Seguir patrón AAA (Arrange, Act, Assert)
+
+---
+
+## 4. 🎯 Mejores Prácticas Generales
+
+- ✅ Cada test debe ser independiente
+- ✅ Usar nombres descriptivos
+- ✅ Seguir el patrón AAA
+- ✅ Usar Factories/Mocks para datos de prueba
+- ✅ Limpiar después de los tests (RefreshDatabase/cleanup)
+- ✅ Testear casos de éxito y fallo
+- ✅ Ejecutar tests localmente antes de push
+- ✅ Todos los tests deben pasar en CI/CD
+
+---
+
+**Última Actualización**: 1 de Diciembre, 2025
+**Estado**: ✅ Estrategia de testing completamente configurada (Backend + Frontend)
