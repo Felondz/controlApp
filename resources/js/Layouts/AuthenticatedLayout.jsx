@@ -45,7 +45,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
     const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
 
     return (
-        <div className="h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex">
+        <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
             {/* Desktop Sidebar */}
             <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} />
 
@@ -290,46 +290,60 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                     )}
                                 </div>
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('invitations.index')} active={route().current('invitations.index')}>
+                                {t('invitations.title', 'Invitaciones')}
+                            </ResponsiveNavLink>
                         </div>
+
+                        {/* User Info & Settings */}
                         <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                            <div className="px-4">
+                            <div className="px-4 mb-3">
                                 <div className="font-medium text-base text-gray-800 dark:text-gray-200">{user.name}</div>
                                 <div className="font-medium text-sm text-gray-500">{user.email}</div>
                             </div>
-                            <div className="mt-3 space-y-1">
-                                <ResponsiveNavLink href={route('profile.edit')}>{t('profile.title', 'Perfil')}</ResponsiveNavLink>
+
+                            <div className="space-y-1">
+                                <ResponsiveNavLink href={route('profile.edit')}>
+                                    {t('profile.title', 'Perfil')}
+                                </ResponsiveNavLink>
+
+                                {/* Language Switcher */}
+                                <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
+                                <div className="px-4 text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold mb-2 mt-2">
+                                    {t('common.language', 'Idioma')}
+                                </div>
+                                <ResponsiveNavLink
+                                    href={route('language.switch', 'es')}
+                                    method="post"
+                                    as="button"
+                                    active={user.locale === 'es'}
+                                    className="flex items-center gap-2"
+                                >
+                                    <IconES className="w-5 h-5" />
+                                    <span>Español</span>
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink
+                                    href={route('language.switch', 'en')}
+                                    method="post"
+                                    as="button"
+                                    active={user.locale === 'en'}
+                                    className="flex items-center gap-2"
+                                >
+                                    <IconEN className="w-5 h-5" />
+                                    <span>English</span>
+                                </ResponsiveNavLink>
+
+                                {/* Theme Settings */}
+                                <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
+                                <ResponsiveNavLink href={route('settings.theme')}>
+                                    {t('settings.theme.title', 'Tema Global')}
+                                </ResponsiveNavLink>
+
+                                {/* Logout */}
+                                <div className="border-t border-gray-200 dark:border-gray-600 my-2"></div>
                                 <ResponsiveNavLink method="post" href={route('logout')} as="button">
                                     {t('auth.logout', 'Cerrar Sesión')}
                                 </ResponsiveNavLink>
-                            </div>
-
-                            {/* Mobile Language Switcher */}
-                            <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-                                <div className="px-4 text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold mb-2">
-                                    {t('common.language', 'Idioma')}
-                                </div>
-                                <div className="space-y-1">
-                                    <ResponsiveNavLink
-                                        href={route('language.switch', 'es')}
-                                        method="post"
-                                        as="button"
-                                        active={user.locale === 'es'}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <IconES className="w-5 h-5" />
-                                        <span>Español</span>
-                                    </ResponsiveNavLink>
-                                    <ResponsiveNavLink
-                                        href={route('language.switch', 'en')}
-                                        method="post"
-                                        as="button"
-                                        active={user.locale === 'en'}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <IconEN className="w-5 h-5" />
-                                        <span>English</span>
-                                    </ResponsiveNavLink>
-                                </div>
                             </div>
                         </div>
                     </div>

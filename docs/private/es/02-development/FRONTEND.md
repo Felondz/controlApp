@@ -22,7 +22,9 @@ Un envoltorio alrededor del elemento `input` nativo que añade un botón para al
   - **Mensajería Privada**: Soporte para chats 1 a 1 con miembros del proyecto.
   - **Chat General**: Chat grupal para todos los miembros.
   - **Auto-scroll**: Se desplaza automáticamente al mensaje más nuevo.
-  - **Polling**: Actualiza cada 5 segundos.
+  - **Polling Optimizado**: Actualiza cada 3 segundos sin causar bucles infinitos gracias a actualizaciones optimistas.
+  - **Sincronización Global**: Actualiza contadores de Sidebar y Navbar automáticamente al leer mensajes.
+  - **Móvil**: Navegación mejorada con botón "Volver a Chats" y diseño responsivo.
   - **Consciente del tema**: Usa `ChatIcon` y colores del tema.
 
 ### InboxDropdown

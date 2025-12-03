@@ -40,7 +40,7 @@ export default function BottomNavigation({ user, project = null }) {
             // Smart Slot Logic (Priority: Chat > Finance)
             if (modules.includes('chat')) {
                 items.push({
-                    name: t('modules.chat', 'Chat'),
+                    name: t('modules.chat.title', 'Chat'),
                     route: 'mis-proyectos.chat',
                     routeParams: project.id,
                     icon: ChatIcon,

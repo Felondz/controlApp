@@ -2,7 +2,7 @@
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -39,7 +39,7 @@ const TYPOGRAPHIES = [
 ];
 
 export default function Edit({ auth, proyecto }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [confirmingDeletion, setConfirmingDeletion] = useState(false);
 
     const { data, setData, put, post, processing, errors, transform } = useForm({
@@ -91,9 +91,14 @@ export default function Edit({ auth, proyecto }) {
         e.preventDefault();
         destroy(route('mis-proyectos.destroy', proyecto.id), {
             preserveScroll: true,
+            preserveState: true,
             onSuccess: () => closeModal(),
-            onError: () => document.getElementById('password').focus(),
-            onFinish: () => resetDelete(),
+            onError: () => {
+                if (document.getElementById('password')) {
+                    document.getElementById('password').focus();
+                }
+            },
+            onFinish: () => deleteForm.reset('password'),
         });
     };
 
@@ -153,7 +158,7 @@ export default function Edit({ auth, proyecto }) {
                                     },
                                     {
                                         id: 'chat',
-                                        label: t('modules.chat', 'Chat de Equipo'),
+                                        label: t('modules.chat.title', 'Chat de Equipo'),
                                         desc: t('modules.chat_desc', 'Comunicación en tiempo real para los miembros del proyecto.'),
                                         icon: ChatIcon
                                     }
@@ -330,6 +335,13 @@ export default function Edit({ auth, proyecto }) {
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {t('projects.delete_confirmation_desc', 'This action will permanently delete all associated data, accounts, and transactions. Please enter your password to confirm.')}
                     </p>
+
+                    <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+                        <p className="text-sm text-red-700 dark:text-red-300 font-medium flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                            {t('auth.password_required', 'Password is required to proceed.')}
+                        </p>
+                    </div>
 
                     <div className="mt-6">
                         <InputLabel htmlFor="password" value="Password" className="sr-only" />

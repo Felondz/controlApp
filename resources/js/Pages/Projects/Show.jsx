@@ -2,13 +2,13 @@
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link, Head } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { CurrencyDollarIcon, CheckListIcon, UserCircleIcon } from '@/Components/Icons';
 import SummaryCard from '@/Components/Dashboard/SummaryCard';
 
 // Este componente recibe el objeto 'proyecto' de Laravel
 export default function Show({ auth, proyecto, isAdmin }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
 
     // 💡 Título para la página
     const headerTitle = `${proyecto.nombre} | ${t('dashboard.title')}`;
@@ -74,18 +74,20 @@ export default function Show({ auth, proyecto, isAdmin }) {
                     )}
 
                     {/* Tarjeta de Miembros */}
-                    <SummaryCard
-                        title={t('members.summary_title', 'Equipo del Proyecto')}
-                        icon={UserCircleIcon}
-                        color="primary"
-                        label={t('members.total', 'Total Miembros')}
-                        value={proyecto.miembros_count || 1}
-                        action={{
-                            label: t('common.manage', 'Gestionar'),
-                            disabled: false,
-                            href: route('project.members.index', proyecto.id)
-                        }}
-                    />
+                    {(!proyecto.es_personal && proyecto.es_personal !== 1) && (
+                        <SummaryCard
+                            title={t('members.summary_title', 'Equipo del Proyecto')}
+                            icon={UserCircleIcon}
+                            color="primary"
+                            label={t('members.total', 'Total Miembros')}
+                            value={proyecto.miembros_count || 1}
+                            action={{
+                                label: t('common.manage', 'Gestionar'),
+                                disabled: !isAdmin,
+                                href: isAdmin ? route('project.members.index', proyecto.id) : '#'
+                            }}
+                        />
+                    )}
                 </div>
 
                 {/* CHAT WIDGET (Only if 2+ members) */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
 
@@ -13,7 +13,7 @@ import axios from 'axios';
  * <LocaleSelector />
  */
 export default function LocaleSelector() {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const { auth } = usePage().props;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

@@ -31,6 +31,7 @@ export default function AdvancedMode({
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(Number(e.target.value))}
+                        placeholder="Ej: 10000000"
                     />
 
                     {/* Rate & Type */}
@@ -41,6 +42,7 @@ export default function AdvancedMode({
                             value={rate}
                             onChange={(e) => setRate(Number(e.target.value))}
                             suffix="%"
+                            placeholder="Ej: 12.5"
                         />
                         <SelectGroup
                             label={t('calculator.rate_type', 'Tipo Tasa')}
@@ -61,6 +63,7 @@ export default function AdvancedMode({
                             value={term}
                             onChange={setTerm}
                             min={1}
+                            placeholder="Ej: 12"
                         />
                         <SelectGroup
                             label={t('calculator.unit', 'Unidad')}

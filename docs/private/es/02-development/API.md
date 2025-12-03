@@ -1103,4 +1103,88 @@ Accept: application/json
 
 ---
 
-**Última actualización**: 15 de noviembre de 2025
+**Última actualización**: 02 de diciembre de 2025
+
+---
+
+## 💬 Chat
+
+### List Messages - Listar Mensajes
+Obtiene los mensajes de un proyecto.
+
+```http
+GET /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "content": "Hola equipo",
+      "user_id": 1,
+      "user": { "name": "Juan" },
+      "created_at": "2025-11-15 10:00:00"
+    }
+  ]
+}
+```
+
+### Send Message - Enviar Mensaje
+Envía un mensaje al chat general o privado.
+
+```http
+POST /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Hola mundo",
+  "recipient_id": 2  // Opcional (para DM)
+}
+```
+
+**Response (201)**
+```json
+{
+  "id": 2,
+  "content": "Hola mundo",
+  "created_at": "..."
+}
+```
+
+### Mark as Read - Marcar como Leído
+Marca los mensajes como leídos (actualiza `last_read_at`).
+
+```http
+POST /api/proyectos/{proyecto}/messages/read
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "message": "Mensajes marcados como leídos"
+}
+```
+
+### Unread Counts - Contadores No Leídos
+Obtiene el conteo de mensajes no leídos.
+
+```http
+GET /api/proyectos/{proyecto}/messages/unread
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "unread_count": 5
+}
+```

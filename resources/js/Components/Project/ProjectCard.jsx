@@ -135,7 +135,7 @@ export default function ProjectCard({ proyecto }) {
                         <div className="flex items-center justify-center gap-2 mt-2 text-primary-500 dark:text-primary-400">
                             {modules.map(mod => (
                                 <div key={mod} className="relative group/icon">
-                                    <span title={t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <span title={mod === 'chat' ? t('modules.chat.title', 'Chat') : t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         {getModuleIcon(mod)}
                                     </span>
                                     {mod === 'chat' && proyecto.unread_messages_count > 0 && (

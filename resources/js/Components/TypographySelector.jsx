@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { ChevronDownIcon, SearchIcon } from '@/Components/Icons';
 
 export default function TypographySelector({ value, onChange, typographies }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
     const containerRef = useRef(null);

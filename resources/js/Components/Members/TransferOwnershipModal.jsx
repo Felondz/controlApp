@@ -6,10 +6,10 @@ import InputError from '@/Components/InputError';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import { useForm } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function TransferOwnershipModal({ show, onClose, project, members }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const { data, setData, post, processing, errors, reset } = useForm({
         new_owner_id: '',
         password: '',

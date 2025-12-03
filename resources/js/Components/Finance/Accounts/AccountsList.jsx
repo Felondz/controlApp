@@ -1,11 +1,11 @@
 // resources/js/Components/Finance/Accounts/AccountsList.jsx
 
 import React from 'react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { Link } from '@inertiajs/react';
 
 export default function AccountsList({ cuentas = [], proyectoId }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
 
     return (
         <div>

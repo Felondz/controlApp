@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2025-12-02
+
+### Added
+- **Chat System Overhaul**:
+  - **Unread Counters**: Fixed global synchronization of unread message counters (Sidebar, Inbox, BottomBar).
+  - **Online Status**: Implemented immediate "Offline" status upon logout by clearing cache.
+  - **Infinite Loop Fix**: Resolved network request loop in ChatWidget using optimistic updates and robust dependency management.
+  - **Mobile UI**: Improved mobile navigation with "Back to Chats" button and corrected icon orientation.
+- **Security**:
+  - **Auto-Logout**: Configured session lifetime to 20 minutes for enhanced security.
+  - **Online Status**: Explicit cache clearing on `AuthenticatedSessionController::destroy`.
+- **Financial Calculator**:
+  - **UX**: Cleared default values and added placeholders for better user experience.
+  - **Validation**: Added frontend validation to prevent API calls with empty inputs.
+
+### Changed
+- **ChatWidget**: Refactored `markAsRead` logic to use optimistic updates and reload specific props (`auth`, `proyecto`).
+- **User Model**: Updated `getUnreadMessagesCountAttribute` and `getUnreadProjectsAttribute` to use robust DB queries for `last_read_at`.
+- **ProjectMessageUiWebController**: Synchronized backend unread count logic with frontend expectations.
+
+### Fixed
+- **Infinite Loop**: Fixed recursive `markAsRead` calls in ChatWidget.
+- **Unread Sync**: Fixed issue where Inbox dropdown showed stale unread counts for project owners.
+- **Online Status**: Fixed issue where users remained "Online" after logging out.
+
+---
+
 ## [1.5.2] - 2025-12-01
 
 ### Added

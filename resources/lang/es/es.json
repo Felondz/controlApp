@@ -160,6 +160,10 @@
         "details": "Detalles",
         "submit": "Enviar",
         "project": "Proyecto",
+        "project_unnamed": "Proyecto sin nombre",
+        "user_unknown": "Usuario desconocido",
+        "accept": "Aceptar",
+        "reject": "Rechazar",
         "light": "Claro",
         "dark": "Oscuro",
         "tip": "Consejo",
@@ -429,30 +433,48 @@
     "modules": {
         "finance": "Finanzas",
         "tasks": "Tareas",
-        "chat": "Chat"
-    },
-    "inbox": {
-        "title": "Buzón de entrada",
-        "empty": "No tienes mensajes nuevos.",
-        "unread_messages": "Tienes :count mensajes sin leer",
-        "unread_count": ":count nuevos mensajes",
-        "view_all": "Ver todos"
-    },
-    "transactions": {
-        "title": "Transacciones",
-        "income": "Ingreso",
-        "expense": "Egreso",
-        "amount": "Monto",
-        "category": "Categoría",
-        "description": "Descripción",
-        "date": "Fecha",
-        "account": "Cuenta",
-        "create": "Crear Transacción",
-        "edit": "Editar Transacción",
-        "delete": "Eliminar Transacción",
-        "type": "Tipo"
-    },
-    "validation": {
-        "checkbox_required": "Validar esta casilla si desea continuar"
+        "chat": {
+            "title": "Chat de Equipo",
+            "channels": "Canales",
+            "direct_messages": "Mensajes Directos",
+            "general": "General",
+            "placeholder": "Escribe un mensaje...",
+            "empty": "No hay mensajes aún. ¡Inicia la conversación!",
+            "online": "En línea",
+            "offline": "Desconectado",
+            "back": "Chats"
+        },
+        "inbox": {
+            "title": "Buzón de entrada",
+            "empty": "No tienes mensajes nuevos ni invitaciones.",
+            "messages": "Mensajes",
+            "unread_messages": "Tienes :count mensajes sin leer",
+            "unread_count": ":count nuevos mensajes",
+            "view_all": "Ver todos"
+        },
+        "invitations": {
+            "title": "Invitaciones",
+            "pending": "Invitaciones Pendientes",
+            "invited_by": "Invitado por",
+            "empty_title": "No tienes invitaciones",
+            "empty_desc": "Cuando te inviten a un proyecto, aparecerá aquí."
+        },
+        "transactions": {
+            "title": "Transacciones",
+            "income": "Ingreso",
+            "expense": "Egreso",
+            "amount": "Monto",
+            "category": "Categoría",
+            "description": "Descripción",
+            "date": "Fecha",
+            "account": "Cuenta",
+            "create": "Crear Transacción",
+            "edit": "Editar Transacción",
+            "delete": "Eliminar Transacción",
+            "type": "Tipo"
+        },
+        "validation": {
+            "checkbox_required": "Validar esta casilla si desea continuar"
+        }
     }
 }

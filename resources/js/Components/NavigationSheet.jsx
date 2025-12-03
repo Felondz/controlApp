@@ -34,7 +34,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             show: modules.includes('tasks'),
         },
         {
-            name: t('modules.chat', 'Chat'),
+            name: t('modules.chat.title', 'Chat'),
             icon: ChatIcon,
             route: 'mis-proyectos.chat',
             routeParams: project.id,

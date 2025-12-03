@@ -4,12 +4,12 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { useForm } from '@inertiajs/react';
 import UserSearchCombobox from './UserSearchCombobox';
 
 export default function InviteMemberModal({ show, onClose, project }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         email: '',
         rol: 'miembro'

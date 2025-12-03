@@ -212,6 +212,10 @@
         "no_description": "No description",
         "submit": "Submit",
         "project": "Project",
+        "project_unnamed": "Unnamed Project",
+        "user_unknown": "Unknown User",
+        "accept": "Accept",
+        "reject": "Reject",
         "light": "Light",
         "dark": "Dark"
     },
@@ -427,30 +431,48 @@
     "modules": {
         "finance": "Finance",
         "tasks": "Tasks",
-        "chat": "Chat"
-    },
-    "inbox": {
-        "title": "Inbox",
-        "empty": "You have no new messages.",
-        "unread_messages": "You have :count unread messages",
-        "unread_count": ":count new messages",
-        "view_all": "View all"
-    },
-    "transactions": {
-        "title": "Transactions",
-        "income": "Income",
-        "expense": "Expense",
-        "amount": "Amount",
-        "category": "Category",
-        "description": "Description",
-        "date": "Date",
-        "account": "Account",
-        "create": "Create Transaction",
-        "edit": "Edit Transaction",
-        "delete": "Delete Transaction",
-        "type": "Type"
-    },
-    "validation": {
-        "checkbox_required": "Please check this box to continue"
+        "chat": {
+            "title": "Team Chat",
+            "channels": "Channels",
+            "direct_messages": "Direct Messages",
+            "general": "General",
+            "placeholder": "Type a message...",
+            "empty": "No messages yet. Start the conversation!",
+            "online": "Online",
+            "offline": "Offline",
+            "back": "Chats"
+        },
+        "inbox": {
+            "title": "Inbox",
+            "empty": "You have no new messages or invitations.",
+            "messages": "Messages",
+            "unread_messages": "You have :count unread messages",
+            "unread_count": ":count new messages",
+            "view_all": "View all"
+        },
+        "invitations": {
+            "title": "Invitations",
+            "pending": "Pending Invitations",
+            "invited_by": "Invited by",
+            "empty_title": "No invitations",
+            "empty_desc": "When you are invited to a project, it will appear here."
+        },
+        "transactions": {
+            "title": "Transactions",
+            "income": "Income",
+            "expense": "Expense",
+            "amount": "Amount",
+            "category": "Category",
+            "description": "Description",
+            "date": "Date",
+            "account": "Account",
+            "create": "Create Transaction",
+            "edit": "Edit Transaction",
+            "delete": "Delete Transaction",
+            "type": "Type"
+        },
+        "validation": {
+            "checkbox_required": "Please check this box to continue"
+        }
     }
 }

@@ -5,10 +5,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputError from '@/Components/InputError';
 import axios from 'axios';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function InviteUserToProjectModal({ show, onClose, userToInvite, myProjects }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [selectedProjectId, setSelectedProjectId] = useState('');
     const [role, setRole] = useState('miembro');
     const [processing, setProcessing] = useState(false);

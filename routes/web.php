@@ -22,22 +22,8 @@ Route::get('mis-proyectos/{mis_proyecto}/chat', [ProyectoUiWebController::class,
     ->name('mis-proyectos.chat')
     ->middleware(['auth', 'verified']);
 
-Route::resource('mis-proyectos.cuentas', ProjectAccountUiWebController::class)
-    ->only(['create', 'store'])
-    ->middleware(['cuentas', 'cuenta']);
 
-Route::get('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])
-    ->name('project.messages.index')
-    ->middleware(['auth', 'verified']);
 
-Route::post('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])
-    ->name('project.messages.store')
-    ->middleware(['auth', 'verified']);
-
-// Added mark-read route
-Route::post('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])
-    ->name('project.messages.read')
-    ->middleware(['auth', 'verified']);
 
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\DocumentationController;
@@ -58,6 +44,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
+
+    // Project Messages
+    Route::get('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
+    Route::post('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
+    Route::post('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read');
+    Route::get('mis-proyectos/{mis_proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
+
+    // Invitations
+    Route::get('/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('/invitations/{invitation}/accept', [\App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('/invitations/{invitation}/reject', [\App\Http\Controllers\InvitationController::class, 'reject'])->name('invitations.reject');
 
     // Project Members
     Route::get('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'index'])

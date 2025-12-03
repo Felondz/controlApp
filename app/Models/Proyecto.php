@@ -66,7 +66,7 @@ class Proyecto extends Model
      */
     public function miembros()
     {
-        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol');
+        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
 
     /**

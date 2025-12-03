@@ -5,7 +5,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import {
     DashboardIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon,
-    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon
+    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon, EnvelopeIcon
 } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -25,6 +25,11 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
             <ResponsiveNavLink href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
                 <PuzzleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('dashboard.marketplace', 'Mercado')}
+            </ResponsiveNavLink>
+
+            <ResponsiveNavLink href={route('invitations.index')} active={route().current('invitations.index')} collapsed={collapsed}>
+                <EnvelopeIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                {!collapsed && t('invitations.title', 'Invitaciones')}
             </ResponsiveNavLink>
 
             {!collapsed && (
@@ -146,7 +151,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                                 </span>
                             )}
                         </div>
-                        {!collapsed && t('modules.chat', 'Chat de Equipo')}
+                        {!collapsed && t('modules.chat.title', 'Chat de Equipo')}
                     </ResponsiveNavLink>
                 )}
 

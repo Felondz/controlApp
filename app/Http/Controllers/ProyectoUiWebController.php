@@ -169,6 +169,11 @@ class ProyectoUiWebController extends Controller
             abort(403, 'Solo los administradores pueden eliminar este proyecto.');
         }
 
+        // Validate password
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
         // Soft delete
         $mis_proyecto->delete();
 
@@ -213,7 +218,10 @@ class ProyectoUiWebController extends Controller
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
-            $pivot = $user->proyectos()->where('proyecto_id', $proyecto->id)->first()?->pivot;
+            $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                ->where('proyecto_id', $proyecto->id)
+                ->where('user_id', $user->id)
+                ->first();
             $lastReadAt = $pivot ? $pivot->last_read_at : null;
 
             $generalUnread = $proyecto->messages()

@@ -2,10 +2,10 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import PrimaryButton from '@/Components/PrimaryButton';
 import DangerButton from '@/Components/DangerButton';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function InvitationShow({ invitation, project, inviter, isCorrectUser, currentUser }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const { post, processing } = useForm();
 
     const handleAccept = (e) => {

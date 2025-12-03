@@ -44,8 +44,15 @@ class InboxController extends Controller
             })
             ->values();
 
+        // Fetch pending invitations
+        $invitations = \App\Models\Invitacion::where('email', $user->email)
+            ->with(['proyecto', 'invitador'])
+            ->latest()
+            ->get();
+
         return Inertia::render('Inbox/Index', [
-            'projects' => $projects
+            'projects' => $projects,
+            'invitations' => $invitations,
         ]);
     }
 }
