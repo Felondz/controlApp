@@ -6,7 +6,8 @@ import {
     FolderIcon,
     CurrencyDollarIcon,
     ChatIcon,
-    EllipsisHorizontalIcon
+    EllipsisHorizontalIcon,
+    EnvelopeIcon
 } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
 import NavigationSheet from '@/Components/NavigationSheet';
@@ -22,23 +23,26 @@ export default function BottomNavigation({ user, project = null }) {
         if (project) {
             // Project context navigation
             const modules = project.modules || ['finance'];
-            const items = [
-                {
-                    name: t('dashboard.title', 'Dashboard'),
-                    route: 'dashboard',
-                    icon: DashboardIcon,
-                },
-                {
+            const items = [];
+
+            items.push({
+                name: t('dashboard.title', 'Dashboard'),
+                route: 'dashboard',
+                icon: DashboardIcon,
+            });
+
+            if (!project.es_personal) {
+                items.push({
                     name: t('projects.overview', 'Resumen'),
                     route: 'mis-proyectos.show',
                     routeParams: project.id,
                     icon: FolderIcon,
                     matchRoutes: ['mis-proyectos.show', 'mis-proyectos.edit'],
-                },
-            ];
+                });
+            }
 
             // Smart Slot Logic (Priority: Chat > Finance)
-            if (modules.includes('chat')) {
+            if (modules.includes('chat') && !project.es_personal) {
                 items.push({
                     name: t('modules.chat.title', 'Chat'),
                     route: 'mis-proyectos.chat',
@@ -76,6 +80,11 @@ export default function BottomNavigation({ user, project = null }) {
                 name: t('dashboard.marketplace', 'Mercado'),
                 route: 'tools.index',
                 icon: PuzzleIcon,
+            },
+            {
+                name: t('invitations.title', 'Invitaciones'),
+                route: 'invitations.index',
+                icon: EnvelopeIcon,
             },
             {
                 name: t('common.menu', 'Menú'),

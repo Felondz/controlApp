@@ -1,10 +1,52 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import ChatWidget from '@/Components/Project/ChatWidget';
 import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 // Mock axios
 vi.mock('axios');
+
+// Mock Inertia router
+vi.mock('@inertiajs/react', async () => {
+    const actual = await vi.importActual('@inertiajs/react');
+    return {
+        ...actual,
+        router: {
+            reload: vi.fn(),
+            visit: vi.fn(),
+        },
+    };
+});
+
+// Mock sub-components to isolate ChatWidget logic
+vi.mock('@/Components/Project/ChatSidebar', () => ({
+    default: ({ onChannelSelect, unreadCounts }) => (
+        <div data-testid="chat-sidebar">
+            <button onClick={() => onChannelSelect('general')}>General</button>
+            <button onClick={() => onChannelSelect(2)}>User 2</button>
+            <span data-testid="unread-general">{unreadCounts.general}</span>
+        </div>
+    )
+}));
+
+vi.mock('@/Components/Project/ChatWindow', () => ({
+    default: ({ messages, onSendMessage, loading }) => (
+        <div data-testid="chat-window">
+            {loading ? (
+                <div>Cargando...</div>
+            ) : (
+                <>
+                    <div data-testid="message-count">{messages.length}</div>
+                    {messages.map(msg => (
+                        <div key={msg.id} data-testid={`message-${msg.id}`}>{msg.content}</div>
+                    ))}
+                    <button onClick={() => onSendMessage('Test message')}>Send</button>
+                </>
+            )}
+        </div>
+    )
+}));
 
 describe('ChatWidget', () => {
     const mockProject = {
@@ -19,165 +61,147 @@ describe('ChatWidget', () => {
     const mockUser = {
         id: 1,
         name: 'Test User',
-        email: 'test@example.com',
     };
 
-    const mockMessages = [
-        {
-            id: 1,
-            content: 'Hello World',
-            user_id: 2,
-            recipient_id: null,
-            user: { name: 'Other User' },
-            created_at: '2025-01-01T10:00:00Z',
-        },
-        {
-            id: 2,
-            content: 'Hi there!',
-            user_id: 1,
-            recipient_id: null,
-            user: { name: 'Test User' },
-            created_at: '2025-01-01T10:01:00Z',
-        },
-    ];
-
     beforeEach(() => {
+        // Don't use fake timers - the component checks for test mode and skips polling
         vi.clearAllMocks();
 
-        // Mock axios.get for fetching messages
-        axios.get.mockResolvedValue({
-            data: { data: [...mockMessages] },
+        // Mock route() function
+        global.route = vi.fn((name, params) => {
+            if (name === 'project.messages.index') {
+                return `/proyectos/${params}/messages`;
+            }
+            if (name === 'project.messages.store') {
+                return `/proyectos/${params}/messages`;
+            }
+            if (name === 'project.messages.read') {
+                return `/proyectos/${params}/messages/read`;
+            }
+            if (name === 'project.messages.unread') {
+                return `/proyectos/${params}/messages/unread`;
+            }
+            return `/${name}`;
+        });
+
+        // Mock axios.get for messages and unread counts
+        axios.get.mockImplementation((url) => {
+            if (url.includes('/messages/unread')) {
+                return Promise.resolve({
+                    data: { general: 0, dms: {} }
+                });
+            }
+            if (url.includes('/messages')) {
+                return Promise.resolve({
+                    data: {
+                        data: [
+                            { id: 1, content: 'Hello', user_id: 2, created_at: '2025-01-01T10:00:00Z' }
+                        ]
+                    }
+                });
+            }
+            return Promise.resolve({ data: {} });
         });
 
         // Mock axios.post for sending messages and marking as read
-        axios.post.mockResolvedValue({
-            data: {
-                id: 3,
-                content: 'New message',
-                user_id: 1,
-                created_at: new Date().toISOString(),
-            },
-        });
-    });
-
-    it('renders chat header with project name', () => {
-        render(<ChatWidget project={mockProject} user={mockUser} />);
-        expect(screen.getByText('projects.chat_general')).toBeInTheDocument();
-    });
-
-    it('displays messages in correct order', async () => {
-        render(<ChatWidget project={mockProject} user={mockUser} />);
-
-        await waitFor(() => {
-            expect(screen.getByText('Hello World')).toBeInTheDocument();
+        axios.post.mockImplementation((url) => {
+            if (url.includes('/messages/read')) {
+                return Promise.resolve({ data: { success: true } });
+            }
+            // Default: sending a message
+            return Promise.resolve({
+                data: {
+                    id: 2,
+                    content: 'Test message',
+                    user_id: 1,
+                    created_at: new Date().toISOString()
+                }
+            });
         });
 
-        expect(screen.getByText('Hi there!')).toBeInTheDocument();
+        // Mock router.reload
+        router.reload.mockClear();
     });
 
-    it('shows empty state when no messages', async () => {
-        axios.get.mockResolvedValueOnce({
-            data: { data: [] },
-        });
+    afterEach(() => {
+        vi.clearAllMocks();
+    });
 
+    it('renders sidebar and window components', async () => {
         render(<ChatWidget project={mockProject} user={mockUser} />);
 
-        await waitFor(() => {
-            expect(screen.getByText('projects.chat_empty')).toBeInTheDocument();
-        });
+        // Component should render immediately
+        expect(screen.getByTestId('chat-sidebar')).toBeInTheDocument();
+        expect(screen.getByTestId('chat-window')).toBeInTheDocument();
     });
 
-    it('shows loading state initially', () => {
-        render(<ChatWidget project={mockProject} user={mockUser} />);
-        expect(screen.getByText('common.loading')).toBeInTheDocument();
-    });
-
-    it('sends message on form submit', async () => {
+    it('fetches messages on mount', async () => {
         render(<ChatWidget project={mockProject} user={mockUser} />);
 
-        // Wait for messages to load
+        // Wait for initial fetch to complete
         await waitFor(() => {
-            expect(screen.getByText('Hello World')).toBeInTheDocument();
-        });
-
-        // Find input and verify it exists
-        const input = screen.getByPlaceholderText('projects.chat_placeholder');
-        expect(input).toBeInTheDocument();
-
-        // Verify submit button exists
-        const submitButton = screen.getByRole('button', { name: '' });
-        expect(submitButton).toBeInTheDocument();
-    });
-
-    it('polls for new messages every 5 seconds', async () => {
-        // Skip this test - it requires complex timer mocking
-        // Will be implemented when ChatWidget is refactored
-    });
-
-    it('toggles member list when clicking header', async () => {
-        render(<ChatWidget project={mockProject} user={mockUser} />);
-
-        // Wait for initial load
-        await waitFor(() => {
-            expect(screen.getByText('Hello World')).toBeInTheDocument();
-        });
-
-        // Member list starts hidden (showMembers = false)
-        // But "Other User" appears in messages, so we check for the member button specifically
-        expect(screen.queryByRole('button', { name: /Other User/i })).toBeNull();
-
-        // Click header to show members
-        const header = screen.getByText('projects.chat_general').closest('div');
-        fireEvent.click(header);
-
-        // Member list should now be visible - look for the button with green dot
-        await waitFor(() => {
-            const memberButtons = screen.getAllByRole('button');
-            const otherUserButton = memberButtons.find(btn => btn.textContent.includes('Other User') && btn.querySelector('.bg-green-500'));
-            expect(otherUserButton).toBeInTheDocument();
-        });
-    });
-
-    it('switches to private chat when selecting a member', async () => {
-        render(<ChatWidget project={mockProject} user={mockUser} />);
-
-        // Wait for initial load
-        await waitFor(() => {
-            expect(screen.getByText('Hello World')).toBeInTheDocument();
-        });
-
-        // Open member list
-        const header = screen.getByText('projects.chat_general').closest('div');
-        fireEvent.click(header);
-
-        // Find and click the member button (the one with green dot, not the message sender name)
-        await waitFor(() => {
-            const memberButtons = screen.getAllByRole('button');
-            const otherUserButton = memberButtons.find(btn =>
-                btn.textContent.includes('Other User') && btn.querySelector('.bg-green-500')
+            expect(axios.get).toHaveBeenCalledWith(
+                expect.stringContaining('/messages'),
+                expect.any(Object)
             );
-            expect(otherUserButton).toBeInTheDocument();
-            fireEvent.click(otherUserButton);
-        });
-
-        // Verify the placeholder changed to show private chat
-        await waitFor(() => {
-            const input = screen.getByPlaceholderText(/Message Other User/i);
-            expect(input).toBeInTheDocument();
-        });
+        }, { timeout: 3000 });
     });
 
-    it('does not send empty messages', async () => {
+    it('displays fetched messages', async () => {
         render(<ChatWidget project={mockProject} user={mockUser} />);
 
-        // Wait for messages to load
+        // Wait for messages to be displayed
         await waitFor(() => {
-            expect(screen.getByText('Hello World')).toBeInTheDocument();
-        });
+            expect(screen.getByTestId('message-count')).toHaveTextContent('1');
+            expect(screen.getByText('Hello')).toBeInTheDocument();
+        }, { timeout: 3000 });
+    });
 
-        const submitButton = screen.getByRole('button', { name: '' });
+    it('sends message when triggered from window', async () => {
+        render(<ChatWidget project={mockProject} user={mockUser} />);
 
-        // Try to submit with empty input - button should be disabled
-        expect(submitButton).toBeDisabled();
+        // Wait for component to render
+        await waitFor(() => {
+            expect(screen.getByTestId('chat-window')).toBeInTheDocument();
+        }, { timeout: 3000 });
+
+        const sendButton = screen.getByText('Send');
+        fireEvent.click(sendButton);
+
+        await waitFor(() => {
+            expect(axios.post).toHaveBeenCalledWith(
+                expect.stringContaining('/messages'),
+                expect.objectContaining({
+                    content: 'Test message',
+                    type: 'text'
+                })
+            );
+        }, { timeout: 3000 });
+    });
+
+    it('switches channels when sidebar triggers selection', async () => {
+        render(<ChatWidget project={mockProject} user={mockUser} />);
+
+        // Wait for initial render
+        await waitFor(() => {
+            expect(screen.getByTestId('chat-sidebar')).toBeInTheDocument();
+        }, { timeout: 3000 });
+
+        // Clear previous calls
+        axios.get.mockClear();
+
+        // Click to select User 2
+        const user2Button = screen.getByText('User 2');
+        fireEvent.click(user2Button);
+
+        // Verify messages are fetched for the new channel
+        await waitFor(() => {
+            expect(axios.get).toHaveBeenCalledWith(
+                expect.stringContaining('/messages'),
+                expect.objectContaining({
+                    params: { recipient_id: 2 }
+                })
+            );
+        }, { timeout: 3000 });
     });
 });

@@ -67,6 +67,15 @@ class StoreTransaccionRequest extends FormRequest
                 // Esta regla se volverá más compleja, pero por ahora
                 // solo permitiremos cuentas del proyecto.
             ],
+
+            // 3. Validar 'task_id' (opcional, para vincular transacción con tarea financiera)
+            'task_id' => [
+                'nullable',
+                'numeric',
+                Rule::exists('tasks', 'id')
+                    ->where('project_id', $proyecto->id)
+                    ->where('is_financial', true),
+            ],
         ];
     }
 }

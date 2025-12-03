@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // 1. Importamos TODOS los controladores
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProjectAccountController;
 use App\Http\Controllers\Api\ProyectoController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\CuentaController;
@@ -18,6 +19,10 @@ use App\Http\Controllers\Api\FinanzasPersonalesController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CalculatorController;
+use App\Http\Controllers\TaskController;
+use App\Modules\Analytics\Controllers\AnalyticsController;
+use App\Modules\Notifications\Controllers\NotificationController;
+use App\Http\Controllers\Api\MarketplaceController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -94,6 +99,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('proyectos.categorias', CategoriaController::class);
 
     // Cuentas (CRUD completo, anidado en Proyectos)
+    // Project Accounts (Linking)
+    Route::get('proyectos/{proyecto}/cuentas/available', [ProjectAccountController::class, 'available'])->name('proyectos.cuentas.available');
+    Route::post('proyectos/{proyecto}/cuentas/link', [ProjectAccountController::class, 'link'])->name('proyectos.cuentas.link');
+    Route::delete('proyectos/{proyecto}/cuentas/{cuenta}/unlink', [ProjectAccountController::class, 'unlink'])->name('proyectos.cuentas.unlink');
+
+    // Project Finance
     Route::apiResource('proyectos.cuentas', CuentaController::class);
 
     // Transacciones (CRUD completo, anidado en Proyectos)
@@ -114,6 +125,27 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/proyectos/{proyecto}/miembros', [ProyectoMiembroController::class, 'index']);
     Route::put('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'update']);
     Route::delete('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'destroy']);
+
+    // Tasks routes
+    Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store']);
+    Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update']);
+    Route::delete('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'destroy']);
+
+    // Analytics routes
+    Route::get('/proyectos/{proyecto}/analytics/metrics', [AnalyticsController::class, 'metrics']);
+    Route::get('/proyectos/{proyecto}/analytics/summary', [AnalyticsController::class, 'summary']);
+    Route::get('/proyectos/{proyecto}/analytics/insights', [AnalyticsController::class, 'insights']);
+
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::get('/notifications/preferences', [NotificationController::class, 'preferences']);
+    Route::post('/notifications/preferences', [NotificationController::class, 'updatePreference']);
+
+    // Marketplace routes
+    Route::get('/proyectos/{proyecto}/marketplace', [MarketplaceController::class, 'index'])->name('api.proyectos.marketplace.index');
+    Route::post('/proyectos/{proyecto}/marketplace/{module}', [MarketplaceController::class, 'toggle'])->name('api.proyectos.marketplace.toggle');
 
     // Ruta para que el usuario pida un nuevo enlace de verificación
     // (Debe tener 'throttle' para evitar spam)

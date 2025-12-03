@@ -35,6 +35,29 @@ Un envoltorio alrededor del elemento `input` nativo que añade un botón para al
   - Enlaces directos al chat del proyecto.
   - Enlace "Ver Todo" a la página `/inbox`.
 
+### Módulo de Finanzas
+- **Dashboard**: `resources/js/Pages/Projects/Finance/ProjectDashboard.jsx`
+  - Panel principal con gráficos de cuentas y lista de transacciones.
+  - **Filtrado**: Muestra cuentas activas por defecto, con opción de "Mostrar Inactivas".
+  - **Gestión**: Permite crear/editar/eliminar cuentas y transacciones.
+  - **Integración Tasks**: Muestra tareas financieras pendientes en el widget de Obligaciones Próximas.
+- **AccountChart**: `resources/js/Components/Finance/AccountChart.jsx`
+  - Visualización de saldo, ingresos y gastos por cuenta.
+  - **Estado**: Distinción visual (opacidad/badge) para cuentas inactivas.
+- **AccountModal**: `resources/js/Components/Finance/Modals/AccountModal.jsx`
+  - Modal para crear y editar cuentas.
+  - Soporte para cambiar el estado de la cuenta (Activa/Inactiva).
+- **PaymentConfirmationModal**: `resources/js/Components/Finance/Modals/PaymentConfirmationModal.jsx`
+  - Modal para confirmar el pago de tareas financieras.
+  - Pre-llena formulario con datos de la tarea (título, monto, categoría).
+  - Permite editar antes de confirmar.
+  - Marca automáticamente la tarea como "done" al crear la transacción.
+- **UpcomingObligationsWidget**: `resources/js/Components/Finance/Widgets/UpcomingObligationsWidget.jsx`
+  - Muestra próximos pagos y obligaciones financieras.
+  - **Integración Tasks**: Combina transacciones futuras y tareas financieras pendientes.
+  - **Visual**: Badge "Tarea" para distinguir tareas de transacciones.
+  - **Acción**: Botón "Marcar como pagado" (checkmark) al hacer hover (solo admin).
+
 ### Alert
 Componente para mostrar mensajes de estado (información, advertencia, éxito, error) con estilos estandarizados.
 
@@ -289,8 +312,9 @@ Usar la emulación de dispositivos de DevTools del navegador para probar:
 
 El código frontend está completamente cubierto por pruebas automatizadas utilizando **Vitest** y **React Testing Library**.
 
-- **Cobertura**: 100% de Cobertura de Componentes (215 tests).
+- **Cobertura**: 100% de Cobertura de Componentes (217 tests en 39 archivos).
 - **Ubicación**: `tests/Frontend/Components`.
 - **Comando**: `npm run test`.
+- **Nota**: Todos los tests usan claves de traducción en lugar de texto hardcodeado, siguiendo el sistema de i18n.
 
 Para detalles sobre la arquitectura de pruebas y guías, consulta [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).

@@ -198,16 +198,41 @@ class ProyectoUiWebController extends Controller
 
         if ($isAdmin) {
             $relations[] = 'cuentas';
-            // $relations[] = 'transacciones'; // Future: Load recent transactions
+            $relations[] = 'cuentasAsociadas';
+            $relations[] = 'categorias';
         }
 
         $mis_proyecto->load($relations);
+
+        // Cargar transacciones recientes si es admin
+        $transacciones = [];
+        if ($isAdmin) {
+            $transacciones = $mis_proyecto->transacciones()
+                ->with(['categoria', 'cuenta', 'usuario'])
+                ->orderBy('fecha', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(100)
+                ->get();
+        }
+
+        // Cargar tareas financieras pendientes si es admin
+        $financialTasks = [];
+        if ($isAdmin) {
+            $financialTasks = $mis_proyecto->tasks()
+                ->where('is_financial', true)
+                ->where('status', '!=', 'done')
+                ->with(['assignee', 'category'])
+                ->orderBy('due_date', 'asc')
+                ->get();
+        }
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
+            'transacciones' => $transacciones,
+            'financialTasks' => $financialTasks,
         ]);
     }
 

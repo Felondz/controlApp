@@ -10,12 +10,12 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 240 / 240 | ✅ **100% Stable** |
-| **Frontend Tests** | 215 tests / 38 suites | ✅ **100% Coverage** |
-| **Total Assertions** | 1000+ | ✅ **Robust Coverage** |
+| **Backend Tests** | 280 / 280 | ✅ **100% Stable** |
+| **Frontend Tests** | 217 tests / 39 files | ✅ **100% Coverage** |
+| **Total Tests** | 497 tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v1.5.0 (Inbox & Chat Sync) | ✅ **Stable** |
+| **Backend Version** | v2.3.0 (Modular Architecture) | ✅ **Stable** |
 | **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -24,12 +24,18 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 ## 🛠️ Technology Stack (Demonstrated Skills)
 
-ControlApp employs an **API-First** architecture, ensuring clear separation of concerns, which is critical for scalability and microservices readiness.
+ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict separation of concerns and scalability.
+ 
+ ### 🏗️ Modular Architecture (Core)
+ - **Modules**: Independent units (Finance, Tasks, Chat) located in `app/Modules/`.
+ - **Communication**: Strictly via **Event Bus** (`ModuleEventBus`). No direct dependencies between modules.
+ - **Registry**: Automatic module discovery and dependency resolution via `ModuleRegistry`.
+ - **Scalability**: New features are added as isolated modules without modifying the core.
 
 ### Backend (API REST)
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Framework** | Laravel 11 (PHP 8.2+) | Expertise in MVC, Eloquent ORM, and modern PHP development. |
+| **Framework** | Laravel 12 (PHP 8.2+) | Expertise in MVC, Eloquent ORM, and modern PHP development. |
 | **Authentication** | Laravel Sanctum | Implementation of **stateless JWT-style API tokens** and session management. |
 | **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
 | **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
@@ -40,7 +46,7 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
 ### Frontend (Web/Mobile Readiness)
 | Component | Technology | Status |
 | :--- | :--- | :--- |
-| **Framework** | React 19 + Inertia.js | ✅ **Active** |
+| **Framework** | React 18 + Inertia.js | ✅ **Active** |
 | **Tooling** | Vite | ✅ **Configured** |
 | **Localization (i18n)** | i18next + Custom Hook | ✅ **Implemented** |
 | **UI/UX** | Tailwind CSS + React Components | ✅ **Standardized (Dark Mode Support)** |
@@ -61,17 +67,72 @@ ControlApp employs an **API-First** architecture, ensuring clear separation of c
   - **Chat**: Real-time project chat with private messaging support.
   - **Notifications**: Visual badges for unread messages.
 
+- **Tasks Management**:
+  - **Kanban Board**: Interactive drag-and-drop board.
+  - **Task Tracking**: Status, Priority, Due Dates, and Assignees.
+  - **Financial Tasks**: Mark tasks as financial obligations with amount and category.
+  - **Payment Confirmation**: Mark financial tasks as paid directly from Finance dashboard.
+  - **Integration**: Seamlessly integrated with Projects and Finance modules.
+
 - **Financial Tools**:
   - **Financial Calculator**: Advanced loan and amortization calculator.
   - **Modes**: Basic (quick calculation) and Advanced (detailed breakdown with insurance).
   - **Export**: Generate professional PDF reports with amortization charts.
   - **Visualizations**: Interactive charts for principal vs. interest analysis.
   - **API**: RESTful endpoints for tool management (`GET /api/tools`, `POST /api/tools/toggle`).
+## ✨ Características Principales
 
+### 🏗️ Arquitectura Modular (v2.0.0)
+
+- **Sistema de Módulos**
+  - Auto-discovery de módulos desde `app/Modules/`
+  - Resolución automática de dependencias
+  - Lifecycle hooks (install/uninstall)
+  - Configuración granular por proyecto
+
+- **Event Bus**
+  - Comunicación inter-módulo vía eventos
+  - Soporte para wildcards (`tasks.*`, `finance.*`)
+  - Ejecución async opcional
+  - Logging de eventos para debugging
+
+- **Plantillas de Proyecto**
+  - Freelancer: Finance + Tasks
+  - Startup: Finance + Tasks + Chat
+  - Enterprise: Todos los módulos
+  - Custom: Configuración manual
+
+### 💰 Módulo Finance
+
+- **Gestión Financiera Completa**
+  - Múltiples cuentas bancarias
+  - Categorías personalizables (8 por defecto)
+  - Transacciones con filtros avanzados
+  - Integración con tareas financieras
+
+- **Eventos Finance**
+  - `finance.transaction.created/updated/deleted`
+  - `finance.account.balance_low`
+
+### ✅ Módulo Tasks
+
+- **Gestión de Tareas**
+  - Tablero Kanban
+  - Prioridades y fechas de vencimiento
+  - Asignación de tareas
+  - Tareas financieras con montos
+
+- **Eventos Tasks**
+  - `tasks.task.created/completed`
+  - `tasks.financial_task.created`
+
+### 💬 Chat en Tiempo Realt analysis.
 - **Personal & Project Finance**:
   - Income and expense tracking.
   - Bank account and cash management.
   - Budgets and savings goals.
+  - **NEW**: Financial Charts (Cash Flow Analysis).
+  - **NEW**: Direct access to Personal Finance from Global Sidebar.
 
 - **User Profile**:
   - Personal information management.
@@ -91,12 +152,13 @@ ControlApp maintains comprehensive test coverage to ensure code quality and reli
 
 - **Backend Tests**: 100% coverage with PHPUnit
   - Feature tests for all API endpoints
+  - **NEW**: `ChatSystemTest` for real-time messaging and online status
   - Unit tests for business logic
   - Database integration tests
   
 - **Frontend Tests**: 100% Component Coverage
-| **Frontend** | Vitest + React Testing Library | **215 tests / 38 suites** |
-| **Coverage** | Component Coverage | **100% (38/38 components)** |
+| **Frontend** | Vitest + React Testing Library | **217 tests / 39 files** |
+| **Coverage** | Component Coverage | **100% (39/39 test files)** |
 | **E2E** | Laravel Dusk | **Pending** |
   - Unit tests for core UI components
   - Integration tests for complex features
@@ -156,6 +218,7 @@ Complete documentation is available in **English** and **Spanish**:
 **For QA & Testing:**
 - 🧪 [Testing Architecture](./docs/private/en/04-testing/TESTING_ARCHITECTURE.md) (English)
 - 🧪 [Arquitectura de Testing](./docs/private/es/04-testing/TESTING_ARCHITECTURE.md) (Spanish)
+- 🏗️ [Arquitectura Modular](./docs/private/es/01-core/MODULES_ARCHITECTURE.md) (Spanish)
 
 ---
 

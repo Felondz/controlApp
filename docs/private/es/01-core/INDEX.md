@@ -334,6 +334,9 @@ Desde cualquier documento, vuelve a:
 - **Para Developers**: `../02-development/API.md`
 - **Para IAs**: `../03-ia-collaboration/ONBOARDING_FOR_NEW_AIs.md`
 - **Para Testing**: `../04-testing/TESTING_ARCHITECTURE.md`
+- [**Arquitectura de Testing**](../04-testing/TESTING_ARCHITECTURE.md): Estrategia de pruebas, herramientas y cobertura.
+- [**Implementación de Búsqueda**](./SEARCH_IMPLEMENTATION.md): Detalles sobre Meilisearch y Laravel Scout.
+- [**Arquitectura Modular**](./MODULES_ARCHITECTURE.md): Finanzas, Tareas y Chat (Integración y Reglas).
 
 ---
 

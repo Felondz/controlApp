@@ -471,6 +471,44 @@
             "delete": "Delete Transaction",
             "type": "Type"
         },
+        "analytics": {
+            "title": "Analytics",
+            "metrics": "Metrics",
+            "summary": "Summary",
+            "insights": "Insights",
+            "total_income": "Total Income",
+            "total_expenses": "Total Expenses",
+            "net_balance": "Net Balance",
+            "tasks_completed": "Tasks Completed",
+            "project_progress": "Project Progress"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "mark_all_read": "Mark all as read",
+            "preferences": "Preferences",
+            "settings": "Notification Settings",
+            "types": {
+                "transaction_created": "New Transaction",
+                "task_assigned": "Task Assigned",
+                "project_invite": "Project Invitation",
+                "mention": "Mention"
+            },
+            "channels": {
+                "database": "In-App",
+                "mail": "Email"
+            }
+        },
+        "marketplace": {
+            "title": "Module Marketplace",
+            "installed": "Installed",
+            "install": "Install",
+            "uninstall": "Uninstall",
+            "available": "Available",
+            "dependencies": "Dependencies",
+            "description": "Explore and activate modules to power up your projects.",
+            "confirm_uninstall": "Are you sure you want to uninstall this module? Associated data will be lost.",
+            "dependency_warning": "This module requires :modules to work."
+        },
         "validation": {
             "checkbox_required": "Please check this box to continue"
         }

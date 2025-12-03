@@ -7,9 +7,9 @@
 ## 1. 🎯 Filosofía de Testing y QA
 
 * **Estado Actual**:
-    - **Backend**: 100% de cobertura funcional (240 tests).
-    - **Frontend**: 100% de cobertura de componentes (37/37 componentes testeados).
-    - **Total**: 336 tests con cobertura completa en frontend
+    - **Backend**: 100% de cobertura funcional (280 tests).
+    - **Frontend**: 100% de cobertura de componentes (217 tests en 39 archivos de prueba).
+    - **Total**: 497 tests con cobertura completa
 * **Regla de Oro (Quality Gate)**: Si los tests fallan, el código tiene un error. **No hagas commit/push hasta que todos pasen**.
 * **Convención**: Usar nombres descriptivos: `test_admin_puede_crear_usuario` (backend), `renders correctly` (frontend).
 * **CI/CD**: Todos los tests se ejecutan automáticamente en GitHub Actions en cada push/PR.
@@ -28,6 +28,12 @@ La suite de tests está configurada para usar **SQLite en memoria** (`:memory:`)
     *   🔄 **Aislamiento**: Base de datos fresca en cada test
 *   **Trait RefreshDatabase**: Migra la base de datos en memoria antes de cada test.
 
+### Estructura de Directorios
+
+- **Backend Tests**: `tests/Unit`, `tests/Feature`
+- **Frontend Tests**: `tests/Frontend` (Mirroring `resources/js` structure)
+- **E2E Tests**: `tests/Browser` (Dusk)
+
 ### Organización de Tests
 
 Los tests están organizados por tipo en `tests/Feature`:
@@ -44,9 +50,15 @@ Los tests están organizados por tipo en `tests/Feature`:
 | :--- | :--- | :--- |
 | **Ejecutar todos los tests** | `./vendor/bin/sail test` | `./vendor/bin/sail test` |
 | **Ejecutar con testdox** | `./vendor/bin/sail test --testdox` | `./vendor/bin/sail test --testdox` |
-| **Ejecutar archivo específico** | `./vendor/bin/sail test tests/Feature/EjemploTest.php` | `./vendor/bin/sail test ...` |
-| **Ejecutar test específico** | `./vendor/bin/sail test --filter=nombre_del_test` | `./vendor/bin/sail test ...` |
+| **Ejecutar archivo específico** | `./vendor/bin/sail test tests/Feature/EjemploTest.php` | `./vendor/bin/sail test tests/Feature/EjemploTest.php` |
+| **Ejecutar test específico** | `./vendor/bin/sail test --filter=nombre_del_test` | `./vendor/bin/sail test --filter=nombre_del_test` |
 | **Ejecutar en paralelo** | `./vendor/bin/sail test --parallel` | `./vendor/bin/sail test --parallel` |
+
+### Ejemplos de Tests de Feature
+
+- `tests/Feature/Auth/AuthenticationTest.php`: Login, Registro, Logout.
+- `tests/Feature/ChatSystemTest.php`: Sistema de chat, mensajes, estado online y contadores.
+- `tests/Feature/ProyectosApiTest.php`: CRUD de proyectos.
 
 ### Assertions y Estructura
 
@@ -69,8 +81,8 @@ Los tests están organizados por tipo en `tests/Feature`:
 ### Cobertura de Tests
 
 **Estadísticas:**
-- **Total de Tests**: 215 tests en 38 suites de prueba
-- **Cobertura**: 100% de componentes React (38/38 componentes testeados)
+- **Total de Tests**: 217 tests en 39 archivos de prueba
+- **Cobertura**: 100% de componentes React (39/39 archivos de prueba)
 - **Framework**: Vitest + @testing-library/react
 
 **Categorías de Tests:**
@@ -135,5 +147,6 @@ Los tests están organizados por tipo en `tests/Feature`:
 
 ---
 
-**Última Actualización**: 1 de Diciembre, 2025
+**Última Actualización**: 2 de Diciembre, 2025
 **Estado**: ✅ Estrategia de testing completamente configurada (Backend + Frontend)
+**Nota**: Todos los tests del frontend han sido actualizados para usar claves de traducción en lugar de texto hardcodeado, siguiendo el nuevo sistema de i18n.

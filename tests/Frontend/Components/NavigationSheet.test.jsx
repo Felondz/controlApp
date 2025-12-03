@@ -46,7 +46,7 @@ describe('NavigationSheet', () => {
 
         expect(screen.getByText('Test Project')).toBeInTheDocument();
         expect(screen.getByText('modules.finance')).toBeInTheDocument();
-        expect(screen.getByText('modules.chat')).toBeInTheDocument();
+        expect(screen.getByText('modules.chat.title')).toBeInTheDocument();
         expect(screen.getByText('projects.project_settings')).toBeInTheDocument();
     });
 

@@ -38,7 +38,9 @@ describe('TypographySelector', () => {
         const button = screen.getByRole('button');
         fireEvent.click(button);
 
-        expect(screen.getByPlaceholderText('Buscar tipografía...')).toBeInTheDocument();
+        // Component uses t('common.search', 'Buscar tipografía...')
+        // With mock, t returns the key
+        expect(screen.getByPlaceholderText('common.search')).toBeInTheDocument();
         expect(screen.getByText('Serif')).toBeInTheDocument();
         expect(screen.getByText('Monospace')).toBeInTheDocument();
     });
@@ -53,7 +55,9 @@ describe('TypographySelector', () => {
         );
 
         fireEvent.click(screen.getByRole('button'));
-        const searchInput = screen.getByPlaceholderText('Buscar tipografía...');
+        // Component uses t('common.search', 'Buscar tipografía...')
+        // With mock, t returns the key
+        const searchInput = screen.getByPlaceholderText('common.search');
 
         fireEvent.change(searchInput, { target: { value: 'Mono' } });
 
@@ -101,10 +105,13 @@ describe('TypographySelector', () => {
         );
 
         fireEvent.click(screen.getByRole('button'));
-        const searchInput = screen.getByPlaceholderText('Buscar tipografía...');
+        // Component uses t('common.search', 'Buscar tipografía...')
+        // With mock, t returns the key
+        const searchInput = screen.getByPlaceholderText('common.search');
 
         fireEvent.change(searchInput, { target: { value: 'XYZ' } });
 
+        // This text is hardcoded in the component (not translated yet)
         expect(screen.getByText('No se encontraron resultados.')).toBeInTheDocument();
     });
 

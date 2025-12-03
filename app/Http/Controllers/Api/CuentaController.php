@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Cuenta;
 use App\Models\Proyecto;
-use App\Models\Transaccion;
+use App\Http\Requests\StoreCuentaRequest;
+use App\Http\Requests\UpdateCuentaRequest;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CuentaController extends Controller
 {
@@ -19,95 +19,101 @@ class CuentaController extends Controller
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
-        $cuentas = $proyecto->cuentas()->where('estado', 'activa')->get();
+        $estado = $request->query('estado', 'activa');
+        $tipo = $request->query('tipo');
+
+        $query = $proyecto->cuentas();
+
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+
+        if ($tipo) {
+            $query->where('tipo', $tipo);
+        }
+
+        $cuentas = $query->get();
+
         return response()->json($cuentas);
     }
 
-    /**
-     * Almacena una nueva cuenta.
-     */
-    public function store(Request $request, Proyecto $proyecto)
+    public function store(StoreCuentaRequest $request, Proyecto $proyecto)
     {
-
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden añadir cuentas a este proyecto.');
 
-        $datosValidados = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'banco' => 'nullable|string|max:255',
-            'balance_inicial' => 'required|numeric',
-            'tipo' => ['required', 'string', Rule::in(['efectivo', 'banco', 'credito', 'otro'])],
-        ]);
+        $datos = $request->validated();
+        $datos['saldo_actual'] = $datos['saldo_inicial'];
+        $datos['estado'] = 'activa';
 
-        // Añadimos el balance actual al array antes de crear.
-        $datosValidados['balance'] = $datosValidados['balance_inicial'];
+        $cuenta = $proyecto->cuentas()->create($datos);
 
-        // estado='activa' se pone por defecto (lo definimos en la migración)
-        $cuenta = $proyecto->cuentas()->create($datosValidados);
         return response()->json($cuenta, 201);
     }
 
-    /**
-     * Muestra una cuenta específica (activa o inactiva).
-     * (Cualquier miembro puede 'ver')
-     */
     public function show(Request $request, Proyecto $proyecto, Cuenta $cuenta)
     {
+        $this->verificarCuenta($proyecto, $cuenta);
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
-            abort(404);
-        }
-
         return response()->json($cuenta);
     }
 
-    /**
-     * Actualiza una cuenta.
-     */
-    public function update(Request $request, Proyecto $proyecto, Cuenta $cuenta)
+    public function update(UpdateCuentaRequest $request, Proyecto $proyecto, Cuenta $cuenta)
     {
+        $this->verificarCuenta($proyecto, $cuenta);
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar cuentas.');
 
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
+        $datos = $request->validated();
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
-            abort(404);
+        // Si se actualiza el saldo inicial, actualizamos también el saldo actual
+        if (isset($datos['saldo_inicial']) && !$cuenta->transacciones()->exists()) {
+            $datos['saldo_actual'] = $datos['saldo_inicial'];
         }
 
-        $datosValidados = $request->validate([
-            'nombre' => 'sometimes|string|max:255',
-            'banco' => 'nullable|string|max:255',
-            'balance_inicial' => 'sometimes|numeric',
-            'tipo' => ['sometimes', 'string', Rule::in(['efectivo', 'banco', 'credito', 'otro'])],
-            'estado' => ['sometimes', 'string', Rule::in(['activa', 'inactiva'])],
-        ]);
+        $cuenta->update($datos);
 
-        $cuenta->update($datosValidados);
         return response()->json($cuenta);
     }
 
-    /**
-     * Elimina (o inactiva) una cuenta.
-     */
     public function destroy(Request $request, Proyecto $proyecto, Cuenta $cuenta)
     {
-
+        $this->verificarCuenta($proyecto, $cuenta);
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden inactivar/eliminar cuentas.');
 
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
-            abort(404);
+        if ($cuenta->transacciones()->exists()) {
+            // Si tiene transacciones, la marcamos como inactiva
+            $cuenta->update(['estado' => 'inactiva']);
+            return response()->json(['message' => 'La cuenta ha sido marcada como inactiva']);
         }
 
-        if ($cuenta->transacciones()->exists()) {
-            // Caso 1: Tiene transacciones. Se inactiva.
-            $cuenta->update(['estado' => 'inactiva']);
-            return response()->json([
-                'message' => 'La cuenta tiene transacciones, por lo que ha sido inactivada en lugar de borrada.',
-                'cuenta' => $cuenta
-            ]);
-        } else {
-            // Caso 2: No tiene transacciones. Se borra permanentemente.
-            $cuenta->delete();
-            return response()->noContent();
+        $cuenta->delete();
+        return response()->noContent();
+    }
+
+    public function updateEstado(Request $request, Proyecto $proyecto, Cuenta $cuenta)
+    {
+        $this->verificarCuenta($proyecto, $cuenta);
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'No autorizado');
+
+        $request->validate([
+            'estado' => ['required', 'string', 'in:activa,inactiva,cerrada']
+        ]);
+
+        $cuenta->update(['estado' => $request->estado]);
+
+        return response()->json([
+            'message' => 'Estado de la cuenta actualizado',
+            'estado' => $cuenta->estado
+        ]);
+    }
+
+    /**
+     * Verifica que la cuenta pertenezca al proyecto
+     */
+    protected function verificarCuenta(Proyecto $proyecto, Cuenta $cuenta): void
+    {
+        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
+            abort(404, 'La cuenta no pertenece a este proyecto');
         }
     }
 }

@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
-> **Last Updated**: November 16, 2025 - Security Audit & Rate Limiting Added
+> **Last Updated**: December 3, 2025 - Added Tools, Analytics, Notifications, Marketplace
 
 ## 📋 Índice
 
@@ -14,6 +14,10 @@
 8. [Transacciones](#transacciones)
 9. [Chat](#chat)
 10. [Códigos de Error](#códigos-de-error)
+ 11. [Herramientas](#herramientas-tools)
+ 12. [Analíticas](#analíticas-analytics)
+ 13. [Notificaciones](#notificaciones-notifications)
+ 14. [Mercado](#mercado-marketplace)
 
 ---
 
@@ -836,6 +840,10 @@ Authorization: Bearer {token}
 Accept: application/json
 ```
 
+**Query Parameters**
+- `estado` - (Opcional) Filtrar por estado: `activa` (default), `inactiva`, `cerrada`
+- `tipo` - (Opcional) Filtrar por tipo: `banco`, `efectivo`, `credito`, etc.
+
 **Response (200)**
 ```json
 {
@@ -845,7 +853,9 @@ Accept: application/json
       "proyecto_id": 1,
       "nombre": "Banco Principal",
       "tipo": "banco",
-      "saldo": 5000.00,
+      "saldo_actual": 5000.00,
+      "saldo_inicial": 5000.00,
+      "estado": "activa",
       "created_at": "2025-11-15 10:00:00"
     }
   ]
@@ -865,7 +875,8 @@ Accept: application/json
 {
   "nombre": "Efectivo",
   "tipo": "efectivo",
-  "saldo_inicial": 1000.00
+  "saldo_inicial": 1000.00,
+  "moneda": "USD"
 }
 ```
 
@@ -876,11 +887,53 @@ Accept: application/json
   "proyecto_id": 1,
   "nombre": "Efectivo",
   "tipo": "efectivo",
-  "saldo": 1000.00
+  "saldo_actual": 1000.00,
+  "saldo_inicial": 1000.00,
+  "estado": "activa"
 }
 ```
 
-**Tipos válidos**: `banco`, `efectivo`, `tarjeta`, `digital`
+**Tipos válidos**: `banco`, `efectivo`, `credito`, `inversion`, `otro`
+
+---
+
+### Update Cuenta - Actualizar Cuenta
+
+```http
+PUT /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Efectivo (Caja Chica)",
+  "color": "#00FF00"
+}
+```
+
+**Response (200)**
+```json
+{
+  "id": 2,
+  "nombre": "Efectivo (Caja Chica)",
+  "color": "#00FF00"
+}
+```
+
+---
+
+### Delete Cuenta - Eliminar/Inactivar Cuenta
+
+Si la cuenta tiene transacciones, se marca como `inactiva`. Si no tiene, se elimina permanentemente.
+
+```http
+DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (204)**
+*(No Content)*
 
 ---
 
@@ -924,19 +977,30 @@ Accept: application/json
 ### Create Transacción - Crear Transacción
 
 ```http
-POST /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones
+POST /api/proyectos/{proyecto}/transacciones
 Authorization: Bearer {token}
 Content-Type: application/json
 Accept: application/json
 
 {
   "categoria_id": 1,
+  "cuenta_id": 1,
   "descripcion": "Compra de alimentos",
   "monto": 50.00,
-  "tipo": "egreso",
-  "fecha": "2025-11-15"
+  "fecha": "2025-11-15",
+  "notas": "Opcional",
+  "task_id": 5  // Opcional: vincula con tarea financiera
 }
 ```
+
+**Parámetros**:
+- `categoria_id` (number, required): ID de la categoría de gasto/ingreso
+- `cuenta_id` (number, required): ID de la cuenta bancaria
+- `descripcion` (string, required): Descripción de la transacción
+- `monto` (number, required): Monto de la transacción
+- `fecha` (date, required): Fecha de la transacción (YYYY-MM-DD)
+- `notas` (string, optional): Notas adicionales
+- `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
 **Response (201)**
 ```json
@@ -946,7 +1010,6 @@ Accept: application/json
   "categoria_id": 1,
   "descripcion": "Compra de alimentos",
   "monto": 50.00,
-  "tipo": "egreso",
   "fecha": "2025-11-15",
   "created_at": "2025-11-15 10:00:00"
 }

@@ -10,6 +10,7 @@ import SearchInput from '@/Components/SearchInput';
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import BottomNavigation from '@/Components/BottomNavigation';
+import NotificationDropdown from '@/Components/UI/NotificationDropdown';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -87,6 +88,8 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     </div>
                     <div className="flex items-center space-x-3 pl-4">
                         <ThemeToggle />
+
+                        <NotificationDropdown />
 
                         {/* Inbox Dropdown */}
                         <div className="relative flex items-center">

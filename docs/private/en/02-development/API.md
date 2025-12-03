@@ -14,7 +14,10 @@
 8. [Transactions](#transactions)
 9. [Tools](#tools)
 10. [Chat](#chat)
-11. [Error Codes](#error-codes)
+11. [Analytics](#analytics)
+ 12. [Notifications](#notifications)
+ 13. [Marketplace](#marketplace)
+ 14. [Error Codes](#error-codes)
 
 ---
 
@@ -797,7 +800,94 @@ Gets all accounts for a project.
 
 ```http
 GET /api/proyectos/{proyecto}/cuentas
+**Query Parameters**
+- `estado` - (Optional) Filter by status: `activa` (default), `inactiva`, `cerrada`
+- `tipo` - (Optional) Filter by type: `banco`, `efectivo`, `credito`, etc.
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "proyecto_id": 1,
+      "nombre": "Main Bank",
+      "tipo": "banco",
+      "saldo_actual": 5000.00,
+      "saldo_inicial": 5000.00,
+      "estado": "activa",
+      "created_at": "2025-11-15 10:00:00"
+    }
+  ]
+}
+```
+
+### Create Account
+
+```http
+POST /api/proyectos/{proyecto}/cuentas
 Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Cash",
+  "tipo": "efectivo",
+  "saldo_inicial": 1000.00,
+  "moneda": "USD"
+}
+```
+
+**Response (201)**
+```json
+{
+  "id": 2,
+  "proyecto_id": 1,
+  "nombre": "Cash",
+  "tipo": "efectivo",
+  "saldo_actual": 1000.00,
+  "saldo_inicial": 1000.00,
+  "estado": "activa"
+}
+```
+
+**Valid Types**: `banco`, `efectivo`, `credito`, `inversion`, `otro`
+
+### Update Account
+
+```http
+PUT /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Petty Cash",
+  "color": "#00FF00"
+}
+```
+
+**Response (200)**
+```json
+{
+  "id": 2,
+  "nombre": "Petty Cash",
+  "color": "#00FF00"
+}
+```
+
+### Delete Account
+
+If the account has transactions, it is marked as `inactiva`. If it has no transactions, it is permanently deleted.
+
+```http
+DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (204)**
+*(No Content)*
 Accept: application/json
 ```
 
@@ -1137,56 +1227,123 @@ Accept: application/json
 
 **Last Updated**: November 15, 2025
 
-## Messaging (Chat)
-
-### List Messages
-**Endpoint:** `GET /api/proyectos/{proyecto}/messages`
-**Auth:** Required (Member)
-**Description:** Retrieves a paginated list of messages for the project.
-
-**Response:**
-```json
-{
-    "current_page": 1,
-    "data": [
-        {
-            "id": 1,
-            "user_id": 5,
-            "content": "Hello team!",
-            "type": "text",
-            "created_at": "2023-10-27T10:00:00.000000Z",
-            "user": {
-                "id": 5,
-                "name": "John Doe",
-                "profile_photo_path": null
-            }
-        }
-    ],
-    "total": 50
-}
-```
-
-### Send Message
-**Endpoint:** `POST /api/proyectos/{proyecto}/messages`
-**Auth:** Required (Member)
-**Description:** Sends a new message to the project chat.
-
-**Body:**
-```json
-{
-    "content": "Hello world",
-    "type": "text" // Optional, default: text
-}
-```
-
-**Response:**
-```json
-{
-    "id": 2,
-    "user_id": 5,
-    "content": "Hello world",
-    "type": "text",
-    "created_at": "2023-10-27T10:05:00.000000Z",
-    "user": { ... }
-}
-```
+---
+ 
+ ## 📊 Analytics
+ 
+ ### Get Metrics
+ Gets key metrics for a project (income, expenses, balance).
+ 
+ ```http
+ GET /api/proyectos/{proyecto}/analytics/metrics
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ **Response (200)**
+ ```json
+ {
+   "income": 5000.00,
+   "expenses": 1200.00,
+   "balance": 3800.00,
+   "trend": "up"
+ }
+ ```
+ 
+ ### Get Summary
+ Gets a summary of financial activity.
+ 
+ ```http
+ GET /api/proyectos/{proyecto}/analytics/summary
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Get Insights
+ Gets AI-powered insights for the project.
+ 
+ ```http
+ GET /api/proyectos/{proyecto}/analytics/insights
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ---
+ 
+ ## 🔔 Notifications
+ 
+ ### List Notifications
+ Gets all notifications for the authenticated user.
+ 
+ ```http
+ GET /api/notifications
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Mark as Read
+ Marks a specific notification as read.
+ 
+ ```http
+ POST /api/notifications/{id}/read
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Mark All as Read
+ Marks all notifications as read.
+ 
+ ```http
+ POST /api/notifications/read-all
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Get Preferences
+ Gets notification preferences.
+ 
+ ```http
+ GET /api/notifications/preferences
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Update Preferences
+ Updates notification preferences.
+ 
+ ```http
+ POST /api/notifications/preferences
+ Authorization: Bearer {token}
+ Content-Type: application/json
+ 
+ {
+   "email_notifications": true,
+   "push_notifications": false
+ }
+ ```
+ 
+ ---
+ 
+ ## 🏪 Marketplace
+ 
+ ### List Modules
+ Lists available modules for a project.
+ 
+ ```http
+ GET /api/proyectos/{proyecto}/marketplace
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ ### Toggle Module
+ Enables or disables a module for a project.
+ 
+ ```http
+ POST /api/proyectos/{proyecto}/marketplace/{module}
+ Authorization: Bearer {token}
+ Content-Type: application/json
+ 
+ {
+   "enable": true
+ }
+ ```

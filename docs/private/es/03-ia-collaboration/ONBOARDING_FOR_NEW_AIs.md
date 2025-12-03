@@ -9,8 +9,8 @@
 ## 1. 🌍 Contexto del Proyecto
 
 **ControlApp** es una plataforma de gestión de proyectos colaborativos.
-- **Estado Actual**: Funcionalidades de gestión financiera (cuentas, transacciones) implementadas.
-- **Objetivo**: Expandir a gestión integral de proyectos.
+- **Estado Actual**: Arquitectura modular completa (v2.3.0) con módulos de Finanzas, Tareas, Chat, Analíticas, Notificaciones y Marketplace.
+- **Objetivo**: Expandir el ecosistema de módulos y mejorar la experiencia de usuario.
 - **Filosofía**: Código limpio, arquitectura sólida, y **estética premium**.
 
 ---
@@ -19,7 +19,7 @@
 
 | Capa | Tecnología | Versión / Detalle |
 |------|------------|-------------------|
-| **Backend** | Laravel | 11+ (PHP 8.2+) |
+| **Backend** | Laravel | 12+ (PHP 8.2+) |
 | **Frontend** | React | 18+ (Inertia.js) |
 | **Estilos** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
@@ -33,6 +33,7 @@
 ### 3.1 Modo Agente (`task_boundary`)
 - **SIEMPRE** usa `task_boundary` al iniciar una tarea compleja.
 - **NUNCA** dejes el `TaskStatus` vacío o genérico. Debe describir el **siguiente paso**.
+- **MODOS**: Usa `PLANNING`, `EXECUTION`, `VERIFICATION` según corresponda.
 - **GRANULARIDAD**: Un `TaskName` debe corresponder a un item del `task.md`.
 
 ### 3.2 Artefactos
@@ -94,13 +95,42 @@ Usa **Conventional Commits**:
 ## 6. 🧪 Testing
 
 - **Regla**: "Si no está testeado, no está terminado".
-- **Comando**: `php artisan test` (o `docker compose exec laravel.test php artisan test`). 'con sail' para ejecutar tests.
+- **Comando**: `./vendor/bin/sail test` (o `php artisan test` si tienes el entorno local configurado).
+- **IMPORTANTE**: Usa SIEMPRE `sail` para interactuar con el entorno (ej. `./vendor/bin/sail artisan ...`). Evita usar `docker` o `docker-compose` directamente a menos que sea estrictamente necesario para depurar contenedores.
 - **Cobertura**: Prioriza Feature tests para flujos críticos.
 - **Frontend**: Use vitest and react testing library.
 - **Backend**: Use phpunit.
 - **Limpieza**: limpiar archivos residuales de tests anteriores.
 
 ---
+ 
+ ## 8. 🏗️ Arquitectura Modular (CRÍTICO)
+ 
+ El proyecto ha migrado a una arquitectura modular orientada a eventos.
+ 
+ ### 8.1 Conceptos Clave
+ - **Módulos**: Unidades auto-contenidas en `app/Modules/` (Finance, Tasks, Chat, Analytics, Notifications, Marketplace).
+ - **Registry**: `ModuleRegistry` descubre y gestiona los módulos.
+ - **Event Bus**: `ModuleEventBus` maneja la comunicación entre módulos. **NUNCA** importes clases de un módulo dentro de otro. Usa eventos.
+ 
+ ### 8.2 Estructura de un Módulo
+ ```
+ app/Modules/Finance/
+ ├── FinanceModule.php (Implementa ModuleInterface)
+ ├── Controllers/
+ ├── Models/
+ ├── Events/
+ └── Listeners/
+ ```
+ 
+ ### 8.3 Flujo de Trabajo Modular
+ 1. **Crear Módulo**: Implementar `ModuleInterface` y registrar en `config/modules.php`.
+ 2. **Comunicación**:
+    - Emisor: `ModuleEventBus::dispatch(new TransactionCreated($data))`
+    - Receptor: Escuchar evento en `getEventListeners()` del módulo.
+ 3. **Frontend**: Los módulos exponen componentes en `resources/js/Modules/`.
+ 
+ ---
 
 ## 7. 🚀 Quick Start para tu Sesión
 
@@ -116,3 +146,4 @@ Toda modificación al código debe ser documentada inmediatamente:
 2. **README**: Actualizar si cambia la instalación, configuración o uso general.
 3. **Documentación Específica**: Actualizar el archivo correspondiente (ej. `API.md`, `FRONTEND.md`) con los detalles técnicos.
 4. **Documentación Pública**: Actualizar solo al cambiar de versión o bajo instrucción explícita.
+5. **Arquitectura Visual**: Mantener actualizados los diagramas en `docs/private/es/01-core/VISUAL_ARCHITECTURE.md` al realizar cambios estructurales (nuevos módulos, cambios en flujo de datos).

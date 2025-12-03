@@ -44,7 +44,17 @@ class LoginRequest extends FormRequest
 
         $credentials = $this->only('email', 'password');
 
-        // 1. Validar credenciales sin iniciar sesión
+        // 0. Verificar si el usuario existe (User Enumeration - Requested Feature)
+        $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+        if (!$user) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'No existe una cuenta registrada con este correo electrónico.',
+            ]);
+        }
+
+        // 1. Validar credenciales (Password check)
         if (!Auth::validate($credentials)) {
             \Illuminate\Support\Facades\Log::info('LoginRequest: Credentials validation failed');
             RateLimiter::hit($this->throttleKey());
@@ -54,10 +64,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // 2. Obtener usuario para verificar status de email
-        // Usamos el proveedor de autenticación para ser agnósticos del modelo
-        $user = Auth::getProvider()->retrieveByCredentials($credentials);
-
+        // 2. Usuario ya obtenido arriba
         \Illuminate\Support\Facades\Log::info('LoginRequest: User retrieved: ' . ($user ? $user->email : 'NONE'));
 
         // 3. Verificar si el email está verificado

@@ -9,8 +9,8 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 ## 1. 🌍 Project Context
 
 **ControlApp** is a collaborative project management platform.
-- **Current State**: Financial management features (accounts, transactions) implemented.
-- **Goal**: Expand to comprehensive project management.
+- **Current State**: Full modular architecture (v2.3.0) with Finance, Tasks, Chat, Analytics, Notifications, and Marketplace modules.
+- **Goal**: Expand module ecosystem and improve user experience.
 - **Philosophy**: Clean code, solid architecture, and **premium aesthetics**.
 
 ---
@@ -19,7 +19,7 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 
 | Layer | Technology | Version / Detail |
 |-------|------------|------------------|
-| **Backend** | Laravel | 11+ (PHP 8.2+) |
+| **Backend** | Laravel | 12+ (PHP 8.2+) |
 | **Frontend** | React | 18+ (Inertia.js) |
 | **Styles** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
@@ -33,6 +33,7 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 ### 3.1 Agent Mode (`task_boundary`)
 - **ALWAYS** use `task_boundary` when starting a complex task.
 - **NEVER** leave `TaskStatus` empty or generic. It must describe the **next step**.
+- **MODES**: Use `PLANNING`, `EXECUTION`, `VERIFICATION` as appropriate.
 - **GRANULARITY**: A `TaskName` must correspond to an item in `task.md`.
 
 ### 3.2 Artifacts
@@ -107,7 +108,37 @@ Use **Conventional Commits**:
 
 ---
 
-## 7. 🚀 Quick Start for your Session
+---
+ 
+ ## 8. 🏗️ Modular Architecture (CRITICAL)
+ 
+ The project has migrated to a modular event-driven architecture.
+ 
+ ### 8.1 Key Concepts
+ - **Modules**: Self-contained units in `app/Modules/` (Finance, Tasks, Chat, Analytics, Notifications, Marketplace).
+ - **Registry**: `ModuleRegistry` discovers and manages modules.
+ - **Event Bus**: `ModuleEventBus` handles inter-module communication. **NEVER** import classes from one module inside another. Use events.
+ 
+ ### 8.2 Module Structure
+ ```
+ app/Modules/Finance/
+ ├── FinanceModule.php (Implements ModuleInterface)
+ ├── Controllers/
+ ├── Models/
+ ├── Events/
+ └── Listeners/
+ ```
+ 
+ ### 8.3 Modular Workflow
+ 1. **Create Module**: Implement `ModuleInterface` and register in `config/modules.php`.
+ 2. **Communication**:
+    - Emitter: `ModuleEventBus::dispatch(new TransactionCreated($data))`
+    - Receiver: Listen to event in `getEventListeners()` of the module.
+ 3. **Frontend**: Modules expose components in `resources/js/Modules/`.
+ 
+ ---
+ 
+ ## 7. 🚀 Quick Start for your Session
 
 1. **Read** `task.md` (if exists) to see current state.
 2. **Read** `CHANGELOG.md` to see latest changes.
@@ -122,3 +153,4 @@ All code modifications must be documented immediately:
 2. **README**: Update if installation, configuration, or general usage changes.
 3. **Specific Documentation**: Update the corresponding file (e.g., `API.md`, `FRONTEND.md`) with technical details.
 4. **Public Documentation**: Update only when changing versions or under explicit instruction.
+5. **Visual Architecture**: Keep diagrams in `docs/private/es/01-core/VISUAL_ARCHITECTURE.md` updated when making structural changes (new modules, data flow changes).

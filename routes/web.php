@@ -45,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
 
+    // Personal Finance
+    Route::get('/finance', [\App\Http\Controllers\PersonalFinanceController::class, 'index'])->name('finance.personal');
+
     // Project Messages
     Route::get('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
     Route::post('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
@@ -71,6 +74,11 @@ Route::middleware('auth')->group(function () {
         ->name('project.ownership.transfer');
     Route::get('mis-proyectos/{proyecto}/users/search', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'searchUsers'])
         ->name('project.users.search');
+
+    // Tasks Module
+    Route::resource('mis-proyectos.tasks', \App\Http\Controllers\TaskController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->shallow();
 
     // Accept Invitation
     Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])

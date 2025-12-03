@@ -473,8 +473,46 @@
             "delete": "Eliminar Transacción",
             "type": "Tipo"
         },
-        "validation": {
-            "checkbox_required": "Validar esta casilla si desea continuar"
+        "analytics": {
+            "title": "Analíticas",
+            "metrics": "Métricas",
+            "summary": "Resumen",
+            "insights": "Insights",
+            "total_income": "Ingresos Totales",
+            "total_expenses": "Gastos Totales",
+            "net_balance": "Balance Neto",
+            "tasks_completed": "Tareas Completadas",
+            "project_progress": "Progreso del Proyecto"
+        },
+        "notifications": {
+            "title": "Notificaciones",
+            "mark_all_read": "Marcar todas como leídas",
+            "preferences": "Preferencias",
+            "settings": "Configuración de Notificaciones",
+            "types": {
+                "transaction_created": "Nueva Transacción",
+                "task_assigned": "Tarea Asignada",
+                "project_invite": "Invitación a Proyecto",
+                "mention": "Mención"
+            },
+            "channels": {
+                "database": "En la App",
+                "mail": "Correo Electrónico"
+            }
+        },
+        "marketplace": {
+            "title": "Mercado de Módulos",
+            "installed": "Instalado",
+            "install": "Instalar",
+            "uninstall": "Desinstalar",
+            "available": "Disponibles",
+            "dependencies": "Dependencias",
+            "description": "Explora y activa módulos para potenciar tus proyectos.",
+            "confirm_uninstall": "¿Estás seguro de desinstalar este módulo? Se perderán los datos asociados.",
+            "dependency_warning": "Este módulo requiere :modules para funcionar."
         }
+    },
+    "validation": {
+        "checkbox_required": "Debes marcar esta casilla para continuar"
     }
 }

@@ -5,6 +5,7 @@ import { Link, Head } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { CurrencyDollarIcon, CheckListIcon, UserCircleIcon } from '@/Components/Icons';
 import SummaryCard from '@/Components/Dashboard/SummaryCard';
+import AnalyticsWidget from '@/Components/Dashboard/AnalyticsWidget';
 
 // Este componente recibe el objeto 'proyecto' de Laravel
 export default function Show({ auth, proyecto, isAdmin }) {
@@ -89,6 +90,13 @@ export default function Show({ auth, proyecto, isAdmin }) {
                         />
                     )}
                 </div>
+
+                {/* Analytics Widget */}
+                {proyecto.modules?.includes('analytics') && (
+                    <div className="mt-6">
+                        <AnalyticsWidget project={proyecto} />
+                    </div>
+                )}
 
                 {/* CHAT WIDGET (Only if 2+ members) */}
                 {/* CHAT WIDGET (Only if 2+ members) */}

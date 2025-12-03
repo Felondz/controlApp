@@ -10,18 +10,33 @@ import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function TransferOwnershipModal({ show, onClose, project, members }) {
     const { t } = useTranslate();
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, setError } = useForm({
         new_owner_id: '',
         password: '',
     });
 
     const submit = (e) => {
         e.preventDefault();
+
+        if (!data.password) {
+            setError('password', t('validation.required', 'El campo contraseña es obligatorio.'));
+            if (document.getElementById('password')) {
+                document.getElementById('password').focus();
+            }
+            return;
+        }
+
         post(route('project.ownership.transfer', project.id), {
+            preserveScroll: true,
             onSuccess: () => {
                 reset();
                 onClose();
             },
+            onError: () => {
+                if (document.getElementById('password')) {
+                    document.getElementById('password').focus();
+                }
+            }
         });
     };
 
