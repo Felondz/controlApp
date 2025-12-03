@@ -34,11 +34,11 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             show: modules.includes('tasks'),
         },
         {
-            name: t('modules.chat', 'Chat'),
+            name: t('modules.chat.title', 'Chat'),
             icon: ChatIcon,
             route: 'mis-proyectos.chat',
             routeParams: project.id,
-            show: modules.includes('chat'),
+            show: modules.includes('chat') && !project.es_personal,
             badge: project.unread_messages_count
         },
         {
@@ -47,7 +47,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             route: 'project.members.index',
             routeParams: project.id,
             disabled: false,
-            show: true,
+            show: !project.es_personal && project.es_personal !== 1,
         },
         {
             name: t('projects.project_settings', 'Configuración'),

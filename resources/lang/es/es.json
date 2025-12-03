@@ -160,6 +160,10 @@
         "details": "Detalles",
         "submit": "Enviar",
         "project": "Proyecto",
+        "project_unnamed": "Proyecto sin nombre",
+        "user_unknown": "Usuario desconocido",
+        "accept": "Aceptar",
+        "reject": "Rechazar",
         "light": "Claro",
         "dark": "Oscuro",
         "tip": "Consejo",
@@ -429,30 +433,86 @@
     "modules": {
         "finance": "Finanzas",
         "tasks": "Tareas",
-        "chat": "Chat"
-    },
-    "inbox": {
-        "title": "Buzón de entrada",
-        "empty": "No tienes mensajes nuevos.",
-        "unread_messages": "Tienes :count mensajes sin leer",
-        "unread_count": ":count nuevos mensajes",
-        "view_all": "Ver todos"
-    },
-    "transactions": {
-        "title": "Transacciones",
-        "income": "Ingreso",
-        "expense": "Egreso",
-        "amount": "Monto",
-        "category": "Categoría",
-        "description": "Descripción",
-        "date": "Fecha",
-        "account": "Cuenta",
-        "create": "Crear Transacción",
-        "edit": "Editar Transacción",
-        "delete": "Eliminar Transacción",
-        "type": "Tipo"
+        "chat": {
+            "title": "Chat de Equipo",
+            "channels": "Canales",
+            "direct_messages": "Mensajes Directos",
+            "general": "General",
+            "placeholder": "Escribe un mensaje...",
+            "empty": "No hay mensajes aún. ¡Inicia la conversación!",
+            "online": "En línea",
+            "offline": "Desconectado",
+            "back": "Chats"
+        },
+        "inbox": {
+            "title": "Buzón de entrada",
+            "empty": "No tienes mensajes nuevos ni invitaciones.",
+            "messages": "Mensajes",
+            "unread_messages": "Tienes :count mensajes sin leer",
+            "unread_count": ":count nuevos mensajes",
+            "view_all": "Ver todos"
+        },
+        "invitations": {
+            "title": "Invitaciones",
+            "pending": "Invitaciones Pendientes",
+            "invited_by": "Invitado por",
+            "empty_title": "No tienes invitaciones",
+            "empty_desc": "Cuando te inviten a un proyecto, aparecerá aquí."
+        },
+        "transactions": {
+            "title": "Transacciones",
+            "income": "Ingreso",
+            "expense": "Egreso",
+            "amount": "Monto",
+            "category": "Categoría",
+            "description": "Descripción",
+            "date": "Fecha",
+            "account": "Cuenta",
+            "create": "Crear Transacción",
+            "edit": "Editar Transacción",
+            "delete": "Eliminar Transacción",
+            "type": "Tipo"
+        },
+        "analytics": {
+            "title": "Analíticas",
+            "metrics": "Métricas",
+            "summary": "Resumen",
+            "insights": "Insights",
+            "total_income": "Ingresos Totales",
+            "total_expenses": "Gastos Totales",
+            "net_balance": "Balance Neto",
+            "tasks_completed": "Tareas Completadas",
+            "project_progress": "Progreso del Proyecto"
+        },
+        "notifications": {
+            "title": "Notificaciones",
+            "mark_all_read": "Marcar todas como leídas",
+            "preferences": "Preferencias",
+            "settings": "Configuración de Notificaciones",
+            "types": {
+                "transaction_created": "Nueva Transacción",
+                "task_assigned": "Tarea Asignada",
+                "project_invite": "Invitación a Proyecto",
+                "mention": "Mención"
+            },
+            "channels": {
+                "database": "En la App",
+                "mail": "Correo Electrónico"
+            }
+        },
+        "marketplace": {
+            "title": "Mercado de Módulos",
+            "installed": "Instalado",
+            "install": "Instalar",
+            "uninstall": "Desinstalar",
+            "available": "Disponibles",
+            "dependencies": "Dependencias",
+            "description": "Explora y activa módulos para potenciar tus proyectos.",
+            "confirm_uninstall": "¿Estás seguro de desinstalar este módulo? Se perderán los datos asociados.",
+            "dependency_warning": "Este módulo requiere :modules para funcionar."
+        }
     },
     "validation": {
-        "checkbox_required": "Validar esta casilla si desea continuar"
+        "checkbox_required": "Debes marcar esta casilla para continuar"
     }
 }

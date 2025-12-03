@@ -1,13 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { UserPlusIcon } from '@/Components/Icons';
 import { useState } from 'react';
 import InviteUserToProjectModal from '@/Components/Members/InviteUserToProjectModal';
 
 export default function UserShow({ auth, userProfile, myProjects }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [showInviteModal, setShowInviteModal] = useState(false);
 
     return (

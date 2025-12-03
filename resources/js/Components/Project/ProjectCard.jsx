@@ -1,12 +1,19 @@
-import { Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon } from '@/Components/Icons';
 import FinanceWidget from '@/Components/Widgets/FinanceWidget';
 import TasksWidget from '@/Components/Widgets/TasksWidget';
+import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
 import { getThemeStyle } from '@/Utils/themeStyles';
+import axios from 'axios';
 
 export default function ProjectCard({ proyecto }) {
     const { t } = useTranslate();
+    const [showTransactionModal, setShowTransactionModal] = useState(false);
+    const [transactionType, setTransactionType] = useState(null); // 'ingreso' o 'gasto'
+    const [cuentas, setCuentas] = useState([]);
+    const [categorias, setCategorias] = useState([]);
 
     // Determine primary module (default to finance if none or multiple)
     const modules = proyecto.modules || ['finance'];
@@ -42,21 +49,45 @@ export default function ProjectCard({ proyecto }) {
         return proyecto.color || 'var(--color-primary-600)';
     };
 
-    const handleAddIncome = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        // TODO: Open modal or navigate to create income transaction
-        console.log('Add income for project:', proyecto.id);
+    const loadFinanceData = async (tipo) => {
+        try {
+            const [cuentasRes, categoriasRes] = await Promise.all([
+                axios.get(route('api.proyectos.cuentas.index', proyecto.id)),
+                axios.get(route('api.proyectos.categorias.index', proyecto.id)),
+            ]);
+            setCuentas(cuentasRes.data);
+            // Filtrar categorías por tipo (ingreso o gasto)
+            setCategorias(categoriasRes.data.filter(c => c.tipo === tipo));
+        } catch (error) {
+            console.error('Error loading finance data:', error);
+        }
     };
 
-    const handleAddExpense = (e) => {
+    const handleAddIncome = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // TODO: Open modal or navigate to create expense transaction
-        console.log('Add expense for project:', proyecto.id);
+        setTransactionType('ingreso');
+        await loadFinanceData('ingreso');
+        setShowTransactionModal(true);
+    };
+
+    const handleAddExpense = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setTransactionType('gasto');
+        await loadFinanceData('gasto');
+        setShowTransactionModal(true);
+    };
+
+    const handleTransactionSuccess = () => {
+        setShowTransactionModal(false);
+        setTransactionType(null);
+        // Recargar la página para actualizar datos
+        router.reload({ only: ['proyectos'] });
     };
 
     return (
+        <>
         <Link
             href={route('mis-proyectos.show', { mis_proyecto: proyecto.id })}
             className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col min-h-[200px] relative group border-2 border-transparent hover:border-primary-300 dark:hover:border-primary-800"
@@ -135,7 +166,7 @@ export default function ProjectCard({ proyecto }) {
                         <div className="flex items-center justify-center gap-2 mt-2 text-primary-500 dark:text-primary-400">
                             {modules.map(mod => (
                                 <div key={mod} className="relative group/icon">
-                                    <span title={t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <span title={mod === 'chat' ? t('modules.chat.title', 'Chat') : t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         {getModuleIcon(mod)}
                                     </span>
                                     {mod === 'chat' && proyecto.unread_messages_count > 0 && (
@@ -183,5 +214,23 @@ export default function ProjectCard({ proyecto }) {
                 </div>
             </div>
         </Link>
+
+        {/* Transaction Modal */}
+        {showTransactionModal && (
+            <TransactionModal
+                show={showTransactionModal}
+                onClose={() => {
+                    setShowTransactionModal(false);
+                    setTransactionType(null);
+                }}
+                transaction={null}
+                proyectoId={proyecto.id}
+                proyectos={[]}
+                cuentas={cuentas}
+                categorias={categorias}
+                onSuccess={handleTransactionSuccess}
+            />
+        )}
+    </>
     );
 }

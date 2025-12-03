@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import ChatWidget from '@/Components/Project/ChatWidget';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { getThemeStyle } from '@/Utils/themeStyles';
 import { ChatIcon } from '@/Components/Icons';
 
 export default function Chat({ auth, proyecto }) {
@@ -14,7 +15,7 @@ export default function Chat({ auth, proyecto }) {
                 <div className="flex items-center gap-2">
                     <ChatIcon className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                     <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">
-                        {proyecto.nombre} - {t('modules.chat', 'Chat')}
+                        {proyecto.nombre} - {t('modules.chat.title', 'Chat')}
                     </h2>
                 </div>
             }
@@ -22,7 +23,7 @@ export default function Chat({ auth, proyecto }) {
         >
             <Head title={`${proyecto.nombre} - Chat`} />
 
-            <div className="py-6">
+            <div className="py-6" style={getThemeStyle(proyecto.theme)}>
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <ChatWidget project={proyecto} user={auth.user} />
                 </div>

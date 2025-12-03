@@ -169,6 +169,11 @@ class ProyectoUiWebController extends Controller
             abort(403, 'Solo los administradores pueden eliminar este proyecto.');
         }
 
+        // Validate password
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
         // Soft delete
         $mis_proyecto->delete();
 
@@ -193,16 +198,41 @@ class ProyectoUiWebController extends Controller
 
         if ($isAdmin) {
             $relations[] = 'cuentas';
-            // $relations[] = 'transacciones'; // Future: Load recent transactions
+            $relations[] = 'cuentasAsociadas';
+            $relations[] = 'categorias';
         }
 
         $mis_proyecto->load($relations);
+
+        // Cargar transacciones recientes si es admin
+        $transacciones = [];
+        if ($isAdmin) {
+            $transacciones = $mis_proyecto->transacciones()
+                ->with(['categoria', 'cuenta', 'usuario'])
+                ->orderBy('fecha', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(100)
+                ->get();
+        }
+
+        // Cargar tareas financieras pendientes si es admin
+        $financialTasks = [];
+        if ($isAdmin) {
+            $financialTasks = $mis_proyecto->tasks()
+                ->where('is_financial', true)
+                ->where('status', '!=', 'done')
+                ->with(['assignee', 'category'])
+                ->orderBy('due_date', 'asc')
+                ->get();
+        }
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
+            'transacciones' => $transacciones,
+            'financialTasks' => $financialTasks,
         ]);
     }
 
@@ -213,7 +243,10 @@ class ProyectoUiWebController extends Controller
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
-            $pivot = $user->proyectos()->where('proyecto_id', $proyecto->id)->first()?->pivot;
+            $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                ->where('proyecto_id', $proyecto->id)
+                ->where('user_id', $user->id)
+                ->first();
             $lastReadAt = $pivot ? $pivot->last_read_at : null;
 
             $generalUnread = $proyecto->messages()

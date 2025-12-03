@@ -65,14 +65,14 @@ describe('BottomNavigation', () => {
         expect(screen.getByLabelText('dashboard.title')).toBeInTheDocument();
         expect(screen.getByLabelText('projects.overview')).toBeInTheDocument();
         // Smart slot: Chat should be present because it's in modules and has priority
-        expect(screen.getByLabelText('modules.chat')).toBeInTheDocument();
+        expect(screen.getByLabelText('modules.chat.title')).toBeInTheDocument();
         expect(screen.getByLabelText('common.menu')).toBeInTheDocument();
     });
 
     it('prioritizes chat over finance in smart slot', () => {
         render(<BottomNavigation user={mockUser} project={mockProject} />);
 
-        expect(screen.getByLabelText('modules.chat')).toBeInTheDocument();
+        expect(screen.getByLabelText('modules.chat.title')).toBeInTheDocument();
         expect(screen.queryByLabelText('modules.finance')).not.toBeInTheDocument();
     });
 

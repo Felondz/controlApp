@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InviteMemberModal from '@/Components/Members/InviteMemberModal';
@@ -10,7 +10,7 @@ import Alert from '@/Components/Alert';
 import TransferOwnershipModal from '@/Components/Members/TransferOwnershipModal';
 
 export default function MembersIndex({ auth, proyecto, members, invitations, isAdmin, isOwner }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const { flash = {}, errors } = usePage().props;
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [showTransferModal, setShowTransferModal] = useState(false);

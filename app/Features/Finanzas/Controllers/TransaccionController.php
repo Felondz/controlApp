@@ -32,7 +32,18 @@ class TransaccionController extends Controller
             'proyecto_id' => $proyecto->id,
             'user_id' => $request->user()->id,
         ]);
+
+        // Create transaction
         $transaccion = Transaccion::create($datosCompletos);
+
+        // If this transaction is linked to a financial task, mark the task as done
+        if (isset($datosValidados['task_id']) && $datosValidados['task_id']) {
+            $task = \App\Models\Task::find($datosValidados['task_id']);
+            if ($task && $task->project_id === $proyecto->id && $task->is_financial) {
+                $task->update(['status' => 'done']);
+            }
+        }
+
         return response()->json($transaccion->load('categoria', 'cuenta'), 201);
     }
 

@@ -55,8 +55,10 @@ vi.mock('@inertiajs/react', () => ({
 }));
 
 // Mock useTranslate hook
-vi.mock('@/hooks/useTranslate', () => ({
-    useTranslate: vi.fn(() => (key, fallback) => fallback || key),
+vi.mock('@/Hooks/useTranslate', () => ({
+    useTranslate: vi.fn(() => ({
+        t: vi.fn((key) => key), // Return the translation key, not the fallback
+    })),
 }));
 
 // Mock GlobalThemeContext

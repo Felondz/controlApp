@@ -9,7 +9,7 @@
 /.idea
 /.nova
 /.phpunit.cache
-/.vscode
+
 /.zed
 /auth.json
 /node_modules
@@ -25,8 +25,10 @@ Homestead.yaml
 Thumbs.db
 
 # Personal session documentation (work-in-progress notes)
-/docs/sessions/
+!/docs/sessions/
 
 # Incident reports (local only)
 /docs/incidents/
 /docs/private
+_ide_helper.php
+.phpstorm.meta.php

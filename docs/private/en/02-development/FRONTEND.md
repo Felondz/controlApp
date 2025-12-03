@@ -280,9 +280,10 @@ Use browser DevTools device emulation to test:
 
 The frontend codebase is fully covered by automated tests using **Vitest** and **React Testing Library**.
 
-- **Coverage**: 100% Component Coverage (215 tests).
+- **Coverage**: 100% Component Coverage (217 tests in 39 test files).
 - **Location**: `tests/Frontend/Components`.
 - **Command**: `npm run test`.
+- **Note**: All tests use translation keys instead of hardcoded text, following the i18n system.
 
 For detailed testing architecture and guidelines, refer to [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).
 

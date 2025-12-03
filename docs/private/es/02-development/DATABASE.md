@@ -319,74 +319,141 @@ GROUP BY estado;
 
 ---
 
-### 5. CATEGORIAS
+### 5. CUENTAS
 
-Tabla de categorías de transacciones.
-
-```sql
-CREATE TABLE categorias (
-  id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  proyecto_id bigint UNSIGNED NOT NULL,
-  nombre varchar(255) NOT NULL,
-  color varchar(7) NOT NULL DEFAULT '#000000',
-  icono varchar(2) NULL,
-  deleted_at timestamp NULL,
-  created_at timestamp NULL,
-  updated_at timestamp NULL,
-  
-  FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE CASCADE,
-  INDEX idx_proyecto_id (proyecto_id),
-  INDEX idx_deleted_at (deleted_at)
-);
-```
-
-**Campos:**
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | bigint UNSIGNED | ID único |
-| `proyecto_id` | bigint UNSIGNED | Proyecto (FK) |
-| `nombre` | varchar(255) | Nombre de categoría |
-| `color` | varchar(7) | Color hex (#RRGGBB) |
-| `icono` | varchar(2) | Emoji o carácter |
-| `deleted_at` | timestamp | Fecha soft delete |
-| `created_at` | timestamp | Fecha de creación |
-| `updated_at` | timestamp | Última actualización |
-
-**Ejemplos:**
-```sql
--- Categorías de un proyecto
-SELECT * FROM categorias 
-WHERE proyecto_id = 1 AND deleted_at IS NULL;
-
--- Categorías con emojis
-SELECT nombre, icono FROM categorias 
-WHERE icono IS NOT NULL;
-
--- Contar categorías por proyecto
-SELECT proyecto_id, COUNT(*) 
-FROM categorias WHERE deleted_at IS NULL
-GROUP BY proyecto_id;
-```
-
----
-
-### 6. CUENTAS
-
-Tabla de cuentas bancarias/financieras.
+Tabla de cuentas financieras (efectivo, cuentas bancarias, tarjetas de crédito, inversiones, etc.).
 
 ```sql
 CREATE TABLE cuentas (
   id bigint UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  proyecto_id bigint UNSIGNED NOT NULL,
   nombre varchar(255) NOT NULL,
-  tipo varchar(50) NOT NULL,
-  saldo decimal(10, 2) NOT NULL DEFAULT 0.00,
+  banco varchar(255) NULL,
+  tipo enum('efectivo', 'banco', 'credito', 'inversion', 'otro') NOT NULL,
+  saldo_inicial bigint NOT NULL DEFAULT 0 COMMENT 'Almacenado en centavos',
+  saldo_actual bigint NOT NULL DEFAULT 0 COMMENT 'Almacenado en centavos',
+  propietario_id bigint UNSIGNED NOT NULL,
+  propietario_type varchar(255) NOT NULL,
+  estado enum('activa', 'inactiva', 'cerrada') NOT NULL DEFAULT 'activa',
+  moneda char(3) NOT NULL DEFAULT 'USD',
+  descripcion text NULL,
+  color varchar(20) NULL DEFAULT '#3b82f6',
+  icono varchar(50) NULL DEFAULT 'wallet',
+  
+  -- Campos específicos para tarjetas de crédito
+  tasa_interes_anual decimal(8,4) NULL COMMENT 'Tasa de interés anual para créditos',
+  fecha_vencimiento date NULL COMMENT 'Fecha de vencimiento de la tarjeta',
+  dia_corte tinyint UNSIGNED NULL COMMENT 'Día de corte de la tarjeta',
+  dia_pago tinyint UNSIGNED NULL COMMENT 'Día de pago de la tarjeta',
+  limite_credito bigint NULL COMMENT 'Límite de crédito en centavos',
+  
+  -- Campos específicos para cuentas de inversión
+  tasa_interes decimal(8,4) NULL COMMENT 'Tasa de interés para inversiones',
+  fecha_interes date NULL COMMENT 'Próxima fecha de pago de intereses',
+  capitalizable boolean NULL DEFAULT false COMMENT 'Si los intereses son capitalizables',
+  periodo_capitalizacion enum('diario', 'mensual', 'trimestral', 'semestral', 'anual') NULL,
+  
   deleted_at timestamp NULL,
   created_at timestamp NULL,
   updated_at timestamp NULL,
   
-  FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE CASCADE,
-  INDEX idx_proyecto_id (proyecto_id),
+  INDEX idx_propietario (propietario_type, propietario_id),
+  INDEX idx_tipo (tipo),
+  INDEX idx_estado (estado),
+  INDEX idx_moneda (moneda),
+  INDEX idx_deleted_at (deleted_at),
+  INDEX idx_fecha_vencimiento (fecha_vencimiento)
+);
+```
+
+**Campos Comunes:**
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | bigint UNSIGNED | ID único |
+| `nombre` | varchar(255) | Nombre de la cuenta (ej: "Efectivo en Casa", "Cuenta de Ahorros") |
+| `banco` | varchar(255) | Nombre de la entidad bancaria (opcional) |
+| `tipo` | enum | Tipo de cuenta: 'efectivo', 'banco', 'credito', 'inversion', 'otro' |
+| `saldo_inicial` | bigint | Saldo inicial en centavos (para mantener precisión) |
+| `saldo_actual` | bigint | Saldo actual en centavos (para mantener precisión) |
+| `propietario_id` | bigint UNSIGNED | ID del propietario (proyecto o usuario) |
+| `propietario_type` | varchar(255) | Tipo de propietario (App\Models\Proyecto o App\Models\User) |
+| `estado` | enum | Estado de la cuenta: 'activa', 'inactiva', 'cerrada' |
+| `moneda` | char(3) | Código de moneda (USD, EUR, MXN, etc.) |
+| `descripcion` | text | Descripción detallada de la cuenta |
+| `color` | varchar(20) | Color para identificar la cuenta en la interfaz |
+| `icono` | varchar(50) | Ícono para representar la cuenta |
+
+**Campos para Tarjetas de Crédito (`tipo = 'credito'`):**
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `tasa_interes_anual` | decimal(8,4) | Tasa de interés anual (ej: 24.99 para 24.99%) |
+| `fecha_vencimiento` | date | Fecha de vencimiento de la tarjeta |
+| `dia_corte` | tinyint | Día del mes en que se genera el corte (1-31) |
+| `dia_pago` | tinyint | Día del mes límite para el pago (1-31) |
+| `limite_credito` | bigint | Límite de crédito en centavos |
+
+**Campos para Cuentas de Inversión (`tipo = 'inversion'`):**
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `tasa_interes` | decimal(8,4) | Tasa de interés de la inversión |
+| `fecha_interes` | date | Próxima fecha de pago de intereses |
+| `capitalizable` | boolean | Si los intereses se capitalizan |
+| `periodo_capitalizacion` | enum | Frecuencia de capitalización: 'diario', 'mensual', 'trimestral', 'semestral', 'anual' |
+
+**Ejemplos:**
+```sql
+-- Cuentas activas de un proyecto
+SELECT id, nombre, tipo, saldo_actual/100 as saldo, moneda 
+FROM cuentas 
+WHERE propietario_type = 'App\\Models\\Proyecto' 
+  AND propietario_id = 1 
+  AND deleted_at IS NULL;
+
+-- Total de saldo por tipo de moneda
+SELECT 
+    moneda, 
+    SUM(saldo_actual)/100 as saldo_total,
+    COUNT(*) as cantidad_cuentas
+FROM cuentas 
+WHERE deleted_at IS NULL
+  AND estado = 'activa'
+GROUP BY moneda;
+
+-- Próximos vencimientos de tarjetas
+SELECT 
+    nombre,
+    fecha_vencimiento,
+    DATEDIFF(fecha_vencimiento, CURDATE()) as dias_restantes
+FROM cuentas
+WHERE tipo = 'credito'
+  AND fecha_vencimiento >= CURDATE()
+  AND deleted_at IS NULL
+ORDER BY fecha_vencimiento ASC
+LIMIT 5;
+
+-- Inversiones con sus rendimientos proyectados
+SELECT 
+    nombre,
+    saldo_actual/100 as saldo,
+    tasa_interes as tasa_anual,
+    (saldo_actual * tasa_interes / 100) / 
+        CASE 
+            WHEN periodo_capitalizacion = 'diario' THEN 365
+            WHEN periodo_capitalizacion = 'mensual' THEN 12
+            WHEN periodo_capitalizacion = 'trimestral' THEN 4
+            WHEN periodo_capitalizacion = 'semestral' THEN 2
+            ELSE 1
+        END as interes_proyectado
+FROM cuentas
+WHERE tipo = 'inversion'
+  AND estado = 'activa'
+  AND deleted_at IS NULL;
+```
+
+**Notas importantes:**
+1. Los montos monetarios se almacenan en centavos para evitar problemas de precisión con números decimales.
+2. La relación polimórfica con `propietario_type` y `propietario_id` permite que las cuentas pertenezcan tanto a proyectos como a usuarios.
+3. Los campos específicos de cada tipo de cuenta son opcionales, pero se validan según el tipo de cuenta seleccionado.
+4. Los índices están optimizados para búsquedas comunes por propietario, tipo, estado y moneda.
   INDEX idx_tipo (tipo),
   INDEX idx_deleted_at (deleted_at)
 );

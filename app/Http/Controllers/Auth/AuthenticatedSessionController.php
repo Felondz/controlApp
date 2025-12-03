@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Facades\Cache;
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -41,6 +43,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        if (Auth::check()) {
+            Cache::forget('user-is-online-' . Auth::id());
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
