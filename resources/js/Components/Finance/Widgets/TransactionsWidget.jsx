@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PencilIcon, TrashIcon, FunnelIcon } from '@/Components/Icons';
+import { formatCurrency } from '@/Utils/currencyHelpers';
+import { PlusIcon, MinusIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, FunnelIcon } from '@/Components/Icons';
 
 export default function TransactionsWidget({
     transactions = [],
@@ -47,10 +48,10 @@ export default function TransactionsWidget({
                 </h3>
                 <button
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`p-2 rounded-lg transition-colors ${showFilters
-                        ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                        }`}
+                    className={`p - 2 rounded - lg transition - colors ${showFilters
+                            ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        } `}
                     title={t('finance.filter', 'Filtrar')}
                 >
                     <FunnelIcon className="w-5 h-5" />
@@ -114,10 +115,10 @@ export default function TransactionsWidget({
                                 </p>
                             </div>
                             <div className="flex items-center gap-2 ml-4">
-                                <span className={`text-sm font-semibold whitespace-nowrap ${trans.categoria?.tipo === 'ingreso'
-                                    ? 'text-green-600 dark:text-green-400'
-                                    : 'text-red-600 dark:text-red-400'
-                                    }`}>
+                                <span className={`text - sm font - semibold whitespace - nowrap ${trans.categoria?.tipo === 'ingreso'
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : 'text-red-600 dark:text-red-400'
+                                    } `}>
                                     {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                     {formatMonto(trans.monto)}
                                 </span>

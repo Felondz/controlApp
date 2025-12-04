@@ -137,6 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/proyectos/{proyecto}/analytics/metrics', [AnalyticsController::class, 'metrics']);
     Route::get('/proyectos/{proyecto}/analytics/summary', [AnalyticsController::class, 'summary']);
     Route::get('/proyectos/{proyecto}/analytics/insights', [AnalyticsController::class, 'insights']);
+    Route::get('/proyectos/{proyecto}/analytics/trends', [AnalyticsController::class, 'trends'])->name('api.proyectos.analytics.trends');
 
     // Notification routes
     Route::get('/notifications', [NotificationController::class, 'index'])->name('api.notifications.index');

@@ -1,4 +1,5 @@
 import { useTranslate } from '@/Hooks/useTranslate';
+import { formatCurrency } from '@/Utils/currencyHelpers';
 import {
     CalendarIcon,
     ClockIcon,

@@ -413,6 +413,101 @@ Si estás usando Laravel Sail, ejecuta los comandos dentro del contenedor:
 ./vendor/bin/sail npm run build
 ```
 
+## Sistema de Estandarización de Monedas
+
+La aplicación implementa un **sistema multi-moneda centralizado** diseñado para futuras funcionalidades de conversión de divisas.
+
+### Utilidades Centrales
+
+**Ubicación**: `resources/js/Utils/currencyHelpers.js`
+
+**Funciones**:
+- `getCurrencySymbol(currencyCode)` - Retorna el símbolo correcto ($, €, £, ¥, etc.)
+- `getCurrencyLocale(currencyCode)` - Retorna cadena de locale (es-CO, en-US, de-DE, etc.)
+- `shouldShowDecimals(currencyCode)` - Determina si la moneda usa decimales
+- `formatCurrency(amount, currencyCode, divideByCents)` - Formatea cantidad con símbolo y estructura correctos
+
+**Monedas Soportadas (19+)**:
+- **Américas**: USD, COP, MXN, BRL, ARS, CLP, PEN, CAD
+- **Europa**: EUR, GBP, CHF, RUB, TRY
+- **Asia**: JPY, CNY, KRW, INR
+- **Otros**: AUD, ZAR
+
+### Reglas de Formato
+
+1. **Visualización de Símbolos**: Cada moneda muestra su símbolo apropiado
+   - USD/COP/MXN/ARS/CLP: `$`
+   - EUR: `€`
+   - GBP: `£`
+   - JPY/CNY: `¥`
+   - BRL: `R$`
+
+2. **Formato Consciente de Locale**:
+   - COP (Colombia): `$1.500.000` (puntos para miles, sin decimales)
+   - USD (Estados Unidos): `$1,500.00` (comas para miles, 2 decimales)
+   - EUR (Alemania): `€1.500,00` (puntos para miles, coma para decimales)
+
+3. **Manejo de Decimales**:
+   - **Sin decimales**: COP, JPY, KRW, CLP (solo números enteros)
+   - **2 decimales**: USD, EUR, GBP y la mayoría de los demás
+
+4. **Código de Colores**:
+   - **Verde** (`text-green-600 dark:text-green-400`): Saldos positivos
+   - **Rojo** (`text-red-600 dark:text-red-400`): Saldos negativos
+
+### Estrategia de Almacenamiento Backend
+
+1. **Almacenamiento (Backend)**: Todos los valores monetarios se almacenan como **enteros (centavos)**
+   - Ejemplo: $103.00 se almacena como `10300`
+2. **Entrada (Frontend)**: El usuario ingresa valores en **unidades** (ej: 103.00)
+   - Frontend multiplica por 100 antes de enviar al backend
+   - `AccountAdminModal`: `parseFloat(value) * 100`
+3. **Visualización (Frontend)**: Frontend recibe **centavos** del backend
+   - `formatCurrency` divide automáticamente por 100 cuando `divideByCents = true`
+   - Los componentes pasan valores del backend directamente al helper
+
+> [!IMPORTANT]
+> Si observa valores incorrectos (ej: 1.030.000 en lugar de 10.300), verifique que `formatCurrency` se esté llamando con `divideByCents = true` o que los valores se estén dividiendo por 100.
+
+### Componentes que Usan Currency Helpers
+
+Los 13 widgets financieros usan formato centralizado:
+
+1. **AnalyticsWidget** - Gráficos de tendencia con montos formateados
+2. **FinanceWidget** - Visualización de saldo con código de colores, sin icono de módulo
+3. **UpcomingObligationsWidget** - Obligaciones futuras
+4. **BalanceSummaryWidget** - Activos/pasivos/patrimonio neto
+5. **SavingsGoalWidget** - Seguimiento de progreso de metas
+6. **CreditSimulationWidget** - Cálculos de préstamos
+7. **TransactionsWidget** - Listado de transacciones
+8. **AccountChart** - Visualización de cuentas
+9. **FinancialChartsWidget** - Todos los tipos de gráficos
+10. **PersonalDashboard** - Visualización general
+
+### Ejemplo de Uso
+
+```jsx
+import { formatCurrency } from '@/Utils/currencyHelpers';
+
+// Formatear saldo con símbolo y estructura apropiados
+const balanceInCents = 150000; // del backend
+const currency = 'COP';
+const formatted = formatCurrency(balanceInCents, currency, true); // "$1.500.000"
+
+// Diferentes monedas
+formatCurrency(150000, 'USD', true); // "$1,500.00"
+formatCurrency(150000, 'EUR', true); // "€1.500,00"
+formatCurrency(150000, 'JPY', true); // "¥1,500"
+```
+
+### Ruta de Migración Futura
+
+El sistema está preparado para:
+- Tipos de cambio en tiempo real
+- Cuentas multi-moneda
+- Transacciones entre monedas
+- Historial de conversión de divisas
+
 ## Testing
 
 El código frontend está completamente cubierto por pruebas automatizadas utilizando **Vitest** y **React Testing Library**.

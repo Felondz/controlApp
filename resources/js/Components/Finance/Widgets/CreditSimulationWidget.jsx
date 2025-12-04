@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CalculatorIcon, PencilIcon, CheckIcon } from '@/Components/Icons';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -39,13 +40,7 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
     const totalInterest = totalPayment - parseFloat(amount);
 
     const formatCurrency = (value) => {
-        const showDecimals = ['USD', 'EUR'].includes(currency);
-        return new Intl.NumberFormat(navigator.language, {
-            style: 'currency',
-            currency: currency,
-            minimumFractionDigits: showDecimals ? 2 : 0,
-            maximumFractionDigits: showDecimals ? 2 : 0,
-        }).format(value);
+        return formatCurrencyHelper(value * 100, currency, true); // Multiply by 100 as helper expects cents
     };
 
     const formatNumber = (value) => {
@@ -57,7 +52,7 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative">
             <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <CalculatorIcon className="w-5 h-5 text-primary-600" />
@@ -140,6 +135,13 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
                     </p>
                 </div>
             )}
+
+            {/* Currency badge - bottom left */}
+            <div className="absolute bottom-4 left-4">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                    {currency}
+                </span>
+            </div>
         </div>
     );
 }

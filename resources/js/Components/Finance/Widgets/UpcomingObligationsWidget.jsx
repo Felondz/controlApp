@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CalendarIcon, ClockIcon, CheckCircleIcon } from '@/Components/Icons';
 
 export default function UpcomingObligationsWidget({
@@ -109,13 +110,7 @@ export default function UpcomingObligationsWidget({
     }, [events, financialTasks, accounts]);
 
     const formatCurrency = (value) => {
-        const showDecimals = ['USD', 'EUR'].includes(currency);
-        return new Intl.NumberFormat(navigator.language, {
-            style: 'currency',
-            currency: currency,
-            minimumFractionDigits: showDecimals ? 2 : 0,
-            maximumFractionDigits: showDecimals ? 2 : 0,
-        }).format(Math.abs(value) / 100);
+        return formatCurrencyHelper(value, currency, true);
     };
 
     const formatDate = (dateString) => {
@@ -146,7 +141,7 @@ export default function UpcomingObligationsWidget({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm h-full flex flex-col">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm h-full flex flex-col relative">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <CalendarIcon className="w-5 h-5 text-primary-600" />
                 {t('finance.upcoming_payments', 'Próximos Eventos')}
@@ -226,7 +221,7 @@ export default function UpcomingObligationsWidget({
                                     ? 'text-green-600 dark:text-green-400'
                                     : 'text-red-600 dark:text-red-400'
                                     }`}>
-                                    {event.type === 'ingreso' ? '+' : '-'}{formatCurrency(event.amount)}
+                                    {formatCurrency(event.amount)}
                                 </p>
                                 {event.source === 'task' && onMarkAsPaid && (
                                     <button
@@ -251,6 +246,13 @@ export default function UpcomingObligationsWidget({
                     <p className="text-xs mt-1 opacity-70">{t('finance.schedule_hint', 'Programa transacciones futuras')}</p>
                 </div>
             )}
+
+            {/* Currency badge - bottom left */}
+            <div className="absolute bottom-4 left-4">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                    {currency}
+                </span>
+            </div>
         </div>
     );
 }

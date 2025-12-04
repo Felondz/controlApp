@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CurrencyDollarIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@/Components/Icons';
 
 export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }) {
@@ -39,15 +40,7 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
     }, [accounts]);
 
     const formatCurrency = (value) => {
-        // Show decimals for USD/EUR, hide for others (like COP)
-        const showDecimals = ['USD', 'EUR'].includes(currency);
-
-        return new Intl.NumberFormat(navigator.language, {
-            style: 'currency',
-            currency: currency,
-            minimumFractionDigits: showDecimals ? 2 : 0,
-            maximumFractionDigits: showDecimals ? 2 : 0,
-        }).format(value);
+        return formatCurrencyHelper(value * 100, currency, true); // Multiply by 100 as helper expects cents
     };
 
     const formatNumber = (value) => {
@@ -59,7 +52,7 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                 <CurrencyDollarIcon className="w-5 h-5 text-primary-600" />
                 {t('finance.balance_summary', 'Resumen de Saldos')}
@@ -71,8 +64,8 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
                     <p className="text-sm text-primary-600 dark:text-primary-400 font-medium mb-1">
                         {t('finance.net_worth', 'Patrimonio Neto')}
                     </p>
-                    <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">
-                        {formatCurrency(stats.netWorth)}
+                    <p className={`text-3xl font-bold ${stats.netWorth >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                        {formatCurrency(Math.abs(stats.netWorth))}
                     </p>
                 </div>
 
@@ -103,6 +96,13 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
                         </p>
                     </div>
                 </div>
+            </div>
+
+            {/* Currency badge - bottom left */}
+            <div className="absolute bottom-4 left-4">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                    {currency}
+                </span>
             </div>
         </div>
     );

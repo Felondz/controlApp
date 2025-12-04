@@ -20,18 +20,34 @@ class PersonalFinanceController extends Controller
                ->first();
 
           if (!$proyectoPersonal) {
-               // Crear proyecto personal si no existe
+               // Crear proyecto personal si no existe con TODOS los módulos necesarios
                $proyectoPersonal = $user->proyectosPersonales()->create([
                     'nombre' => 'Finanzas Personales',
                     'descripcion' => 'Proyecto personal para gestionar tus finanzas',
                     'es_personal' => true,
                     'visible_en_listado' => false,
-                    'modules' => ['finance'],
+                    'modules' => ['finance', 'tasks', 'analytics', 'notifications'],
                     'moneda_default' => 'COP',
                ]);
+          } else {
+               // Asegurar que tiene todos los módulos necesarios
+               $requiredModules = ['finance', 'tasks', 'analytics', 'notifications'];
+               $currentModules = $proyectoPersonal->modules ?? [];
+               $updated = false;
+
+               foreach ($requiredModules as $module) {
+                    if (!in_array($module, $currentModules)) {
+                         $currentModules[] = $module;
+                         $updated = true;
+                    }
+               }
+
+               if ($updated) {
+                    $proyectoPersonal->update(['modules' => $currentModules]);
+               }
           }
 
-          // Redireccionar al dashboard financiero del proyecto
-          return redirect()->route('mis-proyectos.finance', $proyectoPersonal->id);
+          // Redirect to standard project overview route
+          return redirect()->route('mis-proyectos.show', $proyectoPersonal->id);
      }
 }

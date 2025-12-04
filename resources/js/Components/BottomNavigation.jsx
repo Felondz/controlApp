@@ -31,15 +31,14 @@ export default function BottomNavigation({ user, project = null }) {
                 icon: DashboardIcon,
             });
 
-            if (!project.es_personal) {
-                items.push({
-                    name: t('projects.overview', 'Resumen'),
-                    route: 'mis-proyectos.show',
-                    routeParams: project.id,
-                    icon: FolderIcon,
-                    matchRoutes: ['mis-proyectos.show', 'mis-proyectos.edit'],
-                });
-            }
+            // Overview for all projects (personal and regular)
+            items.push({
+                name: t('projects.overview', 'Resumen'),
+                route: 'mis-proyectos.show',
+                routeParams: project.id,
+                icon: FolderIcon,
+                matchRoutes: ['mis-proyectos.show', 'mis-proyectos.edit'],
+            });
 
             // Smart Slot Logic (Priority: Chat > Finance)
             if (modules.includes('chat') && !project.es_personal) {
@@ -56,6 +55,7 @@ export default function BottomNavigation({ user, project = null }) {
                     route: 'mis-proyectos.finance',
                     routeParams: project.id,
                     icon: CurrencyDollarIcon,
+                    matchRoutes: ['mis-proyectos.finance'],
                 });
             }
 

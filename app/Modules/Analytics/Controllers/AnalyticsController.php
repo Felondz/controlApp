@@ -7,6 +7,7 @@ use App\Models\Proyecto;
 use App\Modules\Analytics\Models\AnalyticsMetric;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 /**
@@ -173,6 +174,40 @@ class AnalyticsController extends Controller
         return response()->json([
             'insights' => $insights,
             'period' => 'last_30_days',
+        ]);
+    }
+
+    /**
+     * Get trend data for charts.
+     *
+     * @param Request $request
+     * @param Proyecto $proyecto
+     * @return JsonResponse
+     */
+    public function trends(Request $request, Proyecto $proyecto): JsonResponse
+    {
+        if (!$request->user()->esMiembroDe($proyecto)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $days = $request->input('days', 30);
+        $startDate = Carbon::now()->subDays($days);
+
+        // Group by date and aggregate income/expense
+        $trends = AnalyticsMetric::where('proyecto_id', $proyecto->id)
+            ->where('period_start', '>=', $startDate)
+            ->select(
+                DB::raw('DATE(period_start) as date'),
+                DB::raw('SUM(CASE WHEN metric_name = "income.total.daily" THEN value ELSE 0 END) as income'),
+                DB::raw('SUM(CASE WHEN metric_name = "expense.total.daily" THEN value ELSE 0 END) as expense')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return response()->json([
+            'trends' => $trends,
+            'period' => "{$days}_days",
         ]);
     }
 

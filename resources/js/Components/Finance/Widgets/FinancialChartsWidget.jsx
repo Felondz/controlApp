@@ -1,6 +1,8 @@
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { useMemo } from 'react';
+import { formatCurrency } from '@/Utils/currencyHelpers';
+import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartBarIcon } from '@/Components/Icons';
 
 export default function FinancialChartsWidget({ transactions = [], currency = 'COP' }) {
     const { t } = useTranslate();
@@ -84,7 +86,7 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
                             axisLine={false}
                             tickLine={false}
                             tick={{ fill: '#6B7280', fontSize: 12 }}
-                            tickFormatter={(value) => `$${value / 1000}k`}
+                            tickFormatter={(value) => `$${value / 1000} k`}
                         />
                         <Tooltip
                             cursor={{ fill: 'transparent' }}

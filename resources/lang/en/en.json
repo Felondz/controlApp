@@ -648,6 +648,8 @@
         "chat_desc": "Real-time communication for project members.",
         "analytics_desc": "Detailed metrics and reports of the project.",
         "notifications_desc": "Multi-channel alert and notification system.",
+        "marketplace_desc": "Explore and activate modules to power up your projects.",
+        "requires": "Requires",
         "chat": {
             "title": "Team Chat",
             "channels": "Channels",
@@ -697,7 +699,12 @@
             "total_expenses": "Total Expenses",
             "net_balance": "Net Balance",
             "tasks_completed": "Tasks Completed",
-            "project_progress": "Project Progress"
+            "project_progress": "Project Progress",
+            "last_7_days": "Last 7 Days",
+            "last_30_days": "Last 30 Days",
+            "last_90_days": "Last 90 Days",
+            "all_time": "All Time",
+            "income_expense_trend": "Income vs Expenses Trend"
         },
         "notifications": {
             "title": "Notifications",

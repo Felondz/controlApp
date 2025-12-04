@@ -379,21 +379,101 @@ The frontend codebase is fully covered by automated tests using **Vitest** and *
 For detailed testing architecture and guidelines, refer to [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).
 
 
-## Manejo de Moneda (Currency Handling)
+## Currency Standardization System
 
-La aplicación utiliza una estrategia estándar para el manejo de valores monetarios para evitar errores de punto flotante:
+The application implements a **centralized multi-currency system** designed for future currency conversion features.
 
-1.  **Almacenamiento (Backend)**: Todos los valores monetarios se almacenan en **centavos** (enteros).
-    *   Ejemplo: $103.00 se almacena como `10300`.
-2.  **Entrada (Frontend)**: El usuario ingresa valores en **unidades** (ej: 103.00).
-    *   Antes de enviar al backend, el frontend multiplica por 100.
-    *   `AccountAdminModal`: `parseFloat(value) * 100`
-3.  **Visualización (Frontend)**: El frontend recibe **centavos** del backend.
-    *   Antes de mostrar, el frontend divide por 100.
-    *   `AccountChart`: `formatMonto(value / 100)`
+### Core Utilities
+
+**Location**: `resources/js/Utils/currencyHelpers.js`
+
+**Functions**:
+- `getCurrencySymbol(currencyCode)` - Returns proper symbol ($, €, £, ¥, etc.)
+- `getCurrencyLocale(currencyCode)` - Returns locale string (es-CO, en-US, de-DE, etc.)
+- `shouldShowDecimals(currencyCode)` - Determines if currency uses decimals
+- `formatCurrency(amount, currencyCode, divideByCents)` - Formats amount with correct symbol and structure
+
+**Supported Currencies (19+)**:
+- **Americas**: USD, COP, MXN, BRL, ARS, CLP, PEN, CAD
+- **Europe**: EUR, GBP, CHF, RUB, TRY
+- **Asia**: JPY, CNY, KRW, INR
+- **Others**: AUD, ZAR
+
+### Formatting Rules
+
+1. **Symbol Display**: Each currency shows its proper symbol
+   - USD/COP/MXN/ARS/CLP: `$`
+   - EUR: `€`
+   - GBP: `£`
+   - JPY/CNY: `¥`
+   - BRL: `R$`
+
+2. **Locale-Aware Formatting**:
+   - COP (Colombia): `$1.500.000` (dots for thousands, no decimals)
+   - USD (US): `$1,500.00` (commas for thousands, 2 decimals)
+   - EUR (Germany): `€1.500,00` (dots for thousands, comma for decimals)
+
+3. **Decimal Handling**:
+   - **No decimals**: COP, JPY, KRW, CLP (whole numbers only)
+   - **2 decimals**: USD, EUR, GBP, and most others
+
+4. **Color Coding**:
+   - **Green** (`text-green-600 dark:text-green-400`): Positive balances
+   - **Red** (`text-red-600 dark:text-red-400`): Negative balances
+
+### Backend Storage Strategy
+
+1. **Storage (Backend)**: All monetary values stored as **integers (cents)**
+   - Example: $103.00 stored as `10300`
+2. **Input (Frontend)**: User enters values in **units** (e.g., 103.00)
+   - Frontend multiplies by 100 before sending to backend
+   - `AccountAdminModal`: `parseFloat(value) * 100`
+3. **Display (Frontend)**: Frontend receives **cents** from backend
+   - `formatCurrency` automatically divides by 100 when `divideByCents = true`
+   - Components pass backend values directly to helper
 
 > [!IMPORTANT]
-> Si se observa un valor incorrecto (ej: 1,030,000 en lugar de 10,300), verifique que la división por 100 se esté realizando en el componente de visualización.
+> If you observe incorrect values (e.g., 1,030,000 instead of 10,300), verify that `formatCurrency` is being called with `divideByCents = true` or values are being divided by 100.
+
+### Components Using Currency Helpers
+
+All 13 financial widgets use centralized formatting:
+
+1. **AnalyticsWidget** - Trend charts with formatted amounts
+2. **FinanceWidget** - Balance display with color coding, no module icon
+3. **UpcomingObligationsWidget** - Future obligations
+4. **BalanceSummaryWidget** - Assets/liabilities/net worth
+5. **SavingsGoalWidget** - Goal progress tracking
+6. **CreditSimulationWidget** - Loan calculations
+7. **TransactionsWidget** - Transaction listings
+8. **AccountChart** - Account visualization
+9. **FinancialChartsWidget** - All chart types
+10. **PersonalDashboard** - Overview display
+
+### Usage Example
+
+```jsx
+import { formatCurrency } from '@/Utils/currencyHelpers';
+
+// Format balance with proper symbol and structure
+const balanceInCents = 150000; // from backend
+const currency = 'COP';
+const formatted = formatCurrency(balanceInCents, currency, true); // "$1.500.000"
+
+// Different currencies
+formatCurrency(150000, 'USD', true); // "$1,500.00"
+formatCurrency(150000, 'EUR', true); // "€1.500,00"
+formatCurrency(150000, 'JPY', true); // "¥1,500"
+```
+
+### Future Migration Path
+
+System is prepared for:
+- Real-time exchange rates
+- Multi-currency accounts
+- Cross-currency transactions
+- Currency conversion history
+
 
 ## Scheduled Transactions (Bills)
 

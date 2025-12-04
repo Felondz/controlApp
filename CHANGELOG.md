@@ -2,8 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.5.0] - 2025-12-04 14:30:00 -05:00
+
+### Added - Multi-Currency System
+
+**Currency Standardization:**
+- 💱 **Centralized Currency Utilities**: Created `currencyHelpers.js` with standardized formatting for 19+ currencies.
+- 🌍 **Proper Currency Symbols**: Each currency now displays its correct symbol ($ for USD/COP, € for EUR, £ for GBP, etc.).
+- 📍 **Locale-Aware Formatting**: Automatic locale detection and number formatting per currency (e.g., COP uses Colombian formatting).
+- 🔢 **Smart Decimals**: Currencies without decimals (COP, JPY, KRW, CLP) show whole numbers, others show 2 decimals.
+- 🎨 **Color-Coded Balances**: Green for positive, red for negative balances across all widgets.
+
+**Components Updated (13 total):**
+- ✅ `AnalyticsWidget` - Trend charts with proper currency formatting
+- ✅ `FinanceWidget` - Balance display without module icon, badge repositioned
+- ✅ `UpcomingObligationsWidget` - Obligations with correct currency symbols
+- ✅ `BalanceSummaryWidget` - Assets/liabilities/net worth with color coding
+- ✅ `SavingsGoalWidget` - Goal progress with proper formatting
+- ✅ `CreditSimulationWidget` - Loan calculations with correct symbols
+- ✅ `TransactionsWidget` - Transaction list with standardized display
+- ✅ `AccountChart` - Pie chart with proper currency labels
+- ✅ `FinancialChartsWidget` - All charts use centralized formatting
+- ✅ `PersonalDashboard` - Dashboard overview with consistent currency display
+
+### Enhanced - Project Card UI
+
+**Visual Improvements:**
+- 🎨 **Header Layout**: Icon/image now displays beside title (row layout) instead of above, with top alignment
+- 🏷️ **Module Badges**: Dynamic counters for chat (red) and tasks (orange) with pulse animations
+- 💰 **Balance Display**: 
+  - Removed CurrencyDollar icon for cleaner look
+  - Green/red color coding for positive/negative balances
+  - Currency badge below balance, aligned left with project colors
+- ✨ **Maintained**: All original styling, project colors, transition effects, and functionality
+
+**Technical Details:**
+- Files: `currencyHelpers.js`, `ProjectCard.jsx`, `FinanceWidget.jsx`, 11 financial widgets
+- Functions: `getCurrencySymbol()`, `getCurrencyLocale()`, `shouldShowDecimals()`, `formatCurrency()`
+- Future-ready for multi-currency conversion system
+
+---
 
 ## [2.4.0] - 2025-12-04 04:20:00 -05:00
 

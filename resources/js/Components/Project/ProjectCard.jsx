@@ -115,7 +115,7 @@ export default function ProjectCard({ proyecto }) {
 
                 <div className="p-4 sm:p-6 flex-1 flex flex-col">
                     {/* Header */}
-                    <div className="flex flex-col items-center text-center mb-4 relative">
+                    <div className="flex flex-row items-start gap-3 mb-4 relative">
                         {/* Options Menu - Absolute Positioned */}
                         <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -124,7 +124,7 @@ export default function ProjectCard({ proyecto }) {
                             <EllipsisVerticalIcon className="h-5 w-5" />
                         </button>
 
-                        <div className="flex-shrink-0 mb-3">
+                        <div className="flex-shrink-0">
                             {(() => {
                                 // Robust Image Detection
                                 const imageUrl = proyecto.image_url
@@ -137,7 +137,7 @@ export default function ProjectCard({ proyecto }) {
                                         <img
                                             src={imageUrl}
                                             alt={proyecto.nombre}
-                                            className="h-12 w-12 rounded-md object-cover mx-auto"
+                                            className="h-12 w-12 rounded-md object-cover"
                                         />
                                     );
                                 }
@@ -168,12 +168,12 @@ export default function ProjectCard({ proyecto }) {
                                 );
                             })()}
                         </div>
-                        <div className="w-full min-w-0">
-                            <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 leading-tight group-hover:text-primary-800 dark:group-hover:text-primary-200 transition-colors line-clamp-2 h-[3.5rem] flex items-center justify-center">
+                        <div className="flex-1 min-w-0 text-left">
+                            <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 leading-tight group-hover:text-primary-800 dark:group-hover:text-primary-200 transition-colors line-clamp-2">
                                 {proyecto.nombre}
                             </h3>
                             {proyecto.descripcion && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 text-center px-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                                     {proyecto.descripcion}
                                 </p>
                             )}

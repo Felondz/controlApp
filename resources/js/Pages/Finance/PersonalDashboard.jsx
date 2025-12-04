@@ -2,10 +2,19 @@ import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
-import PrimaryButton from '@/Components/PrimaryButton';
-import AccountModal from '@/Components/Finance/Modals/AccountModal';
+import { formatCurrency } from '@/Utils/currencyHelpers';
+import UpcomingObligationsWidget from '@/Components/Finance/Widgets/UpcomingObligationsWidget';
+import BalanceSummaryWidget from '@/Components/Finance/Widgets/BalanceSummaryWidget';
+import SavingsGoalWidget from '@/Components/Finance/Widgets/SavingsGoalWidget';
+import CreditSimulationWidget from '@/Components/Finance/Widgets/CreditSimulationWidget';
+import FinancialChartsWidget from '@/Components/Finance/Widgets/FinancialChartsWidget';
+import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
+import AccountChart from '@/Components/Finance/AccountChart';
 import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
-import { PlusIcon, CurrencyDollarIcon } from '@/Components/Icons';
+import AccountModal from '@/Components/Finance/Modals/AccountModal';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import { PlusIcon, CurrencyDollarIcon, BanknotesIcon, CreditCardIcon, ChartBarIcon, CalendarIcon, BoltIcon } from '@/Components/Icons';
 import axios from 'axios';
 
 export default function PersonalDashboard({
@@ -217,10 +226,10 @@ export default function PersonalDashboard({
                                                                     {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
                                                                 </p>
                                                             </div>
-                                                            <span className={`text-sm font-semibold ${trans.categoria?.tipo === 'ingreso'
-                                                                ? 'text-green-600 dark:text-green-400'
-                                                                : 'text-red-600 dark:text-red-400'
-                                                                }`}>
+                                                            <span className={`text - sm font - semibold ${trans.categoria?.tipo === 'ingreso'
+                                                                    ? 'text-green-600 dark:text-green-400'
+                                                                    : 'text-red-600 dark:text-red-400'
+                                                                } `}>
                                                                 {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                                                 {formatMonto(trans.monto)}
                                                             </span>
@@ -262,10 +271,10 @@ export default function PersonalDashboard({
                                                     {trans.cuenta?.nombre} • {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
                                                 </p>
                                             </div>
-                                            <span className={`text-sm font-semibold ${trans.categoria?.tipo === 'ingreso'
-                                                ? 'text-green-600 dark:text-green-400'
-                                                : 'text-red-600 dark:text-red-400'
-                                                }`}>
+                                            <span className={`text - sm font - semibold ${trans.categoria?.tipo === 'ingreso'
+                                                    ? 'text-green-600 dark:text-green-400'
+                                                    : 'text-red-600 dark:text-red-400'
+                                                } `}>
                                                 {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                                 {formatMonto(trans.monto)}
                                             </span>
