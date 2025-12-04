@@ -17,6 +17,37 @@ use Carbon\Carbon;
 class AnalyticsController extends Controller
 {
     /**
+     * Get overall analytics for a project (used by Dashboard Widget).
+     *
+     * @param Request $request
+     * @param Proyecto $proyecto
+     * @return JsonResponse
+     */
+    public function index(Request $request, Proyecto $proyecto): JsonResponse
+    {
+        if (!$request->user()->esMiembroDe($proyecto)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Calculate totals from daily metrics to avoid double counting
+        $totalIncome = AnalyticsMetric::where('proyecto_id', $proyecto->id)
+            ->where('metric_type', 'finance')
+            ->where('metric_name', 'income.total.daily')
+            ->sum('value');
+
+        $totalExpenses = AnalyticsMetric::where('proyecto_id', $proyecto->id)
+            ->where('metric_type', 'finance')
+            ->where('metric_name', 'expense.total.daily')
+            ->sum('value');
+
+        return response()->json([
+            'total_income' => (float) $totalIncome,
+            'total_expenses' => (float) $totalExpenses,
+            'net_balance' => (float) ($totalIncome - $totalExpenses),
+        ]);
+    }
+
+    /**
      * Get metrics for a project.
      *
      * @param Request $request

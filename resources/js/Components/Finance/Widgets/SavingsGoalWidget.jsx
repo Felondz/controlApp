@@ -25,10 +25,12 @@ export default function SavingsGoalWidget({ currency = 'COP' }) {
     const monthsToGoal = parseFloat(monthlyContribution) > 0 ? Math.ceil(remaining / parseFloat(monthlyContribution)) : 0;
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+        return new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: currency,
-            maximumFractionDigits: 0
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
         }).format(value);
     };
 

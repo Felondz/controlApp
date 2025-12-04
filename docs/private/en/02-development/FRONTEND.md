@@ -255,6 +255,97 @@ Use browser DevTools device emulation to test:
 - [ ] Images scale properly
 
 
+### Finance Module
+- **Dashboard**: `resources/js/Pages/Projects/Finance/ProjectDashboard.jsx`
+  - Main panel with account charts and transaction list.
+  - **Filtering**: Shows active accounts by default, with "Show Inactive" option.
+  - **Management**: Create/edit/delete accounts and transactions.
+  - **Integration**: Uses AccountAdminModal for editing existing accounts, AccountModal for creating new ones.
+
+- **AccountChart**: `resources/js/Components/Finance/AccountChart.jsx`
+  - Account visualization with balance, income, and expenses.
+  - **Status**: Visual distinction (opacity/badge) for inactive accounts.
+  - **Detailed Info**: Displays account-type-specific fields:
+    - **Credit Cards**: Limit, available credit, payment date, interest rate
+    - **Loans**: Total amount, monthly payment, remaining installments, interest rate
+    - **Investments**: Maturity date, expected return rate
+    - **Payroll**: Payment days (comma-separated), estimated amount
+  - **Badges**: Visual account type indicators with appropriate icons.
+  - **Color Coding**: Green balance (positive) or red (negative).
+  - **Action**: Single "Manage" button opens AccountAdminModal.
+  - **Currency Handling**: Automatically divides backend values (cents) by 100 for correct display.
+
+- **AccountAdminModal**: `resources/js/Components/Finance/Modals/AccountAdminModal.jsx` (✨ NEW)
+  - Professional account management modal with **3 tabs**:
+  
+  **Tab 1 - Basic Information**:
+    - Name, bank, account type
+    - Currency (8 options: COP, USD, EUR, MXN, PEN, CLP, ARS, BRL)
+    - Initial balance
+    - Status (Active/Inactive)
+  
+  **Tab 2 - Advanced Settings** (conditional by type):
+    - **Credit Cards**: Credit limit, annual rate, cutoff day, payment day, expiration date
+    - **Loans**: Term (months), monthly payment, paid installments, annual rate, payment day
+    - **Investments**: Expected return rate (%), maturity date
+    - **Payroll** (bank): Toggle `is_payroll_account`, interactive 7x5 grid for 1-4 payment days, estimated value
+  
+  **Tab 3 - Danger Zone**:
+    - Clear warning about irreversible actions
+    - Red "Delete Account" button that opens DeleteAccountModal for final confirmation
+    - Information about associated transactions
+  
+  - **Props**:
+    - `show`: Boolean to show/hide modal
+    - `account`: Account object to edit
+    - `proyecto`: Project object for context
+    - `onClose`: Callback when closing
+    - `onSuccess`: Callback when saving changes
+
+- **AccountModal**: `resources/js/Components/Finance/Modals/AccountModal.jsx` (Legacy)
+  - Modal for creating new accounts.
+  - Maintains compatibility with quick creation flow.
+  - **Note**: For editing existing accounts, use AccountAdminModal instead.
+  - **Account Types** (6 types):
+    - `efectivo`: Cash
+    - `banco`: Bank account
+    - `credito`: Credit card (requires additional fields)
+    - `inversion`: Investment
+    - `prestamo`: Loan
+    - `otro`: Other
+  - **Conditional Fields**:
+    - **Credit**: `limite_credito`, `tasa_interes_anual`, `dia_corte`, `dia_pago`, `fecha_vencimiento`
+    - **Loan**: `tasa_interes_anual`, `dia_pago`, `fecha_vencimiento` (optional)
+    - **Investment**: `tasa_interes_anual` (optional)
+  - **Currency Selector**: Supports 8 currencies (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL)
+  - **Defaults**: Currency defaults to `proyecto.moneda_default`, but each account can have its own currency
+  - Support for changing account status (Active/Inactive).
+
+- **DeleteAccountModal**: `resources/js/Components/Finance/Modals/DeleteAccountModal.jsx`
+  - Safe confirmation modal for account deletion.
+  - **Security**: Requires typing the exact account name to confirm.
+  - **Warnings**: Shows count of associated transactions.
+  - **Validation**: Delete button disabled until correct confirmation.
+  - **Errors**: Displays backend errors (constraints, permissions, etc.).
+  - **Integration**: Opened from the "Danger Zone" tab in AccountAdminModal.
+
+- **PaymentConfirmationModal**: `resources/js/Components/Finance/Modals/PaymentConfirmationModal.jsx`
+  - Modal for confirming payment of financial tasks.
+  - Pre-fills form with task data (title, amount, category).
+  - Allows editing before confirming.
+  - Automatically marks task as "done" when creating the transaction.
+
+- **UpcomingObligationsWidget**: `resources/js/Components/Finance/Widgets/UpcomingObligationsWidget.jsx`
+  - Displays upcoming payments and financial obligations.
+  - **Task Integration**: Combines future transactions and pending financial tasks.
+  - **Differentiation**: Income (green) vs Expenses (red).
+  - **Payroll**: Generates separate events for each configured payment day (e.g., 15th and 30th of month).
+  - **Visual**: "Task" badge to distinguish tasks from transactions.
+  - **Visual**: "Task" badge to distinguish tasks from transactions.
+  - **Action**: "Mark as Paid" button (checkmark) on hover for admin users.
+  - **Obligations**: Automatically includes credit card cut-offs and loan payments based on `dia_pago`.
+  - **Currency Handling**: Automatically divides backend values (cents) by 100 for correct display.
+
 ### ChatWidget
 - **Path**: `resources/js/Components/Project/ChatWidget.jsx`
 - **Purpose**: Provides a real-time (polled) chat interface for project members.
@@ -287,3 +378,52 @@ The frontend codebase is fully covered by automated tests using **Vitest** and *
 
 For detailed testing architecture and guidelines, refer to [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).
 
+
+## Manejo de Moneda (Currency Handling)
+
+La aplicación utiliza una estrategia estándar para el manejo de valores monetarios para evitar errores de punto flotante:
+
+1.  **Almacenamiento (Backend)**: Todos los valores monetarios se almacenan en **centavos** (enteros).
+    *   Ejemplo: $103.00 se almacena como `10300`.
+2.  **Entrada (Frontend)**: El usuario ingresa valores en **unidades** (ej: 103.00).
+    *   Antes de enviar al backend, el frontend multiplica por 100.
+    *   `AccountAdminModal`: `parseFloat(value) * 100`
+3.  **Visualización (Frontend)**: El frontend recibe **centavos** del backend.
+    *   Antes de mostrar, el frontend divide por 100.
+    *   `AccountChart`: `formatMonto(value / 100)`
+
+> [!IMPORTANT]
+> Si se observa un valor incorrecto (ej: 1,030,000 en lugar de 10,300), verifique que la división por 100 se esté realizando en el componente de visualización.
+
+## Scheduled Transactions (Bills)
+
+The application supports **scheduled/pending transactions** (bills) with recurrence capabilities:
+
+### Database Schema
+- **status**: `enum('completed', 'pending', 'cancelled')` - Transaction state
+- **is_recurring**: `boolean` - Whether the transaction repeats
+- **recurrence_interval**: `enum('daily', 'weekly', 'biweekly', 'monthly', 'yearly')` - Frequency
+- **recurrence_day**: `integer` - Day of month/week for recurrence
+- **next_occurrence**: `date` - Next scheduled date
+
+### Frontend Components
+1. **TransactionModal**: Allows creating pending transactions with recurrence settings
+2. **UpcomingObligationsWidget**: Displays pending transactions with:
+   - Color-coded indicators (Green = Income, Red = Expense)
+   - "Mark as Paid" functionality for pending transactions
+   - Alert indicators based on due date proximity
+   - Scrollable list showing all upcoming obligations
+
+### Alert System
+Visual indicators based on due date:
+- **Red** (Overdue): Past due date
+- **Orange** (Urgent): Due within 3 days
+- **Yellow** (Soon): Due within 7 days
+- **Default**: Due beyond 7 days
+
+### Workflow
+1. User creates a "Pending" transaction via `TransactionModal`
+2. Transaction appears in `UpcomingObligationsWidget`
+3. User clicks "Mark as Paid" in widget
+4. Backend creates completed transaction and updates account balance
+5. If recurring, next occurrence is scheduled automatically

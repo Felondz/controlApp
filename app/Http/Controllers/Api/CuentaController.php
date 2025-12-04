@@ -86,8 +86,12 @@ class CuentaController extends Controller
             return response()->json(['message' => 'La cuenta ha sido marcada como inactiva']);
         }
 
-        $cuenta->delete();
-        return response()->noContent();
+        try {
+            $cuenta->delete();
+            return response()->noContent();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar la cuenta: ' . $e->getMessage()], 500);
+        }
     }
 
     public function updateEstado(Request $request, Proyecto $proyecto, Cuenta $cuenta)
@@ -102,7 +106,7 @@ class CuentaController extends Controller
         $cuenta->update(['estado' => $request->estado]);
 
         return response()->json([
-            'message' => 'Estado de la cuenta actualizado',
+            'message' => 'Estado de la cuenta actualizado',//esto necesitaria ser traducido
             'estado' => $cuenta->estado
         ]);
     }
@@ -112,8 +116,20 @@ class CuentaController extends Controller
      */
     protected function verificarCuenta(Proyecto $proyecto, Cuenta $cuenta): void
     {
-        if ($cuenta->propietario_id !== $proyecto->id || $cuenta->propietario_type !== 'proyecto') {
+        if ($cuenta->propietario_id !== $proyecto->id || !in_array($cuenta->propietario_type, ['proyecto', 'App\Models\Proyecto'])) {
             abort(404, 'La cuenta no pertenece a este proyecto');
         }
+    }
+
+    /**
+     * Obtiene el balance total del proyecto (suma de saldos de cuentas).
+     */
+    public function balance(Request $request, Proyecto $proyecto)
+    {
+        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+
+        $balance = $proyecto->cuentas()->sum('saldo_actual');
+
+        return response()->json(['balance' => $balance]);
     }
 }

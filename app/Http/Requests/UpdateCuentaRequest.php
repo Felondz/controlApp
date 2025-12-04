@@ -20,7 +20,7 @@ class UpdateCuentaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $tiposPermitidos = ['efectivo', 'banco', 'credito', 'inversion', 'otro'];
+        $tiposPermitidos = ['efectivo', 'banco', 'credito', 'inversion', 'otro', 'prestamo'];
         $monedasPermitidas = ['USD', 'EUR', 'MXN', 'COP', 'PEN', 'CLP', 'ARS', 'BRL'];
 
         $rules = [
@@ -105,7 +105,7 @@ class UpdateCuentaRequest extends FormRequest
                     'min:0',
                 ],
             ];
-            
+
             // Only require these fields if the account is being updated to a credit card
             if ($this->input('tipo') === 'credito') {
                 $creditRules = array_map(function ($rule) {
@@ -115,8 +115,48 @@ class UpdateCuentaRequest extends FormRequest
                     return $rule;
                 }, $creditRules);
             }
-            
+
             $rules = array_merge($rules, $creditRules);
+        }
+
+        // Payroll specific rules (only validate if tipo is banco or if tipo is being updated to banco)
+        if ($this->input('tipo') === 'banco' || $this->cuenta?->tipo === 'banco') {
+            $payrollRules = [
+                'es_nomina' => [
+                    'sometimes',
+                    'boolean',
+                ],
+            ];
+
+            // Only validate payroll details if es_nomina is effectively true
+            // We check the input if present, otherwise fall back to the existing account state
+            $esNomina = $this->has('es_nomina') ? $this->boolean('es_nomina') : $this->cuenta?->es_nomina;
+
+            if ($esNomina) {
+                $payrollRules['dia_nomina'] = [
+                    'required',
+                    'array',
+                    'min:1',
+                    'max:4',
+                ];
+                $payrollRules['dia_nomina.*'] = [
+                    'integer',
+                    'min:1',
+                    'max:31',
+                    'distinct',
+                ];
+                $payrollRules['valor_nomina'] = [
+                    'required',
+                    'numeric',
+                    'min:0',
+                ];
+            } else {
+                // If es_nomina is false, allow these to be nullable/empty
+                $payrollRules['dia_nomina'] = ['nullable', 'array'];
+                $payrollRules['valor_nomina'] = ['nullable', 'numeric'];
+            }
+
+            $rules = array_merge($rules, $payrollRules);
         }
 
         // Savings/Investment specific rules (only validate if tipo is inversion or if tipo is being updated to inversion)
@@ -139,14 +179,14 @@ class UpdateCuentaRequest extends FormRequest
                 ],
                 'periodo_capitalizacion' => [
                     Rule::requiredIf(function () {
-                        return $this->input('capitalizable') === true || 
-                               ($this->cuenta?->capitalizable === true && $this->input('capitalizable') !== false);
+                        return $this->input('capitalizable') === true ||
+                            ($this->cuenta?->capitalizable === true && $this->input('capitalizable') !== false);
                     }),
                     'nullable',
                     Rule::in(['diario', 'mensual', 'trimestral', 'semestral', 'anual']),
                 ],
             ];
-            
+
             // Only require these fields if the account is being updated to an investment account
             if ($this->input('tipo') === 'inversion') {
                 $investmentRules = array_map(function ($rule) {
@@ -156,8 +196,58 @@ class UpdateCuentaRequest extends FormRequest
                     return $rule;
                 }, $investmentRules);
             }
-            
+
             $rules = array_merge($rules, $investmentRules);
+        }
+
+        // Loan specific rules (only validate if tipo is prestamo or if tipo is being updated to prestamo)
+        if ($this->input('tipo') === 'prestamo' || $this->cuenta?->tipo === 'prestamo') {
+            $loanRules = [
+                'tasa_interes_anual' => [
+                    'sometimes',
+                    'numeric',
+                    'min:0',
+                    'max:100',
+                ],
+                'dia_pago' => [
+                    'sometimes',
+                    'integer',
+                    'min:1',
+                    'max:31',
+                ],
+                'plazo' => [
+                    'nullable',
+                    'integer',
+                    'min:1',
+                ],
+                'valor_cuota' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                ],
+                'cuotas_pagadas' => [
+                    'nullable',
+                    'integer',
+                    'min:0',
+                ],
+                'fecha_vencimiento' => [
+                    'nullable',
+                    'date',
+                    'after:today',
+                ],
+            ];
+
+            // Only require these fields if the account is being updated to a loan account
+            if ($this->input('tipo') === 'prestamo') {
+                $loanRules = array_map(function ($rule) {
+                    if (is_array($rule) && in_array('sometimes', $rule, true)) {
+                        $rule[array_search('sometimes', $rule, true)] = 'required';
+                    }
+                    return $rule;
+                }, $loanRules);
+            }
+
+            $rules = array_merge($rules, $loanRules);
         }
 
         return $rules;
@@ -180,7 +270,7 @@ class UpdateCuentaRequest extends FormRequest
             'color.regex' => 'El color debe ser un código hexadecimal válido (ej: #FF0000 o #f00).',
             'icono.max' => 'El nombre del ícono no puede exceder los 50 caracteres.',
             'estado.in' => 'El estado seleccionado no es válido.',
-            
+
             // Credit card specific
             'tasa_interes_anual.required' => 'La tasa de interés anual es obligatoria para cuentas de crédito.',
             'tasa_interes_anual.numeric' => 'La tasa de interés debe ser un número.',
@@ -200,7 +290,7 @@ class UpdateCuentaRequest extends FormRequest
             'limite_credito.required' => 'El límite de crédito es obligatorio para cuentas de crédito.',
             'limite_credito.numeric' => 'El límite de crédito debe ser un número.',
             'limite_credito.min' => 'El límite de crédito no puede ser negativo.',
-            
+
             // Savings/Investment specific
             'tasa_interes.required' => 'La tasa de interés es obligatoria para cuentas de inversión.',
             'tasa_interes.numeric' => 'La tasa de interés debe ser un número.',
@@ -214,7 +304,7 @@ class UpdateCuentaRequest extends FormRequest
             'periodo_capitalizacion.in' => 'El período de capitalización seleccionado no es válido.',
         ];
     }
-    
+
     /**
      * Configure the validator instance.
      */
@@ -227,14 +317,14 @@ class UpdateCuentaRequest extends FormRequest
             }
         });
     }
-    
+
     /**
      * Validate account type change.
      */
     protected function validateAccountTypeChange($validator)
     {
         $tipo = $this->input('tipo');
-        
+
         if ($tipo === 'credito') {
             $requiredFields = [
                 'tasa_interes_anual' => 'La tasa de interés anual es obligatoria para cuentas de crédito.',
@@ -243,7 +333,7 @@ class UpdateCuentaRequest extends FormRequest
                 'dia_pago' => 'El día de pago es obligatorio para cuentas de crédito.',
                 'limite_credito' => 'El límite de crédito es obligatorio para cuentas de crédito.',
             ];
-            
+
             foreach ($requiredFields as $field => $message) {
                 if (!$this->filled($field)) {
                     $validator->errors()->add($field, $message);
@@ -255,13 +345,13 @@ class UpdateCuentaRequest extends FormRequest
                 'fecha_interes' => 'La fecha de interés es obligatoria para cuentas de inversión.',
                 'capitalizable' => 'Debe especificar si la inversión es capitalizable.',
             ];
-            
+
             foreach ($requiredFields as $field => $message) {
                 if (!$this->filled($field)) {
                     $validator->errors()->add($field, $message);
                 }
             }
-            
+
             if ($this->input('capitalizable') === true && !$this->filled('periodo_capitalizacion')) {
                 $validator->errors()->add('periodo_capitalizacion', 'El período de capitalización es obligatorio cuando la inversión es capitalizable.');
             }

@@ -43,9 +43,9 @@ class StoreProyectoRequest extends FormRequest
                 'max:1000',
             ],
             'moneda_default' => [
-                'required',
+                'nullable',
                 'string',
-                'in:COP,USD,EUR',
+                'in:COP,USD,EUR,MXN,PEN,CLP,ARS,BRL',
             ],
             'modules' => [
                 'required',
@@ -54,7 +54,7 @@ class StoreProyectoRequest extends FormRequest
             ],
             'modules.*' => [
                 'string',
-                'in:finance,tasks,chat',
+                'in:finance,tasks,chat,analytics,notifications',
             ],
             'image' => [
                 'nullable',

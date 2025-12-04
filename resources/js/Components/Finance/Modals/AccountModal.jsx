@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
+import axios from 'axios';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -8,25 +9,37 @@ import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { XMarkIcon, InfoIcon } from '@/Components/Icons';
+import CreditCardExpiryInput from '@/Components/CreditCardExpiryInput';
+import Alert from '@/Components/Alert';
 
 export default function AccountModal({
     show = false,
     onClose,
     account = null,
     proyectoId = null, // ID del proyecto (puede ser proyecto personal o regular)
+    proyecto = null, // Proyecto completo (para acceder a moneda_default)
     onSuccess
 }) {
     const { t } = useTranslate();
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, processing, errors, reset } = useForm({
         nombre: account?.nombre || '',
         banco: account?.banco || '',
-        tipo: account?.tipo || 'efectivo',
-        saldo_inicial: account?.saldo_inicial ? (account.saldo_inicial / 100).toFixed(2) : '0.00',
+        tipo: account?.tipo || 'banco',
+        saldo_inicial: account?.saldo_inicial ? (account.saldo_inicial / 100).toFixed(2) : '',
         estado: account?.estado || 'activa',
-        limite_credito: account?.limite_credito ? (account.limite_credito / 100).toFixed(2) : '0.00',
+        limite_credito: account?.limite_credito ? (account.limite_credito / 100).toFixed(2) : '',
         dia_corte: account?.dia_corte || '',
         dia_pago: account?.dia_pago || '',
         tasa_interes_anual: account?.tasa_interes_anual || '',
+        fecha_vencimiento: account?.fecha_vencimiento || '',
+        moneda: account?.moneda || proyecto?.moneda_default || 'COP',
+        plazo: account?.plazo || '',
+        valor_cuota: account?.valor_cuota ? (account.valor_cuota / 100).toFixed(2) : '',
+        cuotas_pagadas: account?.cuotas_pagadas || '',
+        // Payroll
+        es_nomina: account?.es_nomina || false,
+        dia_nomina: account?.dia_nomina || [],
+        valor_nomina: account?.valor_nomina ? (account.valor_nomina / 100).toFixed(2) : '',
     });
 
     useEffect(() => {
@@ -34,52 +47,58 @@ export default function AccountModal({
             setData({
                 nombre: account.nombre || '',
                 banco: account.banco || '',
-                tipo: account.tipo || 'efectivo',
+                tipo: account.tipo || 'banco',
                 saldo_inicial: account?.saldo_inicial ? (account.saldo_inicial / 100).toFixed(2) : '0.00',
                 estado: account.estado || 'activa',
                 limite_credito: account?.limite_credito ? (account.limite_credito / 100).toFixed(2) : '0.00',
                 dia_corte: account?.dia_corte || '',
                 dia_pago: account?.dia_pago || '',
                 tasa_interes_anual: account?.tasa_interes_anual || '',
+                fecha_vencimiento: account?.fecha_vencimiento
+                    ? (account.tipo === 'credito' ? account.fecha_vencimiento.substring(0, 7) : account.fecha_vencimiento)
+                    : '',
+                plazo: account.plazo || '',
+                valor_cuota: account?.valor_cuota ? (account.valor_cuota / 100).toFixed(2) : '',
+                cuotas_pagadas: account.cuotas_pagadas || '',
             });
         } else if (show && !account) {
             reset();
         }
     }, [show, account]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        let fechaVencimientoFinal = data.fecha_vencimiento;
+        if (data.tipo === 'credito' && data.fecha_vencimiento && data.fecha_vencimiento.length === 7) {
+            const [year, month] = data.fecha_vencimiento.split('-');
+            const lastDay = new Date(year, month, 0).getDate();
+            fechaVencimientoFinal = `${year}-${month}-${lastDay}`;
+        }
 
         const submitData = {
             ...data,
-            saldo_inicial: parseFloat(data.saldo_inicial) * 100, // Convertir a centavos
-            limite_credito: parseFloat(data.limite_credito) * 100, // Convertir a centavos
+            fecha_vencimiento: fechaVencimientoFinal,
+            saldo_inicial: parseFloat(data.saldo_inicial || 0) * 100,
+            limite_credito: parseFloat(data.limite_credito || 0) * 100,
+            valor_cuota: parseFloat(data.valor_cuota || 0) * 100,
+            valor_nomina: parseFloat(data.valor_nomina || 0) * 100,
         };
 
-        // Las cuentas siempre se manejan a través de proyectos (incluso las personales)
-        // ownerId debe ser siempre un proyecto_id
-        if (account) {
-            // Actualizar cuenta existente
-            put(route('api.proyectos.cuentas.update', [proyectoId, account.id]), {
-                data: submitData,
-                preserveScroll: true,
-                onSuccess: () => {
-                    reset();
-                    onSuccess?.();
-                    onClose();
-                },
-            });
-        } else {
-            // Crear nueva cuenta
-            post(route('api.proyectos.cuentas.store', proyectoId), {
-                data: submitData,
-                preserveScroll: true,
-                onSuccess: () => {
-                    reset();
-                    onSuccess?.();
-                    onClose();
-                },
-            });
+        try {
+            if (account) {
+                // Actualizar cuenta existente
+                await axios.put(`/api/proyectos/${proyectoId}/cuentas/${account.id}`, submitData);
+            } else {
+                // Crear nueva cuenta
+                await axios.post(`/api/proyectos/${proyectoId}/cuentas`, submitData);
+            }
+            reset();
+            onSuccess?.();
+            onClose();
+        } catch (error) {
+            console.error('Error saving account:', error);
+            alert(error.response?.data?.message || t('common.error_saving', 'Error al guardar'));
         }
     };
 
@@ -89,9 +108,9 @@ export default function AccountModal({
     };
 
     const accountTypes = [
-        { value: 'efectivo', label: t('finance.account_type.cash', 'Efectivo') },
-        { value: 'banco', label: t('finance.account_type.bank', 'Banco') },
-        { value: 'credito', label: t('finance.account_type.credit', 'Tarjeta de Crédito') },
+        { value: 'efectivo', label: t('accounts.account_types.cash', 'Efectivo') },
+        { value: 'banco', label: t('accounts.account_types.bank', 'Cuenta de Ahorros') },
+        { value: 'credito', label: t('accounts.account_types.credit_card', 'Tarjeta de Crédito') },
         { value: 'prestamo', label: t('finance.account_type.loan', 'Préstamo / Crédito Libre') },
         { value: 'inversion', label: t('finance.account_type.investment', 'Inversión') },
         { value: 'otro', label: t('finance.account_type.other', 'Otro') },
@@ -153,7 +172,13 @@ export default function AccountModal({
                         <select
                             id="tipo"
                             value={data.tipo}
-                            onChange={(e) => setData('tipo', e.target.value)}
+                            onChange={(e) => {
+                                setData(prev => ({
+                                    ...prev,
+                                    tipo: e.target.value,
+                                    fecha_vencimiento: ''
+                                }));
+                            }}
                             className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 shadow-sm"
                             required
                         >
@@ -166,9 +191,82 @@ export default function AccountModal({
                         <InputError message={errors.tipo} className="mt-2" />
                     </div>
 
+                    {data.tipo === 'efectivo' && (
+                        <Alert
+                            type="info"
+                            className="mt-4"
+                            message={t('finance.cash_account_hint', 'Consejo: Para mayor orden, te recomendamos manejar el efectivo como un gasto directo desde tus cuentas bancarias en lugar de crear una cuenta de efectivo separada.')}
+                        />
+                    )}
+
+                    {/* Moneda */}
+                    <div>
+                        <InputLabel htmlFor="moneda" value={t('finance.currency', 'Moneda')} />
+                        <select
+                            id="moneda"
+                            value={data.moneda}
+                            onChange={(e) => setData('moneda', e.target.value)}
+                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 shadow-sm"
+                            required
+                        >
+                            <option value="COP">{t('currency.cop')}</option>
+                            <option value="USD">{t('currency.usd')}</option>
+                            <option value="EUR">{t('currency.eur')}</option>
+                            <option value="MXN">{t('currency.mxn')}</option>
+                            <option value="PEN">{t('currency.pen')}</option>
+                            <option value="CLP">{t('currency.clp')}</option>
+                            <option value="ARS">{t('currency.ars')}</option>
+                            <option value="BRL">{t('currency.brl')}</option>
+                        </select>
+                        <InputError message={errors.moneda} className="mt-2" />
+                    </div>
+
                     {/* Campos Dinámicos para Crédito y Préstamo */}
                     {(data.tipo === 'credito' || data.tipo === 'prestamo') && (
                         <>
+                            {data.tipo === 'prestamo' && (
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <InputLabel htmlFor="plazo" value={t('finance.term_months', 'Plazo (Meses)')} />
+                                        <TextInput
+                                            id="plazo"
+                                            type="number"
+                                            min="1"
+                                            value={data.plazo}
+                                            onChange={(e) => setData('plazo', e.target.value)}
+                                            className="mt-1 block w-full"
+                                            placeholder={t('placeholders.example_12', 'Ej: 12')}
+                                        />
+                                        <InputError message={errors.plazo} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="valor_cuota" value={t('finance.installment_value', 'Valor Cuota')} />
+                                        <TextInput
+                                            id="valor_cuota"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.valor_cuota}
+                                            onChange={(e) => setData('valor_cuota', e.target.value)}
+                                            className="mt-1 block w-full"
+                                        />
+                                        <InputError message={errors.valor_cuota} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="cuotas_pagadas" value={t('finance.paid_installments', 'Cuotas Pagadas')} optional />
+                                        <TextInput
+                                            id="cuotas_pagadas"
+                                            type="number"
+                                            min="0"
+                                            value={data.cuotas_pagadas}
+                                            onChange={(e) => setData('cuotas_pagadas', e.target.value)}
+                                            className="mt-1 block w-full"
+                                            placeholder={t('placeholders.example_0', 'Ej: 0')}
+                                        />
+                                        <InputError message={errors.cuotas_pagadas} className="mt-2" />
+                                    </div>
+                                </div>
+                            )}
                             <div className="grid grid-cols-2 gap-4">
                                 {data.tipo === 'credito' && (
                                     <div>
@@ -181,7 +279,8 @@ export default function AccountModal({
                                             value={data.dia_corte}
                                             onChange={(e) => setData('dia_corte', e.target.value)}
                                             className="mt-1 block w-full"
-                                            placeholder="Ej: 5"
+                                            placeholder={t('placeholders.example_5', 'Ej: 5')}
+                                            required={data.tipo === 'credito'}
                                         />
                                         <InputError message={errors.dia_corte} className="mt-2" />
                                     </div>
@@ -196,7 +295,8 @@ export default function AccountModal({
                                         value={data.dia_pago}
                                         onChange={(e) => setData('dia_pago', e.target.value)}
                                         className="mt-1 block w-full"
-                                        placeholder="Ej: 20"
+                                        placeholder={t('placeholders.example_20', 'Ej: 20')}
+                                        required={data.tipo === 'credito' || data.tipo === 'prestamo'}
                                     />
                                     <InputError message={errors.dia_pago} className="mt-2" />
                                 </div>
@@ -215,8 +315,23 @@ export default function AccountModal({
                                         value={data.limite_credito}
                                         onChange={(e) => setData('limite_credito', e.target.value)}
                                         className="mt-1 block w-full"
+                                        required={data.tipo === 'credito'}
                                     />
                                     <InputError message={errors.limite_credito} className="mt-2" />
+                                </div>
+                            )}
+
+                            {data.tipo === 'credito' && (
+                                <div>
+                                    <InputLabel htmlFor="fecha_vencimiento" value={t('finance.due_date', 'Fecha de Vencimiento')} />
+                                    <CreditCardExpiryInput
+                                        id="fecha_vencimiento"
+                                        value={data.fecha_vencimiento}
+                                        onChange={(e) => setData('fecha_vencimiento', e.target.value)}
+                                        className="mt-1 block w-full"
+                                        required={data.tipo === 'credito'}
+                                    />
+                                    <InputError message={errors.fecha_vencimiento} className="mt-2" />
                                 </div>
                             )}
 
@@ -240,7 +355,8 @@ export default function AccountModal({
                                     value={data.tasa_interes_anual}
                                     onChange={(e) => setData('tasa_interes_anual', e.target.value)}
                                     className="mt-1 block w-full"
-                                    placeholder="Ej: 28.5"
+                                    placeholder={t('placeholders.example_rate', 'Ej: 28.5')}
+                                    required={data.tipo === 'credito' || data.tipo === 'prestamo'}
                                 />
                                 <InputError message={errors.tasa_interes_anual} className="mt-2" />
                             </div>
@@ -267,9 +383,81 @@ export default function AccountModal({
                                 value={data.tasa_interes_anual}
                                 onChange={(e) => setData('tasa_interes_anual', e.target.value)}
                                 className="mt-1 block w-full"
-                                placeholder="Ej: 10.0"
+                                placeholder={t('placeholders.example_yield', 'Ej: 10.0')}
                             />
                             <InputError message={errors.tasa_interes_anual} className="mt-2" />
+                        </div>
+                    )}
+
+                    {/* Campos de Nómina (Solo para Banco) */}
+                    {data.tipo === 'banco' && (
+                        <div className="space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
+                            <div className="flex items-center">
+                                <input
+                                    id="es_nomina"
+                                    type="checkbox"
+                                    checked={data.es_nomina}
+                                    onChange={(e) => setData('es_nomina', e.target.checked)}
+                                    className="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                                <label htmlFor="es_nomina" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                                    {t('finance.is_payroll_account', 'Es cuenta de nómina')}
+                                </label>
+                            </div>
+
+                            {data.es_nomina && (
+                                <div className="grid grid-cols-2 gap-4 pl-6">
+                                    <div className="col-span-2">
+                                        <InputLabel value={t('finance.payroll_days', 'Días de Pago')} />
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-2">
+                                            {t('finance.select_payroll_days_hint', 'Selecciona uno o más días del mes')}
+                                        </p>
+                                        <div className="grid grid-cols-7 gap-2">
+                                            {[...Array(31)].map((_, i) => {
+                                                const day = i + 1;
+                                                const isSelected = Array.isArray(data.dia_nomina) && data.dia_nomina.includes(day);
+                                                return (
+                                                    <button
+                                                        key={day}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentDays = Array.isArray(data.dia_nomina) ? data.dia_nomina : [];
+                                                            if (isSelected) {
+                                                                setData('dia_nomina', currentDays.filter(d => d !== day));
+                                                            } else {
+                                                                setData('dia_nomina', [...currentDays, day].sort((a, b) => a - b));
+                                                            }
+                                                        }}
+                                                        className={`
+                                                            px-2 py-1.5 text-sm font-medium rounded transition-colors
+                                                            ${isSelected
+                                                                ? 'bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600'
+                                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {day}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <InputError message={errors.dia_nomina || errors['dia_nomina.0']} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel htmlFor="valor_nomina" value={t('finance.estimated_value', 'Valor Estimado')} />
+                                        <TextInput
+                                            id="valor_nomina"
+                                            type="number"
+                                            min="0"
+                                            value={data.valor_nomina}
+                                            onChange={(e) => setData('valor_nomina', e.target.value)}
+                                            className="mt-1 block w-full"
+                                            required={data.es_nomina}
+                                        />
+                                        <InputError message={errors.valor_nomina} className="mt-2" />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -299,6 +487,14 @@ export default function AccountModal({
                                     <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
                                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                                         {t('finance.credit_balance_hint', 'Para tarjetas de crédito, ingresa el monto que DEBES actualmente (deuda). Si está en cero, déjalo en 0.')}
+                                    </div>
+                                </div>
+                            )}
+                            {data.tipo === 'prestamo' && (
+                                <div className="group relative flex items-center">
+                                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        {t('finance.loan_balance_hint', 'Ingresa el monto total del préstamo recibido (deuda inicial).')}
                                     </div>
                                 </div>
                             )}

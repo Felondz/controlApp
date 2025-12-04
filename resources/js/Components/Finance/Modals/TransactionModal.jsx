@@ -36,16 +36,16 @@ export default function TransactionModal({
           notas: transaction?.notas || '',
      });
 
-    // Cargar categorías cuando cambia el proyecto seleccionado
-    useEffect(() => {
-        if (show && selectedProyectoId && !proyectoId) {
-            // Solo cargar si estamos en finanzas personales y se seleccionó un proyecto
-            loadCategorias(selectedProyectoId);
-        } else if (show && proyectoId && categorias.length > 0) {
-            // Si ya tenemos categorías filtradas (desde ProjectCard), usarlas
-            setAvailableCategorias(categorias);
-        }
-    }, [selectedProyectoId, show, proyectoId, categorias]);
+     // Cargar categorías cuando cambia el proyecto seleccionado
+     useEffect(() => {
+          if (show && selectedProyectoId && !proyectoId) {
+               // Solo cargar si estamos en finanzas personales y se seleccionó un proyecto
+               loadCategorias(selectedProyectoId);
+          } else if (show && proyectoId && categorias.length > 0) {
+               // Si ya tenemos categorías filtradas (desde ProjectCard), usarlas
+               setAvailableCategorias(categorias);
+          }
+     }, [selectedProyectoId, show, proyectoId, categorias]);
 
      // Cargar cuentas cuando cambia el proyecto seleccionado
      useEffect(() => {
@@ -58,26 +58,26 @@ export default function TransactionModal({
           }
      }, [selectedProyectoId, show, proyectoId, cuentas]);
 
-    const loadCategorias = async (proyectoId) => {
-        setLoadingCategorias(true);
-        try {
-            const response = await axios.get(route('api.proyectos.categorias.index', proyectoId));
-            // Si categorias ya están filtradas (viene de ProjectCard), usarlas directamente
-            if (categorias.length > 0 && categorias.every(c => c.tipo === categorias[0].tipo)) {
-                setAvailableCategorias(categorias);
-            } else {
-                setAvailableCategorias(response.data);
-            }
-        } catch (error) {
-            console.error('Error loading categorias:', error);
-        } finally {
-            setLoadingCategorias(false);
-        }
-    };
+     const loadCategorias = async (proyectoId) => {
+          setLoadingCategorias(true);
+          try {
+               const response = await axios.get(route('api.proyectos.categorias.index', proyectoId));
+               // Si categorias ya están filtradas (viene de ProjectCard), usarlas directamente
+               if (categorias.length > 0 && categorias.every(c => c.tipo === categorias[0].tipo)) {
+                    setAvailableCategorias(categorias);
+               } else {
+                    setAvailableCategorias(response.data);
+               }
+          } catch (error) {
+               console.error('Error loading categorias:', error);
+          } finally {
+               setLoadingCategorias(false);
+          }
+     };
 
      const loadCuentas = async (proyectoId) => {
           try {
-               const response = await axios.get(route('api.proyectos.cuentas.index', proyectoId));
+               const response = await axios.get(`/api/proyectos/${proyectoId}/cuentas`);
                setAvailableCuentas(response.data);
           } catch (error) {
                console.error('Error loading cuentas:', error);

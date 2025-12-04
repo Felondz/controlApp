@@ -6,6 +6,7 @@ use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
 use App\Http\Controllers\ToolController;
+use App\Features\Finanzas\Controllers\TransaccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -74,6 +75,23 @@ Route::middleware('auth')->group(function () {
         ->name('project.ownership.transfer');
     Route::get('mis-proyectos/{proyecto}/users/search', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'searchUsers'])
         ->name('project.users.search');
+
+    // Project Accounts
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'unlink'])
+        ->name('finance.accounts.unlink')
+        ->withoutScopedBindings();
+
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'destroy'])
+        ->name('finance.accounts.destroy')
+        ->withoutScopedBindings();
+
+    // Project Transactions
+    Route::delete('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'destroy'])
+        ->name('finance.transactions.destroy');
+
+    // Project Settings (Finance)
+    Route::put('mis-proyectos/{project}/settings', [ProyectoUiWebController::class, 'updateSettings'])
+        ->name('finance.projects.update-settings');
 
     // Tasks Module
     Route::resource('mis-proyectos.tasks', \App\Http\Controllers\TaskController::class)

@@ -35,7 +35,7 @@ class ProyectoController extends Controller
         $proyecto = Proyecto::create([
             'nombre' => $validatedData['nombre'],
             'descripcion' => $validatedData['descripcion'] ?? null,
-            'moneda_default' => $validatedData['moneda_default'],
+            'moneda_default' => $validatedData['moneda_default'] ?? 'COP',
             'user_id' => $request->user()->id,
             'es_personal' => false,
             'visible_en_listado' => true,
@@ -82,7 +82,7 @@ class ProyectoController extends Controller
         $validatedData = $request->validated();
         $dataToUpdate = [];
 
-        $fields = ['nombre', 'descripcion', 'moneda_default', 'color', 'icon', 'theme', 'typography'];
+        $fields = ['nombre', 'descripcion', 'moneda_default', 'color', 'icon', 'theme', 'typography', 'settings'];
         foreach ($fields as $field) {
             if (isset($validatedData[$field])) {
                 $dataToUpdate[$field] = $validatedData[$field];

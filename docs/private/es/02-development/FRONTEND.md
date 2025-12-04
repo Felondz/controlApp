@@ -41,22 +41,97 @@ Un envoltorio alrededor del elemento `input` nativo que añade un botón para al
   - **Filtrado**: Muestra cuentas activas por defecto, con opción de "Mostrar Inactivas".
   - **Gestión**: Permite crear/editar/eliminar cuentas y transacciones.
   - **Integración Tasks**: Muestra tareas financieras pendientes en el widget de Obligaciones Próximas.
+  - **Navegación**: Recibe prop `project` para contexto correcto en Sidebar/BottomNavigation.
+  
 - **AccountChart**: `resources/js/Components/Finance/AccountChart.jsx`
   - Visualización de saldo, ingresos y gastos por cuenta.
   - **Estado**: Distinción visual (opacidad/badge) para cuentas inactivas.
-- **AccountModal**: `resources/js/Components/Finance/Modals/AccountModal.jsx`
-  - Modal para crear y editar cuentas.
+  - **Información Detallada**: Muestra campos específicos según tipo de cuenta:
+    - **Tarjetas de Crédito**: Límite, crédito disponible, fecha de pago, tasa de interés
+    - **Préstamos**: Monto total, cuota mensual, cuotas restantes, tasa de interés
+    - **Inversiones**: Fecha de vencimiento, tasa de retorno esperada
+    - **Nómina**: Días de pago (separados por comas), monto estimado
+  - **Badges**: Indicadores visuales del tipo de cuenta con iconos apropiados.
+  - **Color Coding**: Saldos en verde (positivo) o rojo (negativo).
+  - **Acciones Encapsuladas**: Botón único de "Administrar" que abre AccountAdminModal.
+  - **Props**:
+    - `cuenta`: Objeto de cuenta
+    - `onEdit`: Callback para administrar/editar cuenta
+    - `onClick`: Callback opcional para ver historial de transacciones
+  - **Manejo de Moneda**: Divide automáticamente los valores del backend (centavos) por 100 para visualización correcta.
+    
+- **AccountAdminModal**: `resources/js/Components/Finance/Modals/AccountAdminModal.jsx` (✨ NUEVO)
+  - Modal profesional para administración completa de cuentas con **3 tabs**:
+  
+  **Tab 1 - Información Básica**:
+    - Nombre, banco, tipo de cuenta
+    - Moneda (8 opciones: COP, USD, EUR, MXN, PEN, CLP, ARS, BRL)
+    - Saldo inicial
+    - Estado (Activa/Inactiva)
+  
+  **Tab 2 - Configuración Avanzada** (condicional según tipo):
+    - **Tarjetas de Crédito**: Límite de crédito, tasa anual, día de corte, día de pago, fecha vencimiento
+    - **Préstamos**: Plazo (meses), cuota mensual, cuotas pagadas, tasa anual, día de pago
+    - **Inversiones**: Tasa esperada (%), fecha de vencimiento
+    - **Nómina** (banco): Toggle `es_nomina`, grid interactivo 7x5 para 1-4 días de pago, valor estimado
+  
+  **Tab 3 - Zona de Riesgo** (Danger Zone):
+    - Advertencia clara sobre acciones irreversibles
+    - Botón rojo "Eliminar Cuenta" que abre DeleteAccountModal para confirmación final
+    - Información sobre transacciones asociadas
+  
+  - **Props**:
+    - `show`: Boolean para mostrar/ocultar modal
+    - `account`: Objeto de cuenta a editar
+    - `proyecto`: Objeto de proyecto para contexto
+    - `onClose`: Callback al cerrar
+    - `onSuccess`: Callback al guardar cambios
+  
+- **AccountModal**: `resources/js/Components/Finance/Modals/AccountModal.jsx` (Legado)
+  - Modal para crear nuevas cuentas.
+  - Mantiene compatibilidad con flujo de creación rápida.
+  - **Nota**: Para editar cuentas existentes, usar AccountAdminModal en lugar de este.
+  - **Tipos de cuenta** (6 tipos):
+    - `efectivo`: Dinero en efectivo
+    - `banco`: Cuenta bancaria (con soporte para nómina)
+    - `credito`: Tarjeta de crédito (requiere campos adicionales)
+    - `inversion`: Cuenta de inversión
+    - `prestamo`: Préstamo
+    - `otro`: Otros tipos
+  - **Campos condicionales**:
+    - **Crédito**: `cupo`, `tasa_interes`, `fecha_vencimiento`
+    - **Préstamo**: `cupo`, `plazo`, `valor_cuota`, `cuotas_pagadas`, `tasa_interes`, `fecha_vencimiento`
+    - **Inversión**: `tasa_interes`, `fecha_vencimiento` (opcional)
+    - **Nómina** (banco): `es_nomina`, `dia_nomina` (array de 1-4 días), `valor_nomina`
+  - **Payroll UI**: Grid interactivo de 7x5 para seleccionar múltiples días de pago (ej: 15 y 30 para quincenal)
+  - **Currency Selector**: Soporta 8 monedas (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL)
+  - **Defaults**: La moneda por defecto es `proyecto.moneda_default`, pero cada cuenta puede tener su propia moneda
   - Soporte para cambiar el estado de la cuenta (Activa/Inactiva).
+  
+- **DeleteAccountModal**: `resources/js/Components/Finance/Modals/DeleteAccountModal.jsx`
+  - Modal de confirmación segura para eliminación de cuentas.
+  - **Seguridad**: Requiere escribir el nombre exacto de la cuenta para confirmar.
+  - **Advertencias**: Muestra conteo de transacciones asociadas.
+  - **Validación**: Botón de eliminar deshabilitado hasta confirmación correcta.
+  - **Errores**: Muestra errores del backend (restricciones, permisos, etc.).
+  - **Integración**: Se abre desde la Tab "Zona de Riesgo" de AccountAdminModal.
+  
 - **PaymentConfirmationModal**: `resources/js/Components/Finance/Modals/PaymentConfirmationModal.jsx`
   - Modal para confirmar el pago de tareas financieras.
   - Pre-llena formulario con datos de la tarea (título, monto, categoría).
   - Permite editar antes de confirmar.
   - Marca automáticamente la tarea como "done" al crear la transacción.
+  
 - **UpcomingObligationsWidget**: `resources/js/Components/Finance/Widgets/UpcomingObligationsWidget.jsx`
   - Muestra próximos pagos y obligaciones financieras.
   - **Integración Tasks**: Combina transacciones futuras y tareas financieras pendientes.
+  - **Diferenciación**: Ingresos (verde) vs Gastos (rojo).
+  - **Nómina**: Genera eventos separados para cada día de pago configurado (ej: 15 y 30 del mes).
+  - **Visual**: Badge "Tarea" para distinguir tareas de transacciones.
   - **Visual**: Badge "Tarea" para distinguir tareas de transacciones.
   - **Acción**: Botón "Marcar como pagado" (checkmark) al hacer hover (solo admin).
+  - **Obligaciones**: Incluye automáticamente cortes de tarjeta y pagos de préstamos basados en `dia_pago`.
+  - **Manejo de Moneda**: Divide automáticamente los valores del backend (centavos) por 100 para visualización correcta.
 
 ### Alert
 Componente para mostrar mensajes de estado (información, advertencia, éxito, error) con estilos estandarizados.
@@ -308,6 +383,36 @@ Usar la emulación de dispositivos de DevTools del navegador para probar:
   - Enlaces directos al chat del proyecto.
   - Enlace "Ver Todo" a la página `/inbox`.
 
+## Comandos de Desarrollo
+
+### Compilación y Desarrollo
+
+**Desarrollo (Hot Reload):**
+```bash
+npm run dev
+```
+Inicia el servidor de desarrollo de Vite con hot module replacement (HMR). Los cambios se reflejan automáticamente en el navegador.
+
+**Compilación para Producción:**
+```bash
+npm run build
+```
+Compila y optimiza todos los assets para producción. Los archivos se generan en `public/build/`.
+
+**Nota Importante:** Después de hacer cambios en componentes React, siempre ejecuta `npm run build` para que los cambios se reflejen en el navegador. El navegador puede cachear la versión anterior, por lo que puede ser necesario hacer un "hard refresh" (Ctrl+Shift+R o Cmd+Shift+R).
+
+### Con Laravel Sail (Docker)
+
+Si estás usando Laravel Sail, ejecuta los comandos dentro del contenedor:
+
+```bash
+# Desarrollo
+./vendor/bin/sail npm run dev
+
+# Compilación
+./vendor/bin/sail npm run build
+```
+
 ## Testing
 
 El código frontend está completamente cubierto por pruebas automatizadas utilizando **Vitest** y **React Testing Library**.
@@ -318,3 +423,36 @@ El código frontend está completamente cubierto por pruebas automatizadas utili
 - **Nota**: Todos los tests usan claves de traducción en lugar de texto hardcodeado, siguiendo el sistema de i18n.
 
 Para detalles sobre la arquitectura de pruebas y guías, consulta [TESTING_ARCHITECTURE.md](../04-testing/TESTING_ARCHITECTURE.md).
+
+## Transacciones Programadas (Facturas)
+
+La aplicación soporta **transacciones programadas/pendientes** (facturas) con capacidades de recurrencia:
+
+### Esquema de Base de Datos
+- **status**: `enum('completed', 'pending', 'cancelled')` - Estado de la transacción
+- **is_recurring**: `boolean` - Si la transacción se repite
+- **recurrence_interval**: `enum('daily', 'weekly', 'biweekly', 'monthly', 'yearly')` - Frecuencia
+- **recurrence_day**: `integer` - Día del mes/semana para la recurrencia
+- **next_occurrence**: `date` - Próxima fecha programada
+
+### Componentes Frontend
+1. **TransactionModal**: Permite crear transacciones pendientes con configuración de recurrencia
+2. **UpcomingObligationsWidget**: Muestra transacciones pendientes con:
+   - Indicadores codificados por color (Verde = Ingreso, Rojo = Gasto)
+   - Funcionalidad "Marcar como Pagado" para transacciones pendientes
+   - Indicadores de alerta basados en proximidad de fecha de vencimiento
+   - Lista deslizable mostrando todas las obligaciones próximas
+
+### Sistema de Alertas
+Indicadores visuales basados en fecha de vencimiento:
+- **Rojo** (Vencido): Pasada la fecha de vencimiento
+- **Naranja** (Urgente): Vence dentro de 3 días
+- **Amarillo** (Pronto): Vence dentro de 7 días
+- **Predeterminado**: Vence después de 7 días
+
+### Flujo de Trabajo
+1. Usuario crea una transacción "Pendiente" vía `TransactionModal`
+2. La transacción aparece en `UpcomingObligationsWidget`
+3. Usuario hace clic en "Marcar como Pagado" en el widget
+4. Backend crea la transacción completada y actualiza el saldo de la cuenta
+5. Si es recurrente, la próxima ocurrencia se programa automáticamente

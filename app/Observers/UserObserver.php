@@ -19,6 +19,7 @@ class UserObserver
             'user_id' => $user->id,
             'es_personal' => true,
             'visible_en_listado' => false,
+            'modules' => ['finance', 'analytics', 'tasks', 'notifications'], // Módulos por defecto: Finanzas, Analíticas, Tareas y Notificaciones
         ]);
 
         // 2. ADJUNTAR LA RELACIÓN many-to-many

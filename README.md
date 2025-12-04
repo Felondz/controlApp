@@ -15,7 +15,7 @@ This status reflects the stability achieved through **Continuous Integration (CI
 | **Total Tests** | 497 tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v2.3.0 (Modular Architecture) | ✅ **Stable** |
+| **Backend Version** | v2.4.0 (Scheduled Transactions) | ✅ **Stable** |
 | **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -80,6 +80,27 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
   - **Export**: Generate professional PDF reports with amortization charts.
   - **Visualizations**: Interactive charts for principal vs. interest analysis.
   - **API**: RESTful endpoints for tool management (`GET /api/tools`, `POST /api/tools/toggle`).
+
+- **Finance Management**:
+  - **Accounts**: Create and manage 6 types of accounts (cash, bank, credit, investment, loan, other).
+  - **Multi-Currency**: Support for 8 currencies (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL) - each account can have its own currency.
+  - **Payroll Accounts**: Mark bank accounts as payroll accounts with payment day and estimated amount.
+  - **Enhanced Account Cards**: Display detailed information based on account type:
+    - Credit Cards: Limit, available credit, payment date, interest rate
+    - Loans: Total amount, monthly payment, remaining installments, interest rate
+    - Investments: Maturity date, expected return rate
+    - Payroll: Payment day, estimated amount
+  - **Secure Deletion**: Delete accounts with confirmation modal requiring account name typing.
+  - **Scheduled Transactions (Bills)**: Create pending/scheduled transactions with recurrence support (daily/weekly/monthly/yearly).
+  - **Transaction Status**: Track transactions as `completed`, `pending`, or `cancelled`.
+  - **Transaction Tracking**: Record income and expenses per account with categorization.
+  - **Financial Dashboard**: Visualize balances, cash flow charts, and upcoming obligations.
+  - **Upcoming Obligations Widget**: 
+    - View income (payroll) and expenses (loans, credit cards, pending bills) with color coding.
+    - "Mark as Paid" functionality for pending transactions.
+    - Alert indicators based on due date proximity.
+    - Scrollable view showing all upcoming obligations.
+
 ## ✨ Características Principales
 
 ### 🏗️ Arquitectura Modular (v2.0.0)

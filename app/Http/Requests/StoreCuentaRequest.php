@@ -107,29 +107,50 @@ class StoreCuentaRequest extends FormRequest
         }
 
         // Savings/Investment specific rules
-        if ($this->input('tipo') === 'inversion') {
+        if ($this->input('tipo') === 'inversion' || $this->input('tipo') === 'banco') {
             $rules = array_merge($rules, [
-                'tasa_interes' => [
-                    'required',
+                'tasa_interes_anual' => [
+                    'nullable',
                     'numeric',
                     'min:0',
                     'max:100',
                 ],
-                'fecha_interes' => [
-                    'required',
-                    'date',
-                    'after_or_equal:today',
-                ],
-                'capitalizable' => [
-                    'required',
+            ]);
+        }
+
+        // Payroll specific rules (only for bank accounts)
+        if ($this->input('tipo') === 'banco') {
+            $payrollRules = [
+                'es_nomina' => [
+                    'nullable',
                     'boolean',
                 ],
-                'periodo_capitalizacion' => [
-                    Rule::requiredIf($this->input('capitalizable') === true),
-                    'nullable',
-                    Rule::in(['diario', 'mensual', 'trimestral', 'semestral', 'anual']),
-                ],
-            ]);
+            ];
+
+            if ($this->boolean('es_nomina')) {
+                $payrollRules['dia_nomina'] = [
+                    'required',
+                    'array',
+                    'min:1',
+                    'max:4', // Maximum 4 payment dates per month
+                ];
+                $payrollRules['dia_nomina.*'] = [
+                    'integer',
+                    'min:1',
+                    'max:31',
+                    'distinct', // No duplicate days
+                ];
+                $payrollRules['valor_nomina'] = [
+                    'required',
+                    'numeric',
+                    'min:0',
+                ];
+            } else {
+                $payrollRules['dia_nomina'] = ['nullable', 'array'];
+                $payrollRules['valor_nomina'] = ['nullable', 'numeric'];
+            }
+
+            $rules = array_merge($rules, $payrollRules);
         }
 
         // Loan specific rules
@@ -146,6 +167,21 @@ class StoreCuentaRequest extends FormRequest
                     'integer',
                     'min:1',
                     'max:31',
+                ],
+                'plazo' => [
+                    'nullable',
+                    'integer',
+                    'min:1',
+                ],
+                'valor_cuota' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                ],
+                'cuotas_pagadas' => [
+                    'nullable',
+                    'integer',
+                    'min:0',
                 ],
                 'fecha_vencimiento' => [
                     'nullable',
@@ -179,36 +215,24 @@ class StoreCuentaRequest extends FormRequest
             'icono.max' => 'El nombre del ícono no puede exceder los 50 caracteres.',
 
             // Credit card specific
-            'tasa_interes_anual.required' => 'La tasa de interés anual es obligatoria para cuentas de crédito.',
+            'tasa_interes_anual.required' => 'La tasa de interés anual es obligatoria.',
             'tasa_interes_anual.numeric' => 'La tasa de interés debe ser un número.',
             'tasa_interes_anual.min' => 'La tasa de interés no puede ser negativa.',
             'tasa_interes_anual.max' => 'La tasa de interés no puede ser mayor a 100%.',
-            'fecha_vencimiento.required' => 'La fecha de vencimiento es obligatoria para cuentas de crédito.',
+            'fecha_vencimiento.required' => 'La fecha de vencimiento es obligatoria para tarjetas de crédito.',
             'fecha_vencimiento.date' => 'La fecha de vencimiento debe ser una fecha válida.',
             'fecha_vencimiento.after' => 'La fecha de vencimiento debe ser posterior a hoy.',
-            'dia_corte.required' => 'El día de corte es obligatorio para cuentas de crédito.',
+            'dia_corte.required' => 'El día de corte es obligatorio.',
             'dia_corte.integer' => 'El día de corte debe ser un número entero.',
             'dia_corte.min' => 'El día de corte debe ser al menos 1.',
             'dia_corte.max' => 'El día de corte no puede ser mayor a 31.',
-            'dia_pago.required' => 'El día de pago es obligatorio para cuentas de crédito.',
+            'dia_pago.required' => 'El día de pago es obligatorio.',
             'dia_pago.integer' => 'El día de pago debe ser un número entero.',
             'dia_pago.min' => 'El día de pago debe ser al menos 1.',
             'dia_pago.max' => 'El día de pago no puede ser mayor a 31.',
-            'limite_credito.required' => 'El límite de crédito es obligatorio para cuentas de crédito.',
+            'limite_credito.required' => 'El límite de crédito es obligatorio.',
             'limite_credito.numeric' => 'El límite de crédito debe ser un número.',
             'limite_credito.min' => 'El límite de crédito no puede ser negativo.',
-
-            // Savings/Investment specific
-            'tasa_interes.required' => 'La tasa de interés es obligatoria para cuentas de inversión.',
-            'tasa_interes.numeric' => 'La tasa de interés debe ser un número.',
-            'tasa_interes.min' => 'La tasa de interés no puede ser negativa.',
-            'tasa_interes.max' => 'La tasa de interés no puede ser mayor a 100%.',
-            'fecha_interes.required' => 'La fecha de interés es obligatoria para cuentas de inversión.',
-            'fecha_interes.date' => 'La fecha de interés debe ser una fecha válida.',
-            'fecha_interes.after_or_equal' => 'La fecha de interés no puede ser anterior a hoy.',
-            'capitalizable.required' => 'Debe especificar si la inversión es capitalizable.',
-            'periodo_capitalizacion.required_if' => 'El período de capitalización es obligatorio cuando la inversión es capitalizable.',
-            'periodo_capitalizacion.in' => 'El período de capitalización seleccionado no es válido.',
         ];
 
         return $messages;

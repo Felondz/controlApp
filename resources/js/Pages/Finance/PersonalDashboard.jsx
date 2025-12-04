@@ -8,12 +8,12 @@ import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
 import { PlusIcon, CurrencyDollarIcon } from '@/Components/Icons';
 import axios from 'axios';
 
-export default function PersonalDashboard({ 
-    auth, 
-    proyectoPersonal, 
-    proyectos, 
-    todasLasCuentas, 
-    todasLasTransacciones 
+export default function PersonalDashboard({
+    auth,
+    proyectoPersonal,
+    proyectos,
+    todasLasCuentas,
+    todasLasTransacciones
 }) {
     const { t } = useTranslate();
     const [showAccountModal, setShowAccountModal] = useState(false);
@@ -23,6 +23,15 @@ export default function PersonalDashboard({
     const [categorias, setCategorias] = useState(proyectoPersonal?.categorias || []);
     const [cuentas, setCuentas] = useState(todasLasCuentas || []);
     const [transacciones, setTransacciones] = useState(todasLasTransacciones || []);
+
+    // Sync local state with Inertia props when they change
+    useEffect(() => {
+        setCuentas(todasLasCuentas || []);
+    }, [todasLasCuentas]);
+
+    useEffect(() => {
+        setTransacciones(todasLasTransacciones || []);
+    }, [todasLasTransacciones]);
 
     const handleAccountSuccess = () => {
         // Recargar datos
@@ -67,7 +76,7 @@ export default function PersonalDashboard({
     // Formatear monto
     const formatMonto = (monto) => {
         const amount = Math.abs(monto) / 100;
-        return new Intl.NumberFormat('es-CO', {
+        return new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: proyectoPersonal?.moneda_default || 'COP',
         }).format(amount);
@@ -79,7 +88,7 @@ export default function PersonalDashboard({
     };
 
     // Transacciones personales (sin proyecto o del proyecto personal)
-    const transaccionesPersonales = transacciones.filter(t => 
+    const transaccionesPersonales = transacciones.filter(t =>
         !t.proyecto_id || t.proyecto_id === proyectoPersonal?.id
     );
 
@@ -130,7 +139,7 @@ export default function PersonalDashboard({
                                         const gastos = cuentaTransacciones
                                             .filter(t => t.categoria?.tipo === 'gasto')
                                             .reduce((sum, t) => sum + Math.abs(t.monto || 0), 0);
-                                        
+
                                         return (
                                             <div
                                                 key={cuenta.id}
@@ -184,7 +193,7 @@ export default function PersonalDashboard({
                                     {proyectos.map((proyecto) => {
                                         const proyectoTransacciones = getTransaccionesByProyecto(proyecto.id);
                                         if (proyectoTransacciones.length === 0) return null;
-                                        
+
                                         return (
                                             <div
                                                 key={proyecto.id}
@@ -208,11 +217,10 @@ export default function PersonalDashboard({
                                                                     {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
                                                                 </p>
                                                             </div>
-                                                            <span className={`text-sm font-semibold ${
-                                                                trans.categoria?.tipo === 'ingreso'
-                                                                    ? 'text-green-600 dark:text-green-400'
-                                                                    : 'text-red-600 dark:text-red-400'
-                                                            }`}>
+                                                            <span className={`text-sm font-semibold ${trans.categoria?.tipo === 'ingreso'
+                                                                ? 'text-green-600 dark:text-green-400'
+                                                                : 'text-red-600 dark:text-red-400'
+                                                                }`}>
                                                                 {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                                                 {formatMonto(trans.monto)}
                                                             </span>
@@ -254,11 +262,10 @@ export default function PersonalDashboard({
                                                     {trans.cuenta?.nombre} • {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
                                                 </p>
                                             </div>
-                                            <span className={`text-sm font-semibold ${
-                                                trans.categoria?.tipo === 'ingreso'
-                                                    ? 'text-green-600 dark:text-green-400'
-                                                    : 'text-red-600 dark:text-red-400'
-                                            }`}>
+                                            <span className={`text-sm font-semibold ${trans.categoria?.tipo === 'ingreso'
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                                }`}>
                                                 {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                                 {formatMonto(trans.monto)}
                                             </span>
@@ -296,6 +303,7 @@ export default function PersonalDashboard({
                 }}
                 account={selectedAccount}
                 proyectoId={proyectoPersonal?.id}
+                proyecto={proyectoPersonal}
                 onSuccess={handleAccountSuccess}
             />
 

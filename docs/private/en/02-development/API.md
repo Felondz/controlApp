@@ -831,27 +831,74 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "nombre": "Cash",
-  "tipo": "efectivo",
-  "saldo_inicial": 1000.00,
-  "moneda": "USD"
+  "nombre": "BBVA Card",
+  "tipo": "credito",
+  "banco": "BBVA",
+  "saldo_inicial": 0,
+  "moneda": "COP",
+  "limite_credito": 5000000,
+  "tasa_interes_anual": 24.5,
+  "dia_corte": 15,
+  "dia_pago": 20,
+  "fecha_vencimiento": "2028-12-31"
 }
 ```
+
+**Common Fields** (all types):
+- `nombre` (string, required): Account name
+- `tipo` (string, required): Account type - values: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- `saldo_inicial` (number, required): Initial balance in cents
+- `moneda` (string, required): ISO 4217 code (3 letters) - values: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+- `banco` (string, optional): Bank name
+- `descripcion` (string, optional): Additional description
+- `color` (string, optional): Hex color code (e.g., #FF0000)
+- `icono` (string, optional): Icon name
+
+**Type-Specific Fields**:
+
+**Credit (`tipo: "credito"`)**:
+- `limite_credito` (number, required): Credit limit in cents
+- `tasa_interes_anual` (number, required): Annual interest rate (0-100%)
+- `dia_corte` (integer, required): Cut-off day of month (1-31)
+- `dia_pago` (integer, required): Payment day of month (1-31)
+- `fecha_vencimiento` (date, required): Card expiration date (YYYY-MM-DD, must be future)
+
+**Investment (`tipo: "inversion"`)**:
+- `tasa_interes_anual` (number, optional): Annual interest rate (0-100%)
+
+**Loan (`tipo: "prestamo"`)**:
+- `tasa_interes_anual` (number, required): Annual interest rate (0-100%)
+- `dia_pago` (integer, required): Payment day of month (1-31)
+- `fecha_vencimiento` (date, optional): Loan due date (YYYY-MM-DD, must be future)
+- `plazo` (integer, optional): Term in months
+- `valor_cuota` (number, optional): Monthly payment amount in cents
+- `cuotas_pagadas` (integer, optional): Number of installments already paid
+
+**Payroll (`tipo: "banco"`)**:
+- `es_nomina` (boolean, optional): Mark as payroll account
+- `dia_nomina` (array, required if es_nomina=true): Array of payment days (1-31), max 4 days. Example: `[15, 30]`
+- `valor_nomina` (number, required if es_nomina=true): Estimated payroll amount in cents
 
 **Response (201)**
 ```json
 {
   "id": 2,
   "proyecto_id": 1,
-  "nombre": "Cash",
-  "tipo": "efectivo",
-  "saldo_actual": 1000.00,
-  "saldo_inicial": 1000.00,
-  "estado": "activa"
+  "nombre": "BBVA Card",
+  "tipo": "credito",
+  "saldo_inicial": 0,
+  "created_at": "2025-11-15 11:30:00"
 }
 ```
 
-**Valid Types**: `banco`, `efectivo`, `credito`, `inversion`, `otro`
+**Validation** (FormRequest: `StoreCuentaRequest`)
+- Valid types: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- Valid currencies: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+
+**Authorization**
+- ✅ Only project admins can create accounts
+
+---
 
 ### Update Account
 
@@ -888,52 +935,6 @@ Accept: application/json
 
 **Response (204)**
 *(No Content)*
-Accept: application/json
-```
-
-**Response (200)**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "proyecto_id": 1,
-      "nombre": "Main Bank",
-      "tipo": "banco",
-      "saldo": 5000.00,
-      "created_at": "2025-11-15 10:00:00"
-    }
-  ]
-}
-```
-
-### Create Account
-
-```http
-POST /api/proyectos/{proyecto}/cuentas
-Authorization: Bearer {token}
-Content-Type: application/json
-Accept: application/json
-
-{
-  "nombre": "Cash",
-  "tipo": "efectivo",
-  "saldo_inicial": 1000.00
-}
-```
-
-**Response (201)**
-```json
-{
-  "id": 2,
-  "proyecto_id": 1,
-  "nombre": "Cash",
-  "tipo": "efectivo",
-  "saldo": 1000.00
-}
-```
-
-**Valid Types**: `banco`, `efectivo`, `tarjeta`, `digital`
 
 ---
 

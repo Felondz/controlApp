@@ -54,8 +54,8 @@ export default function AnalyticsWidget({ project }) {
     };
 
     const chartData = [
-        { name: t('analytics.total_income', 'Ingresos'), value: data.total_income, fill: '#10B981' },
-        { name: t('analytics.total_expenses', 'Gastos'), value: data.total_expenses, fill: '#EF4444' },
+        { name: t('modules.analytics.total_income', 'Ingresos'), value: data.total_income, fill: '#10B981' },
+        { name: t('modules.analytics.total_expenses', 'Gastos'), value: data.total_expenses, fill: '#EF4444' },
     ];
 
     return (
@@ -63,7 +63,7 @@ export default function AnalyticsWidget({ project }) {
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <ChartBarIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                    {t('analytics.title', 'Analíticas del Proyecto')}
+                    {t('modules.analytics.title', 'Analíticas del Proyecto')}
                 </h3>
             </div>
 
@@ -71,7 +71,7 @@ export default function AnalyticsWidget({ project }) {
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
                     <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-1">
                         <ArrowTrendingUpIcon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{t('analytics.total_income', 'Ingresos Totales')}</span>
+                        <span className="text-sm font-medium">{t('modules.analytics.total_income', 'Ingresos Totales')}</span>
                     </div>
                     <div className="text-2xl font-bold text-green-700 dark:text-green-300">
                         {formatCurrency(data.total_income)}
@@ -81,7 +81,7 @@ export default function AnalyticsWidget({ project }) {
                 <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
                     <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-1">
                         <ArrowTrendingDownIcon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{t('analytics.total_expenses', 'Gastos Totales')}</span>
+                        <span className="text-sm font-medium">{t('modules.analytics.total_expenses', 'Gastos Totales')}</span>
                     </div>
                     <div className="text-2xl font-bold text-red-700 dark:text-red-300">
                         {formatCurrency(data.total_expenses)}
@@ -91,7 +91,7 @@ export default function AnalyticsWidget({ project }) {
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
                     <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 mb-1">
                         <CurrencyDollarIcon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{t('analytics.net_balance', 'Balance Neto')}</span>
+                        <span className="text-sm font-medium">{t('modules.analytics.net_balance', 'Balance Neto')}</span>
                     </div>
                     <div className={`text-2xl font-bold ${data.net_balance >= 0 ? 'text-blue-700 dark:text-blue-300' : 'text-red-600 dark:text-red-400'}`}>
                         {formatCurrency(data.net_balance)}
@@ -99,8 +99,8 @@ export default function AnalyticsWidget({ project }) {
                 </div>
             </div>
 
-            <div className="h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full">
+                <ResponsiveContainer width="100%" height={300}>
                     <BarChart
                         data={chartData}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

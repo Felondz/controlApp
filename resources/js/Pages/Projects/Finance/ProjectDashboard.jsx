@@ -5,12 +5,15 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AccountModal from '@/Components/Finance/Modals/AccountModal';
+import AccountAdminModal from '@/Components/Finance/Modals/AccountAdminModal';
 import LinkAccountModal from '@/Components/Finance/Modals/LinkAccountModal';
 import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
 import PaymentConfirmationModal from '@/Components/Finance/Modals/PaymentConfirmationModal';
 import AccountChart from '@/Components/Finance/AccountChart';
 import DashboardSettingsModal from '@/Components/Finance/Modals/DashboardSettingsModal';
+import DeleteAccountModal from '@/Components/Finance/Modals/DeleteAccountModal';
 import BalanceSummaryWidget from '@/Components/Finance/Widgets/BalanceSummaryWidget';
+import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
 import SavingsGoalWidget from '@/Components/Finance/Widgets/SavingsGoalWidget';
 import CreditSimulationWidget from '@/Components/Finance/Widgets/CreditSimulationWidget';
 import UpcomingObligationsWidget from '@/Components/Finance/Widgets/UpcomingObligationsWidget';
@@ -22,10 +25,12 @@ import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6Toot
 export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [] }) {
     const { t } = useTranslate();
     const [showAccountModal, setShowAccountModal] = useState(false);
+    const [showAccountAdminModal, setShowAccountAdminModal] = useState(false);
     const [showLinkAccountModal, setShowLinkAccountModal] = useState(false);
     const [showTransactionModal, setShowTransactionModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -59,8 +64,9 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handleEditAccount = (account) => {
+        if (!isAdmin) return;
         setSelectedAccount(account);
-        setShowAccountModal(true);
+        setShowAccountAdminModal(true);
     };
 
     const handleLinkAccount = () => {
@@ -68,8 +74,13 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handleUnlinkAccount = (account) => {
+        // Personal Finance should never have linked accounts
+        if (proyecto.es_personal) {
+            return;
+        }
+
         if (confirm(t('finance.confirm_unlink_account', '¿Estás seguro de que quieres desvincular esta cuenta?'))) {
-            router.delete(route('finance.accounts.unlink', { account: account.id }), {
+            router.delete(`/api/proyectos/${proyecto.id}/cuentas/${account.id}/unlink`, {
                 onSuccess: () => {
                     router.reload({ only: ['proyecto'] });
                 },
@@ -79,6 +90,12 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                 }
             });
         }
+    };
+
+    const handleCardClick = (account) => {
+        // For now, we'll just log. In the future, this could navigate to a transaction history view
+        console.log('Card clicked:', account.nombre);
+        // TODO: Implement transaction history view/modal
     };
 
     const handleCreateTransaction = () => {
@@ -93,7 +110,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
     const handleDeleteTransaction = (transaction) => {
         if (confirm(t('finance.confirm_delete_transaction', '¿Estás seguro de que quieres eliminar esta transacción?'))) {
-            router.delete(route('finance.transactions.destroy', { transaction: transaction.id }), {
+            router.delete(route('finance.transactions.destroy', { proyecto: proyecto.id, transaccion: transaction.id }), {
                 onSuccess: () => {
                     router.reload({ only: ['transacciones'] });
                 },
@@ -174,6 +191,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{headerTitle}</h2>}
+            project={proyecto}
         >
             <Head title={headerTitle} />
 
@@ -182,7 +200,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                     {/* Header Section */}
                     <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                            <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                                 {t('finance.dashboard_title', 'Panel Financiero')}
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400">
@@ -209,7 +227,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             {isAdmin && (
                                 <button
                                     onClick={() => setShowSettingsModal(true)}
-                                    className="p-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                                     title={t('finance.customize_dashboard', 'Personalizar Panel')}
                                 >
                                     <Cog6ToothIcon className="w-6 h-6" />
@@ -240,14 +258,31 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                     date: t.fecha,
                                     amount: t.monto,
                                     type: t.categoria?.tipo,
-                                    status: 'pending' // Default status for now
+                                    status: 'pending', // Default status for now
+                                    accountName: t.cuenta?.nombre
                                 }))}
                                 financialTasks={financialTasks}
+                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
                                 currency={proyecto.moneda_default}
                                 onMarkAsPaid={isAdmin ? handleMarkAsPaid : null}
                             />
                         )}
                     </div>
+
+                    {/* Transactions Widget */}
+                    {isAdmin && transacciones.length > 0 && (
+                        <div className="mb-8">
+                            <TransactionsWidget
+                                transactions={transacciones}
+                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
+                                categories={proyecto.categorias || []}
+                                currency={proyecto.moneda_default}
+                                onEdit={handleEditTransaction}
+                                onDelete={handleDeleteTransaction}
+                                currentUserId={auth.user.id}
+                            />
+                        </div>
+                    )}
 
                     {/* Charts Section */}
                     {widgets.financial_charts && (
@@ -269,13 +304,15 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                 <PlusIcon className="h-5 w-5" />
                                 {t('finance.create_account', 'Crear Cuenta')}
                             </PrimaryButton>
-                            <SecondaryButton
-                                onClick={handleLinkAccount}
-                                className="flex items-center justify-center gap-2"
-                            >
-                                <LinkIcon className="h-5 w-5" />
-                                {t('finance.link_account', 'Vincular Cuenta')}
-                            </SecondaryButton>
+                            {!proyecto.es_personal && (
+                                <SecondaryButton
+                                    onClick={handleLinkAccount}
+                                    className="flex items-center justify-center gap-2"
+                                >
+                                    <LinkIcon className="h-5 w-5" />
+                                    {t('finance.link_account', 'Vincular Cuenta')}
+                                </SecondaryButton>
+                            )}
                             <PrimaryButton
                                 onClick={handleCreateTransaction}
                                 className="flex items-center justify-center gap-2"
@@ -295,24 +332,16 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                                         {t('finance.project_accounts', 'Cuentas del Proyecto')}
                                     </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                         {filteredAccounts.map((cuenta) => {
                                             const cuentaTransacciones = transaccionesPorCuenta[cuenta.id] || [];
                                             return (
                                                 <div key={cuenta.id} className="relative group">
                                                     <AccountChart
                                                         cuenta={cuenta}
-                                                        transacciones={cuentaTransacciones}
+                                                        onEdit={handleEditAccount}
+                                                        onClick={handleCardClick}
                                                     />
-                                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                        <button
-                                                            onClick={() => handleEditAccount(cuenta)}
-                                                            className="p-1.5 bg-white dark:bg-gray-700 rounded-full shadow-sm text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400"
-                                                            title={t('common.edit', 'Editar')}
-                                                        >
-                                                            <PencilIcon className="h-4 w-4" />
-                                                        </button>
-                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -327,24 +356,16 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                         <LinkIcon className="h-5 w-5 text-primary-600" />
                                         {t('finance.linked_accounts', 'Cuentas Vinculadas')}
                                     </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                         {linkedAccounts.map((cuenta) => {
                                             const cuentaTransacciones = transaccionesPorCuenta[cuenta.id] || [];
                                             return (
                                                 <div key={cuenta.id} className="relative group">
                                                     <AccountChart
                                                         cuenta={cuenta}
-                                                        transacciones={cuentaTransacciones}
+                                                        onEdit={handleEditAccount}
+                                                        onClick={handleCardClick}
                                                     />
-                                                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                        <button
-                                                            onClick={() => handleUnlinkAccount(cuenta)}
-                                                            className="p-1.5 bg-white dark:bg-gray-700 rounded-full shadow-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-                                                            title={t('finance.unlink', 'Desvincular')}
-                                                        >
-                                                            <TrashIcon className="h-4 w-4" />
-                                                        </button>
-                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -372,66 +393,13 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                             <PrimaryButton onClick={handleCreateAccount}>
                                                 {t('finance.create_account', 'Crear Cuenta')}
                                             </PrimaryButton>
-                                            <SecondaryButton onClick={handleLinkAccount}>
-                                                {t('finance.link_account', 'Vincular Cuenta')}
-                                            </SecondaryButton>
+                                            {!proyecto.es_personal && (
+                                                <SecondaryButton onClick={handleLinkAccount}>
+                                                    {t('finance.link_account', 'Vincular Cuenta')}
+                                                </SecondaryButton>
+                                            )}
                                         </div>
                                     )}
-                                </div>
-                            )}
-
-                            {/* Recent Transactions */}
-                            {transacciones.length > 0 && (
-                                <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                                    <div className="p-6">
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                            {t('finance.recent_transactions', 'Transacciones Recientes')}
-                                        </h3>
-                                        <div className="space-y-2">
-                                            {transacciones.slice(0, 20).map((trans) => (
-                                                <div
-                                                    key={trans.id}
-                                                    className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
-                                                >
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                            {trans.descripcion || t('finance.no_description', 'Sin descripción')}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {trans.cuenta?.nombre} • {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 ml-4">
-                                                        <span className={`text-sm font-semibold whitespace-nowrap ${trans.categoria?.tipo === 'ingreso'
-                                                            ? 'text-green-600 dark:text-green-400'
-                                                            : 'text-red-600 dark:text-red-400'
-                                                            }`}>
-                                                            {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
-                                                            {formatMonto(trans.monto)}
-                                                        </span>
-                                                        {trans.user_id === auth.user.id && (
-                                                            <div className="flex gap-1">
-                                                                <button
-                                                                    onClick={() => handleEditTransaction(trans)}
-                                                                    className="p-1 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                                                                    aria-label={t('common.edit', 'Editar')}
-                                                                >
-                                                                    <PencilIcon className="h-4 w-4" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteTransaction(trans)}
-                                                                    className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                                                                    aria-label={t('common.delete', 'Eliminar')}
-                                                                >
-                                                                    <TrashIcon className="h-4 w-4" />
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </div>
                             )}
                         </>
@@ -448,6 +416,9 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
             {/* Modals */}
             {isAdmin && (
                 <>
+                    {/* Note: AccountModal is deprecated - use AccountAdminModal instead */}
+                    {/* Keeping for backwards compatibility but not actively used */}
+
                     <AccountModal
                         show={showAccountModal}
                         onClose={() => {
@@ -456,7 +427,26 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         }}
                         account={selectedAccount}
                         proyectoId={proyecto.id}
+                        proyecto={proyecto}
                         onSuccess={handleAccountSuccess}
+                    />
+
+                    <AccountAdminModal
+                        show={showAccountAdminModal}
+                        onClose={() => {
+                            setShowAccountAdminModal(false);
+                            setSelectedAccount(null);
+                        }}
+                        account={selectedAccount}
+                        proyectoId={proyecto.id}
+                        proyecto={proyecto}
+                        onSuccess={handleAccountSuccess}
+                        onDelete={(account) => {
+                            setShowAccountAdminModal(false);
+                            // Ensure selectedAccount is set (it should be, but just in case)
+                            setSelectedAccount(account);
+                            setShowDeleteAccountModal(true);
+                        }}
                     />
 
                     <LinkAccountModal
@@ -483,6 +473,21 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         show={showSettingsModal}
                         onClose={() => setShowSettingsModal(false)}
                         project={proyecto}
+                    />
+
+                    <DeleteAccountModal
+                        show={showDeleteAccountModal}
+                        onClose={() => setShowDeleteAccountModal(false)}
+                        account={selectedAccount}
+                        project={proyecto}
+                        onSuccess={() => {
+                            setShowDeleteAccountModal(false);
+                            setSelectedAccount(null);
+                            // Delay reload to ensure modal closes smoothly
+                            setTimeout(() => {
+                                router.reload({ only: ['proyecto'] });
+                            }, 100);
+                        }}
                     />
 
                     <PaymentConfirmationModal

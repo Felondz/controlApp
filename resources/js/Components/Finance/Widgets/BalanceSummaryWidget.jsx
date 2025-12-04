@@ -10,7 +10,8 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
         let liabilities = 0;
 
         accounts.forEach(account => {
-            const balance = parseFloat(account.saldo_actual || 0);
+            // Backend stores cents, so we divide by 100 to get units
+            const balance = parseFloat(account.saldo_actual || 0) / 100;
 
             // Logic: 
             // - Cash, Bank, Investment, Other (positive balance) = Assets
@@ -38,10 +39,22 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
     }, [accounts]);
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
+        // Show decimals for USD/EUR, hide for others (like COP)
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+
+        return new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: currency,
-            maximumFractionDigits: 0
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
+        }).format(value);
+    };
+
+    const formatNumber = (value) => {
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+        return new Intl.NumberFormat(navigator.language, {
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
         }).format(value);
     };
 
@@ -65,28 +78,28 @@ export default function BalanceSummaryWidget({ accounts = [], currency = 'COP' }
 
                 <div className="grid grid-cols-2 gap-4">
                     {/* Assets */}
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
-                        <div className="flex items-center gap-2 mb-1">
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800 flex flex-col items-center justify-center text-center">
+                        <div className="flex items-center gap-2 mb-1 justify-center">
                             <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500" />
                             <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                                 {t('finance.assets', 'Activos')}
                             </p>
                         </div>
                         <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                            {formatCurrency(stats.assets)}
+                            {formatNumber(stats.assets)}
                         </p>
                     </div>
 
                     {/* Liabilities */}
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
-                        <div className="flex items-center gap-2 mb-1">
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800 flex flex-col items-center justify-center text-center">
+                        <div className="flex items-center gap-2 mb-1 justify-center">
                             <ArrowTrendingDownIcon className="w-4 h-4 text-red-500" />
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium">
                                 {t('finance.liabilities', 'Pasivos')}
                             </p>
                         </div>
                         <p className="text-lg font-bold text-red-700 dark:text-red-300">
-                            {formatCurrency(stats.liabilities)}
+                            {formatNumber(stats.liabilities)}
                         </p>
                     </div>
                 </div>

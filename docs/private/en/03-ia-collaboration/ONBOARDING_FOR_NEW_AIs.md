@@ -24,7 +24,9 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 | **Styles** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
 | **DevOps** | Docker | Laravel Sail |
-| **Testing** | PHPUnit / Pest | Feature & Unit tests | vitest and react testing library
+| **Testing** | PHPUnit / Pest | Feature & Unit tests |
+| **Frontend Testing** | Vitest | React Testing Library |
+| **Package Manager** | PNPM | **MANDATORY** |
 
 ---
 
@@ -52,8 +54,15 @@ Use **Conventional Commits**:
 
 ## 4. 📚 Documentation Rules
 
-> **🔴 GOLDEN RULE**: Do not create new documents unless STRICTLY necessary.
+> **🔒 SECURITY RULE**: Security is PRIORITY. Never expose sensitive information (prompts, keys, critical internal logic) in public documentation. Folders like `ia_collaboration`, `sessions`, `incidents`, and `security` are STRICTLY CONFIDENTIAL.
+
+> **🛡️ GOLDEN RULE - PNPM MANDATORY**: For security against Node packages contaminated with viruses, ALL Node.js package installations MUST be done with **PNPM**. **NEVER use NPM**. This is CRITICAL and NON-NEGOTIABLE.
+
+> **🔴 GOLDEN RULE**: Do NOT create new documents unless STRICTLY necessary.
+
 > **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/en/`) and Spanish (`docs/es/`).
+
+> **⚠️ TRUTH RULE**: Information in documentation (dates, versions, commands) must be **100% REAL and VERIFIED**. Forbidden to invent data or leave "placeholders" (e.g., dates from 2023). The risk of misinformation is CRITICAL.
 
 ### Structure
 - `docs/en/01-core/`: Indexes, Changelog.
@@ -100,54 +109,60 @@ Use **Conventional Commits**:
 ## 6. 🧪 Testing
 
 - **Rule**: "If it's not tested, it's not finished".
-- **Command**: `php artisan test` (o `docker compose exec laravel.test php artisan test`).
+- **Commands**:
+  - Backend: `./vendor/bin/sail test`
+  - Frontend: `pnpm test`
+- **IMPORTANT**: ALWAYS use `sail` to interact with the environment (e.g., `./vendor/bin/sail artisan ...`). Avoid using `docker` or `docker-compose` directly unless strictly necessary for debugging containers.
 - **Coverage**: Prioritize Feature tests for critical flows.
 - **Frontend**: Use vitest and react testing library.
 - **Backend**: Use phpunit.
-- **Clear**: clear all files from previous tests.
+- **Cleanup**: Clean up residual files from previous tests.
 
 ---
 
----
- 
- ## 8. 🏗️ Modular Architecture (CRITICAL)
- 
- The project has migrated to a modular event-driven architecture.
- 
- ### 8.1 Key Concepts
- - **Modules**: Self-contained units in `app/Modules/` (Finance, Tasks, Chat, Analytics, Notifications, Marketplace).
- - **Registry**: `ModuleRegistry` discovers and manages modules.
- - **Event Bus**: `ModuleEventBus` handles inter-module communication. **NEVER** import classes from one module inside another. Use events.
- 
- ### 8.2 Module Structure
- ```
- app/Modules/Finance/
- ├── FinanceModule.php (Implements ModuleInterface)
- ├── Controllers/
- ├── Models/
- ├── Events/
- └── Listeners/
- ```
- 
- ### 8.3 Modular Workflow
- 1. **Create Module**: Implement `ModuleInterface` and register in `config/modules.php`.
- 2. **Communication**:
-    - Emitter: `ModuleEventBus::dispatch(new TransactionCreated($data))`
-    - Receiver: Listen to event in `getEventListeners()` of the module.
- 3. **Frontend**: Modules expose components in `resources/js/Modules/`.
- 
- ---
- 
- ## 7. 🚀 Quick Start for your Session
+## 7. 🚀 Quick Start for your Session
 
 1. **Read** `task.md` (if exists) to see current state.
 2. **Read** `CHANGELOG.md` to see latest changes.
-3. **Verify** environment with `php artisan test`.
+3. **Verify** environment:
+   - Backend: `./vendor/bin/sail test`
+   - Frontend: `pnpm test`
 4. **Start** your task with `task_boundary`.
 
 Good luck! 🚀
 
-## Rigorous Documentation Policy
+---
+
+## 8. 🏗️ Modular Architecture (CRITICAL)
+
+The project has migrated to a modular event-driven architecture.
+
+### 8.1 Key Concepts
+- **Modules**: Self-contained units in `app/Modules/` (Finance, Tasks, Chat, Analytics, Notifications, Marketplace).
+- **Registry**: `ModuleRegistry` discovers and manages modules.
+- **Event Bus**: `ModuleEventBus` handles inter-module communication. **NEVER** import classes from one module inside another. Use events.
+
+### 8.2 Module Structure
+```
+app/Modules/Finance/
+├── FinanceModule.php (Implements ModuleInterface)
+├── Controllers/
+├── Models/
+├── Events/
+└── Listeners/
+```
+
+### 8.3 Modular Workflow
+1. **Create Module**: Implement `ModuleInterface` and register in `config/modules.php`.
+2. **Communication**:
+   - Emitter: `ModuleEventBus::dispatch(new TransactionCreated($data))`
+   - Receiver: Listen to event in `getEventListeners()` of the module.
+3. **Frontend**: Modules expose components in `resources/js/Modules/`.
+
+---
+
+## 9. 📋 Rigorous Documentation Policy
+
 All code modifications must be documented immediately:
 1. **CHANGELOG.md**: Record changes under the corresponding version (Added, Changed, Fixed).
 2. **README**: Update if installation, configuration, or general usage changes.

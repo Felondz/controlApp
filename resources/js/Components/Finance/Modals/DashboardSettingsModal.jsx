@@ -35,7 +35,7 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
     const handleSave = async () => {
         setProcessing(true);
         try {
-            await axios.put(route('api.proyectos.update', project.id), {
+            await axios.put(route('proyectos.update', project.id), {
                 ...project,
                 settings: {
                     ...project.settings,

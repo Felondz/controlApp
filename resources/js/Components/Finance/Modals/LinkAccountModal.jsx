@@ -28,7 +28,7 @@ export default function LinkAccountModal({ show, onClose, project }) {
     const fetchAvailableAccounts = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(route('api.proyectos.cuentas.available', project.id));
+            const response = await axios.get(`/api/proyectos/${project.id}/cuentas/available`);
             setAvailableAccounts(response.data);
         } catch (err) {
             console.error('Error fetching accounts:', err);
@@ -44,7 +44,7 @@ export default function LinkAccountModal({ show, onClose, project }) {
 
         setLoading(true);
         try {
-            await axios.post(route('api.proyectos.cuentas.link', project.id), {
+            await axios.post(`/api/proyectos/${project.id}/cuentas/link`, {
                 cuenta_id: selectedAccount
             });
             onClose();

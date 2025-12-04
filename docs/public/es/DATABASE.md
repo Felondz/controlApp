@@ -21,10 +21,18 @@ Gestiona la relación entre usuarios y proyectos.
     - `member`: Puede crear/editar pero no borrar el proyecto.
     - `viewer`: Solo lectura.
 
-### 4. Cuentas Financieras (`accounts`)
-Cuentas bancarias o de efectivo asociadas a un usuario o proyecto.
-- **Tipos**: Banco, Efectivo, Tarjeta de Crédito, Digital.
-- **Moneda**: Soporte multidivisa (COP, USD, EUR).
+### 4. Cuentas Financieras (`cuentas`)
+Cuentas financieras asociadas a proyectos (personales o colaborativos).
+- **Tipos** (6 tipos soportados):
+    - `efectivo`: Dinero en efectivo
+    - `banco`: Cuenta bancaria estándar
+    - `credito`: Tarjeta de crédito (requiere: límite, tasa de interés, día de corte, día de pago, fecha de vencimiento)
+    - `inversion`: Cuenta de inversión (opcional: tasa de interés anual)
+    - `prestamo`: Préstamo (requiere: tasa de interés, día de pago, fecha de vencimiento opcional)
+    - `otro`: Otros tipos de cuentas
+- **Moneda**: Soporte multi-divisa (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL) - cada cuenta puede tener su propia moneda.
+- **Schema**: La columna `tipo` es VARCHAR(20) para máxima flexibilidad.
+- **Campos dinámicos**: Dependiendo del tipo de cuenta, se requieren campos adicionales (límite de crédito, tasas de interés, fechas de vencimiento).
 
 ### 5. Transacciones (`transactions`)
 Registros de ingresos y gastos.

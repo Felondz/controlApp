@@ -197,7 +197,9 @@ class ProyectoUiWebController extends Controller
         $relations = [];
 
         if ($isAdmin) {
-            $relations[] = 'cuentas';
+            $relations['cuentas'] = function ($query) {
+                $query->withCount('transacciones');
+            };
             $relations[] = 'cuentasAsociadas';
             $relations[] = 'categorias';
         }
@@ -311,5 +313,27 @@ class ProyectoUiWebController extends Controller
         });
 
         return Inertia::render('Dashboard', ['proyectos' => $proyectos]);
+    }
+    /**
+     * Actualiza la configuración del proyecto (ej: widgets).
+     */
+    public function updateSettings(Request $request, Proyecto $project)
+    {
+        if (!$request->user()->esAdminDe($project)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'settings' => 'required|array',
+        ]);
+
+        // Merge existing settings with new ones
+        $currentSettings = $project->settings ?? [];
+        $newSettings = array_merge($currentSettings, $validated['settings']);
+
+        $project->settings = $newSettings;
+        $project->save();
+
+        return redirect()->back()->with('success', 'Configuración actualizada.');
     }
 }
