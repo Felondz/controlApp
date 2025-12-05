@@ -998,6 +998,7 @@ Accept: application/json
 - `fecha_hasta` - Fecha fin (YYYY-MM-DD)
 - `categoria_id` - ID de categoría (opcional)
 - `tipo` - ingreso o egreso (opcional)
+- `status` - pending o completed (opcional)
 
 **Response (200)**
 ```json
@@ -1039,11 +1040,12 @@ Accept: application/json
 ```
 
 **Parámetros**:
-- `categoria_id` (number, required): ID de la categoría de gasto/ingreso
-- `cuenta_id` (number, required): ID de la cuenta bancaria
+- `categoria_id` (number, optional): ID de la categoría (puede ser null para facturas)
+- `cuenta_id` (number, optional): ID de la cuenta bancaria (null para facturas pendientes)
 - `descripcion` (string, required): Descripción de la transacción
-- `monto` (number, required): Monto de la transacción
+- `monto` (number, required): Monto de la transacción (negativo para gastos/facturas)
 - `fecha` (date, required): Fecha de la transacción (YYYY-MM-DD)
+- `status` (string, optional): 'completed' (default) o 'pending'
 - `notas` (string, optional): Notas adicionales
 - `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
@@ -1072,7 +1074,7 @@ Accept: application/json
 ### Update Transacción - Actualizar Transacción
 
 ```http
-PUT /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+PUT /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Content-Type: application/json
 Accept: application/json
@@ -1088,7 +1090,7 @@ Accept: application/json
 ### Delete Transacción - Eliminar Transacción
 
 ```http
-DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+DELETE /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
 ```

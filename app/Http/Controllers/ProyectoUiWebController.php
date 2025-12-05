@@ -203,23 +203,24 @@ class ProyectoUiWebController extends Controller
         $isAdmin = $request->user()->esAdminDe($mis_proyecto);
 
         // 3. Eager Loading específico para finanzas
-        $relations = [];
+        $mis_proyecto->load([
+            'cuentas' => function ($query) {
+                $query->where('estado', '!=', 'cerrada');
+            },
+            'cuentas.propietario', // Eager load owner for visual differentiation
+            'cuentasAsociadas' => function ($query) {
+                $query->where('estado', '!=', 'cerrada');
+            },
+            'cuentasAsociadas.propietario', // Eager load owner for linked accounts
+            'categorias'
+        ]);
 
-        if ($isAdmin) {
-            $relations['cuentas'] = function ($query) {
-                $query->withCount('transacciones');
-            };
-            $relations[] = 'cuentasAsociadas';
-            $relations[] = 'categorias';
-        }
-
-        $mis_proyecto->load($relations);
-
-        // Cargar transacciones recientes si es admin
+        // Cargar transacciones si es admin
         $transacciones = [];
         if ($isAdmin) {
             $transacciones = $mis_proyecto->transacciones()
-                ->with(['categoria', 'cuenta', 'usuario'])
+                ->where('status', 'completed') // Only show completed transactions in the main list
+                ->with(['categoria', 'cuenta.propietario', 'usuario']) // Load account owner
                 ->orderBy('fecha', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->limit(100)
@@ -227,13 +228,17 @@ class ProyectoUiWebController extends Controller
         }
 
         // Cargar tareas financieras pendientes si es admin
+        // NOTA: Las tareas financieras se migraron a transacciones (bills).
+        // Mantenemos la variable como array vacío para compatibilidad con el frontend por ahora.
         $financialTasks = [];
+
+        // Cargar facturas pendientes (Bills) si es admin
+        $pendingBills = [];
         if ($isAdmin) {
-            $financialTasks = $mis_proyecto->tasks()
-                ->where('is_financial', true)
-                ->where('status', '!=', 'done')
-                ->with(['assignee', 'category'])
-                ->orderBy('due_date', 'asc')
+            $pendingBills = $mis_proyecto->transacciones()
+                ->where('status', 'pending')
+                ->with(['categoria', 'cuenta']) // No account usually, but good to have
+                ->orderBy('fecha', 'asc')
                 ->get();
         }
 
@@ -244,6 +249,7 @@ class ProyectoUiWebController extends Controller
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones,
             'financialTasks' => $financialTasks,
+            'pendingBills' => $pendingBills,
         ]);
     }
 

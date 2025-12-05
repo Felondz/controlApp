@@ -18,17 +18,9 @@ class ProjectAccountController extends Controller
     {
         $user = Auth::user();
 
-        // Get the user's personal finance project
-        $personalProject = $user->proyectos()->where('es_personal', true)->first();
-
-        if (!$personalProject) {
-            // If no personal project exists, return empty
-            return response()->json([]);
-        }
-
-        // Get personal accounts that are NOT already linked to this project
-        $cuentas = Cuenta::where('propietario_type', 'proyecto')
-            ->where('propietario_id', $personalProject->id)
+        // Get personal accounts owned by the user
+        $cuentas = Cuenta::where('propietario_type', \App\Models\User::class)
+            ->where('propietario_id', $user->id)
             ->whereDoesntHave('proyectosAsociados', function ($query) use ($proyecto) {
                 $query->where('proyecto_id', $proyecto->id);
             })
@@ -49,15 +41,8 @@ class ProjectAccountController extends Controller
         $user = Auth::user();
         $cuenta = Cuenta::findOrFail($request->cuenta_id);
 
-        // Get the user's personal finance project
-        $personalProject = $user->proyectos()->where('es_personal', true)->first();
-
-        if (!$personalProject) {
-            return response()->json(['message' => 'No personal finance project found'], 403);
-        }
-
-        // Verify the account belongs to the user's personal project
-        if ($cuenta->propietario_type !== 'proyecto' || $cuenta->propietario_id !== $personalProject->id) {
+        // Verify the account belongs to the user
+        if ($cuenta->propietario_type !== \App\Models\User::class || $cuenta->propietario_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 

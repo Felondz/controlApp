@@ -53,11 +53,16 @@ Un envoltorio alrededor del elemento `input` nativo que añade un botón para al
     - **Nómina**: Días de pago (separados por comas), monto estimado
   - **Badges**: Indicadores visuales del tipo de cuenta con iconos apropiados.
   - **Color Coding**: Saldos en verde (positivo) o rojo (negativo).
+  - **Owner Differentiation** (Proyectos Colaborativos):
+    - **Badge de Propietario**: Muestra iniciales + primer nombre del dueño (ej: "JP Juan")
+    - **8 Colores Distintos**: Paleta automática para identificar hasta 8 propietarios
+    - **Solo Colaborativo**: Badges solo aparecen en proyectos con `!proyecto.es_personal`
   - **Acciones Encapsuladas**: Botón único de "Administrar" que abre AccountAdminModal.
   - **Props**:
     - `cuenta`: Objeto de cuenta
     - `onEdit`: Callback para administrar/editar cuenta
     - `onClick`: Callback opcional para ver historial de transacciones
+    - `isCollaborative`: Boolean para activar badges de propietario
   - **Manejo de Moneda**: Divide automáticamente los valores del backend (centavos) por 100 para visualización correcta.
     
 - **AccountAdminModal**: `resources/js/Components/Finance/Modals/AccountAdminModal.jsx` (✨ NUEVO)
@@ -521,7 +526,7 @@ Para detalles sobre la arquitectura de pruebas y guías, consulta [TESTING_ARCHI
 
 ## Transacciones Programadas (Facturas)
 
-La aplicación soporta **transacciones programadas/pendientes** (facturas) con capacidades de recurrencia:
+La aplicación soporta **transacciones programadas/pendientes** (facturas) con un flujo de trabajo dedicado:
 
 ### Esquema de Base de Datos
 - **status**: `enum('completed', 'pending', 'cancelled')` - Estado de la transacción
@@ -531,23 +536,75 @@ La aplicación soporta **transacciones programadas/pendientes** (facturas) con c
 - **next_occurrence**: `date` - Próxima fecha programada
 
 ### Componentes Frontend
-1. **TransactionModal**: Permite crear transacciones pendientes con configuración de recurrencia
-2. **UpcomingObligationsWidget**: Muestra transacciones pendientes con:
-   - Indicadores codificados por color (Verde = Ingreso, Rojo = Gasto)
-   - Funcionalidad "Marcar como Pagado" para transacciones pendientes
-   - Indicadores de alerta basados en proximidad de fecha de vencimiento
-   - Lista deslizable mostrando todas las obligaciones próximas
 
-### Sistema de Alertas
-Indicadores visuales basados en fecha de vencimiento:
-- **Rojo** (Vencido): Pasada la fecha de vencimiento
-- **Naranja** (Urgente): Vence dentro de 3 días
-- **Amarillo** (Pronto): Vence dentro de 7 días
-- **Predeterminado**: Vence después de 7 días
+1. **BillModal** (`resources/js/Components/Finance/Modals/BillModal.jsx`):
+   - Modal dedicado para crear y editar facturas pendientes.
+   - **Campos**: Monto, Descripción, Fecha de Vencimiento.
+   - **Estado**: Guarda siempre como `status='pending'` y `cuenta_id=null`.
+
+2. **BillsWidget** (`resources/js/Components/Finance/Widgets/BillsWidget.jsx`):
+   - Widget específico para visualizar facturas pendientes.
+   - **Acciones**:
+     - **Pagar**: Abre `QuickTransactionModal` en modo Gasto con datos pre-llenados.
+     - **Editar**: Abre `BillModal` para modificar la factura.
+     - **Eliminar**: Elimina la factura pendiente.
+   - **Visual**: Indicadores de días restantes (Vencido, Hoy, Mañana, X días).
+
+   - Listado de facturas pendientes.
+   - Acciones: Crear nueva factura, editar, pagar, eliminar.
+   - Botón estilizado con SVG para "Agregar Factura".
+
+3. **AccountFlowWidget** (`resources/js/Components/Finance/Widgets/AccountFlowWidget.jsx`) - ✨ NUEVO v2.6.0:
+   - **Propósito**: Visualización de distribución de ingresos y gastos por cuenta bancaria.
+   - **Gráficos de Torta Duales**:
+     - **Ingresos**: Gráfico dona (donut chart) en tonos verdes (#10B981 → #064E3B)
+     - **Gastos**: Gráfico dona en tonos rojos (#EF4444 → #7F1D1D)
+   - **Efectos Visuales**:
+     - Sombras SVG 3D usando `feGaussianBlur` + `feOffset`
+     - `innerRadius={40}` para estilo dona profesional
+     - Bordes con brillo: `stroke="rgba(255,255,255,0.3)"`
+   - **Etiquetas de Porcentaje**: Muestra porcentajes precisos en cada rebanada (>5%)
+   - **Leyenda Interactiva**:
+     - Nombre de cuenta truncado
+     - Badge de propietario (solo proyectos colaborativos)
+     - Monto total formateado
+   - **Colores Inteligentes**:
+     - Proyectos colaborativos: usa colores del propietario
+     - Proyectos personales: paleta estándar de 5 tonos
+   - **Props**:
+     - `transactions`: Array de transacciones del proyecto
+     - `accounts`: Array de cuentas (proyecto + asociadas)
+     - `isCollaborative`: Boolean para mostrar badges de propietario
+     - `currency`: Código de moneda (COP, USD, EUR, etc.)
+   - **Totales por Sección**: Muestra total de ingresos y gastos en headers
+   - **Flujo Neto**: Footer con balance total (verde si positivo, rojo si negativo)
+   - **Configurable**: Toggle en DashboardSettingsModal
+   - **Posición**: Después de FinancialChartsWidget, antes de TransactionsWidget
+
+4. **QuickTransactionModal** (`resources/js/Components/Finance/Modals/QuickTransactionModal.jsx`):
+   - Enfocado exclusivamente en Ingresos y Gastos (transacciones completadas).
+   - **Modo Pago**: Al pagar una factura, este modal se abre pre-llenado para completar la transacción y asignar la cuenta de pago.
+   - **Auto-llenado**: Al seleccionar una categoría, la descripción se completa automáticamente.
+
+5. **UpcomingObligationsWidget**:
+   - Muestra transacciones pendientes combinadas con tareas financieras.
+   - Indicadores de alerta basados en proximidad de fecha de vencimiento.
+
+6. **TransactionsWidget** (`resources/js/Components/Finance/Widgets/TransactionsWidget.jsx`):
+   - Lista de transacciones recientes (último 100, scroll).
+   - Acciones: Editar/Eliminar transacciones.
+   - **Owner Badges** (Proyectos Colaborativos) - ✨ NUEVO v2.6.0:
+     - Badge de iniciales del propietario junto al nombre de cuenta
+     - Tooltip muestra nombre completo del propietario
+     - Solo visible si `isCollaborative={true}` y cuenta tiene propietario
+   - **Props Adicionales**:
+     - `isCollaborative`: Boolean para activar badges de propietario
+   - Filtrado y ordenamiento descendente por fecha.
 
 ### Flujo de Trabajo
-1. Usuario crea una transacción "Pendiente" vía `TransactionModal`
-2. La transacción aparece en `UpcomingObligationsWidget`
-3. Usuario hace clic en "Marcar como Pagado" en el widget
-4. Backend crea la transacción completada y actualiza el saldo de la cuenta
-5. Si es recurrente, la próxima ocurrencia se programa automáticamente
+1. Usuario crea una factura vía botón "Agregar Factura" -> Abre `BillModal`.
+2. La factura aparece en `BillsWidget` y `UpcomingObligationsWidget`.
+3. Usuario hace clic en "Pagar" en `BillsWidget`.
+4. Se abre `QuickTransactionModal` (Modo Gasto) con el monto y descripción de la factura.
+5. Usuario selecciona la cuenta y confirma.
+6. Backend actualiza la transacción a `status='completed'`, asigna la cuenta y actualiza el saldo.

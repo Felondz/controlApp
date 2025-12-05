@@ -86,6 +86,10 @@ Route::middleware('auth')->group(function () {
         ->withoutScopedBindings();
 
     // Project Transactions
+    Route::post('mis-proyectos/{proyecto}/transactions', [TransaccionController::class, 'store'])
+        ->name('finance.transactions.store');
+    Route::put('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'update'])
+        ->name('finance.transactions.update');
     Route::delete('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'destroy'])
         ->name('finance.transactions.destroy');
 

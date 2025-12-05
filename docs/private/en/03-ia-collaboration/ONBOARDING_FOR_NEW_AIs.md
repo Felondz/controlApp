@@ -8,10 +8,10 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 
 ## 1. 🌍 Project Context
 
-**ControlApp** is a collaborative project management platform.
-- **Current State**: Full modular architecture (v2.3.0) with Finance, Tasks, Chat, Analytics, Notifications, and Marketplace modules.
-- **Goal**: Expand module ecosystem and improve user experience.
-- **Philosophy**: Clean code, solid architecture, and **premium aesthetics**.
+**ControlApp** is a collaborative project management platform with emphasis on personal and business finance.
+- **Current State**: Full modular architecture (v2.6.0) with Finance, Tasks, Chat, Analytics, Notifications, and Marketplace modules.
+- **Goal**: Expand module ecosystem, improve user experience, and strengthen collaborative finance capabilities.
+- **Philosophy**: Clean code, solid architecture, **premium aesthetics**, and security first.
 
 ---
 
@@ -60,16 +60,16 @@ Use **Conventional Commits**:
 
 > **🔴 GOLDEN RULE**: Do NOT create new documents unless STRICTLY necessary.
 
-> **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/en/`) and Spanish (`docs/es/`).
+> **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/private/en/`) and Spanish (`docs/private/es/`).
 
 > **⚠️ TRUTH RULE**: Information in documentation (dates, versions, commands) must be **100% REAL and VERIFIED**. Forbidden to invent data or leave "placeholders" (e.g., dates from 2023). The risk of misinformation is CRITICAL.
 
 ### Structure
-- `docs/en/01-core/`: Indexes, Changelog.
-- `docs/en/02-development/`: Technical guides (API, DB, Auth).
-- `docs/en/03-ia-collaboration/`: YOUR guides (this file).
-- `docs/en/04-testing/`: Testing strategies.
-- `docs/en/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
+- `docs/private/en/01-core/`: Indexes, Changelog, visual architecture, search.
+- `docs/private/en/02-development/`: Technical guides (API, DB, Auth).
+- `docs/private/en/03-ia-collaboration/`: YOUR guides (this file).
+- `docs/private/en/04-testing/`: Testing strategies.
+- `docs/private/en/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
 
 ### Decision Flow
 1. Is it a code change? -> Update `CHANGELOG.md`.
@@ -161,7 +161,113 @@ app/Modules/Finance/
 
 ---
 
-## 9. 📋 Rigorous Documentation Policy
+## 9. 🌐 Translation System (i18n)
+
+The project uses a comprehensive internationalization system to support multiple languages.
+
+### 9.1 `useTranslate` Hook
+
+**GOLDEN RULE**: ALL user-facing text MUST use translation. NEVER use hardcoded text.
+
+```jsx
+import { useTranslate } from '@/Hooks/useTranslate';
+
+function MyComponent() {
+    const { t } = useTranslate();
+    
+    return (
+        <div>
+            <h1>{t('projects.title')}</h1>
+            <p>{t('projects.welcome', { name: 'Juan' })}</p>
+        </div>
+    );
+}
+```
+
+### 9.2 File Structure
+
+- **Spanish**: `resources/lang/es/es.json`
+- **English**: `resources/lang/en/en.json`
+
+### 9.3 Key Syntax
+
+```json
+{
+  "projects": {
+    "title": "Projects",
+    "welcome": "Welcome, :name",
+    "count": "You have :count projects"
+  }
+}
+```
+
+### 9.4 Placeholder Replacement
+
+Use the second parameter to replace dynamic values:
+
+```jsx
+t('projects.welcome', { name: user.name })
+t('projects.count', { count: projects.length })
+```
+
+### 9.5 Strict Rules
+
+- ✅ ALWAYS: `{t('key')}` or `t('key', { var: value })`
+- ❌ NEVER: `"Hardcoded text"` or direct emojis in JSX
+- ✅ TESTING: Tests must verify translation keys, not literal text
+
+---
+
+## 10. 🔍 Global Search System
+
+ControlApp uses **Meilisearch** for fast and relevant search, with automatic SQL fallback.
+
+### 10.1 Architecture
+
+- **Primary Engine**: Meilisearch (via Laravel Scout)
+- **Fallback**: SQL search with `LIKE` if Meilisearch is unavailable
+- **Indexed Models**: `User`, `Proyecto`
+
+### 10.2 Endpoints
+
+- **Web**: `GET /search?query={query}` (Inertia)
+- **API**: `GET /api/search?query={query}` (JSON, authentication required)
+
+### 10.3 Security
+
+> **🔒 CRITICAL**: Search results are filtered by permissions.
+
+- **Projects**: Only projects where user is `admin` or owner appear
+- **Financial Data**: NEVER included in search results
+- **Access Control**: Strict role-based validation
+
+### 10.4 Configuration
+
+```env
+SCOUT_DRIVER=meilisearch
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_KEY=masterKey
+```
+
+### 10.5 Useful Commands
+
+```bash
+# Index models
+./vendor/bin/sail artisan scout:import "App\\Models\\User"
+./vendor/bin/sail artisan scout:import "App\\Models\\Proyecto"
+
+# Clear index
+./vendor/bin/sail artisan scout:flush "App\\Models\\User"
+```
+
+### 10.6 Complete Documentation
+
+For full technical details, see:
+- `docs/private/es/01-core/SEARCH_IMPLEMENTATION.md`
+
+---
+
+## 11. 📋 Rigorous Documentation Policy
 
 All code modifications must be documented immediately:
 1. **CHANGELOG.md**: Record changes under the corresponding version (Added, Changed, Fixed).
@@ -169,3 +275,4 @@ All code modifications must be documented immediately:
 3. **Specific Documentation**: Update the corresponding file (e.g., `API.md`, `FRONTEND.md`) with technical details.
 4. **Public Documentation**: Update only when changing versions or under explicit instruction.
 5. **Visual Architecture**: Keep diagrams in `docs/private/es/01-core/VISUAL_ARCHITECTURE.md` updated when making structural changes (new modules, data flow changes).
+

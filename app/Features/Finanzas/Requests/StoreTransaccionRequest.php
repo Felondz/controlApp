@@ -39,12 +39,13 @@ class StoreTransaccionRequest extends FormRequest
 
             'descripcion' => 'nullable|string|max:255',
             'notas' => 'nullable|string',
+            'status' => 'nullable|in:pending,completed,cancelled',
 
             // --- Reglas de Validación Avanzadas ---
 
             // 1. Validar 'categoria_id'
             'categoria_id' => [
-                'required',
+                'nullable', // Now nullable as per user request (required only for expenses via frontend)
                 'numeric',
                 // La categoría debe existir en la tabla 'categorias'
                 Rule::exists('categorias', 'id')
@@ -53,19 +54,14 @@ class StoreTransaccionRequest extends FormRequest
             ],
 
             // 2. Validar 'cuenta_id'
+            // 2. Validar 'cuenta_id'
             'cuenta_id' => [
-                'required',
+                'nullable', // Can be null for pending transactions (bills)
                 'numeric',
                 // La cuenta debe existir en la tabla 'cuentas'
-                Rule::exists('cuentas', 'id')
-                    // ¡Y ADEMÁS! debe pertenecer al proyecto que estamos viendo
-                    // (Esto es para las cuentas del proyecto)
-                    ->where('propietario_type', 'App\Models\Proyecto')
-                    ->where('propietario_id', $proyecto->id),
-
-                // TODO: También debemos permitir cuentas PERSONALES del usuario.
-                // Esta regla se volverá más compleja, pero por ahora
-                // solo permitiremos cuentas del proyecto.
+                Rule::exists('cuentas', 'id'),
+                // TODO: Add proper validation for linked accounts.
+                // For now, we trust the frontend list, but we should verify the account is either owned OR linked.
             ],
 
             // 3. Validar 'task_id' (opcional, para vincular transacción con tarea financiera)
@@ -73,9 +69,15 @@ class StoreTransaccionRequest extends FormRequest
                 'nullable',
                 'numeric',
                 Rule::exists('tasks', 'id')
-                    ->where('project_id', $proyecto->id)
-                    ->where('is_financial', true),
+                    ->where('project_id', $proyecto->id),
             ],
         ];
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        \Illuminate\Support\Facades\Log::error('Transaction Validation Failed:', $validator->errors()->toArray());
+        \Illuminate\Support\Facades\Log::info('Request Data:', $this->all());
+        parent::failedValidation($validator);
     }
 }

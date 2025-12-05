@@ -1,5 +1,6 @@
 import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency } from '@/Utils/currencyHelpers';
+import { getOwnerColor, getOwnerName, getOwnerInitials } from '@/Utils/ownerHelpers';
 import {
     CalendarIcon,
     ClockIcon,
@@ -13,7 +14,7 @@ import {
     AccountCashIcon
 } from '@/Components/Icons';
 
-export default function AccountChart({ cuenta, onEdit, onDelete, onClick }) {
+export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isCollaborative = false }) {
     const { t } = useTranslate();
 
     const formatMonto = (monto) => {
@@ -162,6 +163,17 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick }) {
                             <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
                                 {t(`accounts.account_types.${cuenta.tipo}`, cuenta.tipo)}
                             </span>
+
+                            {/* Owner Badge - Only for collaborative projects */}
+                            {isCollaborative && cuenta.propietario && (
+                                <span
+                                    className={`px-2 py-0.5 text-[10px] font-medium rounded-full border ${getOwnerColor(cuenta.propietario_id).bg} ${getOwnerColor(cuenta.propietario_id).text} ${getOwnerColor(cuenta.propietario_id).border}`}
+                                    title={`${t('finance.owner', 'Propietario')}: ${getOwnerName(cuenta)}`}
+                                >
+                                    {getOwnerInitials(getOwnerName(cuenta))} {getOwnerName(cuenta).split(' ')[0]}
+                                </span>
+                            )}
+
                             {cuenta.es_nomina && (
                                 <span className="px-2 py-0.5 text-[10px] font-bold bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-full">
                                     {t('finance.payroll_badge', 'Payroll')}

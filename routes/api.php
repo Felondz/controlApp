@@ -128,6 +128,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'destroy']);
 
     // Tasks routes
+    Route::get('/proyectos/{proyecto}/tasks', [TaskController::class, 'index']);
     Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store']);
     Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update']);
     Route::delete('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'destroy']);

@@ -17,7 +17,9 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
         savings_goal: true,
         credit_simulation: true,
         upcoming_obligations: true,
-        financial_charts: true
+        financial_charts: true,
+        pending_bills: true,
+        transactions: true
     };
 
     const [widgets, setWidgets] = useState({
@@ -54,10 +56,13 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
 
     const widgetOptions = [
         { key: 'balance_summary', label: t('finance.balance_summary', 'Resumen de Saldos'), description: t('finance.balance_desc', 'Activos, Pasivos y Patrimonio Neto') },
+        { key: 'pending_bills', label: t('finance.pending_bills', 'Facturas Pendientes'), description: t('finance.bills_desc', 'Lista de facturas por pagar') },
+        { key: 'transactions', label: t('finance.recent_transactions', 'Transacciones Recientes'), description: t('finance.transactions_desc', 'Historial de transacciones') },
         { key: 'savings_goal', label: t('finance.savings_goal', 'Meta de Ahorro'), description: t('finance.savings_desc', 'Seguimiento de meta de ahorro') },
         { key: 'credit_simulation', label: t('finance.credit_simulator', 'Simulador de Crédito'), description: t('finance.credit_desc', 'Calculadora de préstamos') },
         { key: 'upcoming_obligations', label: t('finance.upcoming_payments', 'Próximos Pagos'), description: t('finance.upcoming_desc', 'Lista de transacciones futuras') },
         { key: 'financial_charts', label: t('finance.financial_charts', 'Gráficos Financieros'), description: t('finance.charts_desc', 'Visualización de flujo de caja') },
+        { key: 'account_flow', label: t('finance.account_flow', 'Flujo por Cuenta'), description: t('finance.account_flow_desc', 'Distribución de ingresos y gastos por cuenta') },
     ];
 
     return (

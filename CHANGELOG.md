@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - Pre-Release Security Fixes
+
+### Fixed - Critical Security \u0026 CI/CD
+
+**Package Manager Security Enforcement:**
+- 🔒 **CRITICAL FIX**: Enforced PNPM-only policy across all environments (CI/CD, local, production)
+- ✅ **CI/CD Workflows**: Updated `.github/workflows/tests.yml` to use PNPM instead of NPM in both backend and frontend test jobs
+- 🗑️ **Removed package-lock.json**: Eliminated NPM lockfile to prevent accidental NPM usage
+- 📝 **.gitignore Update**: Added `package-lock.json`, `npm-debug.log*`, and `yarn.lock` to prevent future NPM/Yarn usage
+- 📚 **Documentation Updated**: README.md and INSTALLATION.md now explicitly require PNPM with security rationale
+
+**Security Rationale**: 
+- NPM packages have historically been vulnerable to supply chain attacks and malware
+- PNPM provides better security through content-addressable storage and strict dependency isolation
+- This change aligns with documented security policy in `ONBOARDING_FOR_NEW_AIs.md`
+
+**Files Modified:**
+- [tests.yml](file:///home/guarox/Documentos/proyectos-personales/controlApp/.github/workflows/tests.yml) - Lines 56-69, 134-147
+- [.gitignore](file:///home/guarox/Documentos/proyectos-personales/controlApp/.gitignore) - Added NPM/Yarn lockfile exclusions
+- [README.md](file:///home/guarox/Documentos/proyectos-personales/controlApp/README.md) - Added PNPM requirement section, updated test commands
+- [INSTALLATION.md](file:///home/guarox/Documentos/proyectos-personales/controlApp/docs/private/es/02-development/INSTALLATION.md) - Replaced all npm commands with pnpm
+
+**Breaking Changes**: ⚠️ Developers must have PNPM installed (`npm install -g pnpm`)
+
+---
+
+## [2.6.0] - 2025-12-04 19:30:00 -05:00
+
+### Added - Collaborative Finance Features
+
+**Account Owner Visual Differentiation:**
+- 👥 **Owner Identification System**: Implemented comprehensive visual system to differentiate account owners in collaborative projects
+- 🎨 **Color-Coded Badges**: 8 distinct color palettes automatically assigned to owners for easy identification
+- 📊 **AccountChart Enhancement**: Account cards now display owner badges with initials + first name (e.g., "JP Juan")
+- 💸 **TransactionsWidget Enhancement**: Transaction rows show owner initials badges next to account names
+- 🔄 **Smart Display**: Badges only appear in collaborative projects (`!proyecto.es_personal`), hidden in personal finance
+- 🛠️ **Owner Utilities**: Created `ownerHelpers.js` with functions for color generation, name extraction, initials, and contribution calculations
+- 🌐 **Translations**: Added `finance.owner` key in both ES and EN
+
+**AccountFlowWidget - Income/Expense Visualization:**
+- 📈 **New Widget**: Created dedicated widget showing income and expense distribution by account using pie charts
+- 🥧 **Dual Pie Charts**: Separate donut charts for income (green tones) and expenses (red tones)
+- 💎 **3D Effects**: SVG shadow filters (`feGaussianBlur` + `feOffset`) for professional depth
+- 🎨 **Smart Coloring**: Uses owner colors in collaborative projects, standard palettes in personal projects
+- 📊 **Interactive Legend**: Shows account names, owner badges, and amounts with tooltips
+- 💯 **Percentage Labels**: Fixed NaN% bug, displays accurate percentages on chart slices
+- 🎯 **Dashboard Integration**: Positioned after FinancialChartsWidget, before TransactionsWidget
+- ⚙️ **Configurable**: Added to DashboardSettingsModal as toggle settings
+- 🌐 **Translations**: Added `finance.account_flow`, `finance.income_by_account`, `finance.expense_by_account`, `finance.net_flow`
+
+### Changed - Backend & Frontend Updates
+
+**Backend:**
+- 🔧 **ProyectoUiWebController**: Added eager-loading of `propietario` relationship for `cuentas` and `cuentasAsociadas`
+- 🔧 **Transaction Loading**: Added `cuenta.propietario` to transaction eager-loading
+
+**Frontend Components:**
+- 🎨 **Theme Consistency**: AccountFlowWidget matches FinancialChartsWidget styling (dark tooltips, consistent borders, rounded corners)
+- 🚫 **Removed Emojis**: Replaced hardcoded emojis with proper SVG icons (`ChartBarIcon`)
+- 📱 **Responsive Design**: Grid layout adapts (2 columns desktop, 1 column mobile)
+- 🌙 **Dark Mode**: Full dark mode support with appropriate color adjustments
+
+### Fixed
+
+**Build & Code Quality:**
+- 🐛 **Icon Import**: Fixed missing `ChartPieIcon` - changed to existing `ChartBarIcon`
+- 🐛 **Duplicate Key**: Removed duplicate `proyecto_id` in QuickTransactionModal useForm initialization
+- ✅ **Build Status**: All builds passing without errors
+- ✅ **Scheduled Transactions**: Added backend tests verifying pending/completed transaction logic and balance updates.
+- ✅ **QuickTransactionModal**: Fixed accessibility issues and updated tests to match component logic.
+- ✅ **Validation**: Fixed `UpdateTransaccionRequest` to correctly validate accounts owned by the user (not just project-owned).
+- 🐛 **TaskController**: Fixed undefined `$request` variable in `destroy` method by injecting `Request` dependency.
+
+**Components Modified:**
+- [ProyectoUiWebController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Http/Controllers/ProyectoUiWebController.php)
+- [ownerHelpers.js](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Utils/ownerHelpers.js) (NEW)
+- [AccountChart.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/AccountChart.jsx)
+- [TransactionsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/TransactionsWidget.jsx)
+- [AccountFlowWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/AccountFlowWidget.jsx) (NEW)
+- [ProjectDashboard.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Pages/Projects/Finance/ProjectDashboard.jsx)
+- [DashboardSettingsModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/DashboardSettingsModal.jsx)
+- [QuickTransactionModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/QuickTransactionModal.jsx)
+- [es.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/es/es.json), [en.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/en/en.json)
+
+---
+
+## [2.5.1] - 2025-12-04 17:40:00 -05:00
+
+### Added - Bill Management Refactoring
+
+**Dedicated Bill Workflow:**
+- ✨ **BillModal**: Created a dedicated modal (`BillModal.jsx`) for creating and editing pending bills, separating this logic from standard transactions.
+- 🔧 **BillsWidget**: Refactored to handle "Add", "Edit", "Pay", and "Delete" actions directly, delegating to parent dashboard handlers.
+- 🛣️ **Routes**: Added `finance.transactions.store` and `finance.transactions.update` named routes in `web.php` for clearer API usage.
+
+### Fixed - Transaction & UI Improvements
+
+**UI/UX Fixes:**
+- 🐛 **QuickTransactionModal**: Removed the "Bill" tab to streamline the modal for Income/Expense only.
+- ⚡ **Auto-Fill Description**: Selecting a category in `QuickTransactionModal` now auto-fills the description (except for "Other").
+- 🗑️ **TransactionsWidget**: Removed the redundant "Rápido" (Quick) button.
+- 🐛 **MethodNotAllowed Error**: Fixed 405 error when editing transactions/bills by ensuring correct PUT routes are defined and used.
+- 🎨 **Styling**: Standardized button styles (using `PrimaryButton`) across widgets.
+
+---
+
 ## [2.5.0] - 2025-12-04 14:30:00 -05:00
 
 ### Added - Multi-Currency System

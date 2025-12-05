@@ -4,7 +4,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon } from '@/Components/Icons';
 import FinanceWidget from '@/Components/Widgets/FinanceWidget';
 import TasksWidget from '@/Components/Widgets/TasksWidget';
-import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
+import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
 import { getThemeStyle } from '@/Utils/themeStyles';
 import axios from 'axios';
 
@@ -68,7 +68,7 @@ export default function ProjectCard({ proyecto }) {
     const handleAddIncome = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setTransactionType('ingreso');
+        setTransactionType('income');
         const loadedCuentas = await loadFinanceData('ingreso');
 
         if (loadedCuentas && loadedCuentas.length === 0) {
@@ -82,7 +82,7 @@ export default function ProjectCard({ proyecto }) {
     const handleAddExpense = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setTransactionType('gasto');
+        setTransactionType('expense');
         const loadedCuentas = await loadFinanceData('gasto');
 
         if (loadedCuentas && loadedCuentas.length === 0) {
@@ -104,7 +104,7 @@ export default function ProjectCard({ proyecto }) {
         <>
             <Link
                 href={route('mis-proyectos.show', { mis_proyecto: proyecto.id })}
-                className="block bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col min-h-[200px] relative group border-2 border-transparent hover:border-primary-300 dark:hover:border-primary-800"
+                className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col min-h-[200px] relative group border-2 border-transparent hover:border-primary-300 dark:hover:border-primary-800"
                 style={proyecto.es_personal ? {} : getThemeStyle(proyecto.theme)}
             >
                 {/* Color Accent Line */}
@@ -231,7 +231,7 @@ export default function ProjectCard({ proyecto }) {
 
             {/* Transaction Modal */}
             {showTransactionModal && (
-                <TransactionModal
+                <QuickTransactionModal
                     show={showTransactionModal}
                     onClose={() => {
                         setShowTransactionModal(false);
@@ -243,6 +243,7 @@ export default function ProjectCard({ proyecto }) {
                     cuentas={cuentas}
                     categorias={categorias}
                     onSuccess={handleTransactionSuccess}
+                    initialType={transactionType || 'expense'}
                 />
             )}
         </>

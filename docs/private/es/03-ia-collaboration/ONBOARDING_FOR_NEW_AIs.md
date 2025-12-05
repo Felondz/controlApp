@@ -8,10 +8,10 @@
 
 ## 1. 🌍 Contexto del Proyecto
 
-**ControlApp** es una plataforma de gestión de proyectos colaborativos.
-- **Estado Actual**: Arquitectura modular completa (v2.3.0) con módulos de Finanzas, Tareas, Chat, Analíticas, Notificaciones y Marketplace.
-- **Objetivo**: Expandir el ecosistema de módulos y mejorar la experiencia de usuario.
-- **Filosofía**: Código limpio, arquitectura sólida, y **estética premium**.
+**ControlApp** es una plataforma de gestión de proyectos colaborativos con énfasis en finanzas personales y empresariales.
+- **Estado Actual**: Arquitectura modular completa (v2.6.0) con módulos de Finanzas, Tareas, Chat, Analíticas, Notificaciones y Marketplace.
+- **Objetivo**: Expandir el ecosistema de módulos, mejorar la experiencia de usuario y fortalecer capacidades de finanzas colaborativas.
+- **Filosofía**: Código limpio, arquitectura sólida, **estética premium**, y seguridad ante todo.
 
 ---
 
@@ -60,16 +60,16 @@ Usa **Conventional Commits**:
 
 > **🔴 REGLA DE ORO**: NO crees documentos nuevos a menos que sea ESTRICTAMENTE necesario.
 
-> **🌐 REGLA BILINGÜE**: La documentación SIEMPRE debe estar en inglés (`docs/en/`) y español (`docs/es/`).
+> **🌐 REGLA BILINGÜE**: La documentación SIEMPRE debe estar en inglés (`docs/private/en/`) y español (`docs/private/es/`).
 
 > **⚠️ REGLA DE VERACIDAD**: La información en la documentación (fechas, versiones, comandos) debe ser **100% REAL y VERIFICADA**. Prohibido inventar datos o dejar "placeholders" (ej. fechas de 2023). El riesgo de desinformación es CRÍTICO.
 
 ### Estructura
-- `docs/es/01-core/`: Índices, Changelog.
-- `docs/es/02-development/`: Guías técnicas (API, DB, Auth).
-- `docs/es/03-ia-collaboration/`: TUS guías (este archivo).
-- `docs/es/04-testing/`: Estrategias de prueba.
-- `docs/es/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
+- `docs/private/es/01-core/`: Índices, Changelog, arquitectura visual, búsqueda.
+- `docs/private/es/02-development/`: Guías técnicas (API, DB, Auth).
+- `docs/private/es/03-ia-collaboration/`: TUS guías (este archivo).
+- `docs/private/es/04-testing/`: Estrategias de prueba.
+- `docs/private/es/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
 
 ### Flujo de Decisión
 1. ¿Es un cambio de código? -> Actualiza `CHANGELOG.md`.
@@ -161,7 +161,113 @@ app/Modules/Finance/
 
 ---
 
-## 9.  Política de Documentación Rigurosa
+## 9. 🌐 Sistema de Traducción (i18n)
+
+El proyecto utiliza un sistema de internacionalización completo para soportar múltiples idiomas.
+
+### 9.1 Hook `useTranslate`
+
+**REGLA DE ORO**: TODO el texto visible al usuario DEBE usar traducción. NUNCA uses texto hardcodeado.
+
+```jsx
+import { useTranslate } from '@/Hooks/useTranslate';
+
+function MyComponent() {
+    const { t } = useTranslate();
+    
+    return (
+        <div>
+            <h1>{t('projects.title')}</h1>
+            <p>{t('projects.welcome', { name: 'Juan' })}</p>
+        </div>
+    );
+}
+```
+
+### 9.2 Estructura de Archivos
+
+- **Español**: `resources/lang/es/es.json`
+- **Inglés**: `resources/lang/en/en.json`
+
+### 9.3 Sintaxis de Claves
+
+```json
+{
+  "projects": {
+    "title": "Proyectos",
+    "welcome": "Bienvenido, :name",
+    "count": "Tienes :count proyectos"
+  }
+}
+```
+
+### 9.4 Reemplazo de Placeholders
+
+Usa el segundo parámetro para reemplazar valores dinámicos:
+
+```jsx
+t('projects.welcome', { name: user.name })
+t('projects.count', { count: projects.length })
+```
+
+### 9.5 Reglas Estrictas
+
+- ✅ SIEMPRE: `{t('key')}` o `t('key', { var: value })`
+- ❌ NUNCA: `"Texto hardcodeado"` o emojis directos en JSX
+- ✅ TESTING: Los tests deben verificar claves de traducción, no texto literal
+
+---
+
+## 10. 🔍 Sistema de Búsqueda Global
+
+ControlApp utiliza **Meilisearch** para búsqueda rápida y relevante, con fallback SQL automático.
+
+### 10.1 Arquitectura
+
+- **Motor Principal**: Meilisearch (via Laravel Scout)
+- **Fallback**: Búsqueda SQL con `LIKE` si Meilisearch no está disponible
+- **Modelos Indexados**: `User`, `Proyecto`
+
+### 10.2 Endpoints
+
+- **Web**: `GET /search?query={query}` (Inertia)
+- **API**: `GET /api/search?query={query}` (JSON, autenticación requerida)
+
+### 10.3 Seguridad
+
+> **🔒 CRÍTICO**: Los resultados de búsqueda están filtrados por permisos.
+
+- **Proyectos**: Solo aparecen proyectos donde el usuario es `admin` o propietario
+- **Datos Financieros**: NUNCA se incluyen en resultados de búsqueda
+- **Control de Acceso**: Validación estricta basada en roles
+
+### 10.4 Configuración
+
+```env
+SCOUT_DRIVER=meilisearch
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_KEY=masterKey
+```
+
+### 10.5 Comandos Útiles
+
+```bash
+# Indexar modelos
+./vendor/bin/sail artisan scout:import "App\\Models\\User"
+./vendor/bin/sail artisan scout:import "App\\Models\\Proyecto"
+
+# Limpiar índice
+./vendor/bin/sail artisan scout:flush "App\\Models\\User"
+```
+
+### 10.6 Documentación Completa
+
+Para detalles técnicos completos, consulta:
+- `docs/private/es/01-core/SEARCH_IMPLEMENTATION.md`
+
+---
+
+## 11. 📋 Política de Documentación Rigurosa
 
 Toda modificación al código debe ser documentada inmediatamente:
 1. **CHANGELOG.md**: Registrar cambios bajo la versión correspondiente (Added, Changed, Fixed).

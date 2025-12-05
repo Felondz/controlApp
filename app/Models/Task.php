@@ -17,15 +17,10 @@ class Task extends Model
         'priority',
         'due_date',
         'assigned_to',
-        'is_financial',
-        'amount',
-        'category_id',
     ];
 
     protected $casts = [
         'due_date' => 'date',
-        'is_financial' => 'boolean',
-        'amount' => 'decimal:2',
     ];
 
     public function project()

@@ -36,7 +36,11 @@ class TaskController extends Controller
             'category_id' => 'required_if:is_financial,true|exists:categorias,id',
         ]);
 
-        $proyecto->tasks()->create($validated);
+        $task = $proyecto->tasks()->create($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json($task, 201);
+        }
 
         return redirect()->back()->with('success', 'Task created successfully.');
     }
@@ -59,14 +63,22 @@ class TaskController extends Controller
 
         $task->update($validated);
 
+        if ($request->wantsJson()) {
+            return response()->json($task, 200);
+        }
+
         return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
-    public function destroy(Proyecto $proyecto, Task $task)
+    public function destroy(Request $request, Proyecto $proyecto, Task $task)
     {
         $this->authorize('update', $proyecto);
 
         $task->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(null, 204);
+        }
 
         return redirect()->back()->with('success', 'Task deleted successfully.');
     }

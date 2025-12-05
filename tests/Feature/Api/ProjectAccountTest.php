@@ -25,17 +25,17 @@ class ProjectAccountTest extends TestCase
             'nombre' => 'Personal Finance'
         ]);
 
-        // Account 1: Personal (belonging to personal project), not linked
+        // Account 1: Personal (belonging to user), not linked
         $cuenta1 = Cuenta::factory()->create([
-            'propietario_id' => $personalProject->id,
-            'propietario_type' => 'proyecto',
+            'propietario_id' => $user->id,
+            'propietario_type' => User::class,
             'nombre' => 'Personal Account'
         ]);
 
         // Account 2: Already linked
         $cuenta2 = Cuenta::factory()->create([
-            'propietario_id' => $personalProject->id,
-            'propietario_type' => 'proyecto',
+            'propietario_id' => $user->id,
+            'propietario_type' => User::class,
             'nombre' => 'Linked Account'
         ]);
         $proyecto->cuentasAsociadas()->attach($cuenta2);
@@ -43,7 +43,7 @@ class ProjectAccountTest extends TestCase
         // Account 3: Project owned (should not appear)
         $cuenta3 = Cuenta::factory()->create([
             'propietario_id' => $proyecto->id,
-            'propietario_type' => 'proyecto',
+            'propietario_type' => Proyecto::class,
             'nombre' => 'Project Account'
         ]);
 
@@ -71,8 +71,8 @@ class ProjectAccountTest extends TestCase
         ]);
 
         $cuenta = Cuenta::factory()->create([
-            'propietario_id' => $personalProject->id,
-            'propietario_type' => 'proyecto'
+            'propietario_id' => $user->id,
+            'propietario_type' => User::class
         ]);
 
         $response = $this->actingAs($user)
@@ -99,8 +99,8 @@ class ProjectAccountTest extends TestCase
         ]);
 
         $cuenta = Cuenta::factory()->create([
-            'propietario_id' => $otherPersonalProject->id,
-            'propietario_type' => 'proyecto'
+            'propietario_id' => $otherUser->id,
+            'propietario_type' => User::class
         ]);
 
         $response = $this->actingAs($user)
@@ -126,8 +126,8 @@ class ProjectAccountTest extends TestCase
         ]);
 
         $cuenta = Cuenta::factory()->create([
-            'propietario_id' => $personalProject->id,
-            'propietario_type' => 'proyecto'
+            'propietario_id' => $user->id,
+            'propietario_type' => User::class
         ]);
         $proyecto->cuentasAsociadas()->attach($cuenta);
 

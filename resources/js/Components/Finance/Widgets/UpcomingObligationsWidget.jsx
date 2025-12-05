@@ -6,11 +6,14 @@ import { CalendarIcon, ClockIcon, CheckCircleIcon } from '@/Components/Icons';
 export default function UpcomingObligationsWidget({
     events = [],
     financialTasks = [],
+    bills = [],
     accounts = [],
     currency = 'COP',
     onMarkAsPaid
 }) {
     const { t } = useTranslate();
+
+    console.log('UpcomingObligationsWidget received bills:', bills);
 
     const upcoming = useMemo(() => {
         const today = new Date();
@@ -29,16 +32,8 @@ export default function UpcomingObligationsWidget({
             return date;
         };
 
-        // Combine transactions, financial tasks, and account payments
+        // Combine financial tasks, pending bills, and account payments
         const allObligations = [
-            // Transaction events
-            ...events
-                .filter(e => {
-                    const date = new Date(e.date);
-                    return date >= today && (e.type === 'gasto' || e.type === 'expense');
-                })
-                .map(e => ({ ...e, source: 'transaction' })),
-
             // Financial tasks
             ...financialTasks
                 .filter(task => {
@@ -81,6 +76,18 @@ export default function UpcomingObligationsWidget({
                 })
                 .filter(Boolean),
 
+            // Pending Bills
+            ...bills.map(bill => ({
+                id: `bill-${bill.id}`,
+                title: bill.descripcion || t('finance.bill', 'Factura'),
+                date: bill.fecha,
+                amount: bill.monto,
+                type: 'gasto',
+                source: 'bill',
+                status: 'pending',
+                category: bill.categoria
+            })),
+
             // Payroll Income (multiple dates per account)
             ...accounts
                 .filter(acc => acc.es_nomina && acc.dia_nomina && acc.estado === 'activa')
@@ -107,7 +114,7 @@ export default function UpcomingObligationsWidget({
 
         return allObligations
             .sort((a, b) => new Date(a.date) - new Date(b.date));
-    }, [events, financialTasks, accounts]);
+    }, [events, financialTasks, accounts, bills]);
 
     const formatCurrency = (value) => {
         return formatCurrencyHelper(value, currency, true);
@@ -148,7 +155,7 @@ export default function UpcomingObligationsWidget({
             </h3>
 
             {upcoming.length > 0 ? (
-                <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-thin max-h-[450px]">
+                <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-thin max-h-[320px]">
                     {upcoming.map((event) => (
                         <div
                             key={event.id}
@@ -202,6 +209,12 @@ export default function UpcomingObligationsWidget({
                                             <span className="flex items-center gap-1">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                 {event.accountName || t('finance.payroll', 'Nómina')}
+                                            </span>
+                                        )}
+                                        {event.source === 'bill' && (
+                                            <span className="flex items-center gap-1">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                                {event.category?.nombre || t('finance.bill', 'Factura')}
                                             </span>
                                         )}
 
