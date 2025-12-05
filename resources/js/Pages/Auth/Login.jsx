@@ -28,6 +28,8 @@ export default function Login({ status, canResetPassword }) {
     // Combine form errors and page errors for maximum reliability
     const activeErrors = Object.keys(errors).length > 0 ? errors : pageErrors;
 
+
+
     useEffect(() => {
         if (activeErrors.email) {
             const errorStr = Array.isArray(activeErrors.email) ? activeErrors.email[0] : activeErrors.email;
@@ -116,7 +118,7 @@ export default function Login({ status, canResetPassword }) {
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
-                    <InputError message={errors.email} className="mt-1" />
+                    <InputError message={activeErrors.email} className="mt-1" />
                 </div>
 
                 <div>

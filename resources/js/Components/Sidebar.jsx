@@ -5,7 +5,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import {
     DashboardIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon,
-    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon
+    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon, EnvelopeIcon
 } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -25,6 +25,11 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
             <ResponsiveNavLink href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
                 <PuzzleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('dashboard.marketplace', 'Mercado')}
+            </ResponsiveNavLink>
+
+            <ResponsiveNavLink href={route('invitations.index')} active={route().current('invitations.index')} collapsed={collapsed}>
+                <EnvelopeIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                {!collapsed && t('invitations.title', 'Invitaciones')}
             </ResponsiveNavLink>
 
             {!collapsed && (
@@ -54,6 +59,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
     const renderProjectMenu = () => {
         const modules = project.modules || ['finance'];
+
 
         // Robust Image Detection (Same as ProjectCard)
         const imageUrl = project.image_url
@@ -99,7 +105,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     </div>
                 </div>
 
-                {/* Project Links */}
+                {/* Project Links - Both personal and regular projects use same route */}
                 <ResponsiveNavLink
                     href={route('mis-proyectos.show', project.id)}
                     active={route().current('mis-proyectos.show', project.id)}
@@ -132,7 +138,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     </ResponsiveNavLink>
                 )}
 
-                {modules.includes('chat') && (
+                {modules.includes('chat') && !project.es_personal && (
                     <ResponsiveNavLink
                         href={route('mis-proyectos.chat', project.id)}
                         active={route().current('mis-proyectos.chat', project.id)}
@@ -146,18 +152,20 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                                 </span>
                             )}
                         </div>
-                        {!collapsed && t('modules.chat', 'Chat de Equipo')}
+                        {!collapsed && t('modules.chat.title', 'Chat de Equipo')}
                     </ResponsiveNavLink>
                 )}
 
-                <ResponsiveNavLink
-                    href={route('project.members.index', project.id)}
-                    active={route().current('project.members.index', project.id)}
-                    collapsed={collapsed}
-                >
-                    <UserCircleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                    {!collapsed && t('projects.members', 'Miembros')}
-                </ResponsiveNavLink>
+                {(!project.es_personal && project.es_personal !== 1) && (
+                    <ResponsiveNavLink
+                        href={route('project.members.index', project.id)}
+                        active={route().current('project.members.index', project.id)}
+                        collapsed={collapsed}
+                    >
+                        <UserCircleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && t('projects.members', 'Miembros')}
+                    </ResponsiveNavLink>
+                )}
 
                 <ResponsiveNavLink
                     href={route('mis-proyectos.edit', project.id)}

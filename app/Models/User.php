@@ -58,6 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
         'unread_messages_count',
         'unread_projects',
+        'is_online',
     ];
 
     /**
@@ -205,15 +206,28 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return int
      */
+    /**
+     * Get the total number of unread messages across all projects.
+     *
+     * @return int
+     */
     public function getUnreadMessagesCountAttribute()
     {
         $count = 0;
-        // We need to iterate over projects where the user is a member.
-        // We use the 'proyectos' relationship which includes the pivot data.
-        foreach ($this->proyectos as $proyecto) {
-            if ($proyecto->hasMessagingFeature()) {
-                $lastReadAt = $proyecto->pivot->last_read_at;
+        // Merge projects where user is member (pivot) and owner (personal)
+        $allProjects = $this->proyectos->merge($this->proyectosPersonales)->unique('id');
 
+        foreach ($allProjects as $proyecto) {
+            if ($proyecto->hasMessagingFeature()) {
+                // Robustly get last_read_at from DB to avoid issues with missing pivot on owned projects
+                $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                    ->where('proyecto_id', $proyecto->id)
+                    ->where('user_id', $this->id)
+                    ->first();
+
+                $lastReadAt = $pivot ? $pivot->last_read_at : null;
+
+                // General Messages
                 $generalUnread = $proyecto->messages()
                     ->whereNull('recipient_id')
                     ->where('user_id', '!=', $this->id)
@@ -222,14 +236,16 @@ class User extends Authenticatable implements MustVerifyEmail
                     })
                     ->count();
 
-                $privateUnread = $proyecto->messages()
+                // Direct Messages (where I am recipient and read_at is null)
+                $dmUnread = $proyecto->messages()
                     ->where('recipient_id', $this->id)
                     ->whereNull('read_at')
                     ->count();
 
-                $count += $generalUnread + $privateUnread;
+                $count += $generalUnread + $dmUnread;
             }
         }
+
         return $count;
     }
 
@@ -241,9 +257,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getUnreadProjectsAttribute()
     {
         $unreadProjects = [];
-        foreach ($this->proyectos as $proyecto) {
+        // Merge projects where user is member (pivot) and owner (personal)
+        $allProjects = $this->proyectos->merge($this->proyectosPersonales)->unique('id');
+
+        foreach ($allProjects as $proyecto) {
             if ($proyecto->hasMessagingFeature()) {
-                $lastReadAt = $proyecto->pivot->last_read_at;
+                // Robustly get last_read_at from DB
+                $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                    ->where('proyecto_id', $proyecto->id)
+                    ->where('user_id', $this->id)
+                    ->first();
+
+                $lastReadAt = $pivot ? $pivot->last_read_at : null;
 
                 $generalUnread = $proyecto->messages()
                     ->whereNull('recipient_id')
@@ -272,5 +297,15 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
         return $unreadProjects;
+    }
+
+    /**
+     * Check if the user is online.
+     *
+     * @return bool
+     */
+    public function getIsOnlineAttribute()
+    {
+        return \Illuminate\Support\Facades\Cache::has('user-is-online-' . $this->id);
     }
 }

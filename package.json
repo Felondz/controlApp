@@ -29,6 +29,8 @@
         "vitest": "^4.0.14"
     },
     "dependencies": {
+        "@hello-pangea/dnd": "^18.0.1",
+        "dayjs": "^1.11.19",
         "html2canvas": "^1.4.1",
         "i18next": "^25.6.3",
         "lodash": "^4.17.21",

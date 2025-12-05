@@ -19,8 +19,9 @@ class ProyectoWebTest extends TestCase
         $response = $this->actingAs($user)->get(route('mis-proyectos.create'));
 
         $response->assertStatus(200);
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('Projects/CreateProject')
+        $response->assertInertia(
+            fn(Assert $page) => $page
+                ->component('Projects/CreateProject')
         );
     }
 
@@ -51,9 +52,10 @@ class ProyectoWebTest extends TestCase
         $response = $this->actingAs($user)->get(route('mis-proyectos.edit', $proyecto));
 
         $response->assertStatus(200);
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('Projects/Edit')
-            ->has('proyecto')
+        $response->assertInertia(
+            fn(Assert $page) => $page
+                ->component('Projects/Edit')
+                ->has('proyecto')
         );
     }
 
@@ -83,7 +85,9 @@ class ProyectoWebTest extends TestCase
         $proyecto = Proyecto::factory()->create(['user_id' => $user->id]);
         $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
 
-        $response = $this->actingAs($user)->delete(route('mis-proyectos.destroy', $proyecto));
+        $response = $this->actingAs($user)->delete(route('mis-proyectos.destroy', $proyecto), [
+            'password' => 'password',
+        ]);
 
         $response->assertRedirect(route('dashboard'));
         $this->assertSoftDeleted($proyecto);

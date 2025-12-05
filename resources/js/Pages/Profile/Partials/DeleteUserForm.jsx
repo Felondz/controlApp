@@ -21,6 +21,7 @@ export default function DeleteUserForm({ className = '' }) {
         reset,
         errors,
         clearErrors,
+        setError,
     } = useForm({
         password: '',
     });
@@ -31,6 +32,12 @@ export default function DeleteUserForm({ className = '' }) {
 
     const deleteUser = (e) => {
         e.preventDefault();
+
+        if (!data.password) {
+            setError('password', t('validation.required', 'El campo contraseña es obligatorio.'));
+            passwordInput.current.focus();
+            return;
+        }
 
         destroy(route('profile.destroy'), {
             preserveScroll: true,

@@ -1,0 +1,34 @@
+{
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "css.validate": false,
+    "tailwindCSS.includeLanguages": {
+        "blade": "html",
+        "php": "html"
+    },
+    "intelephense.environment.includePaths": [
+        "vendor/barryvdh/laravel-ide-helper/resources",
+        "vendor/laravel/framework/src"
+    ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "_ide_helper.php": true,
+        ".phpstorm.meta.php": true,
+        "node_modules": true,
+        "vendor": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/vendor": true,
+        "**/public/build": true
+    }
+}

@@ -82,7 +82,16 @@ class ProyectoUiWebController extends Controller
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
-        // 4. Renderizar la vista de Inertia
+        // 4. Renderizar vista apropiada según tipo de proyecto
+        if ($mis_proyecto->es_personal) {
+            // Personal Finance projects use PersonalOverview
+            return Inertia::render('Finance/PersonalOverview', [
+                'proyecto' => $mis_proyecto,
+                'isAdmin' => true, // Always admin of personal projects
+            ]);
+        }
+
+        // Regular projects use Projects/Show
         return Inertia::render('Projects/Show', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
@@ -169,6 +178,11 @@ class ProyectoUiWebController extends Controller
             abort(403, 'Solo los administradores pueden eliminar este proyecto.');
         }
 
+        // Validate password
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
         // Soft delete
         $mis_proyecto->delete();
 
@@ -189,20 +203,53 @@ class ProyectoUiWebController extends Controller
         $isAdmin = $request->user()->esAdminDe($mis_proyecto);
 
         // 3. Eager Loading específico para finanzas
-        $relations = [];
+        $mis_proyecto->load([
+            'cuentas' => function ($query) {
+                $query->where('estado', '!=', 'cerrada');
+            },
+            'cuentas.propietario', // Eager load owner for visual differentiation
+            'cuentasAsociadas' => function ($query) {
+                $query->where('estado', '!=', 'cerrada');
+            },
+            'cuentasAsociadas.propietario', // Eager load owner for linked accounts
+            'categorias'
+        ]);
 
+        // Cargar transacciones si es admin
+        $transacciones = [];
         if ($isAdmin) {
-            $relations[] = 'cuentas';
-            // $relations[] = 'transacciones'; // Future: Load recent transactions
+            $transacciones = $mis_proyecto->transacciones()
+                ->where('status', 'completed') // Only show completed transactions in the main list
+                ->with(['categoria', 'cuenta.propietario', 'usuario']) // Load account owner
+                ->orderBy('fecha', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(100)
+                ->get();
         }
 
-        $mis_proyecto->load($relations);
+        // Cargar tareas financieras pendientes si es admin
+        // NOTA: Las tareas financieras se migraron a transacciones (bills).
+        // Mantenemos la variable como array vacío para compatibilidad con el frontend por ahora.
+        $financialTasks = [];
+
+        // Cargar facturas pendientes (Bills) si es admin
+        $pendingBills = [];
+        if ($isAdmin) {
+            $pendingBills = $mis_proyecto->transacciones()
+                ->where('status', 'pending')
+                ->with(['categoria', 'cuenta']) // No account usually, but good to have
+                ->orderBy('fecha', 'asc')
+                ->get();
+        }
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
+            'transacciones' => $transacciones,
+            'financialTasks' => $financialTasks,
+            'pendingBills' => $pendingBills,
         ]);
     }
 
@@ -213,7 +260,10 @@ class ProyectoUiWebController extends Controller
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
-            $pivot = $user->proyectos()->where('proyecto_id', $proyecto->id)->first()?->pivot;
+            $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                ->where('proyecto_id', $proyecto->id)
+                ->where('user_id', $user->id)
+                ->first();
             $lastReadAt = $pivot ? $pivot->last_read_at : null;
 
             $generalUnread = $proyecto->messages()
@@ -278,5 +328,27 @@ class ProyectoUiWebController extends Controller
         });
 
         return Inertia::render('Dashboard', ['proyectos' => $proyectos]);
+    }
+    /**
+     * Actualiza la configuración del proyecto (ej: widgets).
+     */
+    public function updateSettings(Request $request, Proyecto $project)
+    {
+        if (!$request->user()->esAdminDe($project)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'settings' => 'required|array',
+        ]);
+
+        // Merge existing settings with new ones
+        $currentSettings = $project->settings ?? [];
+        $newSettings = array_merge($currentSettings, $validated['settings']);
+
+        $project->settings = $newSettings;
+        $project->save();
+
+        return redirect()->back()->with('success', 'Configuración actualizada.');
     }
 }

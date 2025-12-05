@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "bierner.markdown-mermaid",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "bmewburn.vscode-intelephense-client",
+        "bradlc.vscode-tailwindcss",
+        "onecentlin.laravel-blade"
+    ]
+}

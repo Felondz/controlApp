@@ -2,11 +2,11 @@ import { Fragment, useState, useEffect } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { CheckCircleIcon, ChevronDownIcon } from '@/Components/Icons';
 import axios from 'axios';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
 
 export default function UserSearchCombobox({ project, onSelect, selectedEmail, error }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [query, setQuery] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [users, setUsers] = useState([]);

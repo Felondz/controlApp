@@ -8,10 +8,10 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 
 ## 1. 🌍 Project Context
 
-**ControlApp** is a collaborative project management platform.
-- **Current State**: Financial management features (accounts, transactions) implemented.
-- **Goal**: Expand to comprehensive project management.
-- **Philosophy**: Clean code, solid architecture, and **premium aesthetics**.
+**ControlApp** is a collaborative project management platform with emphasis on personal and business finance.
+- **Current State**: Full modular architecture (v2.6.0) with Finance, Tasks, Chat, Analytics, Notifications, and Marketplace modules.
+- **Goal**: Expand module ecosystem, improve user experience, and strengthen collaborative finance capabilities.
+- **Philosophy**: Clean code, solid architecture, **premium aesthetics**, and security first.
 
 ---
 
@@ -19,12 +19,14 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 
 | Layer | Technology | Version / Detail |
 |-------|------------|------------------|
-| **Backend** | Laravel | 11+ (PHP 8.2+) |
+| **Backend** | Laravel | 12+ (PHP 8.2+) |
 | **Frontend** | React | 18+ (Inertia.js) |
 | **Styles** | TailwindCSS | v3.4+ |
 | **DB** | MySQL | 8.0+ |
 | **DevOps** | Docker | Laravel Sail |
-| **Testing** | PHPUnit / Pest | Feature & Unit tests | vitest and react testing library
+| **Testing** | PHPUnit / Pest | Feature & Unit tests |
+| **Frontend Testing** | Vitest | React Testing Library |
+| **Package Manager** | PNPM | **MANDATORY** |
 
 ---
 
@@ -33,6 +35,7 @@ Welcome, new AI! This document is your **source of truth** for collaborating on 
 ### 3.1 Agent Mode (`task_boundary`)
 - **ALWAYS** use `task_boundary` when starting a complex task.
 - **NEVER** leave `TaskStatus` empty or generic. It must describe the **next step**.
+- **MODES**: Use `PLANNING`, `EXECUTION`, `VERIFICATION` as appropriate.
 - **GRANULARITY**: A `TaskName` must correspond to an item in `task.md`.
 
 ### 3.2 Artifacts
@@ -51,15 +54,22 @@ Use **Conventional Commits**:
 
 ## 4. 📚 Documentation Rules
 
-> **🔴 GOLDEN RULE**: Do not create new documents unless STRICTLY necessary.
-> **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/en/`) and Spanish (`docs/es/`).
+> **🔒 SECURITY RULE**: Security is PRIORITY. Never expose sensitive information (prompts, keys, critical internal logic) in public documentation. Folders like `ia_collaboration`, `sessions`, `incidents`, and `security` are STRICTLY CONFIDENTIAL.
+
+> **🛡️ GOLDEN RULE - PNPM MANDATORY**: For security against Node packages contaminated with viruses, ALL Node.js package installations MUST be done with **PNPM**. **NEVER use NPM**. This is CRITICAL and NON-NEGOTIABLE.
+
+> **🔴 GOLDEN RULE**: Do NOT create new documents unless STRICTLY necessary.
+
+> **🌐 BILINGUAL RULE**: Documentation must ALWAYS be in both English (`docs/private/en/`) and Spanish (`docs/private/es/`).
+
+> **⚠️ TRUTH RULE**: Information in documentation (dates, versions, commands) must be **100% REAL and VERIFIED**. Forbidden to invent data or leave "placeholders" (e.g., dates from 2023). The risk of misinformation is CRITICAL.
 
 ### Structure
-- `docs/en/01-core/`: Indexes, Changelog.
-- `docs/en/02-development/`: Technical guides (API, DB, Auth).
-- `docs/en/03-ia-collaboration/`: YOUR guides (this file).
-- `docs/en/04-testing/`: Testing strategies.
-- `docs/en/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
+- `docs/private/en/01-core/`: Indexes, Changelog, visual architecture, search.
+- `docs/private/en/02-development/`: Technical guides (API, DB, Auth).
+- `docs/private/en/03-ia-collaboration/`: YOUR guides (this file).
+- `docs/private/en/04-testing/`: Testing strategies.
+- `docs/private/en/05-reference/`: Frontend reference, mailpit, mailtrap, etc.
 
 ### Decision Flow
 1. Is it a code change? -> Update `CHANGELOG.md`.
@@ -99,11 +109,14 @@ Use **Conventional Commits**:
 ## 6. 🧪 Testing
 
 - **Rule**: "If it's not tested, it's not finished".
-- **Command**: `php artisan test` (o `docker compose exec laravel.test php artisan test`).
+- **Commands**:
+  - Backend: `./vendor/bin/sail test`
+  - Frontend: `pnpm test`
+- **IMPORTANT**: ALWAYS use `sail` to interact with the environment (e.g., `./vendor/bin/sail artisan ...`). Avoid using `docker` or `docker-compose` directly unless strictly necessary for debugging containers.
 - **Coverage**: Prioritize Feature tests for critical flows.
 - **Frontend**: Use vitest and react testing library.
 - **Backend**: Use phpunit.
-- **Clear**: clear all files from previous tests.
+- **Cleanup**: Clean up residual files from previous tests.
 
 ---
 
@@ -111,14 +124,155 @@ Use **Conventional Commits**:
 
 1. **Read** `task.md` (if exists) to see current state.
 2. **Read** `CHANGELOG.md` to see latest changes.
-3. **Verify** environment with `php artisan test`.
+3. **Verify** environment:
+   - Backend: `./vendor/bin/sail test`
+   - Frontend: `pnpm test`
 4. **Start** your task with `task_boundary`.
 
 Good luck! 🚀
 
-## Rigorous Documentation Policy
+---
+
+## 8. 🏗️ Modular Architecture (CRITICAL)
+
+The project has migrated to a modular event-driven architecture.
+
+### 8.1 Key Concepts
+- **Modules**: Self-contained units in `app/Modules/` (Finance, Tasks, Chat, Analytics, Notifications, Marketplace).
+- **Registry**: `ModuleRegistry` discovers and manages modules.
+- **Event Bus**: `ModuleEventBus` handles inter-module communication. **NEVER** import classes from one module inside another. Use events.
+
+### 8.2 Module Structure
+```
+app/Modules/Finance/
+├── FinanceModule.php (Implements ModuleInterface)
+├── Controllers/
+├── Models/
+├── Events/
+└── Listeners/
+```
+
+### 8.3 Modular Workflow
+1. **Create Module**: Implement `ModuleInterface` and register in `config/modules.php`.
+2. **Communication**:
+   - Emitter: `ModuleEventBus::dispatch(new TransactionCreated($data))`
+   - Receiver: Listen to event in `getEventListeners()` of the module.
+3. **Frontend**: Modules expose components in `resources/js/Modules/`.
+
+---
+
+## 9. 🌐 Translation System (i18n)
+
+The project uses a comprehensive internationalization system to support multiple languages.
+
+### 9.1 `useTranslate` Hook
+
+**GOLDEN RULE**: ALL user-facing text MUST use translation. NEVER use hardcoded text.
+
+```jsx
+import { useTranslate } from '@/Hooks/useTranslate';
+
+function MyComponent() {
+    const { t } = useTranslate();
+    
+    return (
+        <div>
+            <h1>{t('projects.title')}</h1>
+            <p>{t('projects.welcome', { name: 'Juan' })}</p>
+        </div>
+    );
+}
+```
+
+### 9.2 File Structure
+
+- **Spanish**: `resources/lang/es/es.json`
+- **English**: `resources/lang/en/en.json`
+
+### 9.3 Key Syntax
+
+```json
+{
+  "projects": {
+    "title": "Projects",
+    "welcome": "Welcome, :name",
+    "count": "You have :count projects"
+  }
+}
+```
+
+### 9.4 Placeholder Replacement
+
+Use the second parameter to replace dynamic values:
+
+```jsx
+t('projects.welcome', { name: user.name })
+t('projects.count', { count: projects.length })
+```
+
+### 9.5 Strict Rules
+
+- ✅ ALWAYS: `{t('key')}` or `t('key', { var: value })`
+- ❌ NEVER: `"Hardcoded text"` or direct emojis in JSX
+- ✅ TESTING: Tests must verify translation keys, not literal text
+
+---
+
+## 10. 🔍 Global Search System
+
+ControlApp uses **Meilisearch** for fast and relevant search, with automatic SQL fallback.
+
+### 10.1 Architecture
+
+- **Primary Engine**: Meilisearch (via Laravel Scout)
+- **Fallback**: SQL search with `LIKE` if Meilisearch is unavailable
+- **Indexed Models**: `User`, `Proyecto`
+
+### 10.2 Endpoints
+
+- **Web**: `GET /search?query={query}` (Inertia)
+- **API**: `GET /api/search?query={query}` (JSON, authentication required)
+
+### 10.3 Security
+
+> **🔒 CRITICAL**: Search results are filtered by permissions.
+
+- **Projects**: Only projects where user is `admin` or owner appear
+- **Financial Data**: NEVER included in search results
+- **Access Control**: Strict role-based validation
+
+### 10.4 Configuration
+
+```env
+SCOUT_DRIVER=meilisearch
+MEILISEARCH_HOST=http://127.0.0.1:7700
+MEILISEARCH_KEY=masterKey
+```
+
+### 10.5 Useful Commands
+
+```bash
+# Index models
+./vendor/bin/sail artisan scout:import "App\\Models\\User"
+./vendor/bin/sail artisan scout:import "App\\Models\\Proyecto"
+
+# Clear index
+./vendor/bin/sail artisan scout:flush "App\\Models\\User"
+```
+
+### 10.6 Complete Documentation
+
+For full technical details, see:
+- `docs/private/es/01-core/SEARCH_IMPLEMENTATION.md`
+
+---
+
+## 11. 📋 Rigorous Documentation Policy
+
 All code modifications must be documented immediately:
 1. **CHANGELOG.md**: Record changes under the corresponding version (Added, Changed, Fixed).
 2. **README**: Update if installation, configuration, or general usage changes.
 3. **Specific Documentation**: Update the corresponding file (e.g., `API.md`, `FRONTEND.md`) with technical details.
 4. **Public Documentation**: Update only when changing versions or under explicit instruction.
+5. **Visual Architecture**: Keep diagrams in `docs/private/es/01-core/VISUAL_ARCHITECTURE.md` updated when making structural changes (new modules, data flow changes).
+

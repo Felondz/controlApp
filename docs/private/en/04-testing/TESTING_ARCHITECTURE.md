@@ -7,9 +7,9 @@
 ## 1. 🎯 Testing Philosophy and QA
 
 *   **Current Status**: 
-    - **Backend**: 240 tests passing with 775+ assertions (100% coverage)
-    - **Frontend**: 215 tests passing (100% component coverage)
-    - **Total**: 455 tests with comprehensive coverage
+    - **Backend**: 280 tests passing with 1000+ assertions (100% coverage)
+    - **Frontend**: 217 tests passing in 39 test files (100% component coverage)
+    - **Total**: 497 tests with comprehensive coverage
 *   **Golden Rule (Quality Gate)**: If tests fail, the code has an error. **Do not commit/push until all pass**.
 *   **Convention**: Use descriptive test names: `test_admin_can_create_user` (backend), `renders correctly` (frontend).
 *   **CI/CD**: All tests run automatically on GitHub Actions for every push/PR.
@@ -23,6 +23,12 @@
 The test suite uses the `Illuminate\Foundation\Testing\RefreshDatabase` trait in each `TestCase`.
 
 * **Setup**: Data is prepared using **Factories** to generate isolated and realistic instances for each test.
+
+### 2. Directory Structure
+
+- **Backend Tests**: `tests/Unit`, `tests/Feature`
+- **Frontend Tests**: `tests/Frontend` (Mirroring `resources/js` structure)
+- **E2E Tests**: `tests/Browser` (Dusk)
 
 ### Test Organization
 
@@ -67,8 +73,8 @@ All tests must be run inside the application container through **Sail**.
 ### Test Coverage
 
 **Statistics:**
-- **Total Tests**: 215 tests across 38 test suites
-- **Coverage**: 100% of React components
+- **Total Tests**: 217 tests across 39 test files
+- **Coverage**: 100% of React components (39/39 test files)
 - **Framework**: Vitest + @testing-library/react
 
 **Test Categories:**
@@ -133,5 +139,6 @@ All tests must be run inside the application container through **Sail**.
 
 ---
 
-**Last Updated**: December 1, 2025
+**Last Updated**: December 2, 2025
 **Status**: ✅ Testing strategy fully configured (Backend + Frontend)
+**Note**: All frontend tests have been updated to use translation keys instead of hardcoded text, following the new i18n system.

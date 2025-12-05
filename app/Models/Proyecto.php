@@ -37,6 +37,7 @@ class Proyecto extends Model
         'image_path',
         'theme',
         'typography',
+        'settings',
     ];
 
     /**
@@ -52,6 +53,7 @@ class Proyecto extends Model
         'es_personal' => 'boolean',
         'visible_en_listado' => 'boolean',
         'modules' => 'array',
+        'settings' => 'array',
     ];
 
     /**
@@ -66,7 +68,7 @@ class Proyecto extends Model
      */
     public function miembros()
     {
-        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol');
+        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
 
     /**
@@ -75,6 +77,16 @@ class Proyecto extends Model
     public function cuentas()
     {
         return $this->morphMany(Cuenta::class, 'propietario');
+    }
+
+    /**
+     * Relación Cuentas Asociadas (muchos a muchos)
+     * Cuentas personales vinculadas al proyecto.
+     */
+    public function cuentasAsociadas()
+    {
+        return $this->belongsToMany(Cuenta::class, 'cuenta_proyecto')
+            ->withTimestamps();
     }
 
     /**
@@ -148,6 +160,14 @@ class Proyecto extends Model
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Relación Tareas (uno a muchos)
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'project_id');
     }
 
     /**

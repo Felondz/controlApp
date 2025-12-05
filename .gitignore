@@ -9,7 +9,7 @@
 /.idea
 /.nova
 /.phpunit.cache
-/.vscode
+
 /.zed
 /auth.json
 /node_modules
@@ -17,6 +17,11 @@
 /public/hot
 test_output.txt
 /public/storage
+
+# Enforce PNPM-only policy (security requirement)
+package-lock.json
+npm-debug.log*
+yarn.lock
 /storage/*.key
 /storage/pail
 /vendor
@@ -25,8 +30,10 @@ Homestead.yaml
 Thumbs.db
 
 # Personal session documentation (work-in-progress notes)
-/docs/sessions/
+!/docs/sessions/
 
 # Incident reports (local only)
 /docs/incidents/
 /docs/private
+_ide_helper.php
+.phpstorm.meta.php

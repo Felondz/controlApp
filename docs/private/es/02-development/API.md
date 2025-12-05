@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
-> **Last Updated**: November 16, 2025 - Security Audit & Rate Limiting Added
+> **Last Updated**: December 3, 2025 - Added Tools, Analytics, Notifications, Marketplace
 
 ## 📋 Índice
 
@@ -14,6 +14,10 @@
 8. [Transacciones](#transacciones)
 9. [Chat](#chat)
 10. [Códigos de Error](#códigos-de-error)
+ 11. [Herramientas](#herramientas-tools)
+ 12. [Analíticas](#analíticas-analytics)
+ 13. [Notificaciones](#notificaciones-notifications)
+ 14. [Mercado](#mercado-marketplace)
 
 ---
 
@@ -836,6 +840,10 @@ Authorization: Bearer {token}
 Accept: application/json
 ```
 
+**Query Parameters**
+- `estado` - (Opcional) Filtrar por estado: `activa` (default), `inactiva`, `cerrada`
+- `tipo` - (Opcional) Filtrar por tipo: `banco`, `efectivo`, `credito`, etc.
+
 **Response (200)**
 ```json
 {
@@ -845,7 +853,9 @@ Accept: application/json
       "proyecto_id": 1,
       "nombre": "Banco Principal",
       "tipo": "banco",
-      "saldo": 5000.00,
+      "saldo_actual": 5000.00,
+      "saldo_inicial": 5000.00,
+      "estado": "activa",
       "created_at": "2025-11-15 10:00:00"
     }
   ]
@@ -863,24 +873,112 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "nombre": "Efectivo",
-  "tipo": "efectivo",
-  "saldo_inicial": 1000.00
+  "nombre": "Tarjeta BBVA",
+  "tipo": "credito",
+  "banco": "BBVA",
+  "saldo_inicial": 0,
+  "moneda": "COP",
+  "limite_credito": 5000000,
+  "tasa_interes_anual": 24.5,
+  "dia_corte": 15,
+  "dia_pago": 20,
+  "fecha_vencimiento": "2028-12-31"
 }
 ```
+
+**Campos Comunes** (todos los tipos):
+- `nombre` (string, required): Nombre de la cuenta
+- `tipo` (string, required): Tipo de cuenta - valores: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- `saldo_inicial` (number, required): Saldo inicial en centavos
+- `moneda` (string, required): Código ISO 4217 (3 letras) - valores: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+- `banco` (string, optional): Nombre del banco
+- `descripcion` (string, optional): Descripción adicional
+- `color` (string, optional): Código de color hexadecimal (ej: #FF0000)
+- `icono` (string, optional): Nombre del ícono
+
+**Campos Específicos por Tipo**:
+
+**Crédito (`tipo: "credito"`)**:
+- `limite_credito` (number, required): Límite de crédito en centavos
+- `tasa_interes_anual` (number, required): Tasa de interés anual (0-100%)
+- `dia_corte` (integer, required): Día del mes de corte (1-31)
+- `dia_pago` (integer, required): Día del mes de pago (1-31)
+- `fecha_vencimiento` (date, required): Fecha de vencimiento de la tarjeta (YYYY-MM-DD, debe ser futura)
+
+**Inversión (`tipo: "inversion"`)**:
+- `tasa_interes_anual` (number, optional): Tasa de interés anual (0-100%)
+
+**Préstamo (`tipo: "prestamo"`)**:
+- `tasa_interes_anual` (number, required): Tasa de interés anual (0-100%)
+- `dia_pago` (integer, required): Día del mes de pago (1-31)
+- `fecha_vencimiento` (date, optional): Fecha de vencimiento del préstamo (YYYY-MM-DD, debe ser futura)
+- `plazo` (integer, optional): Plazo en meses
+- `valor_cuota` (number, optional): Valor de la cuota mensual en centavos
+- `cuotas_pagadas` (integer, optional): Número de cuotas ya pagadas
+
+**Nómina (`tipo: "banco"`)**:
+- `es_nomina` (boolean, optional): Marcar como cuenta de nómina
+- `dia_nomina` (array, required if es_nomina=true): Array de días de pago (1-31), máx 4 días. Ejemplo: `[15, 30]`
+- `valor_nomina` (number, required if es_nomina=true): Valor estimado de nómina en centavos
 
 **Response (201)**
 ```json
 {
   "id": 2,
   "proyecto_id": 1,
-  "nombre": "Efectivo",
-  "tipo": "efectivo",
-  "saldo": 1000.00
+  "nombre": "Tarjeta BBVA",
+  "tipo": "credito",
+  "saldo_inicial": 0,
+  "created_at": "2025-11-15 11:30:00"
 }
 ```
 
-**Tipos válidos**: `banco`, `efectivo`, `tarjeta`, `digital`
+**Validación** (FormRequest: `StoreCuentaRequest`)
+- Tipos válidos: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- Monedas válidas: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+
+**Autorización**
+- ✅ Solo admins del proyecto pueden crear cuentas
+
+---
+
+### Update Cuenta - Actualizar Cuenta
+
+```http
+PUT /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Efectivo (Caja Chica)",
+  "color": "#00FF00"
+}
+```
+
+**Response (200)**
+```json
+{
+  "id": 2,
+  "nombre": "Efectivo (Caja Chica)",
+  "color": "#00FF00"
+}
+```
+
+---
+
+### Delete Cuenta - Eliminar/Inactivar Cuenta
+
+Si la cuenta tiene transacciones, se marca como `inactiva`. Si no tiene, se elimina permanentemente.
+
+```http
+DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (204)**
+*(No Content)*
 
 ---
 
@@ -900,6 +998,7 @@ Accept: application/json
 - `fecha_hasta` - Fecha fin (YYYY-MM-DD)
 - `categoria_id` - ID de categoría (opcional)
 - `tipo` - ingreso o egreso (opcional)
+- `status` - pending o completed (opcional)
 
 **Response (200)**
 ```json
@@ -924,19 +1023,31 @@ Accept: application/json
 ### Create Transacción - Crear Transacción
 
 ```http
-POST /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones
+POST /api/proyectos/{proyecto}/transacciones
 Authorization: Bearer {token}
 Content-Type: application/json
 Accept: application/json
 
 {
   "categoria_id": 1,
+  "cuenta_id": 1,
   "descripcion": "Compra de alimentos",
   "monto": 50.00,
-  "tipo": "egreso",
-  "fecha": "2025-11-15"
+  "fecha": "2025-11-15",
+  "notas": "Opcional",
+  "task_id": 5  // Opcional: vincula con tarea financiera
 }
 ```
+
+**Parámetros**:
+- `categoria_id` (number, optional): ID de la categoría (puede ser null para facturas)
+- `cuenta_id` (number, optional): ID de la cuenta bancaria (null para facturas pendientes)
+- `descripcion` (string, required): Descripción de la transacción
+- `monto` (number, required): Monto de la transacción (negativo para gastos/facturas)
+- `fecha` (date, required): Fecha de la transacción (YYYY-MM-DD)
+- `status` (string, optional): 'completed' (default) o 'pending'
+- `notas` (string, optional): Notas adicionales
+- `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
 **Response (201)**
 ```json
@@ -946,7 +1057,6 @@ Accept: application/json
   "categoria_id": 1,
   "descripcion": "Compra de alimentos",
   "monto": 50.00,
-  "tipo": "egreso",
   "fecha": "2025-11-15",
   "created_at": "2025-11-15 10:00:00"
 }
@@ -964,7 +1074,7 @@ Accept: application/json
 ### Update Transacción - Actualizar Transacción
 
 ```http
-PUT /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+PUT /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Content-Type: application/json
 Accept: application/json
@@ -980,7 +1090,7 @@ Accept: application/json
 ### Delete Transacción - Eliminar Transacción
 
 ```http
-DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+DELETE /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
 ```
@@ -1103,4 +1213,88 @@ Accept: application/json
 
 ---
 
-**Última actualización**: 15 de noviembre de 2025
+**Última actualización**: 02 de diciembre de 2025
+
+---
+
+## 💬 Chat
+
+### List Messages - Listar Mensajes
+Obtiene los mensajes de un proyecto.
+
+```http
+GET /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "content": "Hola equipo",
+      "user_id": 1,
+      "user": { "name": "Juan" },
+      "created_at": "2025-11-15 10:00:00"
+    }
+  ]
+}
+```
+
+### Send Message - Enviar Mensaje
+Envía un mensaje al chat general o privado.
+
+```http
+POST /api/proyectos/{proyecto}/messages
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Hola mundo",
+  "recipient_id": 2  // Opcional (para DM)
+}
+```
+
+**Response (201)**
+```json
+{
+  "id": 2,
+  "content": "Hola mundo",
+  "created_at": "..."
+}
+```
+
+### Mark as Read - Marcar como Leído
+Marca los mensajes como leídos (actualiza `last_read_at`).
+
+```http
+POST /api/proyectos/{proyecto}/messages/read
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "message": "Mensajes marcados como leídos"
+}
+```
+
+### Unread Counts - Contadores No Leídos
+Obtiene el conteo de mensajes no leídos.
+
+```http
+GET /api/proyectos/{proyecto}/messages/unread
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "unread_count": 5
+}
+```

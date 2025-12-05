@@ -95,6 +95,8 @@ describe('ProjectCard', () => {
 
         render(<ProjectCard proyecto={nonAdminProject} />);
 
+        // Component uses t('finance.restricted', 'Acceso Restringido')
+        // With mock, t returns the key
         expect(screen.getByText('finance.restricted')).toBeInTheDocument();
         expect(screen.getByText('🔒')).toBeInTheDocument();
     });
@@ -102,7 +104,8 @@ describe('ProjectCard', () => {
     it('shows quick action buttons for admin users', () => {
         render(<ProjectCard proyecto={mockProject} />);
 
-        // Should have income and expense buttons (using translation keys as aria-label)
+        // Component uses t('finance.add_income', 'Agregar Ingreso') and t('finance.add_expense', 'Agregar Gasto')
+        // With mock, t returns the key
         expect(screen.getByLabelText('finance.add_income')).toBeInTheDocument();
         expect(screen.getByLabelText('finance.add_expense')).toBeInTheDocument();
     });
@@ -115,8 +118,8 @@ describe('ProjectCard', () => {
 
         render(<ProjectCard proyecto={nonAdminProject} />);
 
-        expect(screen.queryByLabelText('finance.add_income')).not.toBeInTheDocument();
-        expect(screen.queryByLabelText('finance.add_expense')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Agregar Ingreso')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Agregar Gasto')).not.toBeInTheDocument();
     });
 
     it('uses PersonalFinanceIcon for personal projects', () => {

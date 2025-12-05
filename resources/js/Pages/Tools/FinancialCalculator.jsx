@@ -5,6 +5,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { CalculatorIcon, DocumentIcon, TableCellsIcon, ChevronDownIcon } from '@/Components/Icons';
 import BasicMode from './Partials/BasicMode';
 import AdvancedMode from './Partials/AdvancedMode';
+import GoalsMode from './Partials/GoalsMode';
 import ToggleGroup from '@/Components/UI/ToggleGroup';
 import Dropdown from '@/Components/Dropdown';
 import axios from 'axios';
@@ -18,14 +19,14 @@ export default function FinancialCalculator({ auth }) {
     const [mode, setMode] = useState('basic'); // 'basic' | 'advanced'
 
     // Shared State
-    const [amount, setAmount] = useState(10000000);
-    const [rate, setRate] = useState(12.5);
-    const [term, setTerm] = useState(12);
+    const [amount, setAmount] = useState('');
+    const [rate, setRate] = useState('');
+    const [term, setTerm] = useState('');
     const [termType, setTermType] = useState('months');
 
     // Advanced State
     const [rateType, setRateType] = useState('EA'); // EA, NAMV, PM
-    const [insurance, setInsurance] = useState(0);
+    const [insurance, setInsurance] = useState('');
 
     // Results State
     const [results, setResults] = useState(null);
@@ -34,6 +35,12 @@ export default function FinancialCalculator({ auth }) {
     // Debounced Calculation
     const calculateLoan = useCallback(
         debounce(async (params) => {
+            // Validate required fields
+            if (!params.amount || !params.rate || !params.term) {
+                setResults(null);
+                return;
+            }
+
             setLoading(true);
             try {
                 const response = await axios.post(route('tools.calculator.calculate'), params);
@@ -184,6 +191,7 @@ export default function FinancialCalculator({ auth }) {
                                     options={[
                                         { label: t('calculator.basic_mode', 'Básico'), value: 'basic' },
                                         { label: t('calculator.advanced_mode', 'Avanzado'), value: 'advanced' },
+                                        { label: t('calculator.goals_mode', 'Metas'), value: 'goals' },
                                     ]}
                                 />
                             </div>
@@ -240,6 +248,16 @@ export default function FinancialCalculator({ auth }) {
                                 rate={rate} setRate={setRate}
                                 term={term} setTerm={setTerm}
                                 termType={termType} setTermType={setTermType}
+                                results={results}
+                                formatCurrency={formatCurrency}
+                            />
+                        ) : mode === 'goals' ? (
+                            <GoalsMode
+                                amount={amount} setAmount={setAmount}
+                                rate={rate} setRate={setRate}
+                                term={term} setTerm={setTerm}
+                                termType={termType} setTermType={setTermType}
+                                rateType={rateType} setRateType={setRateType}
                                 results={results}
                                 formatCurrency={formatCurrency}
                             />

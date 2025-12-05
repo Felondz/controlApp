@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import InputError from './InputError';
-import { useTranslate } from '@/hooks/useTranslate';
+import { useTranslate } from '@/Hooks/useTranslate';
 
 export default function Checkbox({ className = '', ...props }) {
-    const t = useTranslate();
+    const { t } = useTranslate();
     const [validationMessage, setValidationMessage] = useState('');
     const { onChange, onInvalid, ...otherProps } = props;
 
