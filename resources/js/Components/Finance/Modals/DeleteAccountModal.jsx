@@ -81,12 +81,14 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                 </h2>
 
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-                    {account?.saldo_actual !== 0 ? (
+                    {(account?.saldo ?? account?.saldo_actual ?? 0) !== 0 ? (
                         <span className="text-red-600 font-bold">
                             {t('finance.delete_account_balance_error', 'No se puede eliminar la cuenta porque tiene un saldo diferente de 0. Por favor ajusta el saldo antes de continuar.')}
+                            <br />
+                            <span className="text-sm">Saldo actual: {new Intl.NumberFormat(navigator.language, { style: 'currency', currency: 'USD' }).format(account?.saldo ?? account?.saldo_actual ?? 0)}</span>
                         </span>
                     ) : account?.transacciones_count > 0
-                        ? t('finance.delete_account_warning_transactions', 'Esta cuenta tiene :count transacciones asociadas. Esta acción es irreversible y eliminará todos los datos relacionados.', { count: account.transacciones_count })
+                        ? t('finance.delete_account_warning_transactions', 'Esta cuenta tiene :count transacciones asociadas. Será marcada como inactiva.', { count: account.transacciones_count })
                         : t('finance.delete_account_warning', 'Esta acción no se puede deshacer. La cuenta será eliminada permanentemente.')
                     }
                 </p>
@@ -103,6 +105,7 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                         className="mt-1 block w-full"
                         placeholder={account?.nombre}
                         isFocused
+                        disabled={(account?.saldo ?? account?.saldo_actual ?? 0) !== 0}
                     />
                 </div>
 
@@ -118,7 +121,7 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                         {t('common.cancel', 'Cancelar')}
                     </SecondaryButton>
 
-                    <DangerButton disabled={!isConfirmed || processing || account?.saldo_actual !== 0}>
+                    <DangerButton disabled={!isConfirmed || processing || (account?.saldo ?? account?.saldo_actual ?? 0) !== 0}>
                         {processing ? t('common.deleting', 'Eliminando...') : t('common.delete', 'Eliminar')}
                     </DangerButton>
                 </div>

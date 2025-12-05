@@ -251,7 +251,7 @@ export default function TransactionsWidget({
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">
-                            {t('finance.showing_transactions', { count: transactions.length })}
+                            {t('finance.showing_transactions', 'Mostrando :count transacciones', { count: transactions.length })}
                         </span>
                     </div>
                 </div>

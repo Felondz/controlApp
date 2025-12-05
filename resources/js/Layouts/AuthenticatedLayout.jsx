@@ -53,7 +53,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
     return (
         <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
             {/* Desktop Sidebar */}
-            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} />
+            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
             {/* Mobile Header & Content Wrapper */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -63,16 +63,6 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
                 >
                     <div className="flex-1 flex items-center gap-4">
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="focus:outline-none transition-all duration-200"
-                        >
-                            {isSidebarOpen ? (
-                                <MenuFoldIcon className={`h-5 w-5 ${iconClasses}`} />
-                            ) : (
-                                <MenuUnfoldIcon className={`h-5 w-5 ${iconClasses}`} />
-                            )}
-                        </button>
                         <button
                             onClick={() => window.history.back()}
                             className="focus:outline-none transition-all duration-200"

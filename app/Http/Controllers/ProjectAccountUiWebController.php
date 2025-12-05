@@ -49,23 +49,26 @@ class ProjectAccountUiWebController extends Controller
             abort(403, 'Cannot delete account not owned by project');
         }
 
-        // 3. Verify balance is zero
-        if ($account->saldo_actual != 0) {
-            return redirect()->back()->withErrors(['error' => 'La cuenta debe tener un saldo de 0 para poder ser eliminada. Por favor ajusta el saldo mediante una transacción.']);
+        // 3. Verify balance is zero - CRITICAL for balance integrity
+        if ($account->saldo != 0) {
+            return redirect()->back()->withErrors([
+                'error' => 'No se puede eliminar o inactivar una cuenta con saldo. Debes ajustar el saldo a cero mediante una transacción antes de continuar. Saldo actual: ' . number_format($account->saldo, 2)
+            ]);
         }
 
-        \Illuminate\Support\Facades\Log::info('Attempting to delete account', ['account_id' => $account->id, 'project_id' => $proyecto->id]);
-
         try {
-            // Optional: Manually delete transactions if not cascading
-            $account->transacciones()->delete();
+            if ($account->transacciones()->exists()) {
+                // Si tiene transacciones, marcar como inactiva (preserva historial)
+                $account->update(['estado' => 'inactiva']);
+                return redirect()->back()->with('success', 'La cuenta ha sido marcada como inactiva.');
+            }
+
+            // Sin transacciones, eliminar completamente
             $account->delete();
-            \Illuminate\Support\Facades\Log::info('Account deleted successfully');
+            return redirect()->back()->with('success', 'Cuenta eliminada correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error deleting account: ' . $e->getMessage());
             return redirect()->back()->withErrors(['error' => 'Error al eliminar la cuenta: ' . $e->getMessage()]);
         }
-
-        return redirect()->back()->with('success', 'Cuenta eliminada correctamente.');
     }
 }

@@ -172,4 +172,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'index']);
     Route::post('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'store']);
     Route::post('/proyectos/{proyecto}/messages/read', [App\Http\Controllers\Api\MessageController::class, 'markAsRead']);
+
+    // --- Project Settings & Ownership (Mobile API) ---
+    Route::put('/proyectos/{proyecto}/settings', [ProyectoController::class, 'updateSettings'])->name('api.proyectos.settings.update');
+    Route::post('/proyectos/{proyecto}/transfer-ownership', [ProyectoController::class, 'transferOwnership'])->name('api.proyectos.ownership.transfer');
+
+    // --- Bills Direct Payment (Mobile API) ---
+    Route::post('/proyectos/{proyecto}/bills/{transaccion}/pay-direct', [TransaccionController::class, 'payDirectly'])->name('api.bills.pay-direct');
+
+    // --- Exports (Mobile API) ---
+    Route::get('/proyectos/{proyecto}/export/csv', [App\Http\Controllers\Api\ExportController::class, 'csv'])->name('api.export.csv');
+    Route::post('/proyectos/{proyecto}/export/pdf', [App\Http\Controllers\Api\ExportController::class, 'pdf'])->name('api.export.pdf');
 });

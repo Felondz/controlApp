@@ -114,4 +114,80 @@ class ProyectoController extends Controller
         $proyecto->delete();
         return response()->noContent();
     }
+
+    /**
+     * Actualiza la configuración del proyecto (ej: widgets).
+     * API endpoint for mobile apps.
+     */
+    public function updateSettings(Request $request, Proyecto $proyecto)
+    {
+        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden modificar la configuración.');
+
+        $validated = $request->validate([
+            'settings' => 'required|array',
+        ]);
+
+        // Merge existing settings with new ones
+        $currentSettings = $proyecto->settings ?? [];
+        $newSettings = array_merge($currentSettings, $validated['settings']);
+
+        $proyecto->settings = $newSettings;
+        $proyecto->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuración actualizada correctamente',
+            'settings' => $proyecto->settings,
+        ]);
+    }
+
+    /**
+     * Transfer project ownership to another member.
+     * API endpoint for mobile apps.
+     */
+    public function transferOwnership(Request $request, Proyecto $proyecto)
+    {
+        // Only the current Owner can transfer ownership
+        if ($request->user()->id !== $proyecto->user_id) {
+            return response()->json([
+                'message' => 'Solo el Dueño del proyecto puede transferir la propiedad.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'new_owner_id' => 'required|exists:users,id',
+            'password' => 'required|current_password',
+        ]);
+
+        $newOwner = \App\Models\User::findOrFail($validated['new_owner_id']);
+
+        // Ensure the new owner is a member of the project
+        if (!$newOwner->esMiembroDe($proyecto)) {
+            return response()->json([
+                'message' => 'El nuevo dueño debe ser miembro del proyecto.'
+            ], 422);
+        }
+
+        // Ensure the new owner is ALREADY an Admin
+        if (!$newOwner->esAdminDe($proyecto)) {
+            return response()->json([
+                'message' => 'El usuario debe ser Administrador para recibir la propiedad.'
+            ], 422);
+        }
+
+        // Update project owner
+        $proyecto->user_id = $newOwner->id;
+        $proyecto->save();
+
+        // Ensure the old owner remains as admin
+        if (!$request->user()->esAdminDe($proyecto)) {
+            $proyecto->miembros()->updateExistingPivot($request->user()->id, ['rol' => 'admin']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Propiedad del proyecto transferida exitosamente.',
+            'new_owner' => $newOwner->only(['id', 'name', 'email']),
+        ]);
+    }
 }

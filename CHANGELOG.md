@@ -52,6 +52,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Translation Bug Fix**:
 - 🔧 **TransactionsWidget**: Fixed `:count` placeholder not being replaced
 
+### Added - API Endpoints for Mobile Apps
+
+**New Endpoints**:
+- 🔌 `PUT /api/proyectos/{proyecto}/settings` - Update project settings (widgets, preferences)
+- 🔌 `POST /api/proyectos/{proyecto}/transfer-ownership` - Transfer project ownership to another admin
+- 🔌 `POST /api/proyectos/{proyecto}/bills/{t}/pay-direct` - Pay bill directly with default account
+- 🔌 `GET /api/proyectos/{proyecto}/export/csv` - Export transactions/accounts to CSV
+- 🔌 `POST /api/proyectos/{proyecto}/export/pdf` - Export financial report to PDF
+
+**Files Created**:
+- `app/Http/Controllers/Api/ExportController.php`
+- `resources/views/exports/project-pdf.blade.php`
+
+**Files Modified**:
+- `app/Http/Controllers/Api/ProyectoController.php` - Added `updateSettings()` and `transferOwnership()`
+- `routes/api.php` - Added 5 new API routes
+
+### Fixed - Account Deletion Balance Validation
+
+**Critical Fix for Balance Integrity**:
+- 🔒 **API Controller**: Now validates `saldo != 0` before allowing delete/deactivate
+- 🔒 **Web Controller**: Synchronized logic with API controller
+- 🔒 **Frontend Modal**: Shows current balance when deletion blocked, disables input
+- ⚠️ **Breaking Change**: Accounts with non-zero balance cannot be deleted or deactivated
+
+**Behavior**:
+- `saldo ≠ 0` → HTTP 422 + error message with current balance
+- `saldo = 0` + has transactions → Mark as "inactiva" (soft-delete)
+- `saldo = 0` + no transactions → Permanent delete
+
+### Changed - Sidebar Toggle Button Location
+
+**UI Improvement**:
+- 🎨 **Sidebar Toggle**: Moved hamburger button from top header INTO the sidebar itself
+- 🎨 **Cleaner Header**: Top bar now only shows back button and page title
+- 🎨 **Better UX**: Toggle button always visible at sidebar top, regardless of collapse state
+
 ---
 
 ## [2.6.4] - 2025-12-05

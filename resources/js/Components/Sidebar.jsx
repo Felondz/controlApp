@@ -5,11 +5,12 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import {
     DashboardIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon,
-    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon, EnvelopeIcon
+    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon, EnvelopeIcon,
+    MenuFoldIcon, MenuUnfoldIcon
 } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
-export default function Sidebar({ user, className = '', collapsed = false, project = null }) {
+export default function Sidebar({ user, className = '', collapsed = false, project = null, onToggle }) {
     // Force rebuild v2
     const { t } = useTranslate();
     const { theme, isDark } = useGlobalTheme();
@@ -216,14 +217,30 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
         <aside
             className={`bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full flex flex-col transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'} ${className}`}
         >
-            {/* Logo Section - Only show if NO project (Global Mode) */}
-            {!project && (
-                <div className="flex items-center justify-center h-12 shrink-0 overflow-hidden">
-                    <Link href={route('dashboard')}>
-                        <ApplicationLogo className="h-8 w-auto" onlyIcon={collapsed} />
+            {/* Header: Toggle Button + Logo */}
+            <div className="flex items-center h-12 shrink-0 border-b border-gray-100 dark:border-gray-700 px-2">
+                {/* Toggle Button */}
+                {onToggle && (
+                    <button
+                        onClick={onToggle}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none"
+                        title={collapsed ? 'Expandir' : 'Colapsar'}
+                    >
+                        {collapsed ? (
+                            <MenuUnfoldIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                        ) : (
+                            <MenuFoldIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                        )}
+                    </button>
+                )}
+
+                {/* Logo - Only show if NOT collapsed and NO project */}
+                {!collapsed && !project && (
+                    <Link href={route('dashboard')} className="ml-2">
+                        <ApplicationLogo className="h-7 w-auto" />
                     </Link>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Spacer if Project Mode and NOT collapsed (to replace Logo space) */}
             {project && !collapsed && <div className="h-6"></div>}
