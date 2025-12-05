@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { router } from '@inertiajs/react';
 import ChatSidebar from './ChatSidebar';
 import ChatWindow from './ChatWindow';
 
@@ -13,32 +12,11 @@ export default function ChatWidget({ project, user }) {
 
     // Refs for stable values
     const activeChannelRef = useRef(activeChannel);
-    const reloadTimeoutRef = useRef(null);
     const lastMessageCountRef = useRef(0);
 
     useEffect(() => {
         activeChannelRef.current = activeChannel;
     }, [activeChannel]);
-
-    // Debounced router reload (10 seconds) - delays execution, resets timer on each call
-    const scheduleGlobalUpdate = useCallback(() => {
-        if (reloadTimeoutRef.current) {
-            clearTimeout(reloadTimeoutRef.current);
-        }
-        reloadTimeoutRef.current = setTimeout(() => {
-            router.reload({ only: ['auth'], preserveScroll: true });
-            reloadTimeoutRef.current = null;
-        }, 5000); // 5 second debounce
-    }, []);
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (reloadTimeoutRef.current) {
-                clearTimeout(reloadTimeoutRef.current);
-            }
-        };
-    }, []);
 
     // Fetch messages
     const fetchMessages = useCallback(async () => {
@@ -48,7 +26,7 @@ export default function ChatWidget({ project, user }) {
             const response = await axios.get(route('project.messages.index', project.id), { params });
             const newMessages = response.data.data.reverse();
 
-            // If new messages arrived while in chat, mark as read
+            // If new messages arrived while viewing this channel, mark as read
             if (newMessages.length > lastMessageCountRef.current && lastMessageCountRef.current > 0) {
                 markAsRead();
             }
@@ -72,7 +50,7 @@ export default function ChatWidget({ project, user }) {
         }
     }, [project.id]);
 
-    // Mark as read - calls API and schedules debounced global update
+    // Mark as read - calls API and updates local state only (no page reload)
     const markAsRead = useCallback(async () => {
         try {
             const channel = activeChannelRef.current;
@@ -86,13 +64,10 @@ export default function ChatWidget({ project, user }) {
                 }
                 return { ...prev, dms: { ...prev.dms, [channel]: 0 } };
             });
-
-            // Debounced: wait 10s before updating navbar (resets if called again)
-            scheduleGlobalUpdate();
         } catch (error) {
             console.error("Error marking as read:", error);
         }
-    }, [project.id, scheduleGlobalUpdate]);
+    }, [project.id]);
 
     // On channel change: load messages and mark as read
     useEffect(() => {

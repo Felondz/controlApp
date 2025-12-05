@@ -29,6 +29,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Breaking Changes**: ⚠️ Developers must have PNPM installed (`npm install -g pnpm`)
 
+### Fixed - Chat Widget Performance
+
+**Removed Heavy Page Reloads**:
+- 🔧 **ChatWidget.jsx**: Removed `router.reload()` completely - was causing slow interactions project-wide
+- ⚡ **Lightweight Updates**: `markAsRead()` now only updates local state, no page reloads
+- 📖 **Mark as Read**: Messages marked as read on channel entry and when new messages arrive while viewing that channel
+- 🔔 **NotificationDropdown**: Changed polling interval from 30s to 20s for faster navbar updates
+
+**Technical Details**:
+- Removed `scheduleGlobalUpdate()` and `reloadTimeoutRef` entirely
+- Navbar counter updates naturally when navigating to other pages
+- Trade-off: Navbar counter doesn't update in real-time while in chat (acceptable since user is viewing chat directly)
+
+### Fixed - Mobile Layout in Finance Widgets
+
+**Card Layout Optimization**:
+- 📱 **TransactionsWidget**: Compact single-row layout with icon, truncated info, amount right-aligned
+- 📱 **BillsWidget**: Same layout + yellow background theme matching bill button
+- 📱 **UpcomingObligationsWidget**: Same layout with calendar icon, date + source info
+
+**Translation Bug Fix**:
+- 🔧 **TransactionsWidget**: Fixed `:count` placeholder not being replaced
+
 ---
 
 ## [2.6.4] - 2025-12-05

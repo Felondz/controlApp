@@ -150,7 +150,7 @@ export default function UpcomingObligationsWidget({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm h-full flex flex-col relative">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm h-full flex flex-col">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 <CalendarIcon className="w-5 h-5 text-primary-600" />
                 {t('finance.upcoming_payments', 'Próximos Eventos')}
@@ -161,107 +161,60 @@ export default function UpcomingObligationsWidget({
                     {upcoming.map((event) => (
                         <div
                             key={event.id}
-                            className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all hover:bg-white dark:hover:bg-gray-800"
+                            className="group flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg hover:shadow-sm transition-all"
                         >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                {/* Date Box - Compact */}
-                                <div className={`flex flex-col items-center justify-center w-10 h-10 rounded-lg border shadow-sm flex-shrink-0 ${event.type === 'ingreso'
-                                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                                    }`}>
-                                    <span className={`text-[10px] font-bold uppercase leading-none mb-0.5 ${event.type === 'ingreso' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                                        }`}>
-                                        {new Date(event.date).toLocaleString(navigator.language, { month: 'short' }).replace('.', '')}
-                                    </span>
-                                    <span className={`text-sm font-bold leading-none ${event.type === 'ingreso' ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
-                                        }`}>
-                                        {new Date(event.date).getDate()}
-                                    </span>
-                                </div>
-
-                                {/* Details */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                            {event.title}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                        {/* Source Indicator (Subtle) */}
-                                        {event.source === 'transaction' && (
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                                                {event.accountName || t('finance.transaction', 'Transacción')}
-                                            </span>
-                                        )}
-                                        {event.source === 'task' && (
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                                {event.category?.name || t('tasks.task', 'Tarea')}
-                                            </span>
-                                        )}
-                                        {event.source === 'account' && (
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                                {event.accountName || t('finance.account', 'Cuenta')}
-                                            </span>
-                                        )}
-                                        {event.source === 'payroll' && (
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                                {event.accountName || t('finance.payroll', 'Nómina')}
-                                            </span>
-                                        )}
-                                        {event.source === 'bill' && (
-                                            <span className="flex items-center gap-1">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-                                                {event.category?.nombre || t('finance.bill', 'Factura')}
-                                            </span>
-                                        )}
-
-                                        <span className="text-gray-300 dark:text-gray-600">•</span>
-
-                                        <span className="flex items-center gap-1">
-                                            <ClockIcon className="w-3 h-3" />
-                                            {getDaysRemaining(event.date)}
-                                        </span>
-                                    </div>
-                                </div>
+                            {/* Icon - Compact (same as TransactionsWidget) */}
+                            <div className={`p-1.5 rounded-full shrink-0 ${event.type === 'ingreso'
+                                ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                }`}>
+                                <CalendarIcon className="w-4 h-4" />
                             </div>
 
-                            {/* Amount & Action */}
-                            <div className="flex items-center gap-3 ml-2 flex-shrink-0">
-                                <p className={`font-bold text-sm ${event.type === 'ingreso'
-                                    ? 'text-green-600 dark:text-green-400'
-                                    : 'text-red-600 dark:text-red-400'
-                                    }`}>
-                                    {formatCurrency(event.amount)}
+                            {/* Details - Flexible */}
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {event.title}
                                 </p>
-                                {event.source === 'task' && onMarkAsPaid && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleMarkAsPaid(event);
-                                        }}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full"
-                                        title={t('finance.mark_as_paid', 'Marcar como pagado')}
-                                    >
-                                        <CheckCircleIcon className="w-5 h-5" />
-                                    </button>
-                                )}
-                                {event.source === 'bill' && onPayBill && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onPayBill(event.billData);
-                                        }}
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full"
-                                        title={t('finance.pay_bill', 'Pagar factura')}
-                                    >
-                                        <CheckCircleIcon className="w-5 h-5" />
-                                    </button>
-                                )}
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {new Date(event.date).toLocaleDateString(navigator.language, { day: 'numeric', month: 'short' })}
+                                    {' • '}
+                                    {event.source === 'bill' && <span className="text-yellow-600">{t('finance.bill', 'Factura')}</span>}
+                                    {event.source === 'task' && <span className="text-blue-500">{event.category?.name || t('tasks.task', 'Tarea')}</span>}
+                                    {event.source === 'payroll' && <span className="text-green-500">{t('finance.payroll', 'Nómina')}</span>}
+                                    {event.source === 'account' && <span className="text-gray-500">{event.accountName || t('finance.account', 'Cuenta')}</span>}
+                                    {' • '}
+                                    <span className={event.type === 'ingreso' ? 'text-green-600' : 'text-red-500'}>{getDaysRemaining(event.date)}</span>
+                                </p>
                             </div>
+
+                            {/* Amount - Right aligned */}
+                            <span className={`text-sm font-bold shrink-0 ${event.type === 'ingreso'
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                                }`}>
+                                {formatCurrency(event.amount)}
+                            </span>
+
+                            {/* Actions */}
+                            {event.source === 'task' && onMarkAsPaid && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleMarkAsPaid(event); }}
+                                    className="hidden sm:block p-1 text-green-600 hover:bg-green-50 rounded opacity-0 group-hover:opacity-100"
+                                    title={t('finance.mark_as_paid', 'Marcar como pagado')}
+                                >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                </button>
+                            )}
+                            {event.source === 'bill' && onPayBill && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onPayBill(event.billData); }}
+                                    className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
+                                    title={t('finance.pay_bill', 'Pagar factura')}
+                                >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -273,8 +226,8 @@ export default function UpcomingObligationsWidget({
                 </div>
             )}
 
-            {/* Currency badge - bottom left */}
-            <div className="absolute bottom-4 left-4">
+            {/* Currency badge - separate row at bottom */}
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
                     {currency}
                 </span>
