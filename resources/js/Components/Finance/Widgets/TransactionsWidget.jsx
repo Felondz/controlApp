@@ -160,16 +160,22 @@ export default function TransactionsWidget({
                                     >
                                         <div className="flex items-center gap-4 flex-1 min-w-0">
                                             {/* Icon */}
-                                            <div className={`p-2.5 rounded-full ${trans.categoria?.tipo === 'ingreso'
-                                                ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                                }`}>
-                                                {trans.categoria?.tipo === 'ingreso' ? (
-                                                    <ArrowTrendingUpIcon className="w-5 h-5" />
-                                                ) : (
-                                                    <ArrowTrendingDownIcon className="w-5 h-5" />
-                                                )}
-                                            </div>
+                                            {(() => {
+                                                const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' ||
+                                                    trans.monto > 0;
+                                                return (
+                                                    <div className={`p-2.5 rounded-full ${isIncome
+                                                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                                        : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                                        }`}>
+                                                        {isIncome ? (
+                                                            <ArrowTrendingUpIcon className="w-5 h-5" />
+                                                        ) : (
+                                                            <ArrowTrendingDownIcon className="w-5 h-5" />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
 
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
@@ -197,14 +203,23 @@ export default function TransactionsWidget({
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-4 ml-4">
-                                            <span className={`text-sm font-bold whitespace-nowrap ${trans.categoria?.tipo === 'ingreso'
-                                                ? 'text-green-600 dark:text-green-400'
-                                                : 'text-red-600 dark:text-red-400'
-                                                }`}>
-                                                {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
-                                                {formatMonto(trans.monto)}
-                                            </span>
+                                        <div className="flex items-center gap-4 ml-4 shrink-0">
+                                            {(() => {
+                                                // Determine if this is income or expense
+                                                // Primary: categoria tipo, Fallback: monto sign
+                                                const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' ||
+                                                    trans.monto > 0;
+
+                                                return (
+                                                    <span className={`text-sm font-bold whitespace-nowrap ${isIncome
+                                                        ? 'text-green-600 dark:text-green-400'
+                                                        : 'text-red-600 dark:text-red-400'
+                                                        }`}>
+                                                        {isIncome ? '+' : '-'}
+                                                        {formatMonto(Math.abs(trans.monto))}
+                                                    </span>
+                                                );
+                                            })()}
 
                                             {/* Actions (Visible on Hover) */}
                                             {trans.user_id === currentUserId && onEdit && onDelete && (

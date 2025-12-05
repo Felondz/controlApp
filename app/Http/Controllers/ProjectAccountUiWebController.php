@@ -49,6 +49,11 @@ class ProjectAccountUiWebController extends Controller
             abort(403, 'Cannot delete account not owned by project');
         }
 
+        // 3. Verify balance is zero
+        if ($account->saldo_actual != 0) {
+            return redirect()->back()->withErrors(['error' => 'La cuenta debe tener un saldo de 0 para poder ser eliminada. Por favor ajusta el saldo mediante una transacción.']);
+        }
+
         \Illuminate\Support\Facades\Log::info('Attempting to delete account', ['account_id' => $account->id, 'project_id' => $proyecto->id]);
 
         try {

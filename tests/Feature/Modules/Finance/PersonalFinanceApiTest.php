@@ -136,9 +136,11 @@ class PersonalFinanceApiTest extends TestCase
         $proyecto = $this->getPersonalProject();
 
         $cuenta = Cuenta::factory()->create([
-            'propietario_id' => $proyecto->id,
-            'propietario_type' => 'proyecto',
+            'propietario_id' => $this->user->id,
+            'propietario_type' => 'usuario',
         ]);
+
+        $proyecto->cuentasAsociadas()->attach($cuenta->id);
 
         $categoria = Categoria::factory()->create([
             'proyecto_id' => $proyecto->id,
@@ -179,9 +181,11 @@ class PersonalFinanceApiTest extends TestCase
 
         $cuenta = Cuenta::factory()->create([
             'nombre' => 'Mi Banco Personal',
-            'propietario_id' => $proyecto->id,
-            'propietario_type' => 'proyecto',
+            'propietario_id' => $this->user->id,
+            'propietario_type' => 'usuario',
         ]);
+
+        $proyecto->cuentasAsociadas()->attach($cuenta->id);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->getJson('/api/finanzas-personales/cuentas');
@@ -298,5 +302,40 @@ class PersonalFinanceApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonPath('id', $proyecto->id);
+    }
+
+    /**
+     * Test: Creating a personal account auto-links it to the personal project
+     */
+    public function test_personal_account_creation_auto_links_to_project(): void
+    {
+        $proyecto = $this->getPersonalProject();
+
+        $data = [
+            'nombre' => 'Nueva Cuenta Personal',
+            'tipo' => 'banco',
+            'saldo_inicial' => 100000,
+            'moneda' => 'COP',
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson("/api/proyectos/{$proyecto->id}/cuentas", $data);
+
+        $response->assertStatus(201);
+
+        $cuentaId = $response->json('id');
+
+        // Verify ownership is User
+        $this->assertDatabaseHas('cuentas', [
+            'id' => $cuentaId,
+            'propietario_id' => $this->user->id,
+            'propietario_type' => 'usuario',
+        ]);
+
+        // Verify it is linked to the project
+        $this->assertDatabaseHas('cuenta_proyecto', [
+            'cuenta_id' => $cuentaId,
+            'proyecto_id' => $proyecto->id,
+        ]);
     }
 }
