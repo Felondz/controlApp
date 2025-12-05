@@ -7,22 +7,60 @@ import ChatWindow from './ChatWindow';
 export default function ChatWidget({ project, user }) {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeChannel, setActiveChannel] = useState('general'); // 'general' or user_id
+    const [activeChannel, setActiveChannel] = useState('general');
     const [unreadCounts, setUnreadCounts] = useState({ general: 0, dms: {} });
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
-    // Fetch messages for the active channel
+    // Refs for stable values
+    const activeChannelRef = useRef(activeChannel);
+    const reloadTimeoutRef = useRef(null);
+    const lastMessageCountRef = useRef(0);
+
+    useEffect(() => {
+        activeChannelRef.current = activeChannel;
+    }, [activeChannel]);
+
+    // Debounced router reload (10 seconds) - delays execution, resets timer on each call
+    const scheduleGlobalUpdate = useCallback(() => {
+        if (reloadTimeoutRef.current) {
+            clearTimeout(reloadTimeoutRef.current);
+        }
+        reloadTimeoutRef.current = setTimeout(() => {
+            router.reload({ only: ['auth'], preserveScroll: true });
+            reloadTimeoutRef.current = null;
+        }, 5000); // 5 second debounce
+    }, []);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (reloadTimeoutRef.current) {
+                clearTimeout(reloadTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Fetch messages
     const fetchMessages = useCallback(async () => {
         try {
-            const params = activeChannel === 'general' ? {} : { recipient_id: activeChannel };
+            const channel = activeChannelRef.current;
+            const params = channel === 'general' ? {} : { recipient_id: channel };
             const response = await axios.get(route('project.messages.index', project.id), { params });
-            setMessages(response.data.data.reverse());
+            const newMessages = response.data.data.reverse();
+
+            // If new messages arrived while in chat, mark as read
+            if (newMessages.length > lastMessageCountRef.current && lastMessageCountRef.current > 0) {
+                markAsRead();
+            }
+            lastMessageCountRef.current = newMessages.length;
+
+            setMessages(newMessages);
             setLoading(false);
         } catch (error) {
             console.error("Error fetching messages:", error);
             setLoading(false);
         }
-    }, [project.id, activeChannel]);
+    }, [project.id]);
 
     // Fetch unread counts
     const fetchUnreadCounts = useCallback(async () => {
@@ -34,82 +72,64 @@ export default function ChatWidget({ project, user }) {
         }
     }, [project.id]);
 
-    // Mark active channel as read
+    // Mark as read - calls API and schedules debounced global update
     const markAsRead = useCallback(async () => {
         try {
-            const payload = activeChannel === 'general' ? {} : { recipient_id: activeChannel };
+            const channel = activeChannelRef.current;
+            const payload = channel === 'general' ? {} : { recipient_id: channel };
 
-            // ✅ Always call API - backend handles idempotency
-            // Previously waited for unreadCounts state, causing delay
             await axios.post(route('project.messages.read', project.id), payload);
 
-            // Optimistically update local state to prevent loops
             setUnreadCounts(prev => {
-                if (activeChannel === 'general') {
+                if (channel === 'general') {
                     return { ...prev, general: 0 };
-                } else {
-                    return {
-                        ...prev,
-                        dms: { ...prev.dms, [activeChannel]: 0 }
-                    };
                 }
+                return { ...prev, dms: { ...prev.dms, [channel]: 0 } };
             });
 
-            // Update global unread count (Sidebar/Navbar)
-            router.reload({ only: ['auth', 'proyecto'], preserveScroll: true });
-
-            // Fetch latest counts to be sure (in background)
-            fetchUnreadCounts();
+            // Debounced: wait 10s before updating navbar (resets if called again)
+            scheduleGlobalUpdate();
         } catch (error) {
             console.error("Error marking as read:", error);
         }
-    }, [project.id, activeChannel, fetchUnreadCounts]);
+    }, [project.id, scheduleGlobalUpdate]);
 
-    // Initial load and channel change
+    // On channel change: load messages and mark as read
     useEffect(() => {
         setLoading(true);
+        lastMessageCountRef.current = 0;
         fetchMessages();
         markAsRead();
-    }, [activeChannel, markAsRead]); // Re-run when channel changes or unread counts change (via markAsRead dependency)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeChannel]);
 
-    // Polling for new messages and unread counts
+    // Polling every 3 seconds
     useEffect(() => {
-        // Initial fetch for unread counts
         fetchUnreadCounts();
 
-        // Skip polling in test environment to prevent tests from hanging
-        if (import.meta.env.MODE === 'test') {
-            return;
-        }
+        if (import.meta.env.MODE === 'test') return;
 
         const interval = setInterval(() => {
-            // We use the functional update or refs if needed, but here we just want to refresh data
-            // Note: We don't call markAsRead here to avoid loops. 
-            // If user is active, they will trigger markAsRead via interaction or focus (future improvement)
-            // For now, we just fetch data.
-
-            // We need to fetch messages for the *current* active channel to see new ones
-            // And fetch unread counts for *other* channels
             fetchMessages();
             fetchUnreadCounts();
         }, 3000);
 
         return () => clearInterval(interval);
-    }, [fetchMessages, fetchUnreadCounts]); // These are stable callbacks
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [project.id]);
 
     const handleSendMessage = async (content) => {
         try {
+            const channel = activeChannelRef.current;
             const payload = {
                 content,
                 type: 'text',
-                recipient_id: activeChannel === 'general' ? null : activeChannel
+                recipient_id: channel === 'general' ? null : channel
             };
 
             const response = await axios.post(route('project.messages.store', project.id), payload);
             setMessages(prev => [...prev, response.data]);
-
-            // Optimistic update: ensure we stay marked as read
-            markAsRead();
+            lastMessageCountRef.current += 1;
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -137,7 +157,6 @@ export default function ChatWidget({ project, user }) {
                 onMobileMenuClick={() => setShowMobileSidebar(true)}
             />
 
-            {/* Overlay for mobile sidebar */}
             {showMobileSidebar && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
