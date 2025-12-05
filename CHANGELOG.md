@@ -77,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ **QuickTransactionModal**: Fixed accessibility issues and updated tests to match component logic.
 - ✅ **Validation**: Fixed `UpdateTransaccionRequest` to correctly validate accounts owned by the user (not just project-owned).
 - 🐛 **TaskController**: Fixed undefined `$request` variable in `destroy` method by injecting `Request` dependency.
+- 🔧 **CI/CD**: Fixed `setup-node` failure by adding `pnpm/action-setup` step to install PNPM before Node caching configuration.
 
 **Components Modified:**
 - [ProyectoUiWebController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Http/Controllers/ProyectoUiWebController.php)
