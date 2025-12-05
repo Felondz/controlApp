@@ -27,10 +27,12 @@ use App\Notifications\VerificacionEmailNotification;
  * @method static where(string $column, $operator = null, $value = null)
  * @method static find(int $id)
  */
+use Laravel\Scout\Searchable;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
 
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -42,6 +44,21 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'locale',
+        'profile_photo_path',
+        'global_theme',
+        'enabled_tools',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+        'unread_messages_count',
+        'unread_projects',
+        'is_online',
     ];
 
     /**
@@ -65,6 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'enabled_tools' => 'array',
         ];
     }
 
@@ -73,7 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function proyectos()
     {
-        return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol');
+        return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
 
     /**
@@ -145,5 +163,149 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerificacionEmailNotification());
+    }
+
+    /**
+     * Envía la notificación de reset de password con nuestro template personalizado.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\PasswordResetNotification($token, $this->email));
+    }
+
+    /**
+     * Get the URL to the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+            ? asset('storage/' . $this->profile_photo_path)
+            : null;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
+    }
+
+    /**
+     * Get the total number of unread messages across all projects.
+     *
+     * @return int
+     */
+    /**
+     * Get the total number of unread messages across all projects.
+     *
+     * @return int
+     */
+    public function getUnreadMessagesCountAttribute()
+    {
+        $count = 0;
+        // Merge projects where user is member (pivot) and owner (personal)
+        $allProjects = $this->proyectos->merge($this->proyectosPersonales)->unique('id');
+
+        foreach ($allProjects as $proyecto) {
+            if ($proyecto->hasMessagingFeature()) {
+                // Robustly get last_read_at from DB to avoid issues with missing pivot on owned projects
+                $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                    ->where('proyecto_id', $proyecto->id)
+                    ->where('user_id', $this->id)
+                    ->first();
+
+                $lastReadAt = $pivot ? $pivot->last_read_at : null;
+
+                // General Messages
+                $generalUnread = $proyecto->messages()
+                    ->whereNull('recipient_id')
+                    ->where('user_id', '!=', $this->id)
+                    ->when($lastReadAt, function ($q) use ($lastReadAt) {
+                        $q->where('created_at', '>', $lastReadAt);
+                    })
+                    ->count();
+
+                // Direct Messages (where I am recipient and read_at is null)
+                $dmUnread = $proyecto->messages()
+                    ->where('recipient_id', $this->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                $count += $generalUnread + $dmUnread;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get the projects with unread messages.
+     *
+     * @return array
+     */
+    public function getUnreadProjectsAttribute()
+    {
+        $unreadProjects = [];
+        // Merge projects where user is member (pivot) and owner (personal)
+        $allProjects = $this->proyectos->merge($this->proyectosPersonales)->unique('id');
+
+        foreach ($allProjects as $proyecto) {
+            if ($proyecto->hasMessagingFeature()) {
+                // Robustly get last_read_at from DB
+                $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                    ->where('proyecto_id', $proyecto->id)
+                    ->where('user_id', $this->id)
+                    ->first();
+
+                $lastReadAt = $pivot ? $pivot->last_read_at : null;
+
+                $generalUnread = $proyecto->messages()
+                    ->whereNull('recipient_id')
+                    ->where('user_id', '!=', $this->id)
+                    ->when($lastReadAt, function ($q) use ($lastReadAt) {
+                        $q->where('created_at', '>', $lastReadAt);
+                    })
+                    ->count();
+
+                $privateUnread = $proyecto->messages()
+                    ->where('recipient_id', $this->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                $totalUnread = $generalUnread + $privateUnread;
+
+                if ($totalUnread > 0) {
+                    $unreadProjects[] = [
+                        'id' => $proyecto->id,
+                        'nombre' => $proyecto->nombre,
+                        'image_path' => $proyecto->image_path,
+                        'icon' => $proyecto->icon,
+                        'unread_count' => $totalUnread,
+                    ];
+                }
+            }
+        }
+        return $unreadProjects;
+    }
+
+    /**
+     * Check if the user is online.
+     *
+     * @return bool
+     */
+    public function getIsOnlineAttribute()
+    {
+        return \Illuminate\Support\Facades\Cache::has('user-is-online-' . $this->id);
     }
 }

@@ -1,55 +1,66 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\Cuenta;
 use App\Models\Proyecto;
-use App\Models\Cuenta; 
-use App\Http\Requests\StoreCuentaRequest; 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ProjectAccountUiWebController extends Controller 
+class ProjectAccountUiWebController extends Controller
 {
     /**
-     * Muestra el formulario para crear una nueva cuenta.
+     * Unlink a personal account from a project.
+     * Note: This is for unlinking a SHARED account, not deleting a project account.
      */
-    // Route Model Binding: Inyectamos el modelo Proyecto (mis_proyecto)
-    public function create(Proyecto $mis_proyecto) 
+
+    public function unlink(Request $request, Proyecto $proyecto, Cuenta $account)
     {
-        if (!auth()->user()->esMiembroDe($mis_proyecto)) {
+        if (!$request->user()->esAdminDe($proyecto)) {
             abort(403);
         }
 
-        return Inertia::render('Projects/Finance/CreateAccount', [
-            'proyecto' => [
-                'id' => $mis_proyecto->id,
-                'nombre' => $mis_proyecto->nombre,
-                'moneda_default' => $mis_proyecto->moneda_default,
-            ],
-            'tipos_cuenta' => ['bancaria', 'efectivo', 'inversion', 'credito'], 
-        ]);
+        $proyecto->cuentasAsociadas()->detach($account->id);
+
+        return redirect()->back()->with('success', 'Cuenta desvinculada correctamente.');
     }
-    
+
     /**
-     * Almacena una nueva cuenta asociada al proyecto.
+     * Delete a project account.
      */
-    public function store(StoreCuentaRequest $request, Proyecto $mis_proyecto)
+    /**
+     * Delete a project account.
+     */
+    public function destroy(Request $request, Proyecto $proyecto, $accountId)
     {
-        if (!auth()->user()->esMiembroDe($mis_proyecto)) {
-            abort(403);
+        $account = Cuenta::find($accountId);
+
+        if (!$account) {
+            return redirect()->back()->withErrors(['error' => 'Cuenta no encontrada.']);
         }
 
-        // 1. Crear la cuenta (Los datos vienen validados).
-        $cuenta = new Cuenta($request->validated());
-        $cuenta->saldo_actual = $request->saldo_inicial; 
+        // 1. Authorization
+        if (!$request->user()->esAdminDe($proyecto)) {
+            abort(403, 'Unauthorized');
+        }
 
-        // 2. Persistir usando la relación polimórfica del proyecto.
-        // La relación 'cuentas()' en el modelo Proyecto asocia esto.
-        $mis_proyecto->cuentas()->save($cuenta); 
+        // 2. Verify account belongs to project
+        if ($account->propietario_type !== 'App\Models\Proyecto' || $account->propietario_id !== $proyecto->id) {
+            abort(403, 'Cannot delete account not owned by project');
+        }
 
-        // 3. Redirigir al dashboard del proyecto.
-        return redirect()->route('mis-proyectos.show', [
-            'mis_proyecto' => $mis_proyecto->id
-        ])->with('success', 'Cuenta creada exitosamente.');
+        \Illuminate\Support\Facades\Log::info('Attempting to delete account', ['account_id' => $account->id, 'project_id' => $proyecto->id]);
+
+        try {
+            // Optional: Manually delete transactions if not cascading
+            $account->transacciones()->delete();
+            $account->delete();
+            \Illuminate\Support\Facades\Log::info('Account deleted successfully');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting account: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar la cuenta: ' . $e->getMessage()]);
+        }
+
+        return redirect()->back()->with('success', 'Cuenta eliminada correctamente.');
     }
 }

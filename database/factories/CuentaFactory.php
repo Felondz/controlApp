@@ -22,8 +22,8 @@ class CuentaFactory extends Factory
         return [
             'nombre' => $this->faker->word() . ' - ' . $this->faker->randomElement(['Banco', 'Efectivo', 'Tarjeta']),
             'banco' => $this->faker->company(),
-            'balance_inicial' => $balance,
-            'balance' => $balance,
+            'saldo_inicial' => $balance,
+            'saldo_actual' => $balance,
             'tipo' => $this->faker->randomElement(['efectivo', 'banco', 'credito', 'otro']),
             'estado' => 'activa',
             'propietario_id' => Proyecto::factory(),

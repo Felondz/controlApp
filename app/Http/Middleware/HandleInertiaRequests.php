@@ -30,8 +30,13 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        // Obtener el idioma actual (por defecto 'es')
-        $locale = app()->getLocale();
+        // Determine locale: User preference > Browser > Default (en)
+        $locale = $request->user()->locale
+            ?? $request->getPreferredLanguage(['es', 'en'])
+            ?? 'en';
+
+        // Set the application locale
+        app()->setLocale($locale);
 
         // Cargar las traducciones del archivo JSON correspondiente
         $translations = $this->loadTranslations($locale);
@@ -39,11 +44,22 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    ...$request->user()->toArray(),
+                    'global_theme' => $request->user()->global_theme ?? 'purple-modern',
+                    'enabled_tools' => $request->user()->enabled_tools ?? [],
+                ] : null,
             ],
             // Compartir las traducciones como prop global
             'locale' => $locale,
             'translations' => $translations,
+            'old' => function () use ($request) {
+                return $request->session()->getOldInput();
+            },
+            'flash' => [
+                'success' => fn() => $request->session()->get('success'),
+                'error' => fn() => $request->session()->get('error'),
+            ],
         ];
     }
 
@@ -55,14 +71,14 @@ class HandleInertiaRequests extends Middleware
      */
     private function loadTranslations(string $locale): array
     {
-        $langPath = resource_path("lang/{$locale}.json");
+        $langPath = resource_path("lang/{$locale}/{$locale}.json");
 
         if (File::exists($langPath)) {
             return json_decode(File::get($langPath), true) ?? [];
         }
 
         // Fallback a inglés si el idioma solicitado no existe
-        $fallbackPath = resource_path('lang/en.json');
+        $fallbackPath = resource_path('lang/en/en.json');
         if (File::exists($fallbackPath)) {
             return json_decode(File::get($fallbackPath), true) ?? [];
         }

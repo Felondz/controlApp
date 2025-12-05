@@ -43,6 +43,7 @@ class Transaccion extends Model
         'descripcion',
         'fecha',
         'notas',
+        'status',
     ];
 
     // 3. Las relaciones siguen igual

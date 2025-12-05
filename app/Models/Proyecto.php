@@ -10,29 +10,41 @@ use App\Models\User;
 use App\Models\Cuenta;
 use App\Models\Categoria;
 use App\Models\Transaccion;
-use App\Models\Invitacion; // <-- ¡La importación!
+use App\Models\Invitacion;
+use App\Models\Message;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Laravel\Scout\Searchable;
+
 class Proyecto extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
 
     /**
      * Los atributos que se pueden asignar masivamente.
      */
     protected $fillable = [
         'nombre',
+        'descripcion',
         'moneda_default',
         'user_id',
         'es_personal',
         'visible_en_listado',
+        'modules',
+        'color',
+        'icon',
+        'image_path',
+        'theme',
+        'typography',
+        'settings',
     ];
 
     /**
      * Siempre cargar estas relaciones.
+     * (Eliminado por seguridad: las finanzas solo deben cargarse si es admin)
      */
-    protected $with = ['cuentas', 'categorias', 'transacciones'];
+    // protected $with = ['cuentas', 'categorias', 'transacciones'];
 
     /**
      * Los atributos que deben castearse a tipos nativos.
@@ -40,14 +52,23 @@ class Proyecto extends Model
     protected $casts = [
         'es_personal' => 'boolean',
         'visible_en_listado' => 'boolean',
+        'modules' => 'array',
+        'settings' => 'array',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['has_messaging_feature'];
 
     /**
      * Relación Miembros (muchos a muchos)
      */
     public function miembros()
     {
-        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol');
+        return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
 
     /**
@@ -56,6 +77,16 @@ class Proyecto extends Model
     public function cuentas()
     {
         return $this->morphMany(Cuenta::class, 'propietario');
+    }
+
+    /**
+     * Relación Cuentas Asociadas (muchos a muchos)
+     * Cuentas personales vinculadas al proyecto.
+     */
+    public function cuentasAsociadas()
+    {
+        return $this->belongsToMany(Cuenta::class, 'cuenta_proyecto')
+            ->withTimestamps();
     }
 
     /**
@@ -96,5 +127,64 @@ class Proyecto extends Model
     public function propietarioPersonal()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the URL to the project's image.
+     *
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->image_path
+            ? asset('storage/' . $this->image_path)
+            : null;
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'user_id' => $this->user_id,
+        ];
+    }
+    /**
+     * Relación Mensajes (uno a muchos)
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Relación Tareas (uno a muchos)
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'project_id');
+    }
+
+    /**
+     * Verifica si el proyecto tiene habilitada la mensajería.
+     * (Requiere que el módulo 'chat' esté activo)
+     */
+    public function hasMessagingFeature(): bool
+    {
+        $modules = $this->modules ?? [];
+        return in_array('chat', $modules);
+    }
+
+    /**
+     * Accessor for has_messaging_feature
+     */
+    public function getHasMessagingFeatureAttribute(): bool
+    {
+        return $this->hasMessagingFeature();
     }
 }

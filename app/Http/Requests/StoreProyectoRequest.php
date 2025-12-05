@@ -32,7 +32,7 @@ class StoreProyectoRequest extends FormRequest
                 'required',
                 'string',
                 'min:3',
-                'max:255',   
+                'max:255',
                 Rule::unique('proyectos')->where(function ($query) {
                     return $query->where('user_id', Auth::id());
                 }),
@@ -43,9 +43,45 @@ class StoreProyectoRequest extends FormRequest
                 'max:1000',
             ],
             'moneda_default' => [
-                'required',
+                'nullable',
                 'string',
-                'in:COP,USD,EUR',  // Remover 'uppercase' - no es una regla válida
+                'in:COP,USD,EUR,MXN,PEN,CLP,ARS,BRL',
+            ],
+            'modules' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'modules.*' => [
+                'string',
+                'in:finance,tasks,chat,analytics,notifications',
+            ],
+            'image' => [
+                'nullable',
+                'image',
+                'max:4096', // 4MB
+            ],
+            'theme' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
+            'color' => [
+                'nullable',
+                'string',
+                'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/',
+            ],
+            // Icon kept for backward compatibility or emoji usage if image is not provided
+            'icon' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+            'typography' => [
+                'nullable',
+                'string',
+                'in:sans,serif,mono,roboto,opensans,lato,montserrat,nunito,raleway,playfair,merriweather',
             ],
         ];
     }
@@ -68,6 +104,10 @@ class StoreProyectoRequest extends FormRequest
             'moneda_default.in' => 'La moneda debe ser una de las siguientes: COP, USD, EUR.',
             'moneda_default.uppercase' => 'El código de moneda debe estar en mayúsculas.',
             'nombre.unique' => 'Ya tienes un proyecto con este nombre.',
+            'modules.required' => 'Debes seleccionar al menos un módulo.',
+            'modules.min' => 'Debes seleccionar al menos un módulo.',
+            'color.regex' => 'El color debe ser un código hexadecimal válido.',
+            'icon.max' => 'El icono no puede exceder 5 caracteres.',
         ];
     }
 }

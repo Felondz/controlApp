@@ -39,8 +39,11 @@ class SanitizeInput
      */
     private function sanitize(Request $request): void
     {
+        // Lista de campos que NO deben ser sanitizados (tokens, etc.)
+        $exclude = ['token', 'password', 'password_confirmation'];
+        
         $data = $request->all();
-        $sanitized = $this->sanitizeArray($data);
+        $sanitized = $this->sanitizeArray($data, $exclude);
         $request->merge($sanitized);
     }
 
@@ -48,15 +51,22 @@ class SanitizeInput
      * Recursively sanitize array values
      *
      * @param array $data
+     * @param array $exclude Fields to exclude from sanitization
      * @return array
      */
-    private function sanitizeArray(array $data): array
+    private function sanitizeArray(array $data, array $exclude = []): array
     {
         $sanitized = [];
 
         foreach ($data as $key => $value) {
+            // Skip excluded fields
+            if (in_array($key, $exclude)) {
+                $sanitized[$key] = $value;
+                continue;
+            }
+            
             if (is_array($value)) {
-                $sanitized[$key] = $this->sanitizeArray($value);
+                $sanitized[$key] = $this->sanitizeArray($value, $exclude);
             } elseif (is_string($value)) {
                 // Trim whitespace and escape HTML entities
                 $sanitized[$key] = htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');

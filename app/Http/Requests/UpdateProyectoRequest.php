@@ -31,10 +31,18 @@ class UpdateProyectoRequest extends FormRequest
                 'string',
                 'max:255',
                 'min:3',
-                Rule::unique('proyectos')->ignore($this->route('proyecto')),
+                Rule::unique('proyectos')->ignore($this->route('proyecto') ?? $this->route('mis_proyecto')),
             ],
             'moneda_default' => 'sometimes|required|in:COP,USD,EUR',
             'descripcion' => 'nullable|string|max:1000',
+            'color' => 'nullable|string|max:7',
+            'icon' => 'nullable|string|max:50',
+            'theme' => 'nullable|string|max:50',
+            'typography' => 'nullable|string|in:sans,serif,mono,roboto,opensans,lato,montserrat,nunito,raleway,playfair,merriweather',
+            'image' => 'nullable|image|max:4096', // 4MB max
+            'modules' => 'nullable|array',
+            'modules.*' => 'string|in:finance,tasks,chat',
+            'settings' => 'nullable|array',
         ];
     }
 

@@ -39,9 +39,68 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        \Illuminate\Support\Facades\Log::info('LoginRequest: Start. Auth::check() = ' . (Auth::check() ? 'TRUE' : 'FALSE'));
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = $this->only('email', 'password');
+
+        // 0. Verificar si el usuario existe (User Enumeration - Requested Feature)
+        /** @var \App\Models\User|null $user */
+        $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+        if (!$user) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'No existe una cuenta registrada con este correo electrónico.',
+            ]);
+        }
+
+        // 1. Validar credenciales (Password check)
+        if (!Auth::validate($credentials)) {
+            \Illuminate\Support\Facades\Log::info('LoginRequest: Credentials validation failed');
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        // 2. Usuario ya obtenido arriba
+        \Illuminate\Support\Facades\Log::info('LoginRequest: User retrieved: ' . ($user ? $user->email : 'NONE'));
+
+        // 3. Verificar si el email está verificado (con lógica de reintento para race conditions)
+        if ($user && !$user->hasVerifiedEmail()) {
+            \Illuminate\Support\Facades\Log::info('LoginRequest: User email initially NOT verified. Starting retry loop.');
+
+            // Reintentar hasta 3 veces esperando 1 segundo entre intentos
+            // Esto soluciona la condición de carrera donde la DB tarda en replicar el cambio de estado
+            $maxRetries = 3;
+            $verified = false;
+
+            for ($i = 0; $i < $maxRetries; $i++) {
+                sleep(1);
+                $user = $user->fresh(); // Recargar usuario de la DB
+
+                if ($user->hasVerifiedEmail()) {
+                    $verified = true;
+                    \Illuminate\Support\Facades\Log::info("LoginRequest: User verified after retry " . ($i + 1));
+                    break;
+                }
+            }
+
+            if (!$verified) {
+                \Illuminate\Support\Facades\Log::info('LoginRequest: User email NOT verified after retries. Throwing exception.');
+
+                throw ValidationException::withMessages([
+                    'email' => 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.',
+                ]);
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info('LoginRequest: User email IS verified. Attempting login.');
+
+        // 4. Si todo está bien, iniciamos sesión
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -59,7 +118,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -80,6 +139,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }
