@@ -2,18 +2,27 @@ import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { formatCurrency } from '@/Utils/currencyHelpers';
+import UpcomingObligationsWidget from '@/Components/Finance/Widgets/UpcomingObligationsWidget';
+import BalanceSummaryWidget from '@/Components/Finance/Widgets/BalanceSummaryWidget';
+import SavingsGoalWidget from '@/Components/Finance/Widgets/SavingsGoalWidget';
+import CreditSimulationWidget from '@/Components/Finance/Widgets/CreditSimulationWidget';
+import FinancialChartsWidget from '@/Components/Finance/Widgets/FinancialChartsWidget';
+import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
+import AccountChart from '@/Components/Finance/AccountChart';
+import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
 import AccountModal from '@/Components/Finance/Modals/AccountModal';
-import TransactionModal from '@/Components/Finance/Modals/TransactionModal';
-import { PlusIcon, CurrencyDollarIcon } from '@/Components/Icons';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import { PlusIcon, CurrencyDollarIcon, BanknotesIcon, CreditCardIcon, ChartBarIcon, CalendarIcon, BoltIcon } from '@/Components/Icons';
 import axios from 'axios';
 
-export default function PersonalDashboard({ 
-    auth, 
-    proyectoPersonal, 
-    proyectos, 
-    todasLasCuentas, 
-    todasLasTransacciones 
+export default function PersonalDashboard({
+    auth,
+    proyectoPersonal,
+    proyectos,
+    todasLasCuentas,
+    todasLasTransacciones
 }) {
     const { t } = useTranslate();
     const [showAccountModal, setShowAccountModal] = useState(false);
@@ -23,6 +32,15 @@ export default function PersonalDashboard({
     const [categorias, setCategorias] = useState(proyectoPersonal?.categorias || []);
     const [cuentas, setCuentas] = useState(todasLasCuentas || []);
     const [transacciones, setTransacciones] = useState(todasLasTransacciones || []);
+
+    // Sync local state with Inertia props when they change
+    useEffect(() => {
+        setCuentas(todasLasCuentas || []);
+    }, [todasLasCuentas]);
+
+    useEffect(() => {
+        setTransacciones(todasLasTransacciones || []);
+    }, [todasLasTransacciones]);
 
     const handleAccountSuccess = () => {
         // Recargar datos
@@ -67,7 +85,7 @@ export default function PersonalDashboard({
     // Formatear monto
     const formatMonto = (monto) => {
         const amount = Math.abs(monto) / 100;
-        return new Intl.NumberFormat('es-CO', {
+        return new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: proyectoPersonal?.moneda_default || 'COP',
         }).format(amount);
@@ -79,7 +97,7 @@ export default function PersonalDashboard({
     };
 
     // Transacciones personales (sin proyecto o del proyecto personal)
-    const transaccionesPersonales = transacciones.filter(t => 
+    const transaccionesPersonales = transacciones.filter(t =>
         !t.proyecto_id || t.proyecto_id === proyectoPersonal?.id
     );
 
@@ -130,7 +148,7 @@ export default function PersonalDashboard({
                                         const gastos = cuentaTransacciones
                                             .filter(t => t.categoria?.tipo === 'gasto')
                                             .reduce((sum, t) => sum + Math.abs(t.monto || 0), 0);
-                                        
+
                                         return (
                                             <div
                                                 key={cuenta.id}
@@ -184,7 +202,7 @@ export default function PersonalDashboard({
                                     {proyectos.map((proyecto) => {
                                         const proyectoTransacciones = getTransaccionesByProyecto(proyecto.id);
                                         if (proyectoTransacciones.length === 0) return null;
-                                        
+
                                         return (
                                             <div
                                                 key={proyecto.id}
@@ -208,11 +226,10 @@ export default function PersonalDashboard({
                                                                     {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
                                                                 </p>
                                                             </div>
-                                                            <span className={`text-sm font-semibold ${
-                                                                trans.categoria?.tipo === 'ingreso'
-                                                                    ? 'text-green-600 dark:text-green-400'
-                                                                    : 'text-red-600 dark:text-red-400'
-                                                            }`}>
+                                                            <span className={`text - sm font - semibold ${trans.categoria?.tipo === 'ingreso'
+                                                                ? 'text-green-600 dark:text-green-400'
+                                                                : 'text-red-600 dark:text-red-400'
+                                                                } `}>
                                                                 {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
                                                                 {formatMonto(trans.monto)}
                                                             </span>
@@ -234,38 +251,17 @@ export default function PersonalDashboard({
 
                     {/* Personal Transactions */}
                     {transaccionesPersonales.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div className="p-6">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    {t('finance.personal_transactions', 'Transacciones Personales')}
-                                </h3>
-                                <div className="space-y-2">
-                                    {transaccionesPersonales.slice(0, 10).map((trans) => (
-                                        <div
-                                            key={trans.id}
-                                            className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-                                            onClick={() => handleEditTransaction(trans)}
-                                        >
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {trans.descripcion || t('finance.no_description', 'Sin descripción')}
-                                                </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {trans.cuenta?.nombre} • {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                            <span className={`text-sm font-semibold ${
-                                                trans.categoria?.tipo === 'ingreso'
-                                                    ? 'text-green-600 dark:text-green-400'
-                                                    : 'text-red-600 dark:text-red-400'
-                                            }`}>
-                                                {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
-                                                {formatMonto(trans.monto)}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                        <div className="mb-8">
+                            <TransactionsWidget
+                                transactions={transaccionesPersonales}
+                                accounts={cuentas}
+                                categories={categorias}
+                                currency={proyectoPersonal?.moneda_default || 'COP'}
+                                onEdit={handleEditTransaction}
+                                onDelete={null}
+                                currentUserId={auth.user.id}
+                                projects={proyectos}
+                            />
                         </div>
                     )}
 
@@ -296,23 +292,24 @@ export default function PersonalDashboard({
                 }}
                 account={selectedAccount}
                 proyectoId={proyectoPersonal?.id}
+                proyecto={proyectoPersonal}
                 onSuccess={handleAccountSuccess}
             />
 
-            <TransactionModal
+            <QuickTransactionModal
                 show={showTransactionModal}
                 onClose={() => {
                     setShowTransactionModal(false);
-                    setSelectedTransaction(null);
+                    setEditingTransaction(null);
                 }}
-                transaction={selectedTransaction}
-                proyectoId={proyectoPersonal?.id}
+                transaction={editingTransaction}
+                proyectoId={null} // Personal finance
                 proyectos={proyectos}
                 cuentas={cuentas}
                 categorias={categorias}
                 onSuccess={handleTransactionSuccess}
+                initialType={editingTransaction ? (editingTransaction.monto > 0 ? 'income' : 'expense') : 'expense'}
             />
         </AuthenticatedLayout>
     );
 }
-

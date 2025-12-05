@@ -83,7 +83,7 @@ export default function NotificationDropdown() {
             <Dropdown width="80" contentClasses="py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <Dropdown.Trigger>
                     <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                        <span className="sr-only">{t('notifications.title', 'Notificaciones')}</span>
+                        <span className="sr-only">{t('modules.notifications.title', 'Notificaciones')}</span>
                         <BellIcon className="h-6 w-6 transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300" />
                         {unreadCount > 0 && (
                             <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
@@ -94,14 +94,14 @@ export default function NotificationDropdown() {
                 <Dropdown.Content>
                     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-gray-700">
                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            {t('notifications.title', 'Notificaciones')}
+                            {t('modules.notifications.title', 'Notificaciones')}
                         </span>
                         {unreadCount > 0 && (
                             <button
                                 onClick={markAllAsRead}
                                 className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
                             >
-                                {t('notifications.mark_all_read', 'Marcar todas como leídas')}
+                                {t('modules.notifications.mark_all_read', 'Marcar todas como leídas')}
                             </button>
                         )}
                     </div>
@@ -131,7 +131,7 @@ export default function NotificationDropdown() {
                                         <button
                                             onClick={() => markAsRead(notification.id)}
                                             className="ml-2 w-2 h-2 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors"
-                                            title={t('notifications.mark_read', 'Marcar como leída')}
+                                            title={t('modules.notifications.mark_read', 'Marcar como leída')}
                                         />
                                     )}
                                 </div>
@@ -140,13 +140,13 @@ export default function NotificationDropdown() {
                     ) : (
                         <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                             <BellIcon className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
-                            {t('notifications.empty', 'No tienes notificaciones.')}
+                            {t('modules.notifications.empty', 'No tienes notificaciones.')}
                         </div>
                     )}
 
                     <div className="border-t border-gray-100 dark:border-gray-700">
                         <Link href={route('profile.edit')} className="block px-4 py-2 text-center text-primary-600 dark:text-primary-400 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                            {t('notifications.settings', 'Configuración de Notificaciones')}
+                            {t('modules.notifications.settings', 'Configuración de Notificaciones')}
                         </Link>
                     </div>
                 </Dropdown.Content>

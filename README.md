@@ -10,12 +10,12 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 280 / 280 | ✅ **100% Stable** |
+| **Backend Tests** | 284 / 284 | ✅ **100% Stable** |
 | **Frontend Tests** | 217 tests / 39 files | ✅ **100% Coverage** |
-| **Total Tests** | 497 tests | ✅ **Robust Coverage** |
+| **Total Tests** | 501 tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v2.3.0 (Modular Architecture) | ✅ **Stable** |
+| **Backend Version** | v2.6.0 (Collaborative Finance) | ✅ **Stable** |
 | **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -80,6 +80,38 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
   - **Export**: Generate professional PDF reports with amortization charts.
   - **Visualizations**: Interactive charts for principal vs. interest analysis.
   - **API**: RESTful endpoints for tool management (`GET /api/tools`, `POST /api/tools/toggle`).
+
+- **Finance Management**:
+  - **Accounts**: Create and manage 6 types of accounts (cash, bank, credit, investment, loan, other).
+  - **Multi-Currency**: Support for 8 currencies (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL) - each account can have its own currency.
+  - **Payroll Accounts**: Mark bank accounts as payroll accounts with payment day and estimated amount.
+  - **Enhanced Account Cards**: Display detailed information based on account type:
+    - Credit Cards: Limit, available credit, payment date, interest rate
+    - Loans: Total amount, monthly payment, remaining installments, interest rate
+    - Investments: Maturity date, expected return rate
+    - Payroll: Payment day, estimated amount
+  - **Secure Deletion**: Delete accounts with confirmation modal requiring account name typing.
+  - **Scheduled Transactions (Bills)**: Create pending/scheduled transactions with recurrence support (daily/weekly/monthly/yearly).
+  - **Transaction Status**: Track transactions as `completed`, `pending`, or `cancelled`.
+  - **Transaction Tracking**: Record income and expenses per account with categorization.
+  - **Financial Dashboard**: Visualize balances, cash flow charts, and upcoming obligations.
+  - **Upcoming Obligations Widget**: 
+    - View income (payroll) and expenses (loans, credit cards, pending bills) with color coding.
+    - "Mark as Paid" functionality for pending transactions.
+    - Alert indicators based on due date proximity.
+    - Scrollable view showing all upcoming obligations.
+  - **Owner Visual Differentiation** (Collaborative Projects):
+    - **8 Color-Coded Badges**: Automatically assigned to each account owner for easy identification.
+    - **Account Cards**: Display owner badges with initials + first name (e.g., "JP Juan").
+    - **Transaction Rows**: Show owner initials next to account names.
+    - **Smart Display**: Only visible in collaborative projects, hidden in personal finance.
+  - **AccountFlowWidget** (Income/Expense Visualization):
+    - **Dual Pie Charts**: Separate donut charts for income (green) and expenses (red).
+    - **3D Effects**: Professional SVG shadow filters for depth.
+    - **Owner Colors**: Uses owner palettes in collaborative projects.
+    - **Interactive Legend**: Shows account names, owner badges, and amounts.
+    - **Dashboard Integration**: Positioned after cash flow charts, configurable via settings.
+
 ## ✨ Características Principales
 
 ### 🏗️ Arquitectura Modular (v2.0.0)
@@ -171,10 +203,10 @@ Run tests locally:
 ./vendor/bin/sail test
 
 # Frontend tests
-npm run test
+pnpm test
 
 # CI mode (both)
-npm run test:ci
+pnpm test:ci
 ```
 
 ---
@@ -229,6 +261,19 @@ The project is easily runnable using Docker and Laravel Sail.
 ### Prerequisites
 * Docker and Docker Compose (or Docker Desktop)
 * Git
+* **PNPM** (Required - see below)
+
+### Package Manager Requirement
+
+> **IMPORTANT**: This project exclusively uses **PNPM** for security reasons. Do NOT use `npm` or `yarn`.
+
+```bash
+# Install PNPM globally (if not already installed)
+npm install -g pnpm
+
+# Verify installation
+pnpm --version
+```
 
 ### Setup Steps
 1.  **Clone Repository:**

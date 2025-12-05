@@ -27,11 +27,6 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {!collapsed && t('dashboard.marketplace', 'Mercado')}
             </ResponsiveNavLink>
 
-            <ResponsiveNavLink href={route('finance.personal')} active={route().current('finance.personal')} collapsed={collapsed}>
-                <PersonalFinanceIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                {!collapsed && t('modules.finance', 'Finanzas Personales')}
-            </ResponsiveNavLink>
-
             <ResponsiveNavLink href={route('invitations.index')} active={route().current('invitations.index')} collapsed={collapsed}>
                 <EnvelopeIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('invitations.title', 'Invitaciones')}
@@ -64,6 +59,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
     const renderProjectMenu = () => {
         const modules = project.modules || ['finance'];
+
 
         // Robust Image Detection (Same as ProjectCard)
         const imageUrl = project.image_url
@@ -109,17 +105,15 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     </div>
                 </div>
 
-                {/* Project Links */}
-                {!project.es_personal && (
-                    <ResponsiveNavLink
-                        href={route('mis-proyectos.show', project.id)}
-                        active={route().current('mis-proyectos.show', project.id)}
-                        collapsed={collapsed}
-                    >
-                        <FolderIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                        {!collapsed && t('projects.overview', 'Resumen General')}
-                    </ResponsiveNavLink>
-                )}
+                {/* Project Links - Both personal and regular projects use same route */}
+                <ResponsiveNavLink
+                    href={route('mis-proyectos.show', project.id)}
+                    active={route().current('mis-proyectos.show', project.id)}
+                    collapsed={collapsed}
+                >
+                    <FolderIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                    {!collapsed && t('projects.overview', 'Resumen General')}
+                </ResponsiveNavLink>
 
                 {modules.includes('finance') && (
                     <ResponsiveNavLink

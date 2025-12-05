@@ -873,27 +873,72 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "nombre": "Efectivo",
-  "tipo": "efectivo",
-  "saldo_inicial": 1000.00,
-  "moneda": "USD"
+  "nombre": "Tarjeta BBVA",
+  "tipo": "credito",
+  "banco": "BBVA",
+  "saldo_inicial": 0,
+  "moneda": "COP",
+  "limite_credito": 5000000,
+  "tasa_interes_anual": 24.5,
+  "dia_corte": 15,
+  "dia_pago": 20,
+  "fecha_vencimiento": "2028-12-31"
 }
 ```
+
+**Campos Comunes** (todos los tipos):
+- `nombre` (string, required): Nombre de la cuenta
+- `tipo` (string, required): Tipo de cuenta - valores: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- `saldo_inicial` (number, required): Saldo inicial en centavos
+- `moneda` (string, required): Código ISO 4217 (3 letras) - valores: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+- `banco` (string, optional): Nombre del banco
+- `descripcion` (string, optional): Descripción adicional
+- `color` (string, optional): Código de color hexadecimal (ej: #FF0000)
+- `icono` (string, optional): Nombre del ícono
+
+**Campos Específicos por Tipo**:
+
+**Crédito (`tipo: "credito"`)**:
+- `limite_credito` (number, required): Límite de crédito en centavos
+- `tasa_interes_anual` (number, required): Tasa de interés anual (0-100%)
+- `dia_corte` (integer, required): Día del mes de corte (1-31)
+- `dia_pago` (integer, required): Día del mes de pago (1-31)
+- `fecha_vencimiento` (date, required): Fecha de vencimiento de la tarjeta (YYYY-MM-DD, debe ser futura)
+
+**Inversión (`tipo: "inversion"`)**:
+- `tasa_interes_anual` (number, optional): Tasa de interés anual (0-100%)
+
+**Préstamo (`tipo: "prestamo"`)**:
+- `tasa_interes_anual` (number, required): Tasa de interés anual (0-100%)
+- `dia_pago` (integer, required): Día del mes de pago (1-31)
+- `fecha_vencimiento` (date, optional): Fecha de vencimiento del préstamo (YYYY-MM-DD, debe ser futura)
+- `plazo` (integer, optional): Plazo en meses
+- `valor_cuota` (number, optional): Valor de la cuota mensual en centavos
+- `cuotas_pagadas` (integer, optional): Número de cuotas ya pagadas
+
+**Nómina (`tipo: "banco"`)**:
+- `es_nomina` (boolean, optional): Marcar como cuenta de nómina
+- `dia_nomina` (array, required if es_nomina=true): Array de días de pago (1-31), máx 4 días. Ejemplo: `[15, 30]`
+- `valor_nomina` (number, required if es_nomina=true): Valor estimado de nómina en centavos
 
 **Response (201)**
 ```json
 {
   "id": 2,
   "proyecto_id": 1,
-  "nombre": "Efectivo",
-  "tipo": "efectivo",
-  "saldo_actual": 1000.00,
-  "saldo_inicial": 1000.00,
-  "estado": "activa"
+  "nombre": "Tarjeta BBVA",
+  "tipo": "credito",
+  "saldo_inicial": 0,
+  "created_at": "2025-11-15 11:30:00"
 }
 ```
 
-**Tipos válidos**: `banco`, `efectivo`, `credito`, `inversion`, `otro`
+**Validación** (FormRequest: `StoreCuentaRequest`)
+- Tipos válidos: `efectivo`, `banco`, `credito`, `inversion`, `prestamo`, `otro`
+- Monedas válidas: `COP`, `USD`, `EUR`, `MXN`, `PEN`, `CLP`, `ARS`, `BRL`
+
+**Autorización**
+- ✅ Solo admins del proyecto pueden crear cuentas
 
 ---
 
@@ -953,6 +998,7 @@ Accept: application/json
 - `fecha_hasta` - Fecha fin (YYYY-MM-DD)
 - `categoria_id` - ID de categoría (opcional)
 - `tipo` - ingreso o egreso (opcional)
+- `status` - pending o completed (opcional)
 
 **Response (200)**
 ```json
@@ -994,11 +1040,12 @@ Accept: application/json
 ```
 
 **Parámetros**:
-- `categoria_id` (number, required): ID de la categoría de gasto/ingreso
-- `cuenta_id` (number, required): ID de la cuenta bancaria
+- `categoria_id` (number, optional): ID de la categoría (puede ser null para facturas)
+- `cuenta_id` (number, optional): ID de la cuenta bancaria (null para facturas pendientes)
 - `descripcion` (string, required): Descripción de la transacción
-- `monto` (number, required): Monto de la transacción
+- `monto` (number, required): Monto de la transacción (negativo para gastos/facturas)
 - `fecha` (date, required): Fecha de la transacción (YYYY-MM-DD)
+- `status` (string, optional): 'completed' (default) o 'pending'
 - `notas` (string, optional): Notas adicionales
 - `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
@@ -1027,7 +1074,7 @@ Accept: application/json
 ### Update Transacción - Actualizar Transacción
 
 ```http
-PUT /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+PUT /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Content-Type: application/json
 Accept: application/json
@@ -1043,7 +1090,7 @@ Accept: application/json
 ### Delete Transacción - Eliminar Transacción
 
 ```http
-DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}/transacciones/{transaccion}
+DELETE /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
 ```

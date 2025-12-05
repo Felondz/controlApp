@@ -7,9 +7,9 @@
 ## 1. 🎯 Filosofía de Testing y QA
 
 * **Estado Actual**:
-    - **Backend**: 100% de cobertura funcional (280 tests).
+    - **Backend**: 100% de cobertura funcional (284 tests).
     - **Frontend**: 100% de cobertura de componentes (217 tests en 39 archivos de prueba).
-    - **Total**: 497 tests con cobertura completa
+    - **Total**: 501 tests con cobertura completa
 * **Regla de Oro (Quality Gate)**: Si los tests fallan, el código tiene un error. **No hagas commit/push hasta que todos pasen**.
 * **Convención**: Usar nombres descriptivos: `test_admin_puede_crear_usuario` (backend), `renders correctly` (frontend).
 * **CI/CD**: Todos los tests se ejecutan automáticamente en GitHub Actions en cada push/PR.
@@ -43,6 +43,7 @@ Los tests están organizados por tipo en `tests/Feature`:
 - **Auth**: Tests de flujos de autenticación (`tests/Feature/Auth`)
 - **Mail**: Tests de contenido y envío de correos (`tests/Feature/Mail`)
 - **Database**: Tests de seeders y migraciones (`tests/Feature/Database`)
+- **Modules**: Tests específicos de módulos (`tests/Feature/Modules`)
 
 ### Comandos de Ejecución
  
@@ -59,6 +60,7 @@ Los tests están organizados por tipo en `tests/Feature`:
 - `tests/Feature/Auth/AuthenticationTest.php`: Login, Registro, Logout.
 - `tests/Feature/ChatSystemTest.php`: Sistema de chat, mensajes, estado online y contadores.
 - `tests/Feature/ProyectosApiTest.php`: CRUD de proyectos.
+- `tests/Feature/Modules/Finance/ScheduledTransactionTest.php`: Lógica de transacciones programadas y balances.
 
 ### Assertions y Estructura
 

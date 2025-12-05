@@ -17,6 +17,11 @@
 /public/hot
 test_output.txt
 /public/storage
+
+# Enforce PNPM-only policy (security requirement)
+package-lock.json
+npm-debug.log*
+yarn.lock
 /storage/*.key
 /storage/pail
 /vendor

@@ -312,11 +312,17 @@ EXIT;
    php artisan scout:import "App\Models\Proyecto"
    ```
 
-7. **Instalar Dependencias Frontend**
+7. **Instalar Dependencias Frontend (PNPM OBLIGATORIO)**
    ```bash
-   npm install
-   npm run build
+   # Instalar PNPM si no lo tienes
+   npm install -g pnpm
+   
+   # Instalar dependencias
+   pnpm install --frozen-lockfile
+   pnpm run build
    ```
+   
+   > **IMPORTANTE**: Este proyecto usa PNPM exclusivamente por seguridad. NUNCA uses npm o yarn.
 
 ### Paso 8: Generar Symlink de Storage
 
@@ -376,14 +382,19 @@ php artisan optimize:clear
 
 ### 3. Compilar Assets (Frontend)
 
+> **IMPORTANTE**: Este proyecto usa PNPM exclusivamente por seguridad. NUNCA uses npm o yarn.
+
 ```bash
-# Con npm
-npm install
-npm run dev
+# Instalar PNPM globalmente (si no lo tienes)
+npm install -g pnpm
+
+# Con PNPM
+pnpm install --frozen-lockfile
+pnpm run dev
 
 # O con Docker
-docker compose exec laravel.test npm install
-docker compose exec laravel.test npm run dev
+docker compose exec laravel.test pnpm install --frozen-lockfile
+docker compose exec laravel.test pnpm run dev
 ```
 
 ### 4. Crear Usuario Administrador (Automatizado)

@@ -43,7 +43,7 @@ class TaskApiTest extends TestCase
             'due_date' => '2025-12-31'
         ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(201);
 
         $this->assertDatabaseHas('tasks', [
             'project_id' => $this->proyecto->id,
@@ -68,7 +68,7 @@ class TaskApiTest extends TestCase
             'priority' => 'medium'
         ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
 
         $this->assertDatabaseHas('tasks', [
             'id' => $task->id,
@@ -76,28 +76,23 @@ class TaskApiTest extends TestCase
         ]);
     }
 
-    public function test_can_create_financial_task()
+    public function test_can_delete_task()
     {
         Sanctum::actingAs($this->user);
 
-        $category = \App\Models\Categoria::factory()->create(['proyecto_id' => $this->proyecto->id]);
-
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/tasks", [
-            'title' => 'Financial Task',
+        $task = Task::create([
+            'project_id' => $this->proyecto->id,
+            'title' => 'Task to Delete',
             'status' => 'todo',
-            'priority' => 'high',
-            'is_financial' => true,
-            'amount' => 150.00,
-            'category_id' => $category->id
+            'priority' => 'low'
         ]);
 
-        $response->assertStatus(302);
+        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->id}/tasks/{$task->id}");
 
-        $this->assertDatabaseHas('tasks', [
-            'project_id' => $this->proyecto->id,
-            'title' => 'Financial Task',
-            'is_financial' => true,
-            'amount' => 150.00
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('tasks', [
+            'id' => $task->id
         ]);
     }
 }

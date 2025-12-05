@@ -1,0 +1,315 @@
+import { useTranslate } from '@/Hooks/useTranslate';
+import { getOwnerColor, getOwnerName, getOwnerInitials } from '@/Utils/ownerHelpers';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { ChartBarIcon } from '@/Components/Icons';
+import { useMemo } from 'react';
+
+export default function AccountFlowWidget({
+    transactions = [],
+    accounts = [],
+    isCollaborative = false,
+    currency = 'COP'
+}) {
+    const { t } = useTranslate();
+
+    // Aggregate data by account
+    const { incomeData, expenseData, netTotal, totalIncome, totalExpense } = useMemo(() => {
+        const incomeMap = {};
+        const expenseMap = {};
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        transactions.forEach(trans => {
+            const account = accounts.find(a => a.id === trans.cuenta_id);
+            if (!account) return;
+
+            const amount = trans.monto || 0;
+            const key = account.id;
+
+            if (amount > 0) {
+                if (!incomeMap[key]) {
+                    incomeMap[key] = {
+                        id: account.id,
+                        name: account.nombre,
+                        account: account,
+                        value: 0,
+                        count: 0
+                    };
+                }
+                incomeMap[key].value += amount;
+                incomeMap[key].count++;
+                totalIncome += amount;
+            } else if (amount < 0) {
+                if (!expenseMap[key]) {
+                    expenseMap[key] = {
+                        id: account.id,
+                        name: account.nombre,
+                        account: account,
+                        value: 0,
+                        count: 0
+                    };
+                }
+                expenseMap[key].value += Math.abs(amount);
+                expenseMap[key].count++;
+                totalExpense += Math.abs(amount);
+            }
+        });
+
+        return {
+            incomeData: Object.values(incomeMap),
+            expenseData: Object.values(expenseMap),
+            netTotal: totalIncome - totalExpense,
+            totalIncome,
+            totalExpense
+        };
+    }, [transactions, accounts]);
+
+    const formatMonto = (monto) => {
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+        return new Intl.NumberFormat(navigator.language, {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
+        }).format(monto / 100);
+    };
+
+    // Custom label - FIXED NaN bug
+    const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+        if (percent < 0.05) return null;
+
+        const RADIAN = Math.PI / 180;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+        return (
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? 'start' : 'end'}
+                dominantBaseline="central"
+                className="text-xs font-bold"
+                style={{ textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}
+            >
+                {(percent * 100).toFixed(1)}%
+            </text>
+        );
+    };
+
+    const CustomLegend = ({ payload }) => (
+        <div className="mt-4 space-y-2">
+            {payload.map((entry, index) => {
+                const account = entry.payload.account;
+                const ownerColor = account?.propietario_id ? getOwnerColor(account.propietario_id) : null;
+
+                return (
+                    <div key={`legend-${index}`} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div
+                                className="w-3 h-3 rounded-sm flex-shrink-0 shadow-sm"
+                                style={{ backgroundColor: entry.color }}
+                            />
+                            <span className="truncate text-gray-700 dark:text-gray-300">
+                                {entry.value}
+                            </span>
+                            {isCollaborative && account?.propietario && ownerColor && (
+                                <span
+                                    className={`px-1.5 py-0.5 text-[10px] font-medium rounded border flex-shrink-0 ${ownerColor.bg} ${ownerColor.text} ${ownerColor.border}`}
+                                    title={`${t('finance.owner', 'Propietario')}: ${getOwnerName(account)}`}
+                                >
+                                    {getOwnerInitials(getOwnerName(account))}
+                                </span>
+                            )}
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-white ml-2">
+                            {formatMonto(entry.payload.value)}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+
+    const getSliceColor = (entry, index, type) => {
+        if (isCollaborative && entry.account?.propietario_id) {
+            return getOwnerColor(entry.account.propietario_id).chartColor;
+        }
+        if (type === 'income') {
+            const colors = ['#10B981', '#059669', '#047857', '#065F46', '#064E3B'];
+            return colors[index % colors.length];
+        }
+        const colors = ['#EF4444', '#DC2626', '#B91C1C', '#991B1B', '#7F1D1D'];
+        return colors[index % colors.length];
+    };
+
+    return (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 h-full">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {t('finance.account_flow', 'Flujo por Cuenta')}
+                </h3>
+                <ChartBarIcon className="w-5 h-5 text-gray-400" />
+            </div>
+
+            <div className="w-full">
+                {incomeData.length === 0 && expenseData.length === 0 ? (
+                    <div className="text-center py-12">
+                        <ChartBarIcon className="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                        <p className="text-gray-500 dark:text-gray-400">
+                            {t('finance.no_transactions', 'No hay transacciones')}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {incomeData.length > 0 && (
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+                                        {t('finance.income', 'Ingresos')}
+                                    </h4>
+                                    <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                                        {formatMonto(totalIncome)}
+                                    </span>
+                                </div>
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <PieChart>
+                                        <defs>
+                                            {incomeData.map((_, index) => (
+                                                <filter key={`shadow-i-${index}`} id={`shadow-i-${index}`} height="130%">
+                                                    <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+                                                    <feOffset dx="0" dy="2" result="offsetblur" />
+                                                    <feComponentTransfer>
+                                                        <feFuncA type="linear" slope="0.3" />
+                                                    </feComponentTransfer>
+                                                    <feMerge>
+                                                        <feMergeNode />
+                                                        <feMergeNode in="SourceGraphic" />
+                                                    </feMerge>
+                                                </filter>
+                                            ))}
+                                        </defs>
+                                        <Pie
+                                            data={incomeData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={renderLabel}
+                                            outerRadius={85}
+                                            innerRadius={40}
+                                            dataKey="value"
+                                            stroke="rgba(255,255,255,0.3)"
+                                            strokeWidth={2}
+                                        >
+                                            {incomeData.map((entry, index) => (
+                                                <Cell
+                                                    key={`cell-i-${index}`}
+                                                    fill={getSliceColor(entry, index, 'income')}
+                                                    filter={`url(#shadow-i-${index})`}
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value) => [formatMonto(value), '']}
+                                            contentStyle={{
+                                                backgroundColor: '#1F2937',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                color: '#F3F4F6'
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <CustomLegend payload={incomeData.map((entry, index) => ({
+                                    value: entry.name,
+                                    color: getSliceColor(entry, index, 'income'),
+                                    payload: entry
+                                }))} />
+                            </div>
+                        )}
+
+                        {expenseData.length > 0 && (
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+                                        {t('finance.expenses', 'Gastos')}
+                                    </h4>
+                                    <span className="text-sm font-bold text-red-600 dark:text-red-400">
+                                        {formatMonto(totalExpense)}
+                                    </span>
+                                </div>
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <PieChart>
+                                        <defs>
+                                            {expenseData.map((_, index) => (
+                                                <filter key={`shadow-e-${index}`} id={`shadow-e-${index}`} height="130%">
+                                                    <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+                                                    <feOffset dx="0" dy="2" result="offsetblur" />
+                                                    <feComponentTransfer>
+                                                        <feFuncA type="linear" slope="0.3" />
+                                                    </feComponentTransfer>
+                                                    <feMerge>
+                                                        <feMergeNode />
+                                                        <feMergeNode in="SourceGraphic" />
+                                                    </feMerge>
+                                                </filter>
+                                            ))}
+                                        </defs>
+                                        <Pie
+                                            data={expenseData}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={renderLabel}
+                                            outerRadius={85}
+                                            innerRadius={40}
+                                            dataKey="value"
+                                            stroke="rgba(255,255,255,0.3)"
+                                            strokeWidth={2}
+                                        >
+                                            {expenseData.map((entry, index) => (
+                                                <Cell
+                                                    key={`cell-e-${index}`}
+                                                    fill={getSliceColor(entry, index, 'expense')}
+                                                    filter={`url(#shadow-e-${index})`}
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            formatter={(value) => [formatMonto(value), '']}
+                                            contentStyle={{
+                                                backgroundColor: '#1F2937',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                color: '#F3F4F6'
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <CustomLegend payload={expenseData.map((entry, index) => ({
+                                    value: entry.name,
+                                    color: getSliceColor(entry, index, 'expense'),
+                                    payload: entry
+                                }))} />
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {(incomeData.length > 0 || expenseData.length > 0) && (
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {t('finance.net_flow', 'Flujo Neto')}
+                            </span>
+                            <span className={`text-lg font-bold ${netTotal >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                {netTotal >= 0 ? '+' : ''}{formatMonto(netTotal)}
+                            </span>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

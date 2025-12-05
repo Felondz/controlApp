@@ -42,6 +42,7 @@ class UpdateProyectoRequest extends FormRequest
             'image' => 'nullable|image|max:4096', // 4MB max
             'modules' => 'nullable|array',
             'modules.*' => 'string|in:finance,tasks,chat',
+            'settings' => 'nullable|array',
         ];
     }
 

@@ -16,8 +16,16 @@ class ProjectAccountTest extends TestCase
     {
         $user = User::factory()->create();
         $proyecto = Proyecto::factory()->create(['user_id' => $user->id]);
+        $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
 
-        // Account 1: Personal, not linked
+        // Create personal project for user
+        $personalProject = Proyecto::factory()->create([
+            'user_id' => $user->id,
+            'es_personal' => true,
+            'nombre' => 'Personal Finance'
+        ]);
+
+        // Account 1: Personal (belonging to user), not linked
         $cuenta1 = Cuenta::factory()->create([
             'propietario_id' => $user->id,
             'propietario_type' => User::class,
@@ -53,6 +61,15 @@ class ProjectAccountTest extends TestCase
     {
         $user = User::factory()->create();
         $proyecto = Proyecto::factory()->create(['user_id' => $user->id]);
+        $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
+
+        // Create personal project for user
+        $personalProject = Proyecto::factory()->create([
+            'user_id' => $user->id,
+            'es_personal' => true,
+            'nombre' => 'Personal Finance'
+        ]);
+
         $cuenta = Cuenta::factory()->create([
             'propietario_id' => $user->id,
             'propietario_type' => User::class
@@ -72,6 +89,15 @@ class ProjectAccountTest extends TestCase
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $proyecto = Proyecto::factory()->create(['user_id' => $user->id]);
+        $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
+
+        // Create personal project for other user
+        $otherPersonalProject = Proyecto::factory()->create([
+            'user_id' => $otherUser->id,
+            'es_personal' => true,
+            'nombre' => 'Other Personal Finance'
+        ]);
+
         $cuenta = Cuenta::factory()->create([
             'propietario_id' => $otherUser->id,
             'propietario_type' => User::class
@@ -90,6 +116,15 @@ class ProjectAccountTest extends TestCase
     {
         $user = User::factory()->create();
         $proyecto = Proyecto::factory()->create(['user_id' => $user->id]);
+        $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
+
+        // Create personal project for user
+        $personalProject = Proyecto::factory()->create([
+            'user_id' => $user->id,
+            'es_personal' => true,
+            'nombre' => 'Personal Finance'
+        ]);
+
         $cuenta = Cuenta::factory()->create([
             'propietario_id' => $user->id,
             'propietario_type' => User::class

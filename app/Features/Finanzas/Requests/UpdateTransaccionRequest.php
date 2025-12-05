@@ -28,6 +28,7 @@ class UpdateTransaccionRequest extends FormRequest
             'descripcion' => 'nullable|string|max:255',
             'notas' => 'nullable|string',
 
+            'status' => 'sometimes|in:pending,completed,cancelled',
             'categoria_id' => [
                 'sometimes',
                 'numeric',
@@ -35,11 +36,9 @@ class UpdateTransaccionRequest extends FormRequest
                     ->where('proyecto_id', $proyecto->id),
             ],
             'cuenta_id' => [
-                'sometimes',
+                'nullable',
                 'numeric',
-                Rule::exists('cuentas', 'id')
-                    ->where('propietario_type', 'App\Models\Proyecto')
-                    ->where('propietario_id', $proyecto->id),
+                Rule::exists('cuentas', 'id'),
             ],
         ];
     }

@@ -80,3 +80,102 @@ Calcula proyecciones de crédito, incluyendo cuotas mensuales, intereses y tabla
     "inputs": { ... }
 }
 ```
+
+---
+
+## Finanzas
+
+### Gestión de Cuentas
+
+#### Eliminar Cuenta de Proyecto
+Elimina permanentemente una cuenta que pertenece a un proyecto, incluyendo todas sus transacciones asociadas.
+
+- **Endpoint**: `DELETE /mis-proyectos/{proyecto}/accounts/{account}`
+- **Auth**: Requerida (Admin del proyecto)
+- **Route Name**: `finance.accounts.destroy`
+
+**Parámetros de Ruta:**
+- `proyecto` (integer): ID del proyecto
+- `account` (integer): ID de la cuenta a eliminar
+
+**Validaciones:**
+- El usuario debe ser administrador del proyecto
+- La cuenta debe pertenecer al proyecto (verificación de `propietario_type` y `propietario_id`)
+- Se eliminan automáticamente todas las transacciones asociadas antes de eliminar la cuenta
+
+**Response (302 Redirect):**
+```
+Redirect back con mensaje de éxito o error
+```
+
+**Errores Comunes:**
+- `403 Forbidden`: Usuario no es admin o cuenta no pertenece al proyecto
+- `404 Not Found`: Cuenta no encontrada
+- `500 Server Error`: Error al eliminar (ej: restricciones de base de datos)
+
+---
+
+#### Desvincular Cuenta Compartida
+Desvincula una cuenta personal que ha sido compartida con un proyecto, sin eliminarla.
+
+- **Endpoint**: `DELETE /mis-proyectos/{proyecto}/accounts/{account}/unlink`
+- **Auth**: Requerida (Admin del proyecto)
+- **Route Name**: `finance.accounts.unlink`
+
+**Parámetros de Ruta:**
+- `proyecto` (integer): ID del proyecto
+- `account` (integer): ID de la cuenta a desvincular
+
+**Validaciones:**
+- El usuario debe ser administrador del proyecto
+- La cuenta debe estar vinculada al proyecto (relación `cuentasAsociadas`)
+
+**Response (302 Redirect):**
+```
+Redirect back con mensaje de éxito
+```
+
+**Nota:** Esta operación solo elimina la relación entre el proyecto y la cuenta, no elimina la cuenta ni sus transacciones.
+
+---
+
+## Tipos de Cuenta Soportados
+
+El sistema soporta los siguientes tipos de cuenta con sus campos específicos:
+
+### 1. Efectivo (`efectivo`)
+- `balance`: Saldo actual
+
+### 2. Cuenta Bancaria (`banco`)
+- `balance`: Saldo actual
+- `banco`: Nombre del banco
+- `es_nomina`: Indica si es cuenta de nómina (boolean)
+- `dia_nomina`: Array de días de pago de nómina (ej: `[15, 30]` para quincenal)
+- `valor_nomina`: Valor estimado de la nómina
+
+### 3. Tarjeta de Crédito (`credito`)
+- `balance`: Saldo actual (negativo)
+- `banco`: Entidad emisora
+- `cupo`: Límite de crédito
+- `fecha_vencimiento`: Fecha de pago mensual
+- `tasa_interes`: Tasa de interés (%)
+
+### 4. Préstamo (`prestamo`)
+- `balance`: Saldo pendiente
+- `banco`: Entidad prestamista
+- `cupo`: Monto total del préstamo
+- `plazo`: Plazo en meses
+- `valor_cuota`: Valor de la cuota mensual
+- `cuotas_pagadas`: Número de cuotas pagadas
+- `tasa_interes`: Tasa de interés (%)
+- `fecha_vencimiento`: Fecha de pago mensual
+
+### 5. Inversión (`inversion`)
+- `balance`: Valor actual de la inversión
+- `banco`: Entidad donde se invierte
+- `tasa_interes`: Rendimiento esperado (%)
+- `fecha_vencimiento`: Fecha de vencimiento (opcional)
+
+### 6. Otro (`otro`)
+- `balance`: Saldo actual
+- Campos personalizables según necesidad

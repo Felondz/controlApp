@@ -20,7 +20,7 @@ describe('FinanceWidget', () => {
         render(<FinanceWidget project={mockProject} />);
 
         await waitFor(() => {
-            expect(screen.getByText('finance.balance')).toBeInTheDocument();
+            expect(screen.getByText('finance.current_balance')).toBeInTheDocument();
         });
     });
 
@@ -28,7 +28,8 @@ describe('FinanceWidget', () => {
         render(<FinanceWidget project={mockProject} />);
 
         await waitFor(() => {
-            const balanceElement = screen.getByText(/1\.?500/); // Matches 1.500 or 1500
+            // Matches $15.00 format
+            const balanceElement = screen.getByText('$15.00');
             expect(balanceElement).toBeInTheDocument();
         });
     });
@@ -38,8 +39,11 @@ describe('FinanceWidget', () => {
         render(<FinanceWidget project={eurProject} />);
 
         await waitFor(() => {
-            const balanceElement = screen.getByText(/EUR|€/);
-            expect(balanceElement).toBeInTheDocument();
+            // Check for specific currency elements to avoid ambiguity
+            const balanceText = screen.getByText('€15,00');
+            expect(balanceText).toBeInTheDocument();
+            const currencyBadge = screen.getByText('EUR');
+            expect(currencyBadge).toBeInTheDocument();
         });
     });
 });

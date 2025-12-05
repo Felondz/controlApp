@@ -105,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('proyectos/{proyecto}/cuentas/{cuenta}/unlink', [ProjectAccountController::class, 'unlink'])->name('proyectos.cuentas.unlink');
 
     // Project Finance
+    Route::get('proyectos/{proyecto}/finance/balance', [CuentaController::class, 'balance'])->name('api.finance.balance');
     Route::apiResource('proyectos.cuentas', CuentaController::class);
 
     // Transacciones (CRUD completo, anidado en Proyectos)
@@ -127,21 +128,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'destroy']);
 
     // Tasks routes
+    Route::get('/proyectos/{proyecto}/tasks', [TaskController::class, 'index']);
     Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store']);
     Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update']);
     Route::delete('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'destroy']);
 
     // Analytics routes
+    Route::get('/proyectos/{proyecto}/analytics', [AnalyticsController::class, 'index'])->name('api.proyectos.analytics.index');
     Route::get('/proyectos/{proyecto}/analytics/metrics', [AnalyticsController::class, 'metrics']);
     Route::get('/proyectos/{proyecto}/analytics/summary', [AnalyticsController::class, 'summary']);
     Route::get('/proyectos/{proyecto}/analytics/insights', [AnalyticsController::class, 'insights']);
+    Route::get('/proyectos/{proyecto}/analytics/trends', [AnalyticsController::class, 'trends'])->name('api.proyectos.analytics.trends');
 
     // Notification routes
-    Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-    Route::get('/notifications/preferences', [NotificationController::class, 'preferences']);
-    Route::post('/notifications/preferences', [NotificationController::class, 'updatePreference']);
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('api.notifications.index');
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.read'); // Frontend uses PATCH
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
+    Route::get('/notifications/preferences', [NotificationController::class, 'preferences'])->name('api.notifications.preferences');
+    Route::post('/notifications/preferences', [NotificationController::class, 'updatePreference'])->name('api.notifications.update-preferences');
 
     // Marketplace routes
     Route::get('/proyectos/{proyecto}/marketplace', [MarketplaceController::class, 'index'])->name('api.proyectos.marketplace.index');

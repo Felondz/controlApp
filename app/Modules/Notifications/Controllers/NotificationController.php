@@ -19,11 +19,28 @@ class NotificationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $notifications = $request->user()
-            ->notifications()
-            ->paginate(20);
+        $user = $request->user();
+        $notifications = $user->notifications()->paginate(20);
 
-        return response()->json($notifications);
+        return response()->json([
+            'data' => $notifications->items(),
+            'links' => [
+                'first' => $notifications->url(1),
+                'last' => $notifications->url($notifications->lastPage()),
+                'prev' => $notifications->previousPageUrl(),
+                'next' => $notifications->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $notifications->currentPage(),
+                'from' => $notifications->firstItem(),
+                'last_page' => $notifications->lastPage(),
+                'path' => $notifications->path(),
+                'per_page' => $notifications->perPage(),
+                'to' => $notifications->lastItem(),
+                'total' => $notifications->total(),
+                'unread_count' => $user->unreadNotifications()->count(),
+            ],
+        ]);
     }
 
     /**

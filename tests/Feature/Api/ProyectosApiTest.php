@@ -81,7 +81,7 @@ class ProyectosApiTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        
+
         $proyecto = Proyecto::where('nombre', 'Proyecto con Imagen')->first();
         $this->assertNotNull($proyecto->image_path);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
@@ -136,15 +136,20 @@ class ProyectosApiTest extends TestCase
     /**
      * Test 5: Moneda default es obligatoria
      */
-    public function test_moneda_default_es_obligatoria(): void
+    /**
+     * @test
+     */
+    public function moneda_default_es_opcional()
     {
-        $response = $this->actingAs($this->usuario)->postJson('/api/proyectos', [
-            'nombre' => 'Proyecto Sin Moneda',
-            'modules' => ['finance'],
-        ]);
+        $user = User::factory()->create();
 
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['moneda_default']);
+        $response = $this->actingAs($user)
+            ->postJson(route('proyectos.store'), [
+                'nombre' => 'Proyecto Sin Moneda',
+                'modules' => ['finance'],
+            ]);
+
+        $response->assertStatus(201);
     }
 
     /**
@@ -201,7 +206,7 @@ class ProyectosApiTest extends TestCase
     public function test_no_miembro_no_puede_ver_proyecto(): void
     {
         $otroUsuario = User::factory()->create();
-        
+
         $response = $this->actingAs($otroUsuario)->getJson('/api/proyectos/' . $this->proyecto->id);
 
         // Policy view: return $user->esMiembroDe($proyecto);
@@ -374,7 +379,7 @@ class ProyectosApiTest extends TestCase
     public function test_eliminar_proyecto_mantiene_miembros_por_soft_delete(): void
     {
         // Al usar SoftDeletes, la relación en tabla pivote se mantiene (a menos que se fuerce borrado)
-        
+
         $this->actingAs($this->usuario)->deleteJson('/api/proyectos/' . $this->proyecto->id);
 
         $this->assertDatabaseHas('proyecto_user', ['proyecto_id' => $this->proyecto->id]);

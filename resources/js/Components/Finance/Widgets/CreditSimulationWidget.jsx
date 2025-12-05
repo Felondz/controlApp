@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CalculatorIcon, PencilIcon, CheckIcon } from '@/Components/Icons';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -39,15 +40,19 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
     const totalInterest = totalPayment - parseFloat(amount);
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: currency,
-            maximumFractionDigits: 0
+        return formatCurrencyHelper(value * 100, currency, true); // Multiply by 100 as helper expects cents
+    };
+
+    const formatNumber = (value) => {
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+        return new Intl.NumberFormat(navigator.language, {
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
         }).format(value);
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative">
             <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <CalculatorIcon className="w-5 h-5 text-primary-600" />
@@ -107,20 +112,20 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-800/30">
+                        <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-800/30 text-center">
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">
                                 {t('finance.total_interest', 'Intereses Totales')}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white">
-                                {formatCurrency(totalInterest)}
+                                {formatNumber(totalInterest)}
                             </p>
                         </div>
-                        <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">
                                 {t('finance.total_payment', 'Pago Total')}
                             </p>
                             <p className="font-bold text-gray-900 dark:text-white">
-                                {formatCurrency(totalPayment)}
+                                {formatNumber(totalPayment)}
                             </p>
                         </div>
                     </div>
@@ -130,6 +135,13 @@ export default function CreditSimulationWidget({ currency = 'COP' }) {
                     </p>
                 </div>
             )}
+
+            {/* Currency badge - bottom left */}
+            <div className="absolute bottom-4 left-4">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                    {currency}
+                </span>
+            </div>
         </div>
     );
 }

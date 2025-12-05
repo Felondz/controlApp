@@ -1,6 +1,8 @@
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { useMemo } from 'react';
+import { formatCurrency } from '@/Utils/currencyHelpers';
+import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartBarIcon } from '@/Components/Icons';
 
 export default function FinancialChartsWidget({ transactions = [], currency = 'COP' }) {
     const { t } = useTranslate();
@@ -12,7 +14,7 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
         // Initialize last 6 months
         for (let i = 5; i >= 0; i--) {
             const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthName = d.toLocaleString('default', { month: 'short' });
+            const monthName = d.toLocaleString(navigator.language, { month: 'short' });
             last6Months.push({
                 name: monthName,
                 month: d.getMonth(),
@@ -28,7 +30,8 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
             const monthIndex = last6Months.findIndex(m => m.month === tDate.getMonth() && m.year === tDate.getFullYear());
 
             if (monthIndex !== -1) {
-                const amount = parseFloat(t.monto);
+                // Backend stores cents, so we divide by 100 to get units
+                const amount = parseFloat(t.monto) / 100;
                 const type = t.categoria?.tipo || (t.monto > 0 ? 'ingreso' : 'gasto');
 
                 if (type === 'ingreso' || type === 'income') {
@@ -43,11 +46,12 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
     }, [transactions]);
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
+        const showDecimals = ['USD', 'EUR'].includes(currency);
+        return new Intl.NumberFormat(navigator.language, {
             style: 'currency',
             currency: currency,
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0,
         }).format(value);
     };
 
@@ -59,8 +63,8 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
                 </h3>
             </div>
 
-            <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="w-full">
+                <ResponsiveContainer width="100%" height={300}>
                     <BarChart
                         data={data}
                         margin={{
@@ -82,7 +86,7 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
                             axisLine={false}
                             tickLine={false}
                             tick={{ fill: '#6B7280', fontSize: 12 }}
-                            tickFormatter={(value) => `$${value / 1000}k`}
+                            tickFormatter={(value) => `$${value / 1000} k`}
                         />
                         <Tooltip
                             cursor={{ fill: 'transparent' }}

@@ -2,8 +2,329 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] - Pre-Release Security Fixes
+
+### Fixed - Critical Security \u0026 CI/CD
+
+**Package Manager Security Enforcement:**
+- 🔒 **CRITICAL FIX**: Enforced PNPM-only policy across all environments (CI/CD, local, production)
+- ✅ **CI/CD Workflows**: Updated `.github/workflows/tests.yml` to use PNPM instead of NPM in both backend and frontend test jobs
+- 🗑️ **Removed package-lock.json**: Eliminated NPM lockfile to prevent accidental NPM usage
+- 📝 **.gitignore Update**: Added `package-lock.json`, `npm-debug.log*`, and `yarn.lock` to prevent future NPM/Yarn usage
+- 📚 **Documentation Updated**: README.md and INSTALLATION.md now explicitly require PNPM with security rationale
+
+**Security Rationale**: 
+- NPM packages have historically been vulnerable to supply chain attacks and malware
+- PNPM provides better security through content-addressable storage and strict dependency isolation
+- This change aligns with documented security policy in `ONBOARDING_FOR_NEW_AIs.md`
+
+**Files Modified:**
+- [tests.yml](file:///home/guarox/Documentos/proyectos-personales/controlApp/.github/workflows/tests.yml) - Lines 56-69, 134-147
+- [.gitignore](file:///home/guarox/Documentos/proyectos-personales/controlApp/.gitignore) - Added NPM/Yarn lockfile exclusions
+- [README.md](file:///home/guarox/Documentos/proyectos-personales/controlApp/README.md) - Added PNPM requirement section, updated test commands
+- [INSTALLATION.md](file:///home/guarox/Documentos/proyectos-personales/controlApp/docs/private/es/02-development/INSTALLATION.md) - Replaced all npm commands with pnpm
+
+**Breaking Changes**: ⚠️ Developers must have PNPM installed (`npm install -g pnpm`)
+
+---
+
+## [2.6.0] - 2025-12-04 19:30:00 -05:00
+
+### Added - Collaborative Finance Features
+
+**Account Owner Visual Differentiation:**
+- 👥 **Owner Identification System**: Implemented comprehensive visual system to differentiate account owners in collaborative projects
+- 🎨 **Color-Coded Badges**: 8 distinct color palettes automatically assigned to owners for easy identification
+- 📊 **AccountChart Enhancement**: Account cards now display owner badges with initials + first name (e.g., "JP Juan")
+- 💸 **TransactionsWidget Enhancement**: Transaction rows show owner initials badges next to account names
+- 🔄 **Smart Display**: Badges only appear in collaborative projects (`!proyecto.es_personal`), hidden in personal finance
+- 🛠️ **Owner Utilities**: Created `ownerHelpers.js` with functions for color generation, name extraction, initials, and contribution calculations
+- 🌐 **Translations**: Added `finance.owner` key in both ES and EN
+
+**AccountFlowWidget - Income/Expense Visualization:**
+- 📈 **New Widget**: Created dedicated widget showing income and expense distribution by account using pie charts
+- 🥧 **Dual Pie Charts**: Separate donut charts for income (green tones) and expenses (red tones)
+- 💎 **3D Effects**: SVG shadow filters (`feGaussianBlur` + `feOffset`) for professional depth
+- 🎨 **Smart Coloring**: Uses owner colors in collaborative projects, standard palettes in personal projects
+- 📊 **Interactive Legend**: Shows account names, owner badges, and amounts with tooltips
+- 💯 **Percentage Labels**: Fixed NaN% bug, displays accurate percentages on chart slices
+- 🎯 **Dashboard Integration**: Positioned after FinancialChartsWidget, before TransactionsWidget
+- ⚙️ **Configurable**: Added to DashboardSettingsModal as toggle settings
+- 🌐 **Translations**: Added `finance.account_flow`, `finance.income_by_account`, `finance.expense_by_account`, `finance.net_flow`
+
+### Changed - Backend & Frontend Updates
+
+**Backend:**
+- 🔧 **ProyectoUiWebController**: Added eager-loading of `propietario` relationship for `cuentas` and `cuentasAsociadas`
+- 🔧 **Transaction Loading**: Added `cuenta.propietario` to transaction eager-loading
+
+**Frontend Components:**
+- 🎨 **Theme Consistency**: AccountFlowWidget matches FinancialChartsWidget styling (dark tooltips, consistent borders, rounded corners)
+- 🚫 **Removed Emojis**: Replaced hardcoded emojis with proper SVG icons (`ChartBarIcon`)
+- 📱 **Responsive Design**: Grid layout adapts (2 columns desktop, 1 column mobile)
+- 🌙 **Dark Mode**: Full dark mode support with appropriate color adjustments
+
+### Fixed
+
+**Build & Code Quality:**
+- 🐛 **Icon Import**: Fixed missing `ChartPieIcon` - changed to existing `ChartBarIcon`
+- 🐛 **Duplicate Key**: Removed duplicate `proyecto_id` in QuickTransactionModal useForm initialization
+- ✅ **Build Status**: All builds passing without errors
+- ✅ **Scheduled Transactions**: Added backend tests verifying pending/completed transaction logic and balance updates.
+- ✅ **QuickTransactionModal**: Fixed accessibility issues and updated tests to match component logic.
+- ✅ **Validation**: Fixed `UpdateTransaccionRequest` to correctly validate accounts owned by the user (not just project-owned).
+- 🐛 **TaskController**: Fixed undefined `$request` variable in `destroy` method by injecting `Request` dependency.
+- 🔧 **CI/CD**: Fixed `setup-node` failure by adding `pnpm/action-setup` step to install PNPM before Node caching configuration.
+
+**Components Modified:**
+- [ProyectoUiWebController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Http/Controllers/ProyectoUiWebController.php)
+- [ownerHelpers.js](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Utils/ownerHelpers.js) (NEW)
+- [AccountChart.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/AccountChart.jsx)
+- [TransactionsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/TransactionsWidget.jsx)
+- [AccountFlowWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/AccountFlowWidget.jsx) (NEW)
+- [ProjectDashboard.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Pages/Projects/Finance/ProjectDashboard.jsx)
+- [DashboardSettingsModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/DashboardSettingsModal.jsx)
+- [QuickTransactionModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/QuickTransactionModal.jsx)
+- [es.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/es/es.json), [en.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/en/en.json)
+
+---
+
+## [2.5.1] - 2025-12-04 17:40:00 -05:00
+
+### Added - Bill Management Refactoring
+
+**Dedicated Bill Workflow:**
+- ✨ **BillModal**: Created a dedicated modal (`BillModal.jsx`) for creating and editing pending bills, separating this logic from standard transactions.
+- 🔧 **BillsWidget**: Refactored to handle "Add", "Edit", "Pay", and "Delete" actions directly, delegating to parent dashboard handlers.
+- 🛣️ **Routes**: Added `finance.transactions.store` and `finance.transactions.update` named routes in `web.php` for clearer API usage.
+
+### Fixed - Transaction & UI Improvements
+
+**UI/UX Fixes:**
+- 🐛 **QuickTransactionModal**: Removed the "Bill" tab to streamline the modal for Income/Expense only.
+- ⚡ **Auto-Fill Description**: Selecting a category in `QuickTransactionModal` now auto-fills the description (except for "Other").
+- 🗑️ **TransactionsWidget**: Removed the redundant "Rápido" (Quick) button.
+- 🐛 **MethodNotAllowed Error**: Fixed 405 error when editing transactions/bills by ensuring correct PUT routes are defined and used.
+- 🎨 **Styling**: Standardized button styles (using `PrimaryButton`) across widgets.
+
+---
+
+## [2.5.0] - 2025-12-04 14:30:00 -05:00
+
+### Added - Multi-Currency System
+
+**Currency Standardization:**
+- 💱 **Centralized Currency Utilities**: Created `currencyHelpers.js` with standardized formatting for 19+ currencies.
+- 🌍 **Proper Currency Symbols**: Each currency now displays its correct symbol ($ for USD/COP, € for EUR, £ for GBP, etc.).
+- 📍 **Locale-Aware Formatting**: Automatic locale detection and number formatting per currency (e.g., COP uses Colombian formatting).
+- 🔢 **Smart Decimals**: Currencies without decimals (COP, JPY, KRW, CLP) show whole numbers, others show 2 decimals.
+- 🎨 **Color-Coded Balances**: Green for positive, red for negative balances across all widgets.
+
+**Components Updated (13 total):**
+- ✅ `AnalyticsWidget` - Trend charts with proper currency formatting
+- ✅ `FinanceWidget` - Balance display without module icon, badge repositioned
+- ✅ `UpcomingObligationsWidget` - Obligations with correct currency symbols
+- ✅ `BalanceSummaryWidget` - Assets/liabilities/net worth with color coding
+- ✅ `SavingsGoalWidget` - Goal progress with proper formatting
+- ✅ `CreditSimulationWidget` - Loan calculations with correct symbols
+- ✅ `TransactionsWidget` - Transaction list with standardized display
+- ✅ `AccountChart` - Pie chart with proper currency labels
+- ✅ `FinancialChartsWidget` - All charts use centralized formatting
+- ✅ `PersonalDashboard` - Dashboard overview with consistent currency display
+
+### Enhanced - Project Card UI
+
+**Visual Improvements:**
+- 🎨 **Header Layout**: Icon/image now displays beside title (row layout) instead of above, with top alignment
+- 🏷️ **Module Badges**: Dynamic counters for chat (red) and tasks (orange) with pulse animations
+- 💰 **Balance Display**: 
+  - Removed CurrencyDollar icon for cleaner look
+  - Green/red color coding for positive/negative balances
+  - Currency badge below balance, aligned left with project colors
+- ✨ **Maintained**: All original styling, project colors, transition effects, and functionality
+
+**Technical Details:**
+- Files: `currencyHelpers.js`, `ProjectCard.jsx`, `FinanceWidget.jsx`, 11 financial widgets
+- Functions: `getCurrencySymbol()`, `getCurrencyLocale()`, `shouldShowDecimals()`, `formatCurrency()`
+- Future-ready for multi-currency conversion system
+
+---
+
+## [2.4.0] - 2025-12-04 04:20:00 -05:00
+
+### Added - Scheduled Transactions (Bills)
+
+**Major Feature:**
+- ✨ **Scheduled Transactions**: Added support for pending/scheduled transactions (bills) with recurrence capabilities.
+- 📅 **Transaction Status**: Transactions now have `status` field (`completed`, `pending`, `cancelled`).
+- 🔄 **Recurring Transactions**: Support for recurring bills (daily/weekly/biweekly/monthly/yearly).
+- 📊 **Database Schema**: Added `status`, `is_recurring`, `recurrence_interval`, `recurrence_day`, `next_occurrence` to `transacciones` table.
+- 🔔 **Obligation Tracking**: Pending transactions appear in `UpcomingObligationsWidget` with "Mark as Paid" functionality.
+- 🎯 **Alert System**: Visual indicators for upcoming bills based on due date proximity.
+
+### Fixed - Currency Display
+
+**Critical Fixes:**
+- 🐛 **Currency Conversion**: Fixed "inflated values" across all financial widgets by correctly dividing backend cents by 100.
+- 💱 **Dynamic Decimals**: Implemented currency-aware decimal formatting (0 decimals for COP/MXN, 2 for USD/EUR).
+- 🎨 **Widget Consistency**: Updated all financial widgets (`BalanceSummaryWidget`, `TransactionsWidget`, `FinancialChartsWidget`, etc.) to use consistent formatting.
+
+### Enhanced - Upcoming Obligations Widget
+
+**UI/UX Improvements:**
+- 🎨 **Compact Layout**: Reduced height and padding, optimized for density.
+- 📜 **Scrollbar**: Added scrollbar with max-height (~8 items visible), removed 5-item limit.
+- 🏷️ **Color Coding**: Removed text badges, now uses green (income) and red (expense) visual indicators.
+- 🏦 **Account Context**: Added account name display in subtitles for all obligation types.
+- 🔍 **Task Categories**: Shows specific task category names (e.g., "Personal", "Business") instead of generic "Task".
+- 👆 **Clickable Rows**: Prepared for future calendar integration with click handlers.
+
+**Technical Details:**
+- Components: `UpcomingObligationsWidget.jsx`, `TransactionsWidget.jsx`, `BalanceSummaryWidget.jsx`, `FinancialChartsWidget.jsx`
+- Migration: `2025_12_04_041955_add_status_and_recurrence_to_transacciones_table.php`
+- Documentation: Updated `FRONTEND.md` with currency handling strategy
+
+---
+
+## [2.3.4] - 2025-12-04 01:30:00 -05:00
+
+### Fixed - Account Management
+
+**Critical Bug Fixes:**
+- 🐛- **Account Creation Validation**: Fixed issue where payroll validation rules were applied to non-payroll accounts, preventing creation.
+- **Currency Display**: Fixed bug where currency values were multiplied by 100 in account cards and widgets (missing cents division).
+- **Upcoming Obligations**: Fixed widget to correctly include credit card cut-offs and loan payments (corrected field names and logic).
+- **Input Field Reset**: Fixed issue where input fields in `AccountAdminModal` were not resetting correctly when switching accounts.
+- **Delete Modal Hang**: Fixed issue where the delete account modal would hang or crash after successful deletion.
+- **False Positive Deletion Error**: Fixed issue where a successful deletion (204 No Content) was interpreted as a failure.
+- **Unlink 404 Error**: Fixed 404 error when unlinking accounts by ensuring the correct route and parameters are used.
+- **Delete Modal Focus Trap**: Fixed focus trap issue in `DeleteAccountModal` preventing interaction with other elements.
+- **ReferenceError Fix**: Resolved `ReferenceError: onSuccess is not defined` in `DeleteAccountModal`. and added a slight delay to `router.reload` to ensure smooth modal closing.
+- ♻️ **Modal Architecture:** Improved modal state management by passing `onDelete` callbacks and handling success states more cleanly.
+
+---
+
+## [2.3.3] - 2025-12-03 19:05:00 -05:00
+
+### Added - Multiple Payroll Dates
+
+**Payroll Enhancement:**
+- ✨ **Multiple Payment Dates:** Payroll accounts can now have multiple payment dates per month (e.g., biweekly: 15th and 30th).
+- 🎨 **Multi-Select UI:** Replaced single day input with interactive 7x5 grid for selecting 1-4 payment days.
+- 📊 **Database Schema:** Changed `dia_nomina` from `integer` to `json` array with automatic data migration.
+- 📅 **Widget Enhancement:** `UpcomingObligationsWidget` now generates separate events for each payroll date.
+- 🔢 **Display:** `AccountChart` shows all payroll days as comma-separated list.
+
+**Technical Details:**
+- Migration: `modify_dia_nomina_to_json_in_cuentas_table` with bidirectional data migration
+- Validation: Array of 1-4 distinct integers between 1-31
+- Frontend: Multi-select button grid with primary color highlighting for selected days
+
+---
+
+## [2.3.2] - 2025-12-03 18:58:00 -05:00
+
+### Added - Finance Module Enhancements
+
+**Payroll Account Feature:**
+- ✨ **Payroll Accounts:** Added ability to mark savings accounts as payroll accounts with payment day and estimated amount.
+- 📊 **Database Fields:** Added `es_nomina` (boolean), `dia_nomina` (integer), and `valor_nomina` (bigInteger) to `cuentas` table.
+- 🎨 **UI Integration:** Updated `AccountModal` to support payroll account inputs with conditional visibility.
+- 📅 **Upcoming Obligations:** Enhanced widget to display both income (payroll) and expenses (loans, credit cards) with color coding.
+
+**Account Deletion System:**
+- 🗑️ **Secure Deletion Modal:** Implemented `DeleteAccountModal` requiring users to type account name for confirmation.
+- 🔒 **Smart Validation:** Modal displays transaction count and warns users about data loss.
+- 🛡️ **Backend Safety:** Controller checks account ownership and manually deletes transactions before account deletion.
+- 🚨 **Error Display:** Added backend error visualization in modal for constraint violations and validation errors.
+- 🔗 **Route Integration:** Added `finance.accounts.destroy` route with proper authorization.
+
+**Account Information Display:**
+- 💳 **Enhanced Account Cards:** Added detailed information display based on account type:
+  - Credit Cards: Credit limit, available credit, payment date, interest rate
+  - Loans: Total amount, monthly payment, remaining installments, interest rate
+  - Investments: Maturity date, expected return rate
+  - Payroll: Payment day, estimated amount
+- 🎨 **Type Badges:** Added visual badges for account types with appropriate icons.
+- 🌈 **Color Coding:** Implemented color-coded balance display (green for positive, red for negative).
+
+### Fixed - Navigation & UX
+
+**Project Context Navigation:**
+- 🐛 **Sidebar/BottomBar Fix:** Fixed navigation links incorrectly pointing to Personal Finance instead of Project Finance.
+- 🔧 **Layout Integration:** Added missing `project` prop to `AuthenticatedLayout` in `ProjectDashboard`.
+- 📱 **Mobile Navigation:** Corrected BottomNavigation to properly detect project context and show correct finance links.
+
+**UI/UX Improvements:**
+- 🎯 **Action Button Encapsulation:** Moved edit/delete buttons inside `AccountChart` component for better modularity.
+- 🔄 **State Management:** Improved modal state handling for account deletion workflow.
+- 📝 **Translation Keys:** Added Spanish and English translations for all new features.
+
+**Dashboard Settings:**
+- ⚙️ **Settings Icon:** Styled settings button with proper theme-aware colors.
+- 🔧 **Widget Toggle:** Fixed "Mostrar Inactivas" (Show Inactive) text and functionality.
+
+### Changed - Architecture
+
+**Component Refactoring:**
+- ♻️ **AccountChart Props:** Added `onEdit` and `onDelete` props for better event handling.
+- 🏗️ **Separation of Concerns:** Removed action button overlays from `ProjectDashboard` in favor of component encapsulation.
+- 🎨 **Icon Exports:** Added `BanknotesIcon`, `CreditCardIcon`, and `ExclamationTriangleIcon` to Icons component.
+
+**Database Schema:**
+- 📊 **Loan Fields:** Added missing `plazo`, `valor_cuota`, and `cuotas_pagadas` columns for loan accounts.
+- 💰 **Payroll Fields:** Extended schema to support payroll account functionality.
+
+### Technical Details
+
+**Routes Added:**
+- `DELETE /mis-proyectos/{proyecto}/accounts/{account}` - Delete project account
+- `DELETE /mis-proyectos/{proyecto}/accounts/{account}/unlink` - Unlink shared account
+
+**Components Modified:**
+- `ProjectDashboard.jsx` - Added project prop, integrated deletion modal
+- `AccountChart.jsx` - Encapsulated action buttons, added detailed info display
+- `AccountModal.jsx` - Added payroll account inputs, improved validation
+- `UpcomingObligationsWidget.jsx` - Added income/expense differentiation
+- `DeleteAccountModal.jsx` - New component for secure account deletion
+
+**Controllers Modified:**
+- `ProjectAccountUiWebController.php` - Added `destroy` and `unlink` methods
+- `ProyectoUiWebController.php` - Enhanced finance dashboard data loading
+
+**Migrations:**
+- `add_payroll_fields_to_cuentas_table.php` - Payroll account support
+- `add_missing_loan_fields_to_cuentas_table.php` - Loan account completion
+
+---
+
+## [2.3.1] - 2025-12-03
+
+### Fixed - Finance Module
+
+**Account Creation System:**
+- 🐛 **Database Schema:** Changed `tipo` column from ENUM to VARCHAR(20) to support all 6 account types (efectivo, banco, credito, inversion, prestamo, otro).
+- 🐛 **Missing Fields:** Added `moneda` (currency) field with 8 currency support (COP, USD, EUR, MXN, PEN, CLP, ARS, BRL).
+- 🐛 **Credit Cards & Loans:** Added missing `fecha_vencimiento` field for credit cards and loans.
+- 🐛 **Inertia Response:** Fixed controller to return `back()` instead of JSON for proper Inertia integration.
+- 🐛 **State Sync:** Fixed PersonalDashboard to sync local state when accounts are created.
+- 🐛 **Chart Warnings:** Eliminated Recharts dimension warnings by using fixed heights.
+
+**Currency Refactoring:**
+- ♻️ **Architecture:** Currency is now at account level (not project level) - each account can have its own currency.
+- ♻️ **Project Settings:** Made `moneda_default` optional, expanded to 8 currencies.
+- 🎨 **UX:** Removed confusing '0.00' default values from account form.
+
+**Dependencies:**
+- ➕ Added `doctrine/dbal` for database schema modifications.
+
+**Important Note:**
+- ⚠️ Always use `./vendor/bin/sail artisan` with Laravel Sail (not raw `php artisan`) as database host `mysql` is only resolvable inside Docker containers.
+
+---
 
 ## [2.3.0] - 2025-12-03
 
@@ -13,6 +334,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ **Full Regression Testing:** 280 backend tests passing.
 - ✅ **New Module Tests:** Added comprehensive tests for Analytics, Notifications, Marketplace, and Tasks modules.
 - ✅ **Bug Fixes:** Resolved regression issues in NotificationService and ProjectAccount routes.
+- ✅ **Login Stability:** Fixed race condition where users saw "Email not verified" error immediately after verification due to DB lag. Added smart retry logic.
+- ✅ **Project Creation:** Fixed missing modules (Analytics, Notifications) in project creation form and enabled Tasks module selection.
+- ✅ **Frontend Stability:** Resolved React Error #31 by correcting translation keys for Analytics and Notifications modules to prevent object rendering crashes.
+- ✅ **API Routing:** Fixed missing Ziggy routes for Notifications and Analytics modules, ensuring correct API communication from the frontend.
+- ✅ **Database Schema:** Resolved 500 Internal Server Error on notifications endpoint by running missing migrations in the Sail environment.
+- ✅ **Notification API:** Updated `NotificationController` to return `unread_count` in response meta, fixing frontend `TypeError`.
+- ✅ **Project Creation:** Restored "Template" vs "Custom" mode in project creation. Added templates for "Personal Finance", "Team Collaboration", and "Full Suite".
+- ✅ **Localization:** Removed hardcoded text in `CreateProject.jsx` and updated `es.json` with new keys for templates and UI elements.
 
 ### Added - Module Marketplace (Phase 6)
 

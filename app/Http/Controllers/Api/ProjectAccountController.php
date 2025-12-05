@@ -18,8 +18,8 @@ class ProjectAccountController extends Controller
     {
         $user = Auth::user();
 
-        // Get user's personal accounts that are NOT already linked to this project
-        $cuentas = Cuenta::where('propietario_type', 'App\Models\User')
+        // Get personal accounts owned by the user
+        $cuentas = Cuenta::where('propietario_type', \App\Models\User::class)
             ->where('propietario_id', $user->id)
             ->whereDoesntHave('proyectosAsociados', function ($query) use ($proyecto) {
                 $query->where('proyecto_id', $proyecto->id);
@@ -38,10 +38,11 @@ class ProjectAccountController extends Controller
             'cuenta_id' => 'required|exists:cuentas,id'
         ]);
 
+        $user = Auth::user();
         $cuenta = Cuenta::findOrFail($request->cuenta_id);
 
-        // Verify ownership
-        if ($cuenta->propietario_type !== 'App\Models\User' || $cuenta->propietario_id !== Auth::id()) {
+        // Verify the account belongs to the user
+        if ($cuenta->propietario_type !== \App\Models\User::class || $cuenta->propietario_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
