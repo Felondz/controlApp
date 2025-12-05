@@ -245,10 +245,10 @@ class ProyectoUiWebController extends Controller
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
-            'proyecto' => $mis_proyecto,
+            'proyecto' => $mis_proyecto, // Already has cuentas, cuentasAsociadas, categorias loaded
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones,
-            'financialTasks' => $financialTasks,
+            'financialTasks' => $financialTasks ?? [],
             'pendingBills' => $pendingBills,
         ]);
     }

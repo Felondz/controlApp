@@ -153,99 +153,74 @@ export default function TransactionsWidget({
                                 {getGroupLabel(date)}
                             </h4>
                             <div className="space-y-3">
-                                {groupTrans.map((trans) => (
-                                    <div
-                                        key={trans.id}
-                                        className="group flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 hover:border-primary-200 dark:hover:border-primary-800"
-                                    >
-                                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                                            {/* Icon */}
-                                            {(() => {
-                                                const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' ||
-                                                    trans.monto > 0;
-                                                return (
-                                                    <div className={`p-2.5 rounded-full ${isIncome
-                                                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                                                        : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                                                        }`}>
-                                                        {isIncome ? (
-                                                            <ArrowTrendingUpIcon className="w-5 h-5" />
-                                                        ) : (
-                                                            <ArrowTrendingDownIcon className="w-5 h-5" />
-                                                        )}
-                                                    </div>
-                                                );
-                                            })()}
+                                {groupTrans.map((trans) => {
+                                    const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' || trans.monto > 0;
+                                    return (
+                                        <div
+                                            key={trans.id}
+                                            className="group flex items-center gap-2 p-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg hover:shadow-sm transition-all"
+                                        >
+                                            {/* Icon - Compact */}
+                                            <div className={`p-1.5 rounded-full shrink-0 ${isIncome
+                                                ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                                : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                                }`}>
+                                                {isIncome ? (
+                                                    <ArrowTrendingUpIcon className="w-4 h-4" />
+                                                ) : (
+                                                    <ArrowTrendingDownIcon className="w-4 h-4" />
+                                                )}
+                                            </div>
 
+                                            {/* Details - Flexible */}
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                                     {trans.descripcion || t('finance.no_description', 'Sin descripción')}
                                                 </p>
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                                                        {trans.categoria?.nombre || t('finance.no_category', 'Sin categoría')}
-                                                    </span>
-                                                    <span>•</span>
-                                                    <span>{trans.cuenta?.nombre}</span>
-                                                    {/* Owner Badge - Only for collaborative projects */}
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                    {trans.categoria?.nombre || t('finance.no_category', 'Sin categoría')}
+                                                    {trans.cuenta?.nombre && ` • ${trans.cuenta.nombre}`}
                                                     {isCollaborative && trans.cuenta?.propietario && (
-                                                        <>
-                                                            <span>•</span>
-                                                            <span
-                                                                className={`px-1.5 py-0.5 text-[10px] font-medium rounded border ${getOwnerColor(trans.cuenta.propietario_id).bg} ${getOwnerColor(trans.cuenta.propietario_id).text} ${getOwnerColor(trans.cuenta.propietario_id).border}`}
-                                                                title={`${t('finance.owner', 'Propietario')}: ${getOwnerName(trans.cuenta)}`}
-                                                            >
-                                                                {getOwnerInitials(getOwnerName(trans.cuenta))}
-                                                            </span>
-                                                        </>
+                                                        <span className={`ml-1 px-1 text-[10px] font-medium rounded ${getOwnerColor(trans.cuenta.propietario_id).bg} ${getOwnerColor(trans.cuenta.propietario_id).text}`}>
+                                                            {getOwnerInitials(getOwnerName(trans.cuenta))}
+                                                        </span>
                                                     )}
-                                                </div>
+                                                </p>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-4 ml-4 shrink-0">
-                                            {(() => {
-                                                // Determine if this is income or expense
-                                                // Primary: categoria tipo, Fallback: monto sign
-                                                const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' ||
-                                                    trans.monto > 0;
+                                            {/* Amount - Right aligned */}
+                                            <span className={`text-sm font-bold shrink-0 ${isIncome
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : 'text-red-600 dark:text-red-400'
+                                                }`}>
+                                                {isIncome ? '+' : '-'}{formatMonto(Math.abs(trans.monto))}
+                                            </span>
 
-                                                return (
-                                                    <span className={`text-sm font-bold whitespace-nowrap ${isIncome
-                                                        ? 'text-green-600 dark:text-green-400'
-                                                        : 'text-red-600 dark:text-red-400'
-                                                        }`}>
-                                                        {isIncome ? '+' : '-'}
-                                                        {formatMonto(Math.abs(trans.monto))}
-                                                    </span>
-                                                );
-                                            })()}
-
-                                            {/* Actions (Visible on Hover) */}
+                                            {/* Actions - Hidden until hover */}
                                             {trans.user_id === currentUserId && onEdit && onDelete && (
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="hidden sm:flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button
                                                         onClick={() => {
                                                             setEditingTransaction(trans);
                                                             setShowQuickModal(true);
                                                         }}
-                                                        className="p-1.5 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                        className="p-1 text-gray-400 hover:text-primary-600 rounded"
                                                         aria-label={t('common.edit', 'Editar')}
                                                     >
-                                                        <PencilIcon className="h-4 w-4" />
+                                                        <PencilIcon className="h-3.5 w-3.5" />
                                                     </button>
                                                     <button
                                                         onClick={() => onDelete(trans)}
-                                                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                        className="p-1 text-gray-400 hover:text-red-600 rounded"
                                                         aria-label={t('common.delete', 'Eliminar')}
                                                     >
-                                                        <TrashIcon className="h-4 w-4" />
+                                                        <TrashIcon className="h-3.5 w-3.5" />
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     ))
@@ -276,7 +251,7 @@ export default function TransactionsWidget({
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">
-                            {t('finance.showing_transactions', 'Mostrando últimas transacciones')}
+                            {t('finance.showing_transactions', 'Mostrando :count transacciones', { count: transactions.length })}
                         </span>
                     </div>
                 </div>

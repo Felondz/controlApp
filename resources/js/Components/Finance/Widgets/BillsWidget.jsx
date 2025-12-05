@@ -68,68 +68,57 @@ export default function BillsWidget({
                         return (
                             <div
                                 key={bill.id}
-                                className="group flex items-center justify-between p-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 hover:border-primary-200 dark:hover:border-primary-800"
+                                className="group flex items-center gap-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-lg hover:shadow-sm transition-all"
                             >
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    {/* Date Box */}
-                                    <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 flex-shrink-0">
-                                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase leading-none mb-0.5">
-                                            {new Date(bill.fecha).toLocaleString(navigator.language, { month: 'short' }).replace('.', '')}
-                                        </span>
-                                        <span className="text-lg font-bold text-gray-800 dark:text-white leading-none">
-                                            {new Date(bill.fecha).getDate()}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                                            {bill.descripcion || t('finance.no_description', 'Sin descripción')}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-xs mt-0.5">
-                                            <span className={`font-medium flex items-center gap-1 ${remaining.color}`}>
-                                                <ClockIcon className="w-3 h-3" />
-                                                {remaining.text}
-                                            </span>
-                                            <span className="text-gray-300 dark:text-gray-600">•</span>
-                                            <span className="text-gray-500 dark:text-gray-400">
-                                                {bill.categoria?.nombre}
-                                            </span>
-                                        </div>
-                                    </div>
+                                {/* Date Box - Compact */}
+                                <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 shrink-0">
+                                    <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase leading-none">
+                                        {new Date(bill.fecha).toLocaleString(navigator.language, { month: 'short' }).replace('.', '')}
+                                    </span>
+                                    <span className="text-sm font-bold text-gray-800 dark:text-white leading-none">
+                                        {new Date(bill.fecha).getDate()}
+                                    </span>
                                 </div>
 
-                                <div className="flex items-center gap-4 ml-4">
-                                    <span className="text-sm font-bold text-gray-900 dark:text-white whitespace-nowrap">
-                                        {formatMonto(bill.monto)}
-                                    </span>
+                                {/* Details - Flexible */}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {bill.descripcion || t('finance.no_description', 'Sin descripción')}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                        <span className={remaining.color}>{remaining.text}</span>
+                                        {bill.categoria?.nombre && ` • ${bill.categoria.nombre}`}
+                                    </p>
+                                </div>
 
-                                    {/* Actions */}
-                                    <div className="flex gap-1">
-                                        <button
-                                            onClick={() => onPay && onPay(bill)}
-                                            className="p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                                            title={t('finance.pay_bill', 'Pagar Factura')}
-                                        >
-                                            <CheckCircleIcon className="h-5 w-5" />
-                                        </button>
+                                {/* Amount - Right aligned */}
+                                <span className="text-sm font-bold text-gray-900 dark:text-white shrink-0">
+                                    {formatMonto(bill.monto)}
+                                </span>
 
-                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                onClick={() => onEdit && onEdit(bill)}
-                                                className="p-1.5 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                                                title={t('common.edit', 'Editar')}
-                                            >
-                                                <PencilIcon className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => onDelete && onDelete(bill)}
-                                                className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                title={t('common.delete', 'Eliminar')}
-                                            >
-                                                <TrashIcon className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                {/* Actions */}
+                                <div className="flex gap-0.5 shrink-0">
+                                    <button
+                                        onClick={() => onPay && onPay(bill)}
+                                        className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+                                        title={t('finance.pay_bill', 'Pagar Factura')}
+                                    >
+                                        <CheckCircleIcon className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => onEdit && onEdit(bill)}
+                                        className="hidden sm:block p-1.5 text-gray-400 hover:text-primary-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title={t('common.edit', 'Editar')}
+                                    >
+                                        <PencilIcon className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete && onDelete(bill)}
+                                        className="hidden sm:block p-1.5 text-gray-400 hover:text-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title={t('common.delete', 'Eliminar')}
+                                    >
+                                        <TrashIcon className="h-3.5 w-3.5" />
+                                    </button>
                                 </div>
                             </div>
                         );

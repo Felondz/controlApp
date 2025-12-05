@@ -9,6 +9,7 @@ import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useInactivityTimeout } from '@/Hooks/useInactivityTimeout';
 import BottomNavigation from '@/Components/BottomNavigation';
 import NotificationDropdown from '@/Components/UI/NotificationDropdown';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
@@ -42,13 +43,17 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
         }
     }, [projectTheme, project, user.global_theme, setThemeLocal]);
 
+    // Auto-logout on inactivity (30 minutes)
+    useInactivityTimeout(30 * 60 * 1000);
+
+
     // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
     const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
 
     return (
         <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
             {/* Desktop Sidebar */}
-            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} />
+            <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
             {/* Mobile Header & Content Wrapper */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -58,16 +63,6 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
                 >
                     <div className="flex-1 flex items-center gap-4">
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="focus:outline-none transition-all duration-200"
-                        >
-                            {isSidebarOpen ? (
-                                <MenuFoldIcon className={`h-5 w-5 ${iconClasses}`} />
-                            ) : (
-                                <MenuUnfoldIcon className={`h-5 w-5 ${iconClasses}`} />
-                            )}
-                        </button>
                         <button
                             onClick={() => window.history.back()}
                             className="focus:outline-none transition-all duration-200"
@@ -257,11 +252,28 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                 </div>
                             </div>
 
-                            <div className="-mr-2 flex items-center md:hidden">
-                                <ThemeToggle className="mr-2" />
+                            <div className="-mr-2 flex items-center gap-2 md:hidden">
+                                <ThemeToggle className="" />
+
+                                {/* Mobile Notification Icon */}
+                                <NotificationDropdown />
+
+                                {/* Mobile Inbox Icon */}
+                                <Link
+                                    href={route('inbox')}
+                                    className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                >
+                                    <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
+                                    <InboxIcon className="h-6 w-6 transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300" />
+                                    {user.unread_messages_count > 0 && (
+                                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
+                                    )}
+                                </Link>
+
+                                {/* Profile Button */}
                                 <button
                                     onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                    className="relative inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ml-2"
+                                    className="relative inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                                 >
                                     {user.profile_photo_url ? (
                                         <img

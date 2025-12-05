@@ -116,7 +116,16 @@ Usa **Conventional Commits**:
 - **Cobertura**: Prioriza Feature tests para flujos críticos.
 - **Frontend**: Usa vitest y react testing library.
 - **Backend**: Usa phpunit.
+- **Backend**: Usa phpunit.
 - **Limpieza**: Limpiar archivos residuales de tests anteriores.
+
+> **🚨 ALERTA CRÍTICA DE BASE DE DATOS**:
+> 1. **NUNCA ejecutes migraciones manuales** (`artisan migrate`) para "preparar" el entorno de pruebas. Los tests deben ser autosuficientes usando `RefreshDatabase` o `DatabaseMigrations`.
+> 2. **NUNCA ejecutes `migrate:fresh`** o comandos destructivos sin estar 100% seguro de que estás en el entorno de pruebas.
+> - **Regla**: SIEMPRE usa `APP_ENV=testing` explícitamente al correr comandos destructivos para tests.
+> - **Ejemplo Seguro**: `APP_ENV=testing ./vendor/bin/sail artisan migrate:fresh --env=testing`
+> - **Prohibido**: Ejecutar `migrate:fresh` asumiendo que `--env=testing` es suficiente si no has verificado `.env.testing`.
+> - **Consecuencia**: Borrar la base de datos de desarrollo es INACEPTABLE.
 
 ---
 

@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
->> **Last Updated**: December 5, 2025 - Account Architecture Refactor (v2.6.2)
+>> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills (v2.6.4)
 
 ## 📋 Índice
 
@@ -974,7 +974,7 @@ Accept: application/json
 
 ### Delete Cuenta - Eliminar/Inactivar Cuenta
 
-Si la cuenta tiene transacciones, se marca como `inactiva`. Si no tiene, se elimina permanentemente.
+Elimina o inactiva una cuenta. **El saldo debe ser cero antes de eliminar.**
 
 ```http
 DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}
@@ -982,8 +982,28 @@ Authorization: Bearer {token}
 Accept: application/json
 ```
 
-**Response (204)**
+**Validación de Saldo**:
+- ⚠️ Si `saldo != 0` → Solicitud rechazada con HTTP 422
+- Si `saldo = 0` + tiene transacciones → Se marca como "inactiva" (soft-delete)
+- Si `saldo = 0` + sin transacciones → Se elimina permanentemente
+
+**Response (200)** - Cuenta inactivada
+```json
+{
+  "message": "La cuenta ha sido marcada como inactiva"
+}
+```
+
+**Response (204)** - Cuenta eliminada
 *(No Content)*
+
+**Response (422)** - Saldo no es cero
+```json
+{
+  "message": "No se puede eliminar o inactivar una cuenta con saldo. Debes ajustar el saldo a cero antes de continuar.",
+  "saldo_actual": 150000.50
+}
+```
 
 ---
 
@@ -1054,6 +1074,18 @@ Accept: application/json
 - `notas` (string, optional): Notas adicionales
 - `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
+**Nuevos Parámetros v2.6.4 - Bills Automation**:
+- `cuenta_predeterminada_id` (number, optional): ID de cuenta para pago directo de factura
+- `debito_automatico` (boolean, optional): Habilita pago automático 3 días antes del vencimiento (solo tarjetas de crédito)
+- `is_recurring` (boolean, optional): Marca la factura como recurrente mensual
+- `recurrence_day` (integer, optional): Día del mes (1-30) para generación automática. Requerido si `is_recurring: true`
+
+**Lógica Automática**:
+- Si `debito_automatico: true` → Calcula automáticamente `fecha_autopago` (3 días antes de `fecha`)
+- Si `is_recurring: true` → Calcula automáticamente `next_occurrence` basado en `recurrence_day`
+- Si `next_occurrence` es hoy y factura ya pasada → Se mueve al próximo mes
+- Días 29-30 en febrero → Se ajustan al último día del mes automáticamente
+
 **Response (201)**
 ```json
 {
@@ -1098,6 +1130,68 @@ Accept: application/json
 DELETE /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
+```
+
+---
+
+### Pay Bill Directly - **🆕 v2.6.4**  
+Paga una factura directamente usando su cuenta predeterminada asignada.
+
+```http
+POST /mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+```
+
+**Validaciones Automáticas**:
+1. ✅ Valida que la factura tenga `cuenta_predeterminada_id` asignada
+2. ✅ Valida que la factura esté en status 'pending'
+3. ✅ Verifica saldo suficiente en la cuenta (frontend)
+4. ✅ Verifica permisos del usuario en el proyecto
+
+**Proceso Automático**:
+1. Crea una nueva transacción de pago con status 'completed'
+2. Actualiza el saldo de la cuenta (`saldo_actual += monto`)
+3. Marca la factura original como 'completed'
+4. Retorna confirmación de pago
+
+**Response (200)**:
+```json
+{
+  "success": true,
+  "message": "Factura pagada correctamente",
+  "payment": {
+    "id": 50,
+    "proyecto_id": 4,
+    "cuenta_id": 12,
+    "monto": -50000,
+    "descripcion": "Pago: Factura de luz",
+    "fecha": "2025-12-05",
+    "status": "completed",
+    "user_id": 1
+  }
+}
+```
+
+**Errors**:
+- `400` - Factura sin cuenta predeterminada
+- `400` - Factura ya fue pagada
+- `403` - Sin permisos en el proyecto
+- `404` - Factura o proyecto no encontrado
+
+**Ejemplo de Uso (Frontend)**:
+```javascript
+// Pago directo con verificación de saldo
+const payBill = async (bill, account) => {
+  if (account.saldo_actual < Math.abs(bill.monto) / 100) {
+    alert('Saldo insuficiente');
+    return;
+  }
+  
+  await axios.post(route('finance.bills.pay-direct', [projectId, bill.id]));
+  router.reload({ only: ['pendingBills', 'proyecto'] });
+};
 ```
 
 ---
@@ -1303,3 +1397,202 @@ Accept: application/json
   "unread_count": 5
 }
 ```
+
+---
+
+## ⚙️ Configuración del Proyecto
+
+### Update Settings - Actualizar Configuración
+Actualiza la configuración del proyecto (widgets, preferencias, etc.).
+
+```http
+PUT /api/proyectos/{proyecto}/settings
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "settings": {
+    "widgets": {
+      "balance_summary": true,
+      "savings_goal": false,
+      "credit_simulation": true,
+      "financial_charts": true
+    }
+  }
+}
+```
+
+**Autorización**: Solo admins del proyecto pueden actualizar.
+
+**Response (200)**
+```json
+{
+  "success": true,
+  "message": "Configuración actualizada correctamente",
+  "settings": { ... }
+}
+```
+
+---
+
+## 👑 Transferencia de Propiedad
+
+### Transfer Ownership - Transferir Propiedad
+Transfiere la propiedad del proyecto a otro miembro admin.
+
+```http
+POST /api/proyectos/{proyecto}/transfer-ownership
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "new_owner_id": 5,
+  "password": "tu_contraseña_actual"
+}
+```
+
+**Validación**:
+- ✅ Solo el dueño actual puede transferir
+- ✅ El nuevo dueño debe ser miembro del proyecto
+- ✅ El nuevo dueño debe ser Administrador
+- ✅ Se requiere contraseña actual para confirmar
+
+**Response (200)**
+```json
+{
+  "success": true,
+  "message": "Propiedad del proyecto transferida exitosamente.",
+  "new_owner": {
+    "id": 5,
+    "name": "Juan Pérez",
+    "email": "juan@example.com"
+  }
+}
+```
+
+**Response (403)** - No es el dueño
+```json
+{
+  "message": "Solo el Dueño del proyecto puede transferir la propiedad."
+}
+```
+
+**Response (422)** - Validación fallida
+```json
+{
+  "message": "El nuevo dueño debe ser miembro del proyecto."
+}
+```
+
+---
+
+## 🧾 Pago Directo de Facturas
+
+### Pay Bill Direct - Pagar Factura Directamente
+Paga una factura usando su cuenta predeterminada.
+
+```http
+POST /api/proyectos/{proyecto}/bills/{transaccion}/pay-direct
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Validación**:
+- ✅ La factura debe tener cuenta predeterminada asignada (`cuenta_predeterminada_id`)
+- ✅ La factura debe estar en estado "pending"
+- ✅ La cuenta debe tener saldo suficiente
+
+**Response (200)**
+```json
+{
+  "success": true,
+  "message": "Factura pagada correctamente",
+  "payment": {
+    "id": 123,
+    "cuenta_id": 5,
+    "monto": -50000,
+    "status": "completed",
+    "fecha": "2025-12-05"
+  }
+}
+```
+
+**Response (400)** - Sin cuenta predeterminada
+```json
+{
+  "error": "Esta factura no tiene cuenta predeterminada"
+}
+```
+
+---
+
+## 📤 Exportaciones
+
+### Export CSV - Exportar a CSV
+Exporta datos del proyecto (transacciones, cuentas o categorías) a formato CSV.
+
+```http
+GET /api/proyectos/{proyecto}/export/csv?type=transactions&from=2024-01-01&to=2024-12-31
+Authorization: Bearer {token}
+Accept: text/csv
+```
+
+**Query Parameters**:
+- `type` (opcional): `transactions` (default), `accounts`, `categories`
+- `from` (opcional): Fecha inicio (YYYY-MM-DD)
+- `to` (opcional): Fecha fin (YYYY-MM-DD)
+
+**Response**: Archivo CSV descargable
+
+**Columnas CSV por Tipo**:
+- **transactions**: Fecha, Descripcion, Monto, Categoria, Cuenta, Tipo
+- **accounts**: Nombre, Tipo, Saldo, Moneda, Estado
+- **categories**: Nombre, Tipo, Icono, Color
+
+---
+
+### Export PDF - Exportar a PDF
+Genera un reporte financiero en PDF del proyecto.
+
+```http
+POST /api/proyectos/{proyecto}/export/pdf
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/pdf
+
+{
+  "type": "summary",
+  "from": "2024-01-01",
+  "to": "2024-12-31"
+}
+```
+
+**Request Body**:
+- `type` (opcional): `summary` (default), `transactions`, `all`
+- `from` (opcional): Fecha inicio (YYYY-MM-DD)
+- `to` (opcional): Fecha fin (YYYY-MM-DD)
+
+**Response**: Archivo PDF descargable
+
+**Contenido del PDF**:
+- Nombre del proyecto y rango de fechas
+- Resumen: Total ingresos, total gastos, balance
+- Lista de cuentas con saldos actuales
+- Tabla de transacciones (si type es "transactions" o "all")
+
+---
+
+## ❌ Códigos de Error
+
+| Código | Descripción |
+|--------|-------------|
+| 400 | Bad Request - Datos de entrada inválidos |
+| 401 | Unauthorized - Token faltante o inválido |
+| 403 | Forbidden - Permisos insuficientes |
+| 404 | Not Found - Recurso no existe |
+| 422 | Unprocessable Entity - Validación fallida |
+| 429 | Too Many Requests - Límite de peticiones excedido |
+| 500 | Server Error - Error interno |
+

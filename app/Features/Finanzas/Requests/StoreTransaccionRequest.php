@@ -27,50 +27,32 @@ class StoreTransaccionRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Obtenemos el proyecto desde la ruta (ej: /proyectos/1/...)
         $proyecto = $this->route('proyecto');
 
         return [
-            // El 'monto' debe ser numérico (no puede ser 'abc')
+            'cuenta_id' => 'nullable|exists:cuentas,id',
+            'categoria_id' => [
+                'nullable',
+                'numeric',
+                Rule::exists('categorias', 'id')->where('proyecto_id', $proyecto->id),
+            ],
             'monto' => 'required|numeric',
-
-            // La 'fecha' debe ser una fecha válida
+            'descripcion' => 'required|string|max:255',
             'fecha' => 'required|date',
-
-            'descripcion' => 'nullable|string|max:255',
             'notas' => 'nullable|string',
             'status' => 'nullable|in:pending,completed,cancelled',
-
-            // --- Reglas de Validación Avanzadas ---
-
-            // 1. Validar 'categoria_id'
-            'categoria_id' => [
-                'nullable', // Now nullable as per user request (required only for expenses via frontend)
-                'numeric',
-                // La categoría debe existir en la tabla 'categorias'
-                Rule::exists('categorias', 'id')
-                    // ¡Y ADEMÁS! debe pertenecer al proyecto que estamos viendo
-                    ->where('proyecto_id', $proyecto->id),
-            ],
-
-            // 2. Validar 'cuenta_id'
-            // 2. Validar 'cuenta_id'
-            'cuenta_id' => [
-                'nullable', // Can be null for pending transactions (bills)
-                'numeric',
-                // La cuenta debe existir en la tabla 'cuentas'
-                Rule::exists('cuentas', 'id'),
-                // TODO: Add proper validation for linked accounts.
-                // For now, we trust the frontend list, but we should verify the account is either owned OR linked.
-            ],
-
-            // 3. Validar 'task_id' (opcional, para vincular transacción con tarea financiera)
             'task_id' => [
                 'nullable',
                 'numeric',
-                Rule::exists('tasks', 'id')
-                    ->where('project_id', $proyecto->id),
+                Rule::exists('tasks', 'id')->where('project_id', $proyecto->id),
             ],
+            // Payment automation fields
+            'cuenta_predeterminada_id' => 'nullable|exists:cuentas,id',
+            'debito_automatico' => 'boolean',
+            'debito_automatico' => 'boolean',
+            // Recurrence fields
+            'is_recurring' => 'boolean',
+            'recurrence_day' => 'nullable|integer|min:1|max:30',
         ];
     }
 

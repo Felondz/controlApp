@@ -93,6 +93,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'destroy'])
         ->name('finance.transactions.destroy');
 
+    // Direct bill payment
+    Route::post('mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct', [TransaccionController::class, 'payDirectly'])
+        ->name('finance.bills.pay-direct');
+
     // Project Settings (Finance)
     Route::put('mis-proyectos/{project}/settings', [ProyectoUiWebController::class, 'updateSettings'])
         ->name('finance.projects.update-settings');

@@ -57,7 +57,25 @@ vi.mock('@inertiajs/react', () => ({
 // Mock useTranslate hook
 vi.mock('@/Hooks/useTranslate', () => ({
     useTranslate: vi.fn(() => ({
-        t: vi.fn((key) => key), // Return the translation key, not the fallback
+        t: vi.fn((key, fallbackOrParams, params) => {
+            // If second arg is an object (params), replace :param in key and return key
+            // Otherwise return key as before (for compatibility with existing tests)
+            let result = key;
+            let replacements = {};
+
+            if (typeof fallbackOrParams === 'object' && fallbackOrParams !== null) {
+                replacements = fallbackOrParams;
+            } else if (typeof params === 'object' && params !== null) {
+                replacements = params;
+            }
+
+            // Replace :param with actual values in the key
+            Object.keys(replacements).forEach(param => {
+                result = result.replace(`:${param}`, replacements[param]);
+            });
+
+            return result;
+        }),
     })),
 }));
 

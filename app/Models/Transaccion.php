@@ -44,6 +44,15 @@ class Transaccion extends Model
         'fecha',
         'notas',
         'status',
+        'cuenta_predeterminada_id',
+        'debito_automatico',
+        'fecha_autopago',
+
+        // Recurrence fields
+        'is_recurring',
+        'recurrence_interval',
+        'recurrence_day',
+        'next_occurrence',
     ];
 
     // 3. Las relaciones siguen igual
@@ -60,6 +69,11 @@ class Transaccion extends Model
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
+    }
+
+    public function cuentaPredeterminada()
+    {
+        return $this->belongsTo(Cuenta::class, 'cuenta_predeterminada_id');
     }
 
     public function usuario()

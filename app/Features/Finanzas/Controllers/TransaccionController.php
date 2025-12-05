@@ -40,6 +40,57 @@ class TransaccionController extends Controller
         \Illuminate\Support\Facades\Log::info('Store Transaction Request:', $request->all());
 
         $datosValidados = $request->validated();
+
+        // Auto-calculate fecha_autopago if debito_automatico is enabled
+        if (isset($datosValidados['debito_automatico']) && $datosValidados['debito_automatico'] && isset($datosValidados['cuenta_predeterminada_id'])) {
+            $cuenta = \App\Models\Cuenta::find($datosValidados['cuenta_predeterminada_id']);
+
+            if ($cuenta && $cuenta->tipo === 'credito') {
+                $dueDate = \Carbon\Carbon::parse($datosValidados['fecha']);
+                $datosValidados['fecha_autopago'] = $dueDate->copy()->subDays(3)->toDateTimeString();
+            } else {
+                // Only credit cards can have auto-debit
+                $datosValidados['debito_automatico'] = false;
+            }
+        }
+
+        // Handle recurring bills
+        if (isset($datosValidados['is_recurring']) && $datosValidados['is_recurring']) {
+            // Set recurrence_interval to monthly
+            $datosValidados['recurrence_interval'] = 'monthly';
+
+            // Calculate next_occurrence based on recurrence_day
+            $day = $datosValidados['recurrence_day'] ?? date('d');
+            $now = \Carbon\Carbon::now();
+
+            // Start with current month
+            $nextOccurrence = \Carbon\Carbon::create($now->year, $now->month, 1);
+
+            // Special handling for February when day is 29 or 30
+            if ($nextOccurrence->month === 2 && $day >= 29) {
+                $nextOccurrence->endOfMonth();
+            } else {
+                $nextOccurrence->day(min($day, $nextOccurrence->daysInMonth));
+            }
+
+            // If the calculated date has already passed this month, move to next month
+            if ($nextOccurrence->isPast() || $nextOccurrence->isToday()) {
+                $nextOccurrence->addMonth();
+
+                // Re-adjust day for the new month
+                if ($nextOccurrence->month === 2 && $day >= 29) {
+                    $nextOccurrence->endOfMonth();
+                } else {
+                    $nextOccurrence->day(min($day, $nextOccurrence->daysInMonth));
+                }
+            }
+
+            $datosValidados['next_occurrence'] = $nextOccurrence->toDateString();
+
+            // Use next_occurrence as the initial fecha
+            $datosValidados['fecha'] = $nextOccurrence->toDateString();
+        }
+
         $datosCompletos = array_merge($datosValidados, [
             'proyecto_id' => $proyecto->id,
             'user_id' => $request->user()->id,
@@ -164,5 +215,50 @@ class TransaccionController extends Controller
         }
 
         return redirect()->back()->with('success', 'Transacción eliminada correctamente.');
+    }
+
+    /**
+     * Pay a bill directly using its default account
+     */
+    public function payDirectly(Request $request, Proyecto $proyecto, Transaccion $transaccion)
+    {
+        // Verify authorization
+        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para pagar facturas.');
+
+        // Verify transaction belongs to project
+        if ($transaccion->proyecto_id !== $proyecto->id) {
+            abort(404);
+        }
+
+        // Verify bill has default account
+        if (!$transaccion->cuenta_predeterminada_id) {
+            return response()->json(['error' => 'Esta factura no tiene cuenta predeterminada'], 400);
+        }
+
+        // Verify bill is pending
+        if ($transaccion->status !== 'pending') {
+            return response()->json(['error' => 'Esta factura ya fue pagada'], 400);
+        }
+
+        // Update bill to completed and assign account
+        $transaccion->update([
+            'cuenta_id' => $transaccion->cuenta_predeterminada_id,
+            'status' => 'completed',
+            'fecha' => now(), // Update to payment date
+            'descripcion' => "Pago de factura: {$transaccion->descripcion}", // Update description
+        ]);
+
+        // Update account balance (monto is already negative for expenses)
+        $cuenta = \App\Models\Cuenta::find($transaccion->cuenta_id);
+        if ($cuenta) {
+            $cuenta->saldo_actual += $transaccion->monto;
+            $cuenta->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Factura pagada correctamente',
+            'payment' => $transaccion,
+        ]);
     }
 }

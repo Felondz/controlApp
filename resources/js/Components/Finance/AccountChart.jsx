@@ -159,6 +159,14 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                             </p>
                         )}
 
+                        {/* Currency Badge - First row below bank name */}
+                        <div className="mb-1.5">
+                            <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
+                                {cuenta.moneda || 'COP'}
+                            </span>
+                        </div>
+
+                        {/* Other Badges - Second row */}
                         <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
                                 {t(`accounts.account_types.${cuenta.tipo}`, cuenta.tipo)}
@@ -186,6 +194,7 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                             )}
                         </div>
                     </div>
+
                 </div>
 
                 {/* Action Buttons - Use theme colors */}

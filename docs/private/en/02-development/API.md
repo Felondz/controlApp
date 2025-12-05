@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
-> **Last Updated**: November 29, 2025 - Tools API Added
+>> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills + Auto Categories (v2.6.4)
 
 ## 📋 Table of Contents
 
@@ -925,7 +925,7 @@ Accept: application/json
 
 ### Delete Account
 
-If the account has transactions, it is marked as `inactiva`. If it has no transactions, it is permanently deleted.
+Deletes or deactivates an account. **Account balance must be zero before deletion.**
 
 ```http
 DELETE /api/proyectos/{proyecto}/cuentas/{cuenta}
@@ -933,8 +933,28 @@ Authorization: Bearer {token}
 Accept: application/json
 ```
 
-**Response (204)**
+**Balance Validation**:
+- ⚠️ If `saldo != 0` → Request rejected with HTTP 422
+- If `saldo = 0` + has transactions → Marked as "inactiva" (soft-delete)
+- If `saldo = 0` + no transactions → Permanently deleted
+
+**Response (200)** - Account deactivated
+```json
+{
+  "message": "La cuenta ha sido marcada como inactiva"
+}
+```
+
+**Response (204)** - Account deleted
 *(No Content)*
+
+**Response (422)** - Balance not zero
+```json
+{
+  "message": "No se puede eliminar o inactivar una cuenta con saldo. Debes ajustar el saldo a cero antes de continuar.",
+  "saldo_actual": 150000.50
+}
+```
 
 ---
 
@@ -1332,6 +1352,7 @@ Accept: application/json
  
  ```http
  GET /api/proyectos/{proyecto}/marketplace
+```
  Authorization: Bearer {token}
  Accept: application/json
  ```
@@ -1348,3 +1369,202 @@ Accept: application/json
    "enable": true
  }
  ```
+ 
+ ---
+ 
+ ## ⚙️ Project Settings
+ 
+ ### Update Settings
+ Updates project settings (widgets, preferences, etc.).
+ 
+ ```http
+ PUT /api/proyectos/{proyecto}/settings
+ Authorization: Bearer {token}
+ Content-Type: application/json
+ Accept: application/json
+ 
+ {
+   "settings": {
+     "widgets": {
+       "balance_summary": true,
+       "savings_goal": false,
+       "credit_simulation": true,
+       "financial_charts": true
+     }
+   }
+ }
+ ```
+ 
+ **Authorization**: Only project admins can update settings.
+ 
+ **Response (200)**
+ ```json
+ {
+   "success": true,
+   "message": "Configuración actualizada correctamente",
+   "settings": { ... }
+ }
+ ```
+ 
+ ---
+ 
+ ## 👑 Ownership Transfer
+ 
+ ### Transfer Project Ownership
+ Transfers project ownership to another admin member.
+ 
+ ```http
+ POST /api/proyectos/{proyecto}/transfer-ownership
+ Authorization: Bearer {token}
+ Content-Type: application/json
+ Accept: application/json
+ 
+ {
+   "new_owner_id": 5,
+   "password": "your_current_password"
+ }
+ ```
+ 
+ **Validation**:
+ - ✅ Only the current owner can transfer ownership
+ - ✅ New owner must be a project member
+ - ✅ New owner must already be an Admin
+ - ✅ Current password required for confirmation
+ 
+ **Response (200)**
+ ```json
+ {
+   "success": true,
+   "message": "Propiedad del proyecto transferida exitosamente.",
+   "new_owner": {
+     "id": 5,
+     "name": "John Doe",
+     "email": "john@example.com"
+   }
+ }
+ ```
+ 
+ **Response (403)** - Not the owner
+ ```json
+ {
+   "message": "Solo el Dueño del proyecto puede transferir la propiedad."
+ }
+ ```
+ 
+ **Response (422)** - Validation failed
+ ```json
+ {
+   "message": "El nuevo dueño debe ser miembro del proyecto."
+ }
+ ```
+ 
+ ---
+ 
+ ## 🧾 Direct Bill Payment
+ 
+ ### Pay Bill Directly
+ Pays a bill using its default payment account.
+ 
+ ```http
+ POST /api/proyectos/{proyecto}/bills/{transaccion}/pay-direct
+ Authorization: Bearer {token}
+ Accept: application/json
+ ```
+ 
+ **Validation**:
+ - ✅ Bill must have a default account assigned (`cuenta_predeterminada_id`)
+ - ✅ Bill must be in "pending" status
+ - ✅ Account must have sufficient balance
+ 
+ **Response (200)**
+ ```json
+ {
+   "success": true,
+   "message": "Factura pagada correctamente",
+   "payment": {
+     "id": 123,
+     "cuenta_id": 5,
+     "monto": -50000,
+     "status": "completed",
+     "fecha": "2025-12-05"
+   }
+ }
+ ```
+ 
+ **Response (400)** - No default account
+ ```json
+ {
+   "error": "Esta factura no tiene cuenta predeterminada"
+ }
+ ```
+ 
+ ---
+ 
+ ## 📤 Exports
+ 
+ ### Export to CSV
+ Exports project data (transactions, accounts, or categories) to CSV format.
+ 
+ ```http
+ GET /api/proyectos/{proyecto}/export/csv?type=transactions&from=2024-01-01&to=2024-12-31
+ Authorization: Bearer {token}
+ Accept: text/csv
+ ```
+ 
+ **Query Parameters**:
+ - `type` (optional): `transactions` (default), `accounts`, `categories`
+ - `from` (optional): Start date (YYYY-MM-DD)
+ - `to` (optional): End date (YYYY-MM-DD)
+ 
+ **Response**: CSV file download
+ 
+ **CSV Columns by Type**:
+ - **transactions**: Fecha, Descripcion, Monto, Categoria, Cuenta, Tipo
+ - **accounts**: Nombre, Tipo, Saldo, Moneda, Estado
+ - **categories**: Nombre, Tipo, Icono, Color
+ 
+ ---
+ 
+ ### Export to PDF
+ Generates a PDF financial report for the project.
+ 
+ ```http
+ POST /api/proyectos/{proyecto}/export/pdf
+ Authorization: Bearer {token}
+ Content-Type: application/json
+ Accept: application/pdf
+ 
+ {
+   "type": "summary",
+   "from": "2024-01-01",
+   "to": "2024-12-31"
+ }
+ ```
+ 
+ **Request Body**:
+ - `type` (optional): `summary` (default), `transactions`, `all`
+ - `from` (optional): Start date (YYYY-MM-DD)
+ - `to` (optional): End date (YYYY-MM-DD)
+ 
+ **Response**: PDF file download
+ 
+ **PDF Contents**:
+ - Project name and date range
+ - Summary: Total income, total expenses, balance
+ - Accounts list with current balances
+ - Transactions table (if type is "transactions" or "all")
+ 
+ ---
+ 
+ ## ❌ Error Codes
+ 
+ | Code | Description |
+ |------|-------------|
+ | 400 | Bad Request - Invalid input data |
+ | 401 | Unauthorized - Missing or invalid token |
+ | 403 | Forbidden - Insufficient permissions |
+ | 404 | Not Found - Resource doesn't exist |
+ | 422 | Unprocessable Entity - Validation failed |
+ | 429 | Too Many Requests - Rate limit exceeded |
+ | 500 | Server Error - Internal error |
+```

@@ -38,7 +38,7 @@ export default function NotificationDropdown() {
 
     const startPolling = () => {
         stopPolling();
-        pollingInterval.current = setInterval(fetchNotifications, 30000); // 30 seconds
+        pollingInterval.current = setInterval(fetchNotifications, 20000); // 20 seconds
     };
 
     const stopPolling = () => {
