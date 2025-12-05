@@ -55,6 +55,7 @@ export default function BasicMode({
                         ]}
                         value={term}
                         onChange={setTerm}
+                        className="flex-wrap"
                     />
                 </div>
 

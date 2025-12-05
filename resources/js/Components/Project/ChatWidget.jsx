@@ -34,48 +34,36 @@ export default function ChatWidget({ project, user }) {
         }
     }, [project.id]);
 
-    const unreadCountsRef = useRef(unreadCounts);
-
-    // Update ref when state changes
-    useEffect(() => {
-        unreadCountsRef.current = unreadCounts;
-    }, [unreadCounts]);
-
     // Mark active channel as read
     const markAsRead = useCallback(async () => {
         try {
-            const currentUnreadCounts = unreadCountsRef.current;
-            // Check if there are unread messages
-            const hasUnread = activeChannel === 'general'
-                ? currentUnreadCounts.general > 0
-                : (currentUnreadCounts.dms && currentUnreadCounts.dms[activeChannel] > 0);
+            const payload = activeChannel === 'general' ? {} : { recipient_id: activeChannel };
 
-            if (hasUnread) {
-                const payload = activeChannel === 'general' ? {} : { recipient_id: activeChannel };
-                await axios.post(route('project.messages.read', project.id), payload);
+            // ✅ Always call API - backend handles idempotency
+            // Previously waited for unreadCounts state, causing delay
+            await axios.post(route('project.messages.read', project.id), payload);
 
-                // Optimistically update local state to prevent loops
-                setUnreadCounts(prev => {
-                    if (activeChannel === 'general') {
-                        return { ...prev, general: 0 };
-                    } else {
-                        return {
-                            ...prev,
-                            dms: { ...prev.dms, [activeChannel]: 0 }
-                        };
-                    }
-                });
+            // Optimistically update local state to prevent loops
+            setUnreadCounts(prev => {
+                if (activeChannel === 'general') {
+                    return { ...prev, general: 0 };
+                } else {
+                    return {
+                        ...prev,
+                        dms: { ...prev.dms, [activeChannel]: 0 }
+                    };
+                }
+            });
 
-                // Update global unread count (Sidebar/Navbar)
-                router.reload({ only: ['auth', 'proyecto'], preserveScroll: true });
+            // Update global unread count (Sidebar/Navbar)
+            router.reload({ only: ['auth', 'proyecto'], preserveScroll: true });
 
-                // Fetch latest counts to be sure (in background)
-                fetchUnreadCounts();
-            }
+            // Fetch latest counts to be sure (in background)
+            fetchUnreadCounts();
         } catch (error) {
             console.error("Error marking as read:", error);
         }
-    }, [project.id, activeChannel, fetchUnreadCounts]); // Removed unreadCounts dependency
+    }, [project.id, activeChannel, fetchUnreadCounts]);
 
     // Initial load and channel change
     useEffect(() => {

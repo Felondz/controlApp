@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
->> **Last Updated**: December 5, 2025 - Account Architecture Refactor (v2.6.2)
+>> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills (v2.6.4)
 
 ## 📋 Índice
 
@@ -1054,6 +1054,18 @@ Accept: application/json
 - `notas` (string, optional): Notas adicionales
 - `task_id` (number, optional): ID de tarea financiera. Si se proporciona, la tarea se marcará automáticamente como "done"
 
+**Nuevos Parámetros v2.6.4 - Bills Automation**:
+- `cuenta_predeterminada_id` (number, optional): ID de cuenta para pago directo de factura
+- `debito_automatico` (boolean, optional): Habilita pago automático 3 días antes del vencimiento (solo tarjetas de crédito)
+- `is_recurring` (boolean, optional): Marca la factura como recurrente mensual
+- `recurrence_day` (integer, optional): Día del mes (1-30) para generación automática. Requerido si `is_recurring: true`
+
+**Lógica Automática**:
+- Si `debito_automatico: true` → Calcula automáticamente `fecha_autopago` (3 días antes de `fecha`)
+- Si `is_recurring: true` → Calcula automáticamente `next_occurrence` basado en `recurrence_day`
+- Si `next_occurrence` es hoy y factura ya pasada → Se mueve al próximo mes
+- Días 29-30 en febrero → Se ajustan al último día del mes automáticamente
+
 **Response (201)**
 ```json
 {
@@ -1098,6 +1110,68 @@ Accept: application/json
 DELETE /api/proyectos/{proyecto}/transacciones/{transaccion}
 Authorization: Bearer {token}
 Accept: application/json
+```
+
+---
+
+### Pay Bill Directly - **🆕 v2.6.4**  
+Paga una factura directamente usando su cuenta predeterminada asignada.
+
+```http
+POST /mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+```
+
+**Validaciones Automáticas**:
+1. ✅ Valida que la factura tenga `cuenta_predeterminada_id` asignada
+2. ✅ Valida que la factura esté en status 'pending'
+3. ✅ Verifica saldo suficiente en la cuenta (frontend)
+4. ✅ Verifica permisos del usuario en el proyecto
+
+**Proceso Automático**:
+1. Crea una nueva transacción de pago con status 'completed'
+2. Actualiza el saldo de la cuenta (`saldo_actual += monto`)
+3. Marca la factura original como 'completed'
+4. Retorna confirmación de pago
+
+**Response (200)**:
+```json
+{
+  "success": true,
+  "message": "Factura pagada correctamente",
+  "payment": {
+    "id": 50,
+    "proyecto_id": 4,
+    "cuenta_id": 12,
+    "monto": -50000,
+    "descripcion": "Pago: Factura de luz",
+    "fecha": "2025-12-05",
+    "status": "completed",
+    "user_id": 1
+  }
+}
+```
+
+**Errors**:
+- `400` - Factura sin cuenta predeterminada
+- `400` - Factura ya fue pagada
+- `403` - Sin permisos en el proyecto
+- `404` - Factura o proyecto no encontrado
+
+**Ejemplo de Uso (Frontend)**:
+```javascript
+// Pago directo con verificación de saldo
+const payBill = async (bill, account) => {
+  if (account.saldo_actual < Math.abs(bill.monto) / 100) {
+    alert('Saldo insuficiente');
+    return;
+  }
+  
+  await axios.post(route('finance.bills.pay-direct', [projectId, bill.id]));
+  router.reload({ only: ['pendingBills', 'proyecto'] });
+};
 ```
 
 ---

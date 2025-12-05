@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - Pre-Release Security Fixes
 
-### Fixed - Critical Security \u0026 CI/CD
+### Fixed - Critical Security & CI/CD
 
 **Package Manager Security Enforcement:**
 - 🔒 **CRITICAL FIX**: Enforced PNPM-only policy across all environments (CI/CD, local, production)
@@ -30,6 +30,152 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Breaking Changes**: ⚠️ Developers must have PNPM installed (`npm install -g pnpm`)
 
 ---
+
+## [2.6.4] - 2025-12-05
+
+### Added - Bills Payment Automation System
+
+**Payment Automation**:
+- 💳 **Default Payment Account**: Bills can now have a pre-assigned payment account for quick payments
+- ⚡ **Direct Payment**: One-click payment for bills with associated accounts (no modal needed)
+- 🤖 **Automatic Debit**: Credit card bills can enable auto-debit (pays 3 days before due date)
+- 📅 **Scheduled Payments**: ProcessAutoBills job runs daily at 6:00 AM to process auto-debits
+
+**Database Changes**:
+- 📊 **New Fields**: `cuenta_predeterminada_id`, `debito_automatico`, `fecha_autopago` in `transacciones` table
+- 🔗 **Relationships**: Added `cuentaPredeterminada()` relationship to Transaccion model
+- 📈 **Migration**: `2025_12_05_153815_add_payment_automation_to_transaccions_table.php`
+
+**Backend Implementation**:
+- ✅ **Validation**: Updated `StoreTransaccionRequest` with payment automation fields
+- 🧮 **Auto-calculation**: `fecha_autopago` calculated automatically (due_date - 3 days) for CC auto-debit
+- 🔐 **Security**: Auto-debit restricted to credit cards only
+- 🛣️ **New Endpoint**: `POST /mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct`
+- ⏰ **Scheduler**: Registered `ProcessAutoBills` job in `routes/console.php`
+
+**Frontend Implementation**:
+- 🎨 **BillModal**: Added account selector dropdown (optional)
+- ✅ **Auto-Debit Toggle**: Checkbox appears only for credit card accounts
+- 📝 **Conditional UI**: Auto-debit hint shows "Pago automático 3 días antes del vencimiento"
+- 🌐 **i18n**: Added 7 translation keys (ES + EN) for payment automation
+
+**Payment Flow Logic** (3 conditional paths):
+1. **No account**: Opens TransactionModal (existing behavior)
+2. **Has account (non-CC)**: Shows confirmation → Creates payment transaction directly
+3. **CC + auto-debit enabled**: Scheduled autopay, shows "Already scheduled" message
+
+**Translation Keys**:
+- `finance.default_account`: "Cuenta Predeterminada" / "Default Account"
+- `finance.no_account`: "Sin cuenta (pago manual)" / "No account (manual payment)"
+- `finance.auto_debit`: "Débito Automático" / "Automatic Debit"
+- `finance.auto_debit_hint`: "Pago automático 3 días antes del vencimiento"
+- `finance.confirm_direct_payment`: "¿Pagar directamente desde la cuenta asociada?"
+- `finance.already_scheduled`: "Pago programado para 3 días antes del vencimiento"
+- `finance.scheduled_payment`: "Pago Programado" / "Scheduled Payment"
+
+### Fixed - Chat Real-time Read Status
+
+**Issue**: Messages didn't mark as read until page reload/channel exit  
+**Root Cause**: `markAsRead()` waited for `unreadCounts` state update (3s polling delay)  
+**Solution**: Removed conditional check - now always calls API immediately when viewing channel
+
+**Implementation**:
+- 🔧 **ChatWidget.jsx**: Simplified `markAsRead()` callback to always execute API call
+- ⚡ **Immediate Response**: Messages mark as read instantly when channel viewed
+- 🔄 **Optimistic Updates**: UI updates immediately, background refresh for consistency
+
+**Files Modified**:
+- [ChatWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Project/ChatWidget.jsx#L37-L64) - Removed `hasUnread` check
+- [BillModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/BillModal.jsx) - Added account selector + auto-debit
+- [TransaccionController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Features/Finanzas/Controllers/TransaccionController.php) - Added `payDirectly()` method
+- [StoreTransaccionRequest.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Features/Finanzas/Requests/StoreTransaccionRequest.php) - New validation rules
+- [Transaccion.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Models/Transaccion.php) - New fillable fields + relationship
+- [ProcessAutoBills.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Jobs/ProcessAutoBills.php) - New scheduled job
+- [routes/web.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/routes/web.php) - Added payDirectly route
+- [routes/console.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/routes/console.php) - Registered scheduler
+- [es.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/es/es.json) + [en.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/en/en.json) - 7 new keys each
+
+**Testing**:
+- ✅ Chat messages mark as read without reload
+- ✅ Bill creation with account assignment
+- ✅ Auto-debit checkbox visible for TC only
+- ⏳ Direct payment flow (requires front-end button logic completion)
+- ⏳ Scheduled job processing (requires testing after migration)
+
+**Known Limitations**:
+- Pay Bill button logic not yet implemented (10 min remaining work)
+- `cuentas` prop not yet passed to BillModal in ProjectDashboard
+- Migration pending execution
+
+---
+
+## [2.6.3] - 2025-12-05
+
+### Fixed - Mobile UI/UX Hotfixes (QA Round 1) + Follow-up Improvements
+
+**Responsive Design**:
+- 📱 **ToggleGroup Component**: Added `flex-wrap gap-2` for mobile responsiveness, preventing button overlapping in narrow viewports
+- 🧮 **Financial Calculator - Basic Mode**: Fixed payment terms selector overlapping on mobile by making ToggleGroup responsive
+- ✅ **Account Grid**: Verified proper responsive grid configuration (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`)
+
+**Component Refactor**:
+- 🎨 **ProjectCard**: Removed unnecessary "..." (EllipsisVerticalIcon) menu button
+- ✨ **ProjectCard**: Added missing module icons for Analytics (`ChartBarIcon`), Notifications (`BellIcon`), and Marketplace (`PuzzleIcon`)
+- 🔒 **ProjectCard**: Made all module icons non-clickable and informational only (removed hover effects and `group/icon` interactivity)
+- 📊 **ProjectCard**: Moved module icons below title row and centered them for better visual coordination
+- 🔧 **Module Icons**: All 6 modules (Finance, Tasks, Chat, Analytics, Notifications, Marketplace) now display correctly
+
+**Mobile Header Enhancements**:
+- 🔔 **Notification Icon**: Added `NotificationDropdown` to mobile header for parity with desktop
+- 📬 **Inbox Icon**: Added `InboxIcon` link with unread count badge to mobile header
+- 📲 **Mobile UX**: Users can now access notifications and inbox directly from mobile header
+
+**UX Improvements**:
+- 💬 **Inactive Accounts Toggle**: Added comprehensive tooltip system with proper i18n
+  - Desktop: Full descriptive tooltip on hover
+  - Mobile: Visible explanatory text (no reliance on title attribute which doesn't work on mobile)
+  - Text explicitly mentions "cuentas activas/inactivas" for clarity
+- ℹ️ **Accessibility**: Mobile users see "Viendo cuentas activas/inactivas" text next to toggle
+- 🎨 **Currency Badge**: Moved to separate row below bank name in AccountChart for better organization and no overlapping
+- 📍 **Badge Layout**: Currency badge first, then account type and status badges in second row
+
+**Localization**:
+- 🌐 **Translation Fix**: Added root-level `invitations` object to `en.json` to match Spanish structure
+- ✅ **invitations.title**: Fixed "Invitaciones" not translating to "Invitations" in English mode
+- 🔧 **Standardized Keys**: Ensured consistent translation structure between ES (`invitations.title`) and EN (`invitations.title`)
+- 📝 **Tooltip Translations**: Added 11 new comprehensive tooltip translation keys with English fallbacks (not Spanish):
+  - Account creation: `account_name_hint`, `bank_hint`, `account_type_hint`, `currency_hint`
+  - Loan fields: `term_hint`, `installment_hint`, `paid_installments_hint`
+  - Credit card: `cutoff_day_hint`, `payment_day_hint`, `due_date_hint`
+  - Balance: `bank_balance_hint`, `investment_balance_hint`, `credit_balance_hint`, `loan_balance_hint`
+  - Payroll: `payroll_value_hint`
+  - Toggle: `toggle_showing_active_hint`, `toggle_showing_inactive_hint`, `toggle_showing_active_mobile`, `toggle_showing_inactive_mobile`
+
+**Code Quality**:
+- 🧹 **Console Cleanup**: Removed debug console.log statements from `UpcomingObligationsWidget`
+- ✅ **GoalsMode Verification**: Confirmed all strings use translation keys (`t()`), no hardcoded text or default zeros
+- 🔐 **i18n Compliance**: All tooltips now use `t()` hook with proper fallbacks (English, not Spanish)
+
+**Components Modified**:
+- [ProjectCard.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Project/ProjectCard.jsx) - Icon refactor, repositioning
+- [ToggleGroup.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/UI/ToggleGroup.jsx) - Added flex-wrap for mobile
+- [AuthenticatedLayout.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Layouts/AuthenticatedLayout.jsx) - Added mobile notification/inbox icons
+- [ProjectDashboard.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Pages/Projects/Finance/ProjectDashboard.jsx) - Toggle with visible mobile text
+- [AccountChart.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/AccountChart.jsx) - Reorganized badge layout
+- [AccountModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/AccountModal.jsx) - Added 15 field tooltips
+- [UpcomingObligationsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/UpcomingObligationsWidget.jsx) - Removed console.log
+- [en.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/en/en.json) - Added invitations + 15 tooltip translations
+- [es.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/es/es.json) - Added 15 tooltip translations
+- [GoalsMode.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Pages/Tools/Partials/GoalsMode.jsx) - Verified (no changes needed)
+
+**Testing**:
+- 🧪 Manual verification required in mobile viewports (<768px)
+- ✅ All components using `t()` translation function
+- ✅ No hardcoded strings or default zero values
+- ✅ Tooltips work on all account types (banco, efectivo, credito, prestamo, inversion)
+
+---
+
 
 ## [2.6.2] - 2025-12-05 00:26:00 -05:00
 

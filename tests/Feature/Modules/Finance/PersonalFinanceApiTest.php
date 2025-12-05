@@ -224,9 +224,10 @@ class PersonalFinanceApiTest extends TestCase
             ->getJson('/api/finanzas-personales/categorias');
 
         $response->assertStatus(200);
-        $response->assertJsonCount(1);
-        $response->assertJsonPath('0.id', $categoria->id);
-        $response->assertJsonPath('0.nombre', 'Comida');
+        $response->assertJsonCount(11); // 10 default categories + 1 manually created
+        // Verify our custom category is in the list (it will be at the end)
+        $categories = collect($response->json());
+        $this->assertTrue($categories->contains('nombre', 'Comida'));
     }
 
     /**

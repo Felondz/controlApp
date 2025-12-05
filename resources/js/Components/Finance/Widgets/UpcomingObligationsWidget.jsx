@@ -9,11 +9,11 @@ export default function UpcomingObligationsWidget({
     bills = [],
     accounts = [],
     currency = 'COP',
-    onMarkAsPaid
+    onMarkAsPaid,
+    onPayBill,
+    proyectoId
 }) {
     const { t } = useTranslate();
-
-    console.log('UpcomingObligationsWidget received bills:', bills);
 
     const upcoming = useMemo(() => {
         const today = new Date();
@@ -79,6 +79,8 @@ export default function UpcomingObligationsWidget({
             // Pending Bills
             ...bills.map(bill => ({
                 id: `bill-${bill.id}`,
+                billId: bill.id,
+                billData: bill,
                 title: bill.descripcion || t('finance.bill', 'Factura'),
                 date: bill.fecha,
                 amount: bill.monto,
@@ -159,8 +161,7 @@ export default function UpcomingObligationsWidget({
                     {upcoming.map((event) => (
                         <div
                             key={event.id}
-                            onClick={() => console.log('Future feature: Open calendar for', event.date)}
-                            className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all cursor-pointer hover:bg-white dark:hover:bg-gray-800"
+                            className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all hover:bg-white dark:hover:bg-gray-800"
                         >
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 {/* Date Box - Compact */}
@@ -239,11 +240,23 @@ export default function UpcomingObligationsWidget({
                                 {event.source === 'task' && onMarkAsPaid && (
                                     <button
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent row click
+                                            e.stopPropagation();
                                             handleMarkAsPaid(event);
                                         }}
                                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full"
                                         title={t('finance.mark_as_paid', 'Marcar como pagado')}
+                                    >
+                                        <CheckCircleIcon className="w-5 h-5" />
+                                    </button>
+                                )}
+                                {event.source === 'bill' && onPayBill && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onPayBill(event.billData);
+                                        }}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full"
+                                        title={t('finance.pay_bill', 'Pagar factura')}
                                     >
                                         <CheckCircleIcon className="w-5 h-5" />
                                     </button>

@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
-> **Last Updated**: November 29, 2025 - Tools API Added
+>> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills + Auto Categories (v2.6.4)
 
 ## 📋 Table of Contents
 

@@ -11,8 +11,10 @@ import { BoltIcon } from '@/Components/Icons';
 export default function BillModal({
     show = false,
     onClose,
-    bill = null, // If provided, we are editing an existing bill
+    bill = null,
     proyectoId = null,
+    cuentas = [], // Available accounts for payment
+    categorias = [], // Available categories
     onSuccess
 }) {
     const { t } = useTranslate();
@@ -23,9 +25,13 @@ export default function BillModal({
         monto: bill?.monto ? (Math.abs(bill.monto) / 100).toFixed(2) : '',
         descripcion: bill?.descripcion || '',
         fecha: bill?.fecha || new Date().toISOString().split('T')[0],
-        categoria_id: bill?.categoria_id || null, // We'll handle category logic in backend or default to 'Bills'
+        categoria_id: bill?.categoria_id || null,
         status: 'pending',
-        cuenta_id: null // Bills don't have an account until paid
+        cuenta_id: null,
+        cuenta_predeterminada_id: bill?.cuenta_predeterminada_id || null,
+        debito_automatico: bill?.debito_automatico || false,
+        is_recurring: bill?.is_recurring || false,
+        recurrence_day: bill?.recurrence_day || new Date().getDate(),
     });
 
     useEffect(() => {
@@ -64,34 +70,38 @@ export default function BillModal({
 
         if (!data.fecha) {
             alert(t('finance.error_date', 'Por favor ingresa una fecha de vencimiento.'));
+            setIsSubmitting(false);
             return;
         }
 
-        const submitData = {
+        // Find "Facturas" or "Facturas y Servicios" category
+        const facturasCategory = categorias.find(c =>
+            c.nombre.toLowerCase().includes('factura') && c.tipo === 'gasto'
+        );
+
+        const billData = {
             ...data,
-            monto: -Math.abs(amount) * 100, // Bills are expenses (negative) in cents
+            monto: -Math.abs(parseFloat(data.monto) * 100), // Bills are expenses (negative) in cents
+            categoria_id: facturasCategory?.id || null, // Auto-assign Bills category
             status: 'pending'
         };
 
-        const routeName = bill
-            ? 'finance.transactions.update'
-            : 'finance.transactions.store';
+        const url = bill
+            ? route('finance.transactions.update', { proyecto: proyectoId, transaccion: bill.id })
+            : route('finance.transactions.store', { proyecto: proyectoId });
 
-        const routeParams = bill
-            ? [data.proyecto_id, bill.id]
-            : [data.proyecto_id];
+        const method = bill ? 'put' : 'post';
 
-        router.visit(route(routeName, routeParams), {
-            method: bill ? 'put' : 'post',
-            data: submitData,
-            preserveScroll: true,
-            onStart: () => setIsSubmitting(true),
-            onFinish: () => setIsSubmitting(false),
+        router[method](url, billData, {
             onSuccess: () => {
+                setIsSubmitting(false);
                 reset();
                 onSuccess?.();
                 onClose();
-            }
+            },
+            onError: () => {
+                setIsSubmitting(false);
+            },
         });
     };
 
@@ -137,17 +147,104 @@ export default function BillModal({
                         />
                     </div>
 
-                    {/* Due Date */}
-                    <div>
-                        <InputLabel value={t('finance.due_date', 'Fecha de Vencimiento')} />
-                        <TextInput
-                            type="date"
-                            value={data.fecha}
-                            onChange={(e) => setData('fecha', e.target.value)}
-                            className="mt-1 block w-full"
-                            required
+                    {/* Recurring Bill Checkbox */}
+                    <div className="flex items-start">
+                        <input
+                            type="checkbox"
+                            checked={data.is_recurring}
+                            onChange={(e) => setData('is_recurring', e.target.checked)}
+                            className="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
+                        <label className="ml-2 block text-sm">
+                            <span className="font-medium text-gray-900 dark:text-white">
+                                {t('finance.recurring_bill', 'Factura Recurrente Mensual')}
+                            </span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">
+                                {t('finance.recurring_bill_hint', 'Se repite el mismo día cada mes')}
+                            </span>
+                        </label>
                     </div>
+
+                    {/* Day of Month (for recurring) or Full Date (for one-time) */}
+                    {data.is_recurring ? (
+                        <div>
+                            <InputLabel value={t('finance.payment_day', 'Día de Pago del Mes')} />
+                            <select
+                                value={data.recurrence_day}
+                                onChange={(e) => setData('recurrence_day', parseInt(e.target.value))}
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                                required
+                            >
+                                {Array.from({ length: 30 }, (_, i) => i + 1).map(day => (
+                                    <option key={day} value={day}>
+                                        {day}
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {t('finance.recurring_day_hint', 'La factura se generará automáticamente cada mes')}
+                            </p>
+                        </div>
+                    ) : (
+                        <div>
+                            <InputLabel value={t('finance.due_date', 'Fecha de Vencimiento')} />
+                            <TextInput
+                                type="date"
+                                value={data.fecha}
+                                onChange={(e) => setData('fecha', e.target.value)}
+                                className="mt-1 block w-full"
+                                required
+                            />
+                        </div>
+                    )}
+
+                    {/* Default Payment Account */}
+                    <div>
+                        <InputLabel value={t('finance.default_account', 'Cuenta Predeterminada (Opcional)')} />
+                        <select
+                            value={data.cuenta_predeterminada_id || ''}
+                            onChange={(e) => {
+                                const value = e.target.value ? parseInt(e.target.value) : null;
+                                setData('cuenta_predeterminada_id', value);
+                                if (value) {
+                                    const selected = cuentas.find(c => c.id === value);
+                                    if (selected?.tipo !== 'credito') {
+                                        setData('debito_automatico', false);
+                                    }
+                                } else {
+                                    setData('debito_automatico', false);
+                                }
+                            }}
+                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-blue-500 focus:ring-blue-500 shadow-sm"
+                        >
+                            <option value="">{t('finance.no_account', 'Sin cuenta (pago manual)')}</option>
+                            {cuentas.filter(c => c.estado === 'activa').map(cuenta => (
+                                <option key={cuenta.id} value={cuenta.id}>
+                                    {cuenta.nombre} - {cuenta.banco}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Auto-Debit for Credit Cards */}
+                    {data.cuenta_predeterminada_id && cuentas.find(c => c.id === data.cuenta_predeterminada_id)?.tipo === 'credito' && (
+                        <div className="flex items-start">
+                            <input
+                                type="checkbox"
+                                checked={data.debito_automatico}
+                                onChange={(e) => setData('debito_automatico', e.target.checked)}
+                                className="mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <label className="ml-2 block text-sm">
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                    {t('finance.auto_debit', 'Débito Automático')}
+                                </span>
+                                <span className="block text-xs text-gray-500 dark:text-gray-400">
+                                    {t('finance.auto_debit_hint', 'Pago automático 3 días antes del vencimiento')}
+                                </span>
+                            </label>
+                        </div>
+                    )}
 
                     {/* Footer Actions */}
                     <div className="flex justify-end gap-3 pt-2">

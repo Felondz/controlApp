@@ -131,11 +131,56 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
         setShowBillModal(true);
     };
 
-    const handlePayBill = (bill) => {
-        // Paying a bill means opening Transaction Modal in Expense mode with Bill data
-        setSelectedTransaction(bill); // Pass bill as transaction to pre-fill
-        setInitialAccountId(null);
-        setShowTransactionModal(true);
+    const handlePayBill = async (bill) => {
+        // Flow 1: No account assigned → Open TransactionModal
+        if (!bill.cuenta_predeterminada_id) {
+            setSelectedTransaction(bill);
+            setShowTransactionModal(true);
+            return;
+        }
+
+        // Get account details
+        const account = [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])].find(
+            a => a.id === bill.cuenta_predeterminada_id
+        );
+
+        if (!account) {
+            alert(t('finance.account_not_found', 'Cuenta no encontrada'));
+            return;
+        }
+
+        // Flow 3: Auto-debit scheduled → Show info and option to advance payment
+        if (bill.debito_automatico && bill.fecha_autopago) {
+            const formattedDate = new Date(bill.fecha_autopago).toLocaleDateString();
+            const message = `${t('finance.scheduled_for', 'Pago programado para')} ${formattedDate}`;
+            const advance = confirm(message + '\n\n' + t('finance.advance_payment', '¿Deseas adelantar el pago?'));
+
+            if (!advance) return;
+        }
+
+        // Flow 2 & 3 (with advance): Check balance and confirm payment
+        const billAmount = Math.abs(bill.monto) / 100; // Convert from cents to units
+
+        if (account.saldo_actual < billAmount) {
+            const currentBalance = formatMonto(account.saldo_actual);
+            alert(`${t('finance.insufficient_balance', 'Saldo insuficiente')}. ${t('finance.current_balance', 'Saldo actual')}: ${currentBalance}`);
+            return;
+        }
+
+        // Confirm payment
+        const formattedAmount = formatMonto(billAmount);
+        const confirmMsg = `${t('finance.confirm_payment_question', '¿Pagar factura por')} ${formattedAmount} ${t('finance.from_account', 'desde')} ${account.nombre}?`;
+
+        if (!confirm(confirmMsg)) return;
+
+        // Process payment
+        try {
+            await axios.post(route('finance.bills.pay-direct', [proyecto.id, bill.id]));
+            router.reload({ only: ['proyecto', 'pendingBills'] });
+        } catch (error) {
+            console.error('Error paying bill:', error);
+            alert(t('finance.payment_error', 'Error al procesar el pago. Intenta nuevamente.'));
+        }
     };
 
     const handleEditTransaction = (transaction) => {
@@ -194,6 +239,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handleMarkAsPaid = (task) => {
+        // Open payment confirmation modal
         setSelectedTask(task);
         setShowPaymentModal(true);
     };
@@ -267,7 +313,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
                             <div className="flex items-center gap-4">
                                 {/* Toggle Inactive Accounts */}
-                                <label className="inline-flex items-center cursor-pointer">
+                                <label className="inline-flex items-center cursor-pointer group" title={showInactive ? t('finance.toggle_showing_inactive_hint') : t('finance.toggle_showing_active_hint')}>
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
@@ -275,6 +321,13 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                         onChange={() => setShowInactive(!showInactive)}
                                     />
                                     <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+
+                                    {/* Mobile explanation text - visible */}
+                                    <span className="ml-2 text-xs text-gray-600 dark:text-gray-400 sm:hidden">
+                                        {showInactive ? t('finance.toggle_showing_inactive_mobile') : t('finance.toggle_showing_active_mobile')}
+                                    </span>
+
+                                    {/* Desktop text */}
                                     <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 hidden sm:inline-block">
                                         {showInactive ? t('finance.hide_inactive', 'Ocultar Inactivas') : t('finance.show_inactive', 'Mostrar Inactivas')}
                                     </span>
@@ -373,7 +426,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                     date: t.fecha,
                                     amount: t.monto,
                                     type: t.categoria?.tipo,
-                                    status: 'pending', // Default status for now
+                                    status: 'pending',
                                     accountName: t.cuenta?.nombre
                                 }))}
                                 financialTasks={financialTasks}
@@ -381,6 +434,8 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                 accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
                                 currency={proyecto.moneda_default}
                                 onMarkAsPaid={isAdmin ? handleMarkAsPaid : null}
+                                onPayBill={isAdmin ? handlePayBill : null}
+                                proyectoId={proyecto.id}
                                 onAddBill={handleCreateBill}
                             />
                         )}
@@ -604,6 +659,8 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         bill={selectedBill}
                         proyectoId={proyecto.id}
                         onSuccess={handleBillSuccess}
+                        cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
+                        categorias={proyecto.categorias || []}
                     />
 
                     <DashboardSettingsModal
