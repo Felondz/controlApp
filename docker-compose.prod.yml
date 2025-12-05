@@ -7,9 +7,12 @@ services:
     env_file: ./.env
     
     depends_on:
-      - db
-      - redis
-      - meilisearch
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
 
     volumes:
       # Persistencia de logs y almacenamiento subido por usuarios
@@ -60,9 +63,10 @@ services:
       - internal
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
 
   # --- REDIS ---
   redis:
@@ -73,6 +77,12 @@ services:
       - redis_data:/data
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   # --- MEILISEARCH ---
   meilisearch:
@@ -86,6 +96,12 @@ services:
       - meili_data:/meili_data
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 networks:
   proxy:
