@@ -54,7 +54,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             icon: EllipsisVerticalIcon,
             route: 'mis-proyectos.edit',
             routeParams: project.id,
-            show: true,
+            show: !project.es_personal,
         },
     ] : [];
 

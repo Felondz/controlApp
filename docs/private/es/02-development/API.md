@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
-> **Last Updated**: December 3, 2025 - Added Tools, Analytics, Notifications, Marketplace
+>> **Last Updated**: December 5, 2025 - Account Architecture Refactor (v2.6.2)
 
 ## 📋 Índice
 
@@ -861,6 +861,11 @@ Accept: application/json
   ]
 }
 ```
+
+**Arquitectura de Ownership (v2.6.2+)**:
+- **Proyectos Personales**: Las cuentas se crean con `propietario_type = 'usuario'` y se vinculan automáticamente al proyecto personal vía la tabla pivot `cuenta_proyecto`.
+- **Proyectos Colaborativos**: Las cuentas se crean con `propietario_type = 'proyecto'` (ownership directo del proyecto).
+- El endpoint `GET /api/proyectos/{proyecto}/cuentas` retorna **tanto** las cuentas propias del proyecto **como** las cuentas vinculadas (merged), asegurando visibilidad completa.
 
 ---
 

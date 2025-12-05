@@ -31,7 +31,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.2] - 2025-12-05 00:26:00 -05:00
+
+### Fixed - Account Architecture & UI
+
+**Account Ownership Refactor:**
+- 🏗️ **Architecture Change**: Personal accounts are now User-owned (`propietario_type = 'usuario'`) instead of Project-owned, with auto-linking to Personal Finance projects via the `cuenta_proyecto` pivot table.
+- 🔗 **Auto-Link Logic**: Accounts created in Personal Finance projects are automatically linked to the project upon creation.
+- 🔍 **Account Visibility**: Updated `FinanzasPersonalesController::cuentas` to return both owned and linked accounts, fixing the "0 accounts" bug.
+- ✅ **Test Updates**: Updated `PersonalFinanceApiTest` to expect morph alias `'usuario'` instead of full class name, and added test for auto-link behavior.
+
+**Transaction Widget Fix:**
+- 🎨 **Income Display**: Fixed bug where income transactions displayed in red with negative values. Now uses dual detection (category type OR monto sign) to correctly identify income vs expense.
+- ✅ **Icon Consistency**: Updated both icon and amount display logic to use the same income detection method.
+
+**UI/UX Improvements:**
+- 🔒 **Personal Project Protection**: Hidden "Project Settings" from Sidebar and BottomNavigation for personal finance projects (non-editable).
+
+### Changed - Backend
+
+**Files Modified:**
+- [CuentaController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Http/Controllers/Api/CuentaController.php) - Updated `index`, `store`, `verificarCuenta`, and `balance` to support User-owned accounts and pivot-based linking
+- [FinanzasPersonalesController.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/app/Http/Controllers/Api/FinanzasPersonalesController.php) - Fixed `cuentas` method to merge owned and linked accounts
+- [PersonalFinanceApiTest.php](file:///home/guarox/Documentos/proyectos-personales/controlApp/tests/Feature/Modules/Finance/PersonalFinanceApiTest.php) - Updated to use `'usuario'` morph alias and added auto-link test
+
+### Changed - Frontend
+
+**Files Modified:**
+- [TransactionsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/TransactionsWidget.jsx) - Fixed income detection and display logic
+- [Sidebar.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Sidebar.jsx) - Hidden settings for personal projects
+- [NavigationSheet.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/NavigationSheet.jsx) - Hidden settings for personal projects
+
+---
+
 ## [2.6.0] - 2025-12-04 19:30:00 -05:00
+
+## [2.6.1] - 2025-12-04 20:15:00 -05:00
+
+### Fixed - Critical Logic & UI
+
+**Account Management:**
+- 🐛 **Admin Account Linking**: Fixed logic to allow Project Admins to see and link **BOTH** their own personal accounts AND the Project Owner's accounts (previously was exclusive or broken).
+- 🛡️ **Safe Deletion**: Enforced strict rule that accounts must have **0 balance** to be deleted. Added backend validation and frontend UI blocking/warnings.
+- 💰 **Payroll Logic**: Fixed bug where `valor_nomina` (estimated future value) was incorrectly added to the initial account balance. Now `saldo_actual` starts strictly equal to `saldo_inicial`.
+
+**Transactions UI:**
+- 🎨 **Color Coding**: Fixed regression where income transactions were not displaying in green.
+- 📱 **Mobile Layout**: Fixed overlapping issues in transaction rows on small screens by preventing flex item compression (`shrink-0`).
 
 ### Added - Collaborative Finance Features
 

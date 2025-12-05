@@ -67,11 +67,10 @@ class FinanzasPersonalesController extends Controller
             ], 404);
         }
 
-        // Debug: Log the SQL and result
-        Log::info('ProyectoPersonal ID: ' . $proyectoPersonal->id);
-        Log::info('Cuentas SQL: ' . $proyectoPersonal->cuentas()->toSql());
-        $cuentas = $proyectoPersonal->cuentas()->get();
-        Log::info('Cuentas Result: ' . json_encode($cuentas));
+        // Return both owned accounts and linked accounts
+        $owned = $proyectoPersonal->cuentas()->get();
+        $linked = $proyectoPersonal->cuentasAsociadas()->get();
+        $cuentas = $owned->merge($linked);
 
         return response()->json($cuentas);
     }

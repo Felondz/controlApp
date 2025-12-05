@@ -22,17 +22,21 @@ class CuentaController extends Controller
         $estado = $request->query('estado', 'activa');
         $tipo = $request->query('tipo');
 
-        $query = $proyecto->cuentas();
+        // Fetch both owned accounts and associated (linked) accounts
+        $owned = $proyecto->cuentas();
+        $linked = $proyecto->cuentasAsociadas();
 
         if ($estado) {
-            $query->where('estado', $estado);
+            $owned->where('estado', $estado);
+            $linked->where('estado', $estado);
         }
 
         if ($tipo) {
-            $query->where('tipo', $tipo);
+            $owned->where('tipo', $tipo);
+            $linked->where('tipo', $tipo);
         }
 
-        $cuentas = $query->get();
+        $cuentas = $owned->get()->merge($linked->get());
 
         return response()->json($cuentas);
     }
@@ -42,10 +46,21 @@ class CuentaController extends Controller
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden añadir cuentas a este proyecto.');
 
         $datos = $request->validated();
+
+        // El saldo actual inicia igual al saldo inicial
+        // NO sumar valor_nomina aquí, ya que es un valor futuro/esperado
         $datos['saldo_actual'] = $datos['saldo_inicial'];
         $datos['estado'] = 'activa';
 
-        $cuenta = $proyecto->cuentas()->create($datos);
+        // If it's a personal project, the owner is the USER
+        if ($proyecto->esPersonal()) {
+            $cuenta = $request->user()->cuentas()->create($datos);
+            // Auto-link to the project
+            $proyecto->cuentasAsociadas()->attach($cuenta->id);
+        } else {
+            // Otherwise, the owner is the PROJECT
+            $cuenta = $proyecto->cuentas()->create($datos);
+        }
 
         return response()->json($cuenta, 201);
     }
@@ -116,7 +131,14 @@ class CuentaController extends Controller
      */
     protected function verificarCuenta(Proyecto $proyecto, Cuenta $cuenta): void
     {
-        if ($cuenta->propietario_id !== $proyecto->id || !in_array($cuenta->propietario_type, ['proyecto', 'App\Models\Proyecto'])) {
+        // Check 1: Owned by Project
+        $isProjectOwned = $cuenta->propietario_id === $proyecto->id &&
+            in_array($cuenta->propietario_type, ['proyecto', 'App\Models\Proyecto']);
+
+        // Check 2: Linked to Project (via pivot)
+        $isLinked = $proyecto->cuentasAsociadas()->where('cuenta_id', $cuenta->id)->exists();
+
+        if (!$isProjectOwned && !$isLinked) {
             abort(404, 'La cuenta no pertenece a este proyecto');
         }
     }
@@ -128,8 +150,9 @@ class CuentaController extends Controller
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
-        $balance = $proyecto->cuentas()->sum('saldo_actual');
+        $ownedBalance = $proyecto->cuentas()->sum('saldo_actual');
+        $linkedBalance = $proyecto->cuentasAsociadas()->sum('saldo_actual');
 
-        return response()->json(['balance' => $balance]);
+        return response()->json(['balance' => $ownedBalance + $linkedBalance]);
     }
 }
