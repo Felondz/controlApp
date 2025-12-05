@@ -167,14 +167,16 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     </ResponsiveNavLink>
                 )}
 
-                <ResponsiveNavLink
-                    href={route('mis-proyectos.edit', project.id)}
-                    active={route().current('mis-proyectos.edit', project.id)}
-                    collapsed={collapsed}
-                >
-                    <EllipsisVerticalIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                    {!collapsed && t('projects.project_settings', 'Configuración')}
-                </ResponsiveNavLink>
+                {!project.es_personal && (
+                    <ResponsiveNavLink
+                        href={route('mis-proyectos.edit', project.id)}
+                        active={route().current('mis-proyectos.edit', project.id)}
+                        collapsed={collapsed}
+                    >
+                        <EllipsisVerticalIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && t('projects.project_settings', 'Configuración')}
+                    </ResponsiveNavLink>
+                )}
 
                 {/* Global Tools Section (Accessible from Project) */}
                 <div className="border-t border-gray-200 dark:border-gray-700 my-4 opacity-50"></div>

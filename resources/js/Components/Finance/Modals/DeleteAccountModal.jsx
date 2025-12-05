@@ -81,7 +81,11 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                 </h2>
 
                 <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
-                    {account?.transacciones_count > 0
+                    {account?.saldo_actual !== 0 ? (
+                        <span className="text-red-600 font-bold">
+                            {t('finance.delete_account_balance_error', 'No se puede eliminar la cuenta porque tiene un saldo diferente de 0. Por favor ajusta el saldo antes de continuar.')}
+                        </span>
+                    ) : account?.transacciones_count > 0
                         ? t('finance.delete_account_warning_transactions', 'Esta cuenta tiene :count transacciones asociadas. Esta acción es irreversible y eliminará todos los datos relacionados.', { count: account.transacciones_count })
                         : t('finance.delete_account_warning', 'Esta acción no se puede deshacer. La cuenta será eliminada permanentemente.')
                     }
@@ -114,7 +118,7 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                         {t('common.cancel', 'Cancelar')}
                     </SecondaryButton>
 
-                    <DangerButton disabled={!isConfirmed || processing}>
+                    <DangerButton disabled={!isConfirmed || processing || account?.saldo_actual !== 0}>
                         {processing ? t('common.deleting', 'Eliminando...') : t('common.delete', 'Eliminar')}
                     </DangerButton>
                 </div>

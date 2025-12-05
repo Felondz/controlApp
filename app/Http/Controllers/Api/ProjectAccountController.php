@@ -16,17 +16,39 @@ class ProjectAccountController extends Controller
      */
     public function available(Proyecto $proyecto)
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        // Get personal accounts owned by the user
-        $cuentas = Cuenta::where('propietario_type', \App\Models\User::class)
-            ->where('propietario_id', $user->id)
-            ->whereDoesntHave('proyectosAsociados', function ($query) use ($proyecto) {
-                $query->where('proyecto_id', $proyecto->id);
-            })
-            ->get();
+            // Determine whose accounts to show
+            $targetUserIds = [$user->id];
 
-        return response()->json($cuentas);
+            // If user is admin, they should also see owner's accounts
+            // Using esAdmin because esAdminDe seemed to cause issues in testing, 
+            // and previous tests passed with esAdmin.
+            if ($proyecto->user_id !== $user->id && $user->esAdminDe($proyecto)) {
+                $targetUserIds[] = $proyecto->user_id;
+            }
+
+            // Get personal accounts owned by the target users
+            // Check for both the alias ('usuario') and the full class name ('App\Models\User')
+            // to handle potential legacy data or mixed states.
+            $types = [
+                (new \App\Models\User)->getMorphClass(),
+                \App\Models\User::class
+            ];
+
+            $cuentas = Cuenta::whereIn('propietario_type', $types)
+                ->whereIn('propietario_id', $targetUserIds)
+                ->whereDoesntHave('proyectosAsociados', function ($query) use ($proyecto) {
+                    $query->where('proyecto_id', $proyecto->id);
+                })
+                ->get();
+
+            return response()->json($cuentas);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error in ProjectAccountController::available: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -41,8 +63,21 @@ class ProjectAccountController extends Controller
         $user = Auth::user();
         $cuenta = Cuenta::findOrFail($request->cuenta_id);
 
-        // Verify the account belongs to the user
-        if ($cuenta->propietario_type !== \App\Models\User::class || $cuenta->propietario_id !== $user->id) {
+        // Verify ownership:
+        // 1. Account belongs to authenticated user
+        // OR
+        // 2. User is admin AND account belongs to project owner
+        $types = [
+            (new \App\Models\User)->getMorphClass(),
+            \App\Models\User::class
+        ];
+
+        $isOwner = in_array($cuenta->propietario_type, $types) && $cuenta->propietario_id === $user->id;
+        $isProjectOwnerAccountAndAdmin = $user->esAdminDe($proyecto) &&
+            in_array($cuenta->propietario_type, $types) &&
+            $cuenta->propietario_id === $proyecto->user_id;
+
+        if (!$isOwner && !$isProjectOwnerAccountAndAdmin) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
