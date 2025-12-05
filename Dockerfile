@@ -1,12 +1,13 @@
 # Stage 1: Build Frontend Assets
 FROM node:20-alpine as frontend_builder
 WORKDIR /app
-COPY package*.json vite.config.js ./
-RUN npm ci
+RUN npm install -g pnpm
+COPY package.json pnpm-lock.yaml vite.config.js ./
+RUN pnpm install --frozen-lockfile
 COPY resources/ ./resources/
 COPY public/ ./public/
 COPY tailwind.config.js postcss.config.js ./
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Setup PHP Application
 FROM php:8.3-apache
