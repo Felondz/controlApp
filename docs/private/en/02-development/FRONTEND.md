@@ -475,9 +475,9 @@ System is prepared for:
 - Currency conversion history
 
 
-## Scheduled Transactions (Bills)
+## Scheduled Transactions (Bills) - **🆕 v2.6.4**
 
-The application supports **scheduled/pending transactions** (bills) with recurrence capabilities:
+The application supports **scheduled/pending transactions** (bills) with recurrence and automation capabilities:
 
 ### Database Schema
 - **status**: `enum('completed', 'pending', 'cancelled')` - Transaction state
@@ -485,14 +485,42 @@ The application supports **scheduled/pending transactions** (bills) with recurre
 - **recurrence_interval**: `enum('daily', 'weekly', 'biweekly', 'monthly', 'yearly')` - Frequency
 - **recurrence_day**: `integer` - Day of month/week for recurrence
 - **next_occurrence**: `date` - Next scheduled date
+- **cuenta_predeterminada_id**: `integer` - Default payment account
+- **debito_automatico**: `boolean` - Auto-debit enabled
+- **fecha_autopago**: `date` - Scheduled auto-payment date
 
 ### Frontend Components
-1. **TransactionModal**: Allows creating pending transactions with recurrence settings
-2. **UpcomingObligationsWidget**: Displays pending transactions with:
+
+1. **BillModal** - **v2.6.4**:
+   - **Auto-category**: Automatically assigns "Bills and Services" category
+   - **Payment Account**: Select account for quick payment
+   - **Auto-debit**: Enable automatic payment 3 days before due (credit cards only)
+   - **Recurring Bills**: Monthly recurring option with day selector (1-30)
+   - **Props**: `cuentas`, `categorias`, `proyectoId`, `bill`, `onSuccess`
+
+2. **UpcomingObligationsWidget** - **v2.6.4**:
+   - Displays pending transactions with payment button
+   - **3 Payment Flows**:
+     - No account: Opens TransactionModal
+     - With account: Balance check → Confirmation → Direct payment
+     - Auto-debit: Shows schedule → Early payment option
    - Color-coded indicators (Green = Income, Red = Expense)
-   - "Mark as Paid" functionality for pending transactions
    - Alert indicators based on due date proximity
    - Scrollable list showing all upcoming obligations
+
+### Backend Jobs - **v2.6.4**
+
+- **ProcessAutoBills** (6:00 AM daily): Processes auto-debit bills
+- **ProcessRecurringBills** (6:30 AM daily): Generates monthly bill instances
+- **Anti-duplication**: Prevents duplicate bills in same month
+- **February Handling**: Adjusts days 29-30 to last day of February
+
+### Automatic Categories - **v2.6.4**
+
+- **ProyectoObserver**: Automatically creates 10 default categories for new projects
+- **Default Categories**: Bills and Services, Food, Transport, Health, etc.
+- **Trigger**: Executes automatically when creating a new project
+- **No manual action required**: No seeders or manual commands needed
 
 ### Alert System
 Visual indicators based on due date:
@@ -502,8 +530,9 @@ Visual indicators based on due date:
 - **Default**: Due beyond 7 days
 
 ### Workflow
-1. User creates a "Pending" transaction via `TransactionModal`
-2. Transaction appears in `UpcomingObligationsWidget`
-3. User clicks "Mark as Paid" in widget
-4. Backend creates completed transaction and updates account balance
+1. User creates a "Pending" bill via `BillModal` (auto-assigns Bills category)
+2. Bill appears in `UpcomingObligationsWidget`
+3. User clicks "Pay Bill" button
+4. System processes payment based on account configuration
 5. If recurring, next occurrence is scheduled automatically
+

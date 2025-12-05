@@ -537,22 +537,59 @@ La aplicación soporta **transacciones programadas/pendientes** (facturas) con u
 
 ### Componentes Frontend
 
-1. **BillModal** (`resources/js/Components/Finance/Modals/BillModal.jsx`):
+1. **BillModal** (`resources/js/Components/Finance/Modals/BillModal.jsx`) - **🆕 v2.6.4**:
    - Modal dedicado para crear y editar facturas pendientes.
-   - **Campos**: Monto, Descripción, Fecha de Vencimiento.
-   - **Estado**: Guarda siempre como `status='pending'` y `cuenta_id=null`.
+   - **Campos Básicos**: Monto, Descripción, Fecha de Vencimiento.
+   - **Nuevas Funcionalidades v2.6.4**:
+     - **Categoría Automática**: Asigna automáticamente la categoría "Facturas y Servicios"
+     - **Cuenta Predeterminada**: Selector de cuenta para pago directo
+     - **Débito Automático**: Checkbox para habilitar pago automático 3 días antes (solo tarjetas de crédito)
+     - **Factura Recurrente**: Checkbox para facturas mensuales repetitivas
+     - **Día del Mes**: Selector (1-30) para generación automática mensual
+   - **Validaciones**:
+     - Auto-debit solo disponible si cuenta seleccionada es tarjeta de crédito
+     - Si recurring activo, día del mes es requerido
+     - Lista de cuentas filtrada a solo cuentas del proyecto (activas)
+   - **Props**:
+     - `cuentas`: Array de cuentas disponibles para pago
+     - `categorias`: Array de categorías (auto-selecciona "Facturas y Servicios")
+     - `proyectoId`: ID del proyecto actual
+     - `bill`: Objeto de factura a editar (opcional)
+     - `onSuccess`: Callback post-creación/edición
 
-2. **BillsWidget** (`resources/js/Components/Finance/Widgets/BillsWidget.jsx`):
+2. **BillsWidget** (`resources/js/Components/Finance/Widgets/BillsWidget.jsx`) - **🆕 v2.6.4**:
    - Widget específico para visualizar facturas pendientes.
    - **Acciones**:
-     - **Pagar**: Abre `QuickTransactionModal` en modo Gasto con datos pre-llenados.
+     - **Pagar** (Botón de check azul): 
+       - **Sin cuenta**: Abre TransactionModal para pago manual
+       - **Con cuenta (sin auto-debit)**: Verifica saldo → Muestra confirmación → Paga directamente
+       - **Con auto-debit**: Muestra fecha programada → Opción de adelantar pago
      - **Editar**: Abre `BillModal` para modificar la factura.
      - **Eliminar**: Elimina la factura pendiente.
    - **Visual**: Indicadores de días restantes (Vencido, Hoy, Mañana, X días).
+   - **Con Recurring**: Badge "Recurrente" si `is_recurring: true`
+   - **Con Auto-debit**: Badge "Auto-pago" con fecha programada
 
-   - Listado de facturas pendientes.
-   - Acciones: Crear nueva factura, editar, pagar, eliminar.
-   - Botón estilizado con SVG para "Agregar Factura".
+3. **UpcomingObligationsWidget** - **🆕 v2.6.4**:
+   - Ahora muestra botón de pago para facturas (igual que tareas).
+   - **Color**: Botón azul (vs verde para tareas).
+   - **Acción**: Llama `onPayBill` con datos completos de la factura.
+   - **Props nuevos**:
+     - `onPayBill`: Callback para procesar pago de factura
+     - `proyectoId`: ID del proyecto para endpoint
+
+4. **Scheduled Jobs (Backend)** - **🆕 v2.6.4**:
+   - **ProcessAutoBills** (6:00 AM diario): Procesa facturas con débito automático
+   - **ProcessRecurringBills** (6:30 AM diario): Genera instancias mensuales de facturas recurrentes
+   - **Anti-duplication**: Evita crear facturas duplicadas en el mismo mes
+   - **February Handling**: Días 29-30 se ajustan automáticamente al último día de febrero
+
+5. **Automatic Categories (Backend)** - **🆕 v2.6.4**:
+   - **ProyectoObserver**: Observer que crea automáticamente 10 categorías por defecto
+   - **Categorías por defecto**: Facturas y Servicios, Alimentación, Transporte, Salud, etc.
+   - **Trigger**: Se ejecuta automáticamente al crear un proyecto nuevo
+   - **Sin acción manual**: No requiere seeders ni comandos manuales
+
 
 3. **AccountFlowWidget** (`resources/js/Components/Finance/Widgets/AccountFlowWidget.jsx`) - ✨ NUEVO v2.6.0:
    - **Propósito**: Visualización de distribución de ingresos y gastos por cuenta bancaria.

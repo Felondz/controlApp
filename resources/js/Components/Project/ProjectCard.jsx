@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon } from '@/Components/Icons';
+import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon, ChartBarIcon, BellIcon } from '@/Components/Icons';
 import FinanceWidget from '@/Components/Widgets/FinanceWidget';
 import TasksWidget from '@/Components/Widgets/TasksWidget';
 import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
@@ -24,6 +24,9 @@ export default function ProjectCard({ proyecto }) {
             case 'finance': return <CurrencyDollarIcon className="h-4 w-4" />;
             case 'tasks': return <CheckListIcon className="h-4 w-4" />;
             case 'chat': return <ChatIcon className="h-4 w-4" />;
+            case 'analytics': return <ChartBarIcon className="h-4 w-4" />;
+            case 'notifications': return <BellIcon className="h-4 w-4" />;
+            case 'marketplace': return <PuzzleIcon className="h-4 w-4" />;
             default: return null;
         }
     };
@@ -115,15 +118,7 @@ export default function ProjectCard({ proyecto }) {
 
                 <div className="p-4 sm:p-6 flex-1 flex flex-col">
                     {/* Header */}
-                    <div className="flex flex-row items-start gap-3 mb-4 relative">
-                        {/* Options Menu - Absolute Positioned */}
-                        <button
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                            className="absolute top-0 right-0 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 opacity-0 group-hover:opacity-100 transition-all p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                            <EllipsisVerticalIcon className="h-5 w-5" />
-                        </button>
-
+                    <div className="flex flex-row items-start gap-3 mb-4">
                         <div className="flex-shrink-0">
                             {(() => {
                                 // Robust Image Detection
@@ -177,24 +172,26 @@ export default function ProjectCard({ proyecto }) {
                                     {proyecto.descripcion}
                                 </p>
                             )}
-                            <div className="flex items-center justify-center gap-2 mt-2 text-primary-500 dark:text-primary-400">
-                                {modules.map(mod => (
-                                    <div key={mod} className="relative group/icon">
-                                        <span title={mod === 'chat' ? t('modules.chat.title', 'Chat') : t(`modules.${mod}`, mod)} className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                            {getModuleIcon(mod)}
-                                        </span>
-                                        {mod === 'chat' && proyecto.unread_messages_count > 0 && (
-                                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 text-[8px] text-white justify-center items-center">
-                                                    {proyecto.unread_messages_count > 9 ? '9+' : proyecto.unread_messages_count}
-                                                </span>
-                                            </span>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
                         </div>
+                    </div>
+
+                    {/* Module Icons - Centered Below Header */}
+                    <div className="flex items-center justify-center gap-2 mb-4 text-primary-500 dark:text-primary-400">
+                        {modules.map(mod => (
+                            <div key={mod} className="relative">
+                                <span title={t(`modules.${mod === 'chat' ? 'chat.title' : mod}`, mod)} className="flex items-center">
+                                    {getModuleIcon(mod)}
+                                </span>
+                                {mod === 'chat' && proyecto.unread_messages_count > 0 && (
+                                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 text-[8px] text-white justify-center items-center">
+                                            {proyecto.unread_messages_count > 9 ? '9+' : proyecto.unread_messages_count}
+                                        </span>
+                                    </span>
+                                )}
+                            </div>
+                        ))}
                     </div>
 
                     {/* Widget Body */}

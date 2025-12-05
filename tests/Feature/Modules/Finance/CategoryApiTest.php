@@ -79,7 +79,7 @@ class CategoryApiTest extends TestCase
         $response = $this->actingAs($admin)->getJson('/api/proyectos/' . $proyecto->id . '/categorias');
 
         $response->assertStatus(200);
-        $response->assertJsonCount(2);
+        $response->assertJsonCount(12); // 10 default categories + 2 manually created
         $response->assertJsonStructure([['id', 'nombre', 'tipo']]);
     }
     /**

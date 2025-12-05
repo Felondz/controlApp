@@ -1,9 +1,0 @@
-Listing ALL accounts in database:
----------------------------------------------------
-ID | Name | Owner ID | Owner Type | Created At
----------------------------------------------------
-18 | cuenta personal | 3 | proyecto | 2025-12-05 04:38:23
-17 | cuenta de proyecto | 4 | proyecto | 2025-12-04 23:18:19
-15 | prueba4 | 3 | proyecto | 2025-12-04 03:42:27
-14 | test2 | 3 | proyecto | 2025-12-04 03:40:57
----------------------------------------------------

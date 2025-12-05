@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User; // 💡 Importar el modelo User
+use App\Models\Proyecto; // 💡 Importar el modelo Proyecto
 use App\Observers\UserObserver; // 💡 Importar el UserObserver
+use App\Observers\ProyectoObserver; // 💡 Importar el ProyectoObserver
 use Illuminate\Database\Eloquent\Relations\Relation; // 💡 Importar para MorphMap
 use Illuminate\Support\Facades\Gate; // 💡 Importar Gate
 use Illuminate\Support\Facades\Vite;
@@ -37,6 +39,9 @@ class AppServiceProvider extends ServiceProvider
         // 1. REGISTRO DE OBSERVERS (ADR-003: Proyectos Personales)
         // Esto dispara la creación del proyecto personal al crear un nuevo usuario.
         User::observe(UserObserver::class);
+
+        // Observer para crear categorías por defecto en proyectos nuevos (v2.6.4)
+        Proyecto::observe(ProyectoObserver::class);
 
         // 2. REGISTRO DE MORPH MAP (ADR-002: Alias para Polimórficas)
         // Esto garantiza que la BD guarde 'proyecto' en lugar de 'App\Models\Proyecto'

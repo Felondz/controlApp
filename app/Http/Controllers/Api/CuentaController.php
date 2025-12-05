@@ -95,6 +95,14 @@ class CuentaController extends Controller
         $this->verificarCuenta($proyecto, $cuenta);
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden inactivar/eliminar cuentas.');
 
+        // Validar que el saldo sea cero antes de eliminar/inactivar
+        if ($cuenta->saldo != 0) {
+            return response()->json([
+                'message' => 'No se puede eliminar o inactivar una cuenta con saldo. Debes ajustar el saldo a cero antes de continuar.',
+                'saldo_actual' => $cuenta->saldo
+            ], 422);
+        }
+
         if ($cuenta->transacciones()->exists()) {
             // Si tiene transacciones, la marcamos como inactiva
             $cuenta->update(['estado' => 'inactiva']);

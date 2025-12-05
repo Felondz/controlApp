@@ -140,7 +140,15 @@ export default function AccountModal({
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Nombre */}
                     <div>
-                        <InputLabel htmlFor="nombre" value={t('finance.account_name', 'Nombre de la Cuenta')} />
+                        <div className="flex items-center gap-2">
+                            <InputLabel htmlFor="nombre" value={t('finance.account_name', 'Nombre de la Cuenta')} />
+                            <div className="group relative flex items-center">
+                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    {t('finance.account_name_hint', 'A descriptive name to identify this account (e.g., Nequi, Bancolombia Savings, etc.)')}
+                                </div>
+                            </div>
+                        </div>
                         <TextInput
                             id="nombre"
                             type="text"
@@ -155,7 +163,15 @@ export default function AccountModal({
 
                     {/* Banco (opcional) */}
                     <div>
-                        <InputLabel htmlFor="banco" value={t('finance.bank', 'Banco')} optional />
+                        <div className="flex items-center gap-2">
+                            <InputLabel htmlFor="banco" value={t('finance.bank', 'Banco')} optional />
+                            <div className="group relative flex items-center">
+                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    {t('finance.bank_hint', 'Name of the bank or financial institution (e.g., Bancolombia, BBVA, Nequi)')}
+                                </div>
+                            </div>
+                        </div>
                         <TextInput
                             id="banco"
                             type="text"
@@ -168,7 +184,15 @@ export default function AccountModal({
 
                     {/* Tipo */}
                     <div>
-                        <InputLabel htmlFor="tipo" value={t('finance.account_type.label', 'Tipo de Cuenta')} />
+                        <div className="flex items-center gap-2">
+                            <InputLabel htmlFor="tipo" value={t('finance.account_type.label', 'Tipo de Cuenta')} />
+                            <div className="group relative flex items-center">
+                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    {t('finance.account_type_hint', 'Select the account type: Bank (savings/checking), Credit Card, Loan, Investment, or Cash')}
+                                </div>
+                            </div>
+                        </div>
                         <select
                             id="tipo"
                             value={data.tipo}
@@ -201,7 +225,15 @@ export default function AccountModal({
 
                     {/* Moneda */}
                     <div>
-                        <InputLabel htmlFor="moneda" value={t('finance.currency', 'Moneda')} />
+                        <div className="flex items-center gap-2">
+                            <InputLabel htmlFor="moneda" value={t('finance.currency', 'Moneda')} />
+                            <div className="group relative flex items-center">
+                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    {t('finance.currency_hint', 'Select the currency this account is denominated in')}
+                                </div>
+                            </div>
+                        </div>
                         <select
                             id="moneda"
                             value={data.moneda}
@@ -227,7 +259,15 @@ export default function AccountModal({
                             {data.tipo === 'prestamo' && (
                                 <div className="grid grid-cols-3 gap-4 mb-4">
                                     <div>
-                                        <InputLabel htmlFor="plazo" value={t('finance.term_months', 'Plazo (Meses)')} />
+                                        <div className="flex items-center gap-2">
+                                            <InputLabel htmlFor="plazo" value={t('finance.term_months', 'Plazo (Meses)')} />
+                                            <div className="group relative flex items-center">
+                                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    {t('finance.term_hint', 'Total number of installments/months for the loan (e.g., 12, 24, 36)')}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <TextInput
                                             id="plazo"
                                             type="number"
@@ -240,7 +280,15 @@ export default function AccountModal({
                                         <InputError message={errors.plazo} className="mt-2" />
                                     </div>
                                     <div>
-                                        <InputLabel htmlFor="valor_cuota" value={t('finance.installment_value', 'Valor Cuota')} />
+                                        <div className="flex items-center gap-2">
+                                            <InputLabel htmlFor="valor_cuota" value={t('finance.installment_value', 'Valor Cuota')} />
+                                            <div className="group relative flex items-center">
+                                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    {t('finance.installment_hint', 'Fixed amount you pay monthly for this loan')}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <TextInput
                                             id="valor_cuota"
                                             type="number"
@@ -253,7 +301,15 @@ export default function AccountModal({
                                         <InputError message={errors.valor_cuota} className="mt-2" />
                                     </div>
                                     <div>
-                                        <InputLabel htmlFor="cuotas_pagadas" value={t('finance.paid_installments', 'Cuotas Pagadas')} optional />
+                                        <div className="flex items-center gap-2">
+                                            <InputLabel htmlFor="cuotas_pagadas" value={t('finance.paid_installments', 'Cuotas Pagadas')} optional />
+                                            <div className="group relative flex items-center">
+                                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    {t('finance.paid_installments_hint', 'Number of installments you have already paid (to calculate progress)')}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <TextInput
                                             id="cuotas_pagadas"
                                             type="number"
@@ -270,7 +326,15 @@ export default function AccountModal({
                             <div className="grid grid-cols-2 gap-4">
                                 {data.tipo === 'credito' && (
                                     <div>
-                                        <InputLabel htmlFor="dia_corte" value={t('finance.cutoff_day', 'Día de Corte')} />
+                                        <div className="flex items-center gap-2">
+                                            <InputLabel htmlFor="dia_corte" value={t('finance.cutoff_day', 'Día de Corte')} />
+                                            <div className="group relative flex items-center">
+                                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    {t('finance.cutoff_day_hint', 'Day of the month when your card statement is generated (e.g., if cutoff is on the 5th, that day the monthly summary is generated)')}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <TextInput
                                             id="dia_corte"
                                             type="number"
@@ -286,7 +350,15 @@ export default function AccountModal({
                                     </div>
                                 )}
                                 <div className={data.tipo === 'prestamo' ? 'col-span-2' : ''}>
-                                    <InputLabel htmlFor="dia_pago" value={t('finance.payment_day', 'Día de Pago')} />
+                                    <div className="flex items-center gap-2">
+                                        <InputLabel htmlFor="dia_pago" value={t('finance.payment_day', 'Día de Pago')} />
+                                        <div className="group relative flex items-center">
+                                            <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                            <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                {t('finance.payment_day_hint', 'Day of the month when you must make the payment (e.g., 20 = every 20th of the month)')}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <TextInput
                                         id="dia_pago"
                                         type="number"
@@ -323,7 +395,15 @@ export default function AccountModal({
 
                             {data.tipo === 'credito' && (
                                 <div>
-                                    <InputLabel htmlFor="fecha_vencimiento" value={t('finance.due_date', 'Fecha de Vencimiento')} />
+                                    <div className="flex items-center gap-2">
+                                        <InputLabel htmlFor="fecha_vencimiento" value={t('finance.due_date', 'Fecha de Vencimiento')} />
+                                        <div className="group relative flex items-center">
+                                            <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                            <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                {t('finance.due_date_hint', 'Expiration month and year of your card (e.g., 12/2028 = December 2028)')}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <CreditCardExpiryInput
                                         id="fecha_vencimiento"
                                         value={data.fecha_vencimiento}
@@ -444,7 +524,15 @@ export default function AccountModal({
                                         <InputError message={errors.dia_nomina || errors['dia_nomina.0']} className="mt-2" />
                                     </div>
                                     <div>
-                                        <InputLabel htmlFor="valor_nomina" value={t('finance.estimated_value', 'Valor Estimado')} />
+                                        <div className="flex items-center gap-2">
+                                            <InputLabel htmlFor="valor_nomina" value={t('finance.estimated_value', 'Valor Estimado')} />
+                                            <div className="group relative flex items-center">
+                                                <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                                <div className="absolute left-full ml-2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    {t('finance.payroll_value_hint', 'Average amount of your monthly payroll (will be used for income projections)')}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <TextInput
                                             id="valor_nomina"
                                             type="number"
@@ -486,7 +574,7 @@ export default function AccountModal({
                                 <div className="group relative flex items-center">
                                     <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
                                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                        {t('finance.credit_balance_hint', 'Para tarjetas de crédito, ingresa el monto que DEBES actualmente (deuda). Si está en cero, déjalo en 0.')}
+                                        {t('finance.credit_balance_hint', 'For credit cards, enter the amount you currently OWE (debt). If it\'s at zero, leave it at 0.')}
                                     </div>
                                 </div>
                             )}
@@ -494,7 +582,23 @@ export default function AccountModal({
                                 <div className="group relative flex items-center">
                                     <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
                                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                        {t('finance.loan_balance_hint', 'Ingresa el monto total del préstamo recibido (deuda inicial).')}
+                                        {t('finance.loan_balance_hint', 'Enter the total loan amount received (initial debt).')}
+                                    </div>
+                                </div>
+                            )}
+                            {(data.tipo === 'banco' || data.tipo === 'efectivo') && (
+                                <div className="group relative flex items-center">
+                                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        {t('finance.bank_balance_hint', 'Enter the current balance of this account (the amount you have available).')}
+                                    </div>
+                                </div>
+                            )}
+                            {data.tipo === 'inversion' && (
+                                <div className="group relative flex items-center">
+                                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        {t('finance.investment_balance_hint', 'Enter the current value of your investment (principal + returns).')}
                                     </div>
                                 </div>
                             )}
