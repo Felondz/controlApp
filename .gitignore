@@ -34,6 +34,6 @@ Thumbs.db
 
 # Incident reports (local only)
 /docs/incidents/
-!/docs/private
+/docs/private
 _ide_helper.php
 .phpstorm.meta.php
