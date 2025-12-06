@@ -166,7 +166,7 @@ export default function DraggableWidgetGrid({
 
     return (
         <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="dashboard-widgets" direction="horizontal">
+            <Droppable droppableId="dashboard-widgets">
                 {(provided, snapshot) => (
                     <div
                         ref={provided.innerRef}

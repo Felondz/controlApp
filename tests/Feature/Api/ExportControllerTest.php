@@ -51,14 +51,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");
 
         $response->assertSuccessful();
-<<<<<<< HEAD
         $this->assertEquals(
             'text/csv; charset=utf-8',
             strtolower($response->headers->get('Content-Type'))
         );
-=======
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
->>>>>>> Hotfix-issues-bugs
     }
 
     /** @test */
@@ -67,14 +63,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=accounts");
 
         $response->assertSuccessful();
-<<<<<<< HEAD
         $this->assertEquals(
             'text/csv; charset=utf-8',
             strtolower($response->headers->get('Content-Type'))
         );
-=======
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
->>>>>>> Hotfix-issues-bugs
     }
 
     /** @test */
@@ -83,14 +75,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=categories");
 
         $response->assertSuccessful();
-<<<<<<< HEAD
         $this->assertEquals(
             'text/csv; charset=utf-8',
             strtolower($response->headers->get('Content-Type'))
         );
-=======
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
->>>>>>> Hotfix-issues-bugs
     }
 
     /** @test */

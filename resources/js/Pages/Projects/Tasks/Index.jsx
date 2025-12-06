@@ -199,12 +199,12 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                     </div>
 
                     <DragDropContext onDragEnd={onDragEnd}>
-                        <div className="flex-1 flex md:grid md:grid-cols-3 gap-3 md:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-pl-4 -mx-4 md:mx-0 px-4 md:px-0 scrollbar-hide">
+                        <div className="flex-1 grid grid-cols-3 gap-1.5 md:gap-6 pb-4 -mx-2 px-2 md:mx-0 md:px-0">
                             {Object.entries(columns).map(([columnId, column]) => (
-                                <div key={columnId} className="flex flex-col bg-gray-100 dark:bg-gray-900 rounded-xl p-3 md:p-4 h-full min-w-[280px] sm:min-w-[320px] md:min-w-0 snap-center shrink-0 md:shrink first:ml-4 md:first:ml-0 last:mr-4 md:last:mr-0">
-                                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center justify-between sticky top-0 bg-gray-100 dark:bg-gray-900 z-10 py-1">
-                                        {column.title}
-                                        <span className="bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-full">
+                                <div key={columnId} className="flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg md:rounded-xl p-1.5 md:p-4 h-full min-w-0">
+                                    <h4 className="font-semibold text-xs md:text-base text-gray-700 dark:text-gray-300 mb-2 md:mb-3 flex flex-col md:flex-row items-start md:items-center justify-between sticky top-0 bg-gray-100 dark:bg-gray-900 z-10 py-1 gap-1">
+                                        <span className="truncate w-full">{column.title}</span>
+                                        <span className="bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded-full self-start md:self-auto">
                                             {column.items.length}
                                         </span>
                                     </h4>
@@ -213,7 +213,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                             <div
                                                 {...provided.droppableProps}
                                                 ref={provided.innerRef}
-                                                className="flex-1 space-y-2 md:space-y-3 overflow-y-auto min-h-[100px] pr-1 scrollbar-thin"
+                                                className="flex-1 space-y-1.5 md:space-y-3 overflow-y-auto min-h-[100px] pr-0.5 md:pr-1 scrollbar-thin"
                                             >
                                                 {column.items.map((task, index) => (
                                                     <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
@@ -223,59 +223,59 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
                                                                 onClick={() => handleEditTask(task)}
-                                                                className={`p-3 md:p-4 rounded-lg shadow-sm border transition-all cursor-pointer group relative ${getStatusColor(task.status)} hover:shadow-md active:scale-95 touch-manipulation`}
+                                                                className={`p-2 md:p-4 rounded-md md:rounded-lg shadow-sm border transition-all cursor-pointer group relative ${getStatusColor(task.status)} hover:shadow-md active:scale-95 touch-manipulation`}
                                                             >
-                                                                <div className="flex justify-between items-start mb-2">
-                                                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${getPriorityBadge(task.priority)}`}>
-                                                                        {t(`tasks.priority.${task.priority}`, task.priority)}
+                                                                <div className="flex justify-between items-start mb-1.5 md:mb-2">
+                                                                    <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-1 md:px-2 py-0.5 rounded ${getPriorityBadge(task.priority)}`}>
+                                                                        {t(`tasks.priority.${task.priority}`, task.priority).substring(0, 3)}
                                                                     </span>
 
                                                                     <button
                                                                         onClick={(e) => handleDeleteTask(e, task)}
-                                                                        className="text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1"
+                                                                        className="text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-0.5 md:p-1"
                                                                         title={t('common.delete', 'Eliminar')}
                                                                     >
-                                                                        <TrashIcon className="w-4 h-4" />
+                                                                        <TrashIcon className="w-3 h-3 md:w-4 md:h-4" />
                                                                     </button>
                                                                 </div>
 
-                                                                <h5 className="font-medium text-sm md:text-base text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                                                                <h5 className="font-medium text-xs md:text-base text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-3 md:line-clamp-2 leading-tight">
                                                                     {task.title}
                                                                 </h5>
 
                                                                 {task.due_date && (
-                                                                    <div className={`text-[10px] md:text-xs flex items-center gap-1 mt-2 ${new Date(task.due_date) < new Date() && task.status !== 'done'
+                                                                    <div className={`text-[9px] md:text-xs flex items-center gap-1 mt-1.5 md:mt-2 ${new Date(task.due_date) < new Date() && task.status !== 'done'
                                                                         ? 'text-red-600 dark:text-red-400 font-medium'
                                                                         : 'text-gray-500 dark:text-gray-400'
                                                                         }`}>
-                                                                        <ClockIcon className="w-3 h-3" />
-                                                                        {new Date(task.due_date).toLocaleDateString()}
-                                                                        {new Date(task.due_date) < new Date() && task.status !== 'done' && (
-                                                                            <span className="ml-1">({t('tasks.overdue', 'Vencida')})</span>
-                                                                        )}
+                                                                        <ClockIcon className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                                                                        <span className="truncate">
+                                                                            {new Date(task.due_date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
+                                                                        </span>
                                                                     </div>
                                                                 )}
 
                                                                 {/* Financial Indicator */}
                                                                 {task.is_financial && (
-                                                                    <div className="flex items-center gap-2 mt-2 p-1.5 bg-white/50 dark:bg-black/20 rounded border border-gray-100 dark:border-gray-700">
-                                                                        <CurrencyDollarIcon className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                                                                        <span className="text-[10px] md:text-xs font-semibold text-green-700 dark:text-green-300">
+                                                                    <div className="flex items-center gap-1 md:gap-2 mt-1.5 md:mt-2 p-1 md:p-1.5 bg-white/50 dark:bg-black/20 rounded border border-gray-100 dark:border-gray-700">
+                                                                        <CurrencyDollarIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-green-600 dark:text-green-400" />
+                                                                        <span className="text-[9px] md:text-[10px] md:text-xs font-semibold text-green-700 dark:text-green-300 truncate">
                                                                             {new Intl.NumberFormat('es-CO', {
                                                                                 style: 'currency',
-                                                                                currency: proyecto.moneda_default || 'COP'
+                                                                                currency: proyecto.moneda_default || 'COP',
+                                                                                maximumFractionDigits: 0
                                                                             }).format(task.amount)}
                                                                         </span>
                                                                     </div>
                                                                 )}
 
                                                                 {task.assignee && (
-                                                                    <div className="mt-2 md:mt-3 flex items-center gap-2">
-                                                                        <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-[10px] font-bold">
+                                                                    <div className="mt-1.5 md:mt-3 flex items-center gap-1.5 md:gap-2">
+                                                                        <div className="w-3.5 h-3.5 md:w-5 md:h-5 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-[9px] md:text-[10px] font-bold">
                                                                             {task.assignee.name.charAt(0)}
                                                                         </div>
-                                                                        <span className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px]">
-                                                                            {task.assignee.name}
+                                                                        <span className="text-[9px] md:text-xs text-gray-500 dark:text-gray-400 truncate max-w-[60px] md:max-w-[100px]">
+                                                                            {task.assignee.name.split(' ')[0]}
                                                                         </span>
                                                                     </div>
                                                                 )}
