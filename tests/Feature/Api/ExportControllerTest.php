@@ -51,7 +51,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");
 
         $response->assertSuccessful();
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertEquals(
+            'text/csv; charset=utf-8',
+            strtolower($response->headers->get('Content-Type'))
+        );
     }
 
     /** @test */
@@ -60,7 +63,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=accounts");
 
         $response->assertSuccessful();
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertEquals(
+            'text/csv; charset=utf-8',
+            strtolower($response->headers->get('Content-Type'))
+        );
     }
 
     /** @test */
@@ -69,7 +75,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=categories");
 
         $response->assertSuccessful();
-        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertEquals(
+            'text/csv; charset=utf-8',
+            strtolower($response->headers->get('Content-Type'))
+        );
     }
 
     /** @test */
