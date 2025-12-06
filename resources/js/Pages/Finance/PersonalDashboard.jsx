@@ -132,154 +132,49 @@ export default function PersonalDashboard({
                         </PrimaryButton>
                     </div>
 
-                    {/* Accounts Summary */}
-                    {cuentas.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div className="p-6">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    {t('finance.accounts', 'Cuentas')}
-                                </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {cuentas.map((cuenta) => {
-                                        const cuentaTransacciones = transaccionesPorCuenta[cuenta.id] || [];
-                                        const ingresos = cuentaTransacciones
-                                            .filter(t => t.categoria?.tipo === 'ingreso')
-                                            .reduce((sum, t) => sum + (t.monto || 0), 0);
-                                        const gastos = cuentaTransacciones
-                                            .filter(t => t.categoria?.tipo === 'gasto')
-                                            .reduce((sum, t) => sum + Math.abs(t.monto || 0), 0);
-
-                                        return (
-                                            <div
-                                                key={cuenta.id}
-                                                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                                                onClick={() => handleEditAccount(cuenta)}
-                                            >
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <h4 className="font-semibold text-gray-900 dark:text-white">
-                                                        {cuenta.nombre}
-                                                    </h4>
-                                                    <CurrencyDollarIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                                                </div>
-                                                {cuenta.banco && (
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                                        {cuenta.banco}
-                                                    </p>
-                                                )}
-                                                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                                                    {formatMonto(cuenta.balance || 0)}
-                                                </p>
-                                                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-                                                    <div className="flex justify-between">
-                                                        <span>{t('finance.income', 'Ingresos')}:</span>
-                                                        <span className="text-green-600 dark:text-green-400">
-                                                            {formatMonto(ingresos)}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span>{t('finance.expenses', 'Gastos')}:</span>
-                                                        <span className="text-red-600 dark:text-red-400">
-                                                            {formatMonto(gastos)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Transactions by Project */}
-                    {proyectos.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                            <div className="p-6">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    {t('finance.transactions_by_project', 'Transacciones por Proyecto')}
-                                </h3>
-                                <div className="space-y-4">
-                                    {proyectos.map((proyecto) => {
-                                        const proyectoTransacciones = getTransaccionesByProyecto(proyecto.id);
-                                        if (proyectoTransacciones.length === 0) return null;
-
-                                        return (
-                                            <div
-                                                key={proyecto.id}
-                                                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                                            >
-                                                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                                                    {proyecto.nombre}
-                                                </h4>
-                                                <div className="space-y-2">
-                                                    {proyectoTransacciones.slice(0, 5).map((trans) => (
-                                                        <div
-                                                            key={trans.id}
-                                                            className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded cursor-pointer"
-                                                            onClick={() => handleEditTransaction(trans)}
-                                                        >
-                                                            <div className="flex-1">
-                                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {trans.descripcion || t('finance.no_description', 'Sin descripción')}
-                                                                </p>
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                                    {trans.categoria?.nombre} • {new Date(trans.fecha).toLocaleDateString()}
-                                                                </p>
-                                                            </div>
-                                                            <span className={`text - sm font - semibold ${trans.categoria?.tipo === 'ingreso'
-                                                                ? 'text-green-600 dark:text-green-400'
-                                                                : 'text-red-600 dark:text-red-400'
-                                                                } `}>
-                                                                {trans.categoria?.tipo === 'ingreso' ? '+' : '-'}
-                                                                {formatMonto(trans.monto)}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                    {proyectoTransacciones.length > 5 && (
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2">
-                                                            {t('common.and_more', 'y {count} más', { count: proyectoTransacciones.length - 5 })}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Personal Transactions */}
-                    {transaccionesPersonales.length > 0 && (
-                        <div className="mb-8">
-                            <TransactionsWidget
-                                transactions={transaccionesPersonales}
+                    {/* Top Row: Balance & Upcoming */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Balance Summary */}
+                        <div className="lg:col-span-2">
+                            <BalanceSummaryWidget
                                 accounts={cuentas}
-                                categories={categorias}
                                 currency={proyectoPersonal?.moneda_default || 'COP'}
-                                onEdit={handleEditTransaction}
-                                onDelete={null}
-                                currentUserId={auth.user.id}
-                                projects={proyectos}
                             />
                         </div>
-                    )}
 
-                    {/* Empty State */}
-                    {cuentas.length === 0 && transacciones.length === 0 && (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-12 text-center">
-                            <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                {t('finance.no_accounts_yet', 'Aún no tienes cuentas')}
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                {t('finance.create_first_account', 'Crea tu primera cuenta para comenzar a gestionar tus finanzas')}
-                            </p>
-                            <PrimaryButton onClick={handleCreateAccount}>
-                                {t('finance.create_account', 'Crear Cuenta')}
-                            </PrimaryButton>
+                        {/* Upcoming Obligations */}
+                        <div className="h-full">
+                            <UpcomingObligationsWidget
+                                accounts={cuentas}
+                                bills={[]} // Personal finance doesn't usually have bills module linked yet
+                                financialTasks={[]} // Tasks are usually project based
+                                currency={proyectoPersonal?.moneda_default || 'COP'}
+                            />
                         </div>
-                    )}
+                    </div>
+
+                    {/* Middle Row: Charts */}
+                    <div className="h-[400px]">
+                        <FinancialChartsWidget
+                            transactions={transacciones}
+                            currency={proyectoPersonal?.moneda_default || 'COP'}
+                        />
+                    </div>
+
+                    {/* Bottom Row: Transactions */}
+                    <div className="mb-8">
+                        <TransactionsWidget
+                            transactions={transacciones}
+                            accounts={cuentas}
+                            categories={categorias}
+                            currency={proyectoPersonal?.moneda_default || 'COP'}
+                            onEdit={handleEditTransaction}
+                            onDelete={null}
+                            currentUserId={auth.user.id}
+                            projects={proyectos}
+                        />
+                    </div>
+
                 </div>
             </div>
 

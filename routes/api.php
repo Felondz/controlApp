@@ -20,9 +20,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CalculatorController;
 use App\Http\Controllers\TaskController;
-use App\Modules\Analytics\Controllers\AnalyticsController;
-use App\Modules\Notifications\Controllers\NotificationController;
 use App\Http\Controllers\Api\MarketplaceController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -128,24 +127,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/proyectos/{proyecto}/miembros/{user}', [ProyectoMiembroController::class, 'destroy']);
 
     // Tasks routes
-    Route::get('/proyectos/{proyecto}/tasks', [TaskController::class, 'index']);
-    Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store']);
-    Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update']);
-    Route::delete('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'destroy']);
+    Route::get('/proyectos/{proyecto}/tasks/summary', [TaskController::class, 'summary'])->name('api.proyectos.tasks.summary');
+    Route::get('/proyectos/{proyecto}/tasks', [TaskController::class, 'index'])->name('api.proyectos.tasks.index');
+    Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store'])->name('api.proyectos.tasks.store');
+    Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update'])->name('api.proyectos.tasks.update');
+    Route::delete('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'destroy'])->name('api.proyectos.tasks.destroy');
 
-    // Analytics routes
-    Route::get('/proyectos/{proyecto}/analytics', [AnalyticsController::class, 'index'])->name('api.proyectos.analytics.index');
-    Route::get('/proyectos/{proyecto}/analytics/metrics', [AnalyticsController::class, 'metrics']);
-    Route::get('/proyectos/{proyecto}/analytics/summary', [AnalyticsController::class, 'summary']);
-    Route::get('/proyectos/{proyecto}/analytics/insights', [AnalyticsController::class, 'insights']);
-    Route::get('/proyectos/{proyecto}/analytics/trends', [AnalyticsController::class, 'trends'])->name('api.proyectos.analytics.trends');
-
-    // Notification routes
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('api.notifications.index');
-    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.read'); // Frontend uses PATCH
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
-    Route::get('/notifications/preferences', [NotificationController::class, 'preferences'])->name('api.notifications.preferences');
-    Route::post('/notifications/preferences', [NotificationController::class, 'updatePreference'])->name('api.notifications.update-preferences');
 
     // Marketplace routes
     Route::get('/proyectos/{proyecto}/marketplace', [MarketplaceController::class, 'index'])->name('api.proyectos.marketplace.index');
@@ -169,9 +156,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tools/calculator/calculate', [CalculatorController::class, 'calculate']);
 
     // --- Mensajería (Chat) ---
-    Route::get('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'index']);
-    Route::post('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'store']);
-    Route::post('/proyectos/{proyecto}/messages/read', [App\Http\Controllers\Api\MessageController::class, 'markAsRead']);
+    Route::get('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'index'])->name('api.proyectos.messages.index');
+    Route::get('/proyectos/{proyecto}/messages/unread', [App\Http\Controllers\Api\MessageController::class, 'unread'])->name('api.proyectos.messages.unread');
+    Route::post('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'store'])->name('api.proyectos.messages.store');
+    Route::post('/proyectos/{proyecto}/messages/read', [App\Http\Controllers\Api\MessageController::class, 'markAsRead'])->name('api.proyectos.messages.read');
 
     // --- Project Settings & Ownership (Mobile API) ---
     Route::put('/proyectos/{proyecto}/settings', [ProyectoController::class, 'updateSettings'])->name('api.proyectos.settings.update');

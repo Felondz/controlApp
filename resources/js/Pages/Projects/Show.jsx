@@ -1,107 +1,110 @@
 // resources/js/Pages/Projects/Show.jsx
 
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link, Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { CurrencyDollarIcon, CheckListIcon, UserCircleIcon } from '@/Components/Icons';
-import SummaryCard from '@/Components/Dashboard/SummaryCard';
-import AnalyticsWidget from '@/Components/Dashboard/AnalyticsWidget';
+import { Cog6ToothIcon } from '@/Components/Icons';
+import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
 
-// Este componente recibe el objeto 'proyecto' de Laravel
+/**
+ * Project Dashboard - Professional widget-based dashboard with drag-and-drop
+ * 
+ * Features:
+ * - Role-based widget visibility (Finance widgets only for admins)
+ * - Drag and drop reordering
+ * - Widget gallery for management
+ * - Responsive design
+ */
 export default function Show({ auth, proyecto, isAdmin }) {
     const { t } = useTranslate();
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-    // 💡 Título para la página
+    // Page title
     const headerTitle = `${proyecto.nombre} | ${t('dashboard.title')}`;
+
+    // Handle settings save
+    const handleSettingsSave = (newSettings) => {
+        router.put(
+            route('finance.projects.update-settings', { project: proyecto.id }),
+            { settings: newSettings },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowSettingsModal(false);
+                },
+                onError: (errors) => {
+                    console.error('Error saving settings:', errors);
+                }
+            }
+        );
+    };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">{proyecto.nombre}</h2>}
+            header={
+                <div className="flex items-center justify-between w-full">
+                    <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">
+                        {proyecto.nombre}
+                    </h2>
+                </div>
+            }
             project={proyecto}
         >
             <Head title={headerTitle} />
 
             <div className="max-w-7xl mx-auto">
-                {/* Título y Moneda */}
-                <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-4">
-                    {t('projects.overview')}
-                </h3>
+                {/* Header Section */}
+                <div className="mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                                {t('projects.overview', 'Resumen del Proyecto')}
+                            </h3>
+                            {proyecto.descripcion && (
+                                <p className="text-gray-600 dark:text-gray-400 mt-1 max-w-2xl">
+                                    {proyecto.descripcion}
+                                </p>
+                            )}
+                        </div>
 
-                {proyecto.descripcion ? (
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        {proyecto.descripcion}
-                    </p>
-                ) : (
-                    <p className="text-gray-400 dark:text-gray-500 mb-6 italic">
-                        {t('projects.no_description', 'No description provided.')}
-                    </p>
-                )}
-
-                {/* DASHBOARD DE RESUMEN */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {/* Tarjeta de Resumen Financiero */}
-                    {proyecto.modules?.includes('finance') && (
-                        <SummaryCard
-                            title={t('finance.summary_title', 'Resumen Financiero')}
-                            icon={CurrencyDollarIcon}
-                            color="primary"
-                            label={isAdmin ? `${t('finance.balance', 'Balance Total')} (${proyecto.moneda_default})` : null}
-                            value={isAdmin
-                                ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: proyecto.moneda_default }).format(1500)
-                                : t('finance.restricted_access')
-                            }
-                            action={isAdmin ? {
-                                label: t('common.view_details', 'Ver detalles'),
-                                href: route('mis-proyectos.finance', proyecto.id)
-                            } : null}
-                            className={!isAdmin ? "italic text-sm" : ""}
-                        />
-                    )}
-
-                    {/* Tarjeta de Tareas (Placeholder) */}
-                    {proyecto.modules?.includes('tasks') && (
-                        <SummaryCard
-                            title={t('tasks.summary_title', 'Gestión de Tareas')}
-                            icon={CheckListIcon}
-                            color="primary"
-                            label={t('tasks.pending', 'Tareas Pendientes')}
-                            value="0"
-                            action={{
-                                label: t('common.coming_soon', 'Próximamente'),
-                                disabled: true
-                            }}
-                        />
-                    )}
-
-                    {/* Tarjeta de Miembros */}
-                    {(!proyecto.es_personal && proyecto.es_personal !== 1) && (
-                        <SummaryCard
-                            title={t('members.summary_title', 'Equipo del Proyecto')}
-                            icon={UserCircleIcon}
-                            color="primary"
-                            label={t('members.total', 'Total Miembros')}
-                            value={proyecto.miembros_count || 1}
-                            action={{
-                                label: t('common.manage', 'Gestionar'),
-                                disabled: !isAdmin,
-                                href: isAdmin ? route('project.members.index', proyecto.id) : '#'
-                            }}
-                        />
-                    )}
+                        {/* Settings Button */}
+                        <button
+                            onClick={() => setShowSettingsModal(true)}
+                            className="inline-flex items-center gap-2 px-4 py-2 
+                                       bg-white dark:bg-gray-800 
+                                       border border-gray-300 dark:border-gray-600 
+                                       rounded-lg shadow-sm
+                                       text-gray-700 dark:text-gray-300
+                                       hover:bg-gray-50 dark:hover:bg-gray-700
+                                       transition-colors"
+                            title={t('dashboard.customize', 'Personalizar Dashboard')}
+                        >
+                            <Cog6ToothIcon className="w-5 h-5" />
+                            <span className="hidden sm:inline">
+                                {t('dashboard.customize', 'Personalizar')}
+                            </span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Analytics Widget */}
-                {proyecto.modules?.includes('analytics') && (
-                    <div className="mt-6">
-                        <AnalyticsWidget project={proyecto} />
-                    </div>
-                )}
-
-                {/* CHAT WIDGET (Only if 2+ members) */}
-                {/* CHAT WIDGET (Only if 2+ members) */}
-                {/* Chat has moved to its own dedicated view */}
+                {/* Draggable Widget Grid */}
+                <DraggableWidgetGrid
+                    project={proyecto}
+                    isAdmin={isAdmin}
+                />
             </div>
+
+            {/* Settings Modal */}
+            <WidgetSettingsModal
+                show={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                project={proyecto}
+                isAdmin={isAdmin}
+                onSave={handleSettingsSave}
+            />
         </AuthenticatedLayout>
     );
 }

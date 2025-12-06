@@ -125,6 +125,20 @@ Consistent use of Tailwind CSS breakpoints across all views:
 - `lg:` - 1024px and up
 - `xl:` - 1280px and up
 
+### Specific Mobile Optimizations
+
+#### Kanban Board
+- **Horizontal Scrolling**: Container with `overflow-x-auto` and `snap-x` for smooth column navigation.
+- **Compact Cards**: Reduced padding and font size for better information density.
+- **Responsive Search**: Search bar and filters stack vertically on small screens.
+- **Hidden Scrollbar**: Uses `scrollbar-hide` for a cleaner look.
+
+#### Main Dashboard
+- **Adaptive Grid**: `DraggableWidgetGrid` switches to a single column on mobile.
+- **Touch Interactions**:
+  - Drag handles on `WidgetCard` are always visible on mobile (no hover required).
+  - Increased touch targets for easier dragging.
+
 ### Navigation Components
 
 #### Sidebar (Desktop & Tablet)

@@ -29,8 +29,9 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
         {
             name: t('modules.tasks', 'Tareas'),
             icon: CheckListIcon,
-            route: 'mis-proyectos.tasks', // TODO: Implement route
-            disabled: true,
+            route: 'mis-proyectos.tasks.index',
+            routeParams: { proyecto: project.id },
+            disabled: false,
             show: modules.includes('tasks'),
         },
         {

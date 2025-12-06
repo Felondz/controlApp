@@ -358,6 +358,20 @@ Usar la emulación de dispositivos de DevTools del navegador para probar:
 2. **Tablet**: iPad (768x1024)
 3. **Escritorio**: 1920x1080
 
+### Optimizaciones Móviles Específicas
+
+#### Tablero Kanban
+- **Scroll Horizontal**: Contenedor con `overflow-x-auto` y `snap-x` para navegación fluida entre columnas.
+- **Tarjetas Compactas**: Reducción de padding y tamaño de fuente para mayor densidad de información.
+- **Búsqueda Responsiva**: Barra de búsqueda y filtros se apilan verticalmente en pantallas pequeñas.
+- **Scrollbar Oculto**: Uso de `scrollbar-hide` para una apariencia más limpia.
+
+#### Dashboard Principal
+- **Grid Adaptativo**: `DraggableWidgetGrid` cambia a una sola columna en móvil.
+- **Interacción Táctil**:
+  - Drag handles en `WidgetCard` siempre visibles en móvil (no requieren hover).
+  - Áreas de toque aumentadas para facilitar el arrastre.
+
 **Lista de Verificación:**
 - [ ] Navegación inferior visible y funcional en móvil
 - [ ] Barra lateral visible y funcional en tablet/escritorio

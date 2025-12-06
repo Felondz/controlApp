@@ -21,12 +21,12 @@ import { useState, useRef } from 'react';
 const PROJECT_TEMPLATES = [
     {
         id: 'freelancer',
-        modules: ['finance', 'tasks', 'analytics'],
+        modules: ['finance', 'tasks'],
         icon: FreelancerIcon
     },
     {
         id: 'startup',
-        modules: ['finance', 'tasks', 'chat', 'notifications', 'analytics'],
+        modules: ['finance', 'tasks', 'chat', 'analytics'],
         icon: StartupIcon
     },
     {
@@ -368,18 +368,6 @@ export default function CreateProject({ auth }) {
                                                     desc: t('modules.chat_desc', 'Comunicación en tiempo real para los miembros del proyecto.'),
                                                     icon: ChatIcon
                                                 },
-                                                {
-                                                    id: 'analytics',
-                                                    label: t('modules.analytics.title'),
-                                                    desc: t('modules.analytics_desc', 'Métricas y reportes detallados del proyecto.'),
-                                                    icon: ChartBarIcon
-                                                },
-                                                {
-                                                    id: 'notifications',
-                                                    label: t('modules.notifications.title'),
-                                                    desc: t('modules.notifications_desc', 'Sistema de alertas y notificaciones multicanal.'),
-                                                    icon: BellIcon
-                                                }
                                             ].map((module) => (
                                                 <div
                                                     key={module.id}

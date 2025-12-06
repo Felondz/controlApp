@@ -10,8 +10,8 @@ import SearchInput from '@/Components/SearchInput';
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { useInactivityTimeout } from '@/Hooks/useInactivityTimeout';
+import SessionExpiredModal from '@/Components/SessionExpiredModal';
 import BottomNavigation from '@/Components/BottomNavigation';
-import NotificationDropdown from '@/Components/UI/NotificationDropdown';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -28,6 +28,7 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
     const { theme, isDark, setThemeLocal } = useGlobalTheme();
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [showSessionExpired, setShowSessionExpired] = useState(false);
 
     // Sync project theme
     useEffect(() => {
@@ -44,7 +45,9 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
     }, [projectTheme, project, user.global_theme, setThemeLocal]);
 
     // Auto-logout on inactivity (30 minutes)
-    useInactivityTimeout(30 * 60 * 1000);
+    useInactivityTimeout(30 * 60 * 1000, () => {
+        setShowSessionExpired(true);
+    });
 
 
     // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
@@ -84,7 +87,6 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     <div className="flex items-center space-x-3 pl-4">
                         <ThemeToggle />
 
-                        <NotificationDropdown />
 
                         {/* Inbox Dropdown */}
                         <div className="relative flex items-center">
@@ -255,8 +257,6 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                             <div className="-mr-2 flex items-center gap-2 md:hidden">
                                 <ThemeToggle className="" />
 
-                                {/* Mobile Notification Icon */}
-                                <NotificationDropdown />
 
                                 {/* Mobile Inbox Icon */}
                                 <Link
@@ -383,6 +383,8 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                 {/* Mobile Bottom Navigation */}
                 <BottomNavigation user={user} project={project} />
             </div >
+
+            <SessionExpiredModal show={showSessionExpired} />
         </div >
     );
 }

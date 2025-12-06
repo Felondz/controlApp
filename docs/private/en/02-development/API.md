@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
->> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills + Auto Categories (v2.6.4)
+>> **Last Updated**: December 5, 2025 - Mobile Responsiveness & Cleanup (v2.6.5)
 
 ## 📋 Table of Contents
 
@@ -12,12 +12,10 @@
 6. [Categories](#categories)
 7. [Accounts](#accounts)
 8. [Transactions](#transactions)
-9. [Tools](#tools)
-10. [Chat](#chat)
-11. [Analytics](#analytics)
- 12. [Notifications](#notifications)
- 13. [Marketplace](#marketplace)
- 14. [Error Codes](#error-codes)
+9. [Chat](#chat)
+10. [Tools](#tools)
+11. [Marketplace](#marketplace)
+12. [Error Codes](#error-codes)
 
 ---
 
@@ -1556,7 +1554,98 @@ Accept: application/json
  
  ---
  
- ## ❌ Error Codes
+ ## 🛠️ Tools
+
+### List Tools
+Gets the list of available tools and their status.
+
+```http
+GET /api/tools
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": "calculator",
+      "name": "Financial Calculator",
+      "enabled": true
+    }
+  ]
+}
+```
+
+### Toggle Tool
+Enables or disables a tool globally for the user.
+
+```http
+POST /api/tools/toggle
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "tool_id": "calculator",
+  "enabled": true
+}
+```
+
+### Calculate
+Performs financial calculations (e.g., loan installments).
+
+```http
+POST /api/tools/calculator/calculate
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "type": "loan",
+  "amount": 1000000,
+  "rate": 12,
+  "term": 12
+}
+```
+
+---
+
+## 🏪 Marketplace
+
+### List Modules
+Gets available modules in the marketplace for a project.
+
+```http
+GET /api/proyectos/{proyecto}/marketplace
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+### Toggle Module
+Enables or disables a module in a project.
+
+```http
+POST /api/proyectos/{proyecto}/marketplace/{module}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Parameters**:
+- `module`: Module name (e.g., `finance`, `tasks`, `chat`)
+
+**Response (200)**
+```json
+{
+  "message": "Module updated successfully",
+  "enabled": true
+}
+```
+
+---
+
+## ❌ Error Codes
  
  | Code | Description |
  |------|-------------|
@@ -1567,4 +1656,20 @@ Accept: application/json
  | 422 | Unprocessable Entity - Validation failed |
  | 429 | Too Many Requests - Rate limit exceeded |
  | 500 | Server Error - Internal error |
+ 
+ ## 📝 Important Notes
+ 
+ ### Required Headers
+ - `Accept: application/json` - All endpoints
+ - `Authorization: Bearer {token}` - Protected endpoints
+ - `Content-Type: application/json` - POST/PUT requests
+ 
+ ### Rate Limiting
+ - Authentication: 5 attempts per minute
+ - General API: 60 requests per minute
+ 
+ ### Pagination
+ - Default limit: 15 items
+ - Maximum: 100 items
+ - Query: `?per_page=20&page=2`
 ```
