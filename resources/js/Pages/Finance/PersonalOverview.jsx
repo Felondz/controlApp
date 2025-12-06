@@ -3,7 +3,6 @@ import { Head } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { CurrencyDollarIcon } from '@/Components/Icons';
 import SummaryCard from '@/Components/Dashboard/SummaryCard';
-import AnalyticsWidget from '@/Components/Dashboard/AnalyticsWidget';
 
 export default function PersonalOverview({ auth, proyecto, isAdmin }) {
     const { t } = useTranslate();
@@ -45,12 +44,6 @@ export default function PersonalOverview({ auth, proyecto, isAdmin }) {
                     />
                 </div>
 
-                {/* Analytics Widget */}
-                {proyecto.modules?.includes('analytics') && (
-                    <div className="mt-6">
-                        <AnalyticsWidget project={proyecto} />
-                    </div>
-                )}
             </div>
         </AuthenticatedLayout>
     );

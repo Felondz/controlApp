@@ -129,9 +129,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {modules.includes('tasks') && (
                     <ResponsiveNavLink
-                        as="button"
-                        disabled // TODO: Implement route
-                        className="opacity-50 cursor-not-allowed"
+                        href={route('mis-proyectos.tasks.index', { proyecto: project.id })}
+                        active={route().current('mis-proyectos.tasks.index', project.id)}
                         collapsed={collapsed}
                     >
                         <CheckListIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />

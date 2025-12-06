@@ -7,7 +7,8 @@ import {
     CurrencyDollarIcon,
     ChatIcon,
     EllipsisHorizontalIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
+    CheckListIcon
 } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
 import NavigationSheet from '@/Components/NavigationSheet';
@@ -40,7 +41,7 @@ export default function BottomNavigation({ user, project = null }) {
                 matchRoutes: ['mis-proyectos.show', 'mis-proyectos.edit'],
             });
 
-            // Smart Slot Logic (Priority: Chat > Finance)
+            // Smart Slot Logic (Priority: Chat > Tasks > Finance)
             if (modules.includes('chat') && !project.es_personal) {
                 items.push({
                     name: t('modules.chat.title', 'Chat'),
@@ -48,6 +49,14 @@ export default function BottomNavigation({ user, project = null }) {
                     routeParams: project.id,
                     icon: ChatIcon,
                     badge: project.unread_messages_count
+                });
+            } else if (modules.includes('tasks')) {
+                items.push({
+                    name: t('modules.tasks', 'Tareas'),
+                    route: 'mis-proyectos.tasks.index',
+                    routeParams: { proyecto: project.id },
+                    icon: CheckListIcon,
+                    matchRoutes: ['mis-proyectos.tasks.index'],
                 });
             } else if (modules.includes('finance')) {
                 items.push({

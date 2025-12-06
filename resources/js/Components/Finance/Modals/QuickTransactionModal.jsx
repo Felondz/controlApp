@@ -73,6 +73,10 @@ export default function QuickTransactionModal({
                 // Edit mode
                 setActiveTab(transaction.monto > 0 ? 'income' : 'expense');
                 setSelectedProyectoId(transaction.proyecto_id);
+                // Ensure date is in YYYY-MM-DD format
+                if (transaction.fecha) {
+                    setData('fecha', transaction.fecha.split('T')[0]);
+                }
             } else {
                 // Create mode
                 setActiveTab(initialType);

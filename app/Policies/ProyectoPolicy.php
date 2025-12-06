@@ -106,4 +106,28 @@ class ProyectoPolicy
     {
         return false; // Soft deletes no implementados aún
     }
+
+    /**
+     * Determine whether the user can add a task to the project.
+     */
+    public function addTask(User $user, Proyecto $proyecto): bool
+    {
+        return $user->esMiembroDe($proyecto);
+    }
+
+    /**
+     * Determine whether the user can update a task in the project.
+     */
+    public function updateTask(User $user, Proyecto $proyecto): bool
+    {
+        return $user->esMiembroDe($proyecto);
+    }
+
+    /**
+     * Determine whether the user can delete a task in the project.
+     */
+    public function deleteTask(User $user, Proyecto $proyecto): bool
+    {
+        return $user->esMiembroDe($proyecto);
+    }
 }

@@ -161,6 +161,23 @@ class CuentaController extends Controller
         $ownedBalance = $proyecto->cuentas()->sum('saldo_actual');
         $linkedBalance = $proyecto->cuentasAsociadas()->sum('saldo_actual');
 
-        return response()->json(['balance' => $ownedBalance + $linkedBalance]);
+        // Count pending bills (transactions with status 'pending')
+        $pendingBills = $proyecto->transacciones()
+            ->where('status', 'pending')
+            ->count();
+
+        // Count completed transactions (status 'completed') - maybe just recent ones?
+        // The widget says "Recientes (Mes)", so let's filter by current month.
+        $transactionCount = $proyecto->transacciones()
+            ->where('status', 'completed')
+            ->whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
+            ->count();
+
+        return response()->json([
+            'balance' => $ownedBalance + $linkedBalance,
+            'pending_bills' => $pendingBills,
+            'transaction_count' => $transactionCount
+        ]);
     }
 }

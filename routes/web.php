@@ -103,8 +103,8 @@ Route::middleware('auth')->group(function () {
 
     // Tasks Module
     Route::resource('mis-proyectos.tasks', \App\Http\Controllers\TaskController::class)
-        ->only(['index', 'store', 'update', 'destroy'])
-        ->shallow();
+        ->parameters(['mis-proyectos' => 'proyecto'])
+        ->only(['index', 'store', 'update', 'destroy']);
 
     // Accept Invitation
     Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])

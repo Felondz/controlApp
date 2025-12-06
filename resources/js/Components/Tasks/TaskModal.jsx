@@ -45,17 +45,29 @@ export default function TaskModal({ show, onClose, task, project, categories = [
     const submit = (e) => {
         e.preventDefault();
 
+        // Transform empty strings to null for nullable fields
+        const formData = {
+            ...data,
+            assigned_to: data.assigned_to || null,
+            due_date: data.due_date || null,
+            amount: data.amount || null,
+            category_id: data.category_id || null,
+        };
+
         const options = {
             onSuccess: () => {
                 reset();
                 onSuccess();
             },
+            onError: (errors) => {
+                console.error('Task creation/update failed:', errors);
+            }
         };
 
         if (task) {
-            put(route('tasks.update', [project.id, task.id]), options);
+            put(route('mis-proyectos.tasks.update', { proyecto: project.id, task: task.id }), { ...options, data: formData });
         } else {
-            post(route('mis-proyectos.tasks.store', project.id), options);
+            post(route('mis-proyectos.tasks.store', { proyecto: project.id }), { ...options, data: formData });
         }
     };
 
@@ -222,7 +234,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                             type="button"
                             onClick={() => {
                                 if (confirm(t('tasks.confirm_delete', '¿Estás seguro de eliminar esta tarea?'))) {
-                                    router.delete(route('tasks.destroy', [project.id, task.id]), {
+                                    router.delete(route('mis-proyectos.tasks.destroy', { proyecto: project.id, task: task.id }), {
                                         onSuccess: () => {
                                             onClose();
                                             onSuccess();

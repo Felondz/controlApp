@@ -4,6 +4,11 @@ export function useTranslate() {
     const { translations } = usePage().props;
 
     const t = (key, defaultValOrReplace = null, replace = {}) => {
+        if (typeof key !== 'string') {
+            console.warn('useTranslate: key must be a string', key);
+            return key || '';
+        }
+
         let defaultValue = key;
         let replacements = replace;
 

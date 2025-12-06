@@ -23,8 +23,6 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
         finance: CurrencyDollarIcon,
         tasks: CheckListIcon,
         chat: ChatIcon,
-        analytics: ChartBarIcon,
-        notifications: BellIcon,
         marketplace: PuzzleIcon,
     };
 
@@ -134,7 +132,7 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
 
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                                        {['chat', 'analytics', 'notifications', 'marketplace'].includes(module.id)
+                                        {['chat', 'marketplace'].includes(module.id)
                                             ? t(`modules.${module.id}.title`, module.name)
                                             : t(`modules.${module.id}`, module.name)}
                                     </h3>

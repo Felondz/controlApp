@@ -83,13 +83,7 @@ class ProyectoUiWebController extends Controller
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         // 4. Renderizar vista apropiada según tipo de proyecto
-        if ($mis_proyecto->es_personal) {
-            // Personal Finance projects use PersonalOverview
-            return Inertia::render('Finance/PersonalOverview', [
-                'proyecto' => $mis_proyecto,
-                'isAdmin' => true, // Always admin of personal projects
-            ]);
-        }
+
 
         // Regular projects use Projects/Show
         return Inertia::render('Projects/Show', [
