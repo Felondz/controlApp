@@ -1,6 +1,6 @@
 # API Documentation - ControlApp
 
->> **Last Updated**: December 5, 2025 - Bills Automation + Recurring Bills (v2.6.4)
+>> **Last Updated**: December 5, 2025 - Mobile Responsiveness & Cleanup (v2.6.5)
 
 ## 📋 Índice
 
@@ -13,11 +13,9 @@
 7. [Cuentas](#cuentas)
 8. [Transacciones](#transacciones)
 9. [Chat](#chat)
-10. [Códigos de Error](#códigos-de-error)
- 11. [Herramientas](#herramientas-tools)
- 12. [Analíticas](#analíticas-analytics)
- 13. [Notificaciones](#notificaciones-notifications)
- 14. [Mercado](#mercado-marketplace)
+10. [Herramientas](#herramientas-tools)
+11. [Mercado](#mercado-marketplace)
+12. [Códigos de Error](#códigos-de-error)
 
 ---
 
@@ -1310,6 +1308,22 @@ Accept: application/json
 - Máximo: 100 items
 - Query: `?per_page=20&page=2`
 
+## 📝 Notas Importantes
+
+### Headers Requeridos
+- `Accept: application/json` - Todos los endpoints
+- `Authorization: Bearer {token}` - Endpoints protegidos
+- `Content-Type: application/json` - POST/PUT requests
+
+### Rate Limiting
+- Autenticación: 5 intentos por minuto
+- API General: 60 solicitudes por minuto
+
+### Paginación
+- Límite por defecto: 15 items
+- Máximo: 100 items
+- Query: `?per_page=20&page=2`
+
 ---
 
 **Última actualización**: 02 de diciembre de 2025
@@ -1584,15 +1598,108 @@ Accept: application/pdf
 
 ---
 
+## 🛠️ Herramientas (Tools)
+
+### List Tools - Listar Herramientas
+Obtiene la lista de herramientas disponibles y su estado.
+
+```http
+GET /api/tools
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Response (200)**
+```json
+{
+  "data": [
+    {
+      "id": "calculator",
+      "name": "Calculadora Financiera",
+      "enabled": true
+    }
+  ]
+}
+```
+
+### Toggle Tool - Activar/Desactivar Herramienta
+Activa o desactiva una herramienta globalmente para el usuario.
+
+```http
+POST /api/tools/toggle
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "tool_id": "calculator",
+  "enabled": true
+}
+```
+
+### Calculate - Calculadora Financiera
+Realiza cálculos financieros (ej: cuotas de préstamos).
+
+```http
+POST /api/tools/calculator/calculate
+Authorization: Bearer {token}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "type": "loan",
+  "amount": 1000000,
+  "rate": 12,
+  "term": 12
+}
+```
+
+---
+
+## 🏪 Mercado (Marketplace)
+
+### List Modules - Listar Módulos
+Obtiene los módulos disponibles en el marketplace para un proyecto.
+
+```http
+GET /api/proyectos/{proyecto}/marketplace
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+### Toggle Module - Activar/Desactivar Módulo
+Activa o desactiva un módulo en un proyecto.
+
+```http
+POST /api/proyectos/{proyecto}/marketplace/{module}
+Authorization: Bearer {token}
+Accept: application/json
+```
+
+**Parámetros**:
+- `module`: Nombre del módulo (ej: `finance`, `tasks`, `chat`)
+
+**Response (200)**
+```json
+{
+  "message": "Módulo actualizado correctamente",
+  "enabled": true
+}
+```
+
+---
+
 ## ❌ Códigos de Error
 
 | Código | Descripción |
 |--------|-------------|
-| 400 | Bad Request - Datos de entrada inválidos |
-| 401 | Unauthorized - Token faltante o inválido |
-| 403 | Forbidden - Permisos insuficientes |
-| 404 | Not Found - Recurso no existe |
-| 422 | Unprocessable Entity - Validación fallida |
-| 429 | Too Many Requests - Límite de peticiones excedido |
-| 500 | Server Error - Error interno |
+| `200` | OK - Solicitud exitosa |
+| `201` | Created - Recurso creado |
+| `400` | Bad Request - Solicitud inválida |
+| `401` | Unauthorized - No autenticado |
+| `403` | Forbidden - No autorizado |
+| `404` | Not Found - Recurso no encontrado |
+| `422` | Unprocessable Entity - Validación fallida |
+| `429` | Too Many Requests - Rate limit excedido |
+| `500` | Internal Server Error - Error del servidor |
 

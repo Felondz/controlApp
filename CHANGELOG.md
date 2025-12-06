@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - Pre-Release Security Fixes
 
+### Added
+- New professional Dashboard with drag-and-drop widget system
+- `DraggableWidgetGrid` component using `@hello-pangea/dnd`
+- Widget registry system in `resources/js/Utils/widgetRegistry.js`
+- New widgets: Finance Summary, Tasks Summary, Chat Recent, Members Summary, Project Info
+- `WidgetSettingsModal` for customizing dashboard layout
+- Role-based widget visibility (Finance widgets restricted to Admins)
+
+### Changed
+- Refactored `Show.jsx` to use the new widget system
+- Updated `es.json` and `en.json` with dashboard translations
+- Enhanced `Icons.jsx` with new icons for widgets
+
+### Security
+- Enforced strict `isAdmin` checks for finance widget visibility
+
 ### Fixed - Critical Security & CI/CD
 
 **Package Manager Security Enforcement:**
@@ -88,6 +104,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🎨 **Sidebar Toggle**: Moved hamburger button from top header INTO the sidebar itself
 - 🎨 **Cleaner Header**: Top bar now only shows back button and page title
 - 🎨 **Better UX**: Toggle button always visible at sidebar top, regardless of collapse state
+
+---
+
+## [2.6.5] - 2025-12-05
+
+### Fixed - Mobile Responsiveness & Cleanup
+
+**Kanban Board Optimization:**
+- 📱 **Mobile Layout**: Implemented horizontal scrolling with snap points for better mobile experience.
+- 🔍 **Responsive Search**: Search bar and filters now stack vertically on small screens.
+- 🎨 **Compact Design**: Reduced padding and card sizes on mobile for better information density.
+- 🚫 **Scrollbar**: Hidden default scrollbar on mobile for a cleaner look (`scrollbar-hide`).
+
+**Dashboard Improvements:**
+- 👆 **Touch Interactions**: Improved drag handles on `WidgetCard` to be always visible and have larger touch targets on mobile.
+- 📱 **Grid Layout**: Optimized `DraggableWidgetGrid` for mobile screens.
+
+**Code Cleanup:**
+- 🗑️ **Deprecated Modules**: Removed unused tests and code related to legacy Analytics and Notifications modules.
+- 🧪 **Test Fixes**: Resolved failures in `DraggableWidgetGrid` (mock fix) and `NavigationSheet` (disabled state logic).
 
 ---
 

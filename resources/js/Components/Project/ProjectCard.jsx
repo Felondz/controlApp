@@ -24,8 +24,6 @@ export default function ProjectCard({ proyecto }) {
             case 'finance': return <CurrencyDollarIcon className="h-4 w-4" />;
             case 'tasks': return <CheckListIcon className="h-4 w-4" />;
             case 'chat': return <ChatIcon className="h-4 w-4" />;
-            case 'analytics': return <ChartBarIcon className="h-4 w-4" />;
-            case 'notifications': return <BellIcon className="h-4 w-4" />;
             case 'marketplace': return <PuzzleIcon className="h-4 w-4" />;
             default: return null;
         }

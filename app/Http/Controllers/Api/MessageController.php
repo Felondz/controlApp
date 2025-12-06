@@ -71,6 +71,55 @@ class MessageController extends Controller
 
         return response()->json($message, 201);
     }
+    /**
+     * Get unread messages count.
+     */
+    public function unread(Proyecto $proyecto): JsonResponse
+    {
+        if (!$proyecto->miembros->contains(auth()->user()) && $proyecto->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Private messages unread
+        $privateUnread = Message::where('proyecto_id', $proyecto->id)
+            ->where('recipient_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+
+        // General messages unread
+        $generalUnread = 0;
+        $lastReadAt = null;
+
+        // Check if user is a member (to get last_read_at from pivot)
+        $member = $proyecto->miembros()->where('user_id', auth()->id())->first();
+
+        if ($member) {
+            $lastReadAt = $member->pivot->last_read_at;
+
+            if ($lastReadAt) {
+                $generalUnread = Message::where('proyecto_id', $proyecto->id)
+                    ->whereNull('recipient_id')
+                    ->where('created_at', '>', $lastReadAt)
+                    ->where('user_id', '!=', auth()->id()) // Don't count own messages
+                    ->count();
+            } else {
+                // If never read, count all general messages not from self
+                $generalUnread = Message::where('proyecto_id', $proyecto->id)
+                    ->whereNull('recipient_id')
+                    ->where('user_id', '!=', auth()->id())
+                    ->count();
+            }
+        } else if ($proyecto->user_id === auth()->id()) {
+            // Owner might not be in members pivot? 
+            // Usually owner is also a member, but if not, logic might differ.
+            // For now assume owner is member or doesn't track general read status this way.
+            // If owner is not in pivot, we can't track last_read_at for general chat unless we store it elsewhere.
+            // Let's assume owner is added to members on creation.
+        }
+
+        return response()->json(['count' => $privateUnread + $generalUnread]);
+    }
+
 
     /**
      * Mark messages as read.

@@ -70,6 +70,9 @@
         "working_on_something": "Working on something amazing..."
     },
     "auth": {
+        "session_expired": "Session Expired",
+        "session_expired_desc": "Your session has ended due to inactivity. Please log in again to continue.",
+        "login_again": "Log In",
         "login": "Log in",
         "logout": "Log Out",
         "register": "Register",
@@ -244,7 +247,27 @@
         "marketplace": "Marketplace",
         "calculator": "Financial Calculator",
         "calculator_desc": "Calculate installments, interest, and amortization tables for loans.",
-        "calendar_desc": "Manage your events and important dates."
+        "calendar_desc": "Manage your events and important dates.",
+        "customize": "Customize",
+        "customize_desc": "Select which widgets to display on your dashboard. You can drag widgets to reorder them.",
+        "reset_layout": "Reset layout",
+        "hide_widget": "Hide widget",
+        "show_hidden": "Show hidden",
+        "drag_hint": "Drag to reorder",
+        "no_widgets": "No visible widgets. Use settings to add widgets.",
+        "widget_not_found": "Widget not available"
+    },
+    "widgets": {
+        "finance_balance": "Financial Balance",
+        "finance_upcoming": "Upcoming Obligations",
+        "finance_transactions": "Recent Transactions",
+        "tasks_summary": "Tasks Summary",
+        "tasks_overdue": "Overdue Tasks",
+        "chat_recent": "Recent Messages",
+        "analytics_overview": "Analytics",
+        "members_summary": "Team",
+        "project_info": "Project Info",
+        "admin_only": "Admins only"
     },
     "calculator": {
         "title": "Financial Calculator",
@@ -689,12 +712,15 @@
     },
     "modules": {
         "finance": "Finance",
+        "finance_label": "Finance",
         "finance_desc": "Management of income, expenses, budgets, and accounts.",
         "tasks": "Tasks",
+        "tasks_label": "Tasks",
         "tasks_desc": "Task management, kanban, and progress tracking.",
+        "chat_label": "Chat",
+        "chat_title": "Chat",
+        "chat_activity": "Activity",
         "chat_desc": "Real-time communication for project members.",
-        "analytics_desc": "Detailed metrics and reports of the project.",
-        "notifications_desc": "Multi-channel alert and notification system.",
         "marketplace_desc": "Explore and activate modules to power up your projects.",
         "requires": "Requires",
         "chat": {

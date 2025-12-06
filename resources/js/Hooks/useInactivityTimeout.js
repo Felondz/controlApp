@@ -6,7 +6,7 @@ import { router } from '@inertiajs/react';
  * 
  * @param {number} timeout - Inactivity timeout in milliseconds (default: 30 minutes)
  */
-export function useInactivityTimeout(timeout = 30 * 60 * 1000) {
+export function useInactivityTimeout(timeout = 30 * 60 * 1000, onTimeout = null) {
     const lastActivityRef = useRef(Date.now());
     const checkIntervalRef = useRef(null);
 
@@ -25,15 +25,19 @@ export function useInactivityTimeout(timeout = 30 * 60 * 1000) {
                     clearInterval(checkIntervalRef.current);
                 }
 
-                // Perform logout
-                router.post('/logout', {}, {
-                    preserveState: false,
-                    preserveScroll: false,
-                    onFinish: () => {
-                        // Redirect to login with inactivity message
-                        window.location.href = '/login?reason=inactivity';
-                    }
-                });
+                if (onTimeout) {
+                    onTimeout();
+                } else {
+                    // Default behavior: Perform logout
+                    router.post('/logout', {}, {
+                        preserveState: false,
+                        preserveScroll: false,
+                        onFinish: () => {
+                            // Redirect to login with inactivity message
+                            window.location.href = '/login?reason=inactivity';
+                        }
+                    });
+                }
             }
         };
 
@@ -57,5 +61,5 @@ export function useInactivityTimeout(timeout = 30 * 60 * 1000) {
                 clearInterval(checkIntervalRef.current);
             }
         };
-    }, [timeout]);
+    }, [timeout, onTimeout]);
 }

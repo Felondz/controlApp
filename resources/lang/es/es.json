@@ -54,6 +54,9 @@
         "working_on_something": "Trabajando en algo increíble..."
     },
     "auth": {
+        "session_expired": "Sesión Expirada",
+        "session_expired_desc": "Tu sesión ha terminado debido a inactividad. Por favor, inicia sesión nuevamente para continuar.",
+        "login_again": "Iniciar Sesión",
         "login": "Iniciar sesión",
         "logout": "Cerrar sesión",
         "register": "Registrarse",
@@ -253,7 +256,27 @@
         "marketplace": "Mercado",
         "calculator": "Calculadora Financiera",
         "calculator_desc": "Calcula cuotas, intereses y tablas de amortización para préstamos.",
-        "calendar_desc": "Gestiona tus eventos y fechas importantes."
+        "calendar_desc": "Gestiona tus eventos y fechas importantes.",
+        "customize": "Personalizar",
+        "customize_desc": "Selecciona qué widgets mostrar en tu dashboard. Puedes arrastrar los widgets para reordenarlos.",
+        "reset_layout": "Restablecer diseño",
+        "hide_widget": "Ocultar widget",
+        "show_hidden": "Mostrar ocultos",
+        "drag_hint": "Arrastra para reordenar",
+        "no_widgets": "No hay widgets visibles. Usa la configuración para agregar widgets.",
+        "widget_not_found": "Widget no disponible"
+    },
+    "widgets": {
+        "finance_balance": "Balance Financiero",
+        "finance_upcoming": "Próximas Obligaciones",
+        "finance_transactions": "Transacciones Recientes",
+        "tasks_summary": "Resumen de Tareas",
+        "tasks_overdue": "Tareas Vencidas",
+        "chat_recent": "Mensajes Recientes",
+        "analytics_overview": "Analíticas",
+        "members_summary": "Equipo",
+        "project_info": "Info del Proyecto",
+        "admin_only": "Solo admins"
     },
     "docs": {
         "hub_title": "Centro de Documentación",
@@ -693,12 +716,15 @@
     },
     "modules": {
         "finance": "Finanzas",
+        "finance_label": "Finanzas",
         "finance_desc": "Gestión de ingresos, gastos, presupuestos y cuentas.",
         "tasks": "Tareas",
+        "tasks_label": "Tareas",
         "tasks_desc": "Gestión de tareas, kanban y seguimiento de progreso.",
+        "chat_label": "Chat",
+        "chat_title": "Chat",
+        "chat_activity": "Actividad",
         "chat_desc": "Comunicación en tiempo real para los miembros del proyecto.",
-        "analytics_desc": "Métricas y reportes detallados del proyecto.",
-        "notifications_desc": "Sistema de alertas y notificaciones multicanal.",
         "marketplace_desc": "Explora y activa módulos para potenciar tus proyectos.",
         "requires": "Requiere",
         "chat": {

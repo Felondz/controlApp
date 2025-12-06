@@ -64,7 +64,7 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
             </div>
 
             <div className="w-full">
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={300} minWidth={0}>
                     <BarChart
                         data={data}
                         margin={{
