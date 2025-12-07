@@ -18,10 +18,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
         status: 'todo',
         priority: 'medium',
         due_date: '',
-        assigned_to: '',
-        is_financial: false,
-        amount: '',
-        category_id: '',
+        assignees: [], // Changed from assigned_to to array
     });
 
     useEffect(() => {
@@ -32,13 +29,17 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                 status: task.status,
                 priority: task.priority,
                 due_date: task.due_date || '',
-                assigned_to: task.assigned_to || '',
-                is_financial: task.is_financial || false,
-                amount: task.amount || '',
-                category_id: task.category_id || '',
+                assignees: task.users ? task.users.map(u => u.id) : (task.assigned_to ? [task.assigned_to] : []),
             });
         } else {
-            reset();
+            setData({
+                title: '',
+                description: '',
+                status: 'todo',
+                priority: 'medium',
+                due_date: '',
+                assignees: [], // Changed from assigned_to to array
+            });
         }
     }, [task, show]);
 
@@ -48,10 +49,8 @@ export default function TaskModal({ show, onClose, task, project, categories = [
         // Transform empty strings to null for nullable fields
         const formData = {
             ...data,
-            assigned_to: data.assigned_to || null,
+            assignees: data.assignees,
             due_date: data.due_date || null,
-            amount: data.amount || null,
-            category_id: data.category_id || null,
         };
 
         const options = {
@@ -124,8 +123,9 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                         </div>
 
                         {/* Priority */}
+                        {/* Priority */}
                         <div>
-                            <InputLabel htmlFor="priority" value={t('tasks.priority', 'Prioridad')} />
+                            <InputLabel htmlFor="priority" value={t('tasks.priority_label', 'Prioridad')} />
                             <select
                                 id="priority"
                                 value={data.priority}
@@ -155,78 +155,47 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                         </div>
 
                         {/* Assignee */}
-                        <div>
-                            <InputLabel htmlFor="assigned_to" value={t('tasks.assignee', 'Asignado a')} />
-                            <select
-                                id="assigned_to"
-                                value={data.assigned_to}
-                                onChange={(e) => setData('assigned_to', e.target.value)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2"
-                            >
-                                <option value="">{t('tasks.unassigned', 'Sin Asignar')}</option>
-                                {project.miembros?.map((member) => (
-                                    <option key={member.id} value={member.id}>
-                                        {member.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.assigned_to && <p className="text-sm text-red-600 mt-1">{errors.assigned_to}</p>}
-                        </div>
-                    </div>
-
-                    {/* Financial Obligation Section */}
-                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3 mb-4">
-                            <input
-                                id="is_financial"
-                                type="checkbox"
-                                checked={data.is_financial}
-                                onChange={(e) => setData('is_financial', e.target.checked)}
-                                className="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500"
-                            />
-                            <InputLabel htmlFor="is_financial" value={t('tasks.is_financial', '¿Es una obligación financiera?')} className="!mb-0" />
-                        </div>
-
-                        {data.is_financial && (
-                            <div className="grid grid-cols-2 gap-4 pl-7">
-                                {/* Amount */}
-                                <div>
-                                    <InputLabel htmlFor="amount" value={t('tasks.amount', 'Monto')} />
-                                    <TextInput
-                                        id="amount"
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={data.amount}
-                                        onChange={(e) => setData('amount', e.target.value)}
-                                        className="mt-1 block w-full"
-                                        placeholder="0.00"
-                                    />
-                                    {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount}</p>}
-                                </div>
-
-                                {/* Category */}
-                                <div>
-                                    <InputLabel htmlFor="category_id" value={t('tasks.category', 'Categoría')} />
-                                    <select
-                                        id="category_id"
-                                        value={data.category_id}
-                                        onChange={(e) => setData('category_id', e.target.value)}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2"
-                                    >
-                                        <option value="">{t('tasks.select_category', 'Seleccionar categoría...')}</option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.nombre}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.category_id && <p className="text-sm text-red-600 mt-1">{errors.category_id}</p>}
-                                </div>
+                        {/* Assignees (Multi-Select) */}
+                        <div className="col-span-2">
+                            <InputLabel value={t('tasks.assignees', 'Asignados')} />
+                            <div className="mt-1 flex flex-wrap gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 max-h-32 overflow-y-auto">
+                                {project.miembros?.map((member) => {
+                                    const isSelected = data.assignees.includes(member.id);
+                                    return (
+                                        <button
+                                            key={member.id}
+                                            type="button"
+                                            onClick={() => {
+                                                const newAssignees = isSelected
+                                                    ? data.assignees.filter(id => id !== member.id)
+                                                    : [...data.assignees, member.id];
+                                                setData('assignees', newAssignees);
+                                            }}
+                                            className={`
+                                                flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border
+                                                ${isSelected
+                                                    ? 'bg-primary-100 text-primary-700 border-primary-200 dark:bg-primary-900/40 dark:text-primary-300 dark:border-primary-700'
+                                                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
+                                                }
+                                            `}
+                                        >
+                                            <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${isSelected ? 'bg-primary-200 text-primary-800' : 'bg-gray-200 text-gray-600'}`}>
+                                                {member.name.charAt(0)}
+                                            </div>
+                                            {member.name.split(' ')[0]}
+                                        </button>
+                                    );
+                                })}
+                                {project.miembros?.length === 0 && (
+                                    <span className="text-sm text-gray-500 italic px-2">{t('tasks.no_members', 'No hay miembros')}</span>
+                                )}
                             </div>
-                        )}
+                            {errors.assignees && <p className="text-sm text-red-600 mt-1">{errors.assignees}</p>}
+                        </div>
                     </div>
+
                 </div>
+
 
                 <div className="mt-6 flex justify-between gap-3">
                     {task && (
@@ -258,6 +227,6 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                     </div>
                 </div>
             </form>
-        </Modal>
+        </Modal >
     );
 }

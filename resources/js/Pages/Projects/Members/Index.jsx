@@ -5,7 +5,7 @@ import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InviteMemberModal from '@/Components/Members/InviteMemberModal';
 import DangerButton from '@/Components/DangerButton';
-import { UserPlusIcon, TrashIcon, ShieldCheckIcon } from '@/Components/Icons';
+import { UserPlusIcon, TrashIcon, ShieldCheckIcon, UserCircleIcon } from '@/Components/Icons';
 import Alert from '@/Components/Alert';
 import TransferOwnershipModal from '@/Components/Members/TransferOwnershipModal';
 
@@ -99,7 +99,11 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
                                                         <div className="flex-shrink-0 h-10 w-10 relative">
-                                                            <img className="h-10 w-10 rounded-full object-cover" src={member.profile_photo_url} alt={member.name} />
+                                                            {member.profile_photo_path ? (
+                                                                <img className="h-10 w-10 rounded-full object-cover" src={member.profile_photo_url} alt={member.name} />
+                                                            ) : (
+                                                                <UserCircleIcon className="h-10 w-10 text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full p-1" />
+                                                            )}
                                                             {member.id === proyecto.user_id && (
                                                                 <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-0.5" title={t('members.owner', 'Dueño')}>
                                                                     <ShieldCheckIcon className="w-3 h-3 text-white" />

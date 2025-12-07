@@ -34,7 +34,20 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
         }
     }, [project]);
 
-    if (loading) return <div className="animate-pulse h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>;
+    if (loading) {
+        return (
+            <WidgetCard
+                widget={widget}
+                title={t('widgets.chat_recent', 'Mensajes Recientes')}
+                icon={ChatBubbleLeftRightIcon}
+                onHide={onHide}
+                isDragging={isDragging}
+                dragHandleProps={dragHandleProps}
+            >
+                <div className="animate-pulse h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+            </WidgetCard>
+        );
+    }
 
     return (
         <WidgetCard
@@ -49,7 +62,7 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
                     href={route('mis-proyectos.chat', { mis_proyecto: project.id })}
                     className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
                 >
-                    {t('common.view_all', 'Ir al chat')}
+                    {t('common.go_to_chat', 'Ir al chat')}
                 </Link>
             }
         >

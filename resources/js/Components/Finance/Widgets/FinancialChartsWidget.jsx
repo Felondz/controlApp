@@ -4,7 +4,16 @@ import { formatCurrency } from '@/Utils/currencyHelpers';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChartBarIcon } from '@/Components/Icons';
 
-export default function FinancialChartsWidget({ transactions = [], currency = 'COP' }) {
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
+export default function FinancialChartsWidget({
+    transactions = [],
+    currency = 'COP',
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
+}) {
     const { t } = useTranslate();
 
     const data = useMemo(() => {
@@ -56,12 +65,13 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 h-full">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('finance.cash_flow', 'Flujo de Caja (Últimos 6 Meses)')}
-                </h3>
-            </div>
+        <WidgetCard
+            widget={widget}
+            title={t('finance.cash_flow', 'Flujo de Caja (Últimos 6 Meses)')}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+        >
 
             <div className="w-full">
                 <ResponsiveContainer width="100%" height={300} minWidth={0}>
@@ -105,6 +115,7 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
                             fill="#10B981"
                             radius={[4, 4, 0, 0]}
                             barSize={20}
+                            isAnimationActive={false}
                         />
                         <Bar
                             dataKey="expense"
@@ -112,10 +123,11 @@ export default function FinancialChartsWidget({ transactions = [], currency = 'C
                             fill="#EF4444"
                             radius={[4, 4, 0, 0]}
                             barSize={20}
+                            isAnimationActive={false}
                         />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-        </div>
+        </WidgetCard >
     );
 }

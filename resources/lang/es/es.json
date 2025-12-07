@@ -24,6 +24,17 @@
         "name": "ControlApp",
         "description": "Plataforma de gestión de proyectos colaborativos"
     },
+    "chat": {
+        "title": "Chat de Equipo",
+        "channels": "Canales",
+        "direct_messages": "Mensajes Directos",
+        "general": "General",
+        "placeholder": "Escribe un mensaje...",
+        "empty": "No hay mensajes aún. ¡Inicia la conversación!",
+        "online": "En línea",
+        "offline": "Desconectado",
+        "back": "Chats"
+    },
     "landing": {
         "hero_title": "Toma el Control de Tus Proyectos",
         "hero_subtitle": "La solución completa para gestionar tus proyectos, finanzas y equipo en un solo lugar.",
@@ -183,7 +194,9 @@
         "unavailable": "No disponible",
         "deactivate": "Desactivar",
         "activate": "Activar",
-        "menu": "Menú"
+        "menu": "Menú",
+        "free": "Gratis",
+        "contact_support": "Contactar Soporte"
     },
     "calculator": {
         "title": "Calculadora Financiera",
@@ -572,7 +585,33 @@
     },
     "tasks": {
         "pending": "Tareas Pendientes",
-        "due_today": "vencen hoy"
+        "due_today": "vencen hoy",
+        "board": "Tablero de Tareas",
+        "create": "Nueva Tarea",
+        "edit": "Editar Tarea",
+        "title": "Título",
+        "description": "Descripción",
+        "status": "Estado",
+        "priority_label": "Prioridad",
+        "due_date": "Fecha Límite",
+        "assignee": "Asignado a",
+        "assignees": "Asignados",
+        "unassigned": "Sin Asignar",
+        "no_members": "No hay miembros",
+        "todo": "Por Hacer",
+        "in_progress": "En Progreso",
+        "done": "Hecho",
+        "all_priorities": "Todas",
+        "all_assignees": "Todos",
+        "assigned_count": ":count asignadas",
+        "load": "Carga de Trabajo",
+        "confirm_delete": "¿Estás seguro de eliminar esta tarea?",
+        "update_error": "Error al actualizar la tarea",
+        "priority": {
+            "low": "Baja",
+            "medium": "Media",
+            "high": "Alta"
+        }
     },
     "members": {
         "title": "Gestión de Miembros",
@@ -686,8 +725,24 @@
             "custom": {
                 "title": "Personalizado",
                 "desc": "Elige manualmente los módulos que necesitas."
+            },
+            "personal": {
+                "title": "Finanzas Personales",
+                "desc": "Controla tus gastos diarios y ahorros personales."
+            },
+            "event_planning": {
+                "title": "Planificación de Eventos",
+                "desc": "Organiza bodas, fiestas o conferencias con presupuesto y tareas."
+            },
+            "education": {
+                "title": "Educación",
+                "desc": "Gestiona tus estudios, tareas y gastos universitarios."
             }
         },
+        "setup_project": "Configurar Proyecto",
+        "setup_desc": "Define la identidad básica de tu nuevo espacio de trabajo.",
+        "customize_appearance": "Personalizar Apariencia",
+        "help_contact_support": "¿Necesitas ayuda? Contacta a soporte.",
         "upload_image": "Click para subir imagen",
         "change_image": "Cambiar",
         "placeholders": {
@@ -700,7 +755,13 @@
             "blue-ocean": "Azul Océano",
             "amber-warm": "Ámbar Cálido",
             "rose-romantic": "Rosa Romántico",
-            "cyan-tech": "Cian Tecnológico"
+            "cyan-tech": "Cian Tecnológico",
+            "modern": "Moderno",
+            "nature": "Natural",
+            "ocean": "Océano",
+            "warm": "Cálido",
+            "romantic": "Romántico",
+            "tech": "Tecnológico"
         },
         "typographies": {
             "sans": "Sans Serif (Por defecto)",
@@ -725,6 +786,8 @@
         "chat_title": "Chat",
         "chat_activity": "Actividad",
         "chat_desc": "Comunicación en tiempo real para los miembros del proyecto.",
+        "analytics_label": "Analíticas",
+        "analytics_desc": "Visualiza métricas y rendimiento del proyecto.",
         "marketplace_desc": "Explora y activa módulos para potenciar tus proyectos.",
         "requires": "Requiere",
         "chat": {

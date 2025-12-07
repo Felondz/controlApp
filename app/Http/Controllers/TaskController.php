@@ -15,7 +15,7 @@ class TaskController extends Controller
 
         return Inertia::render('Projects/Tasks/Index', [
             'proyecto' => $proyecto->load('miembros'),
-            'tasks' => $proyecto->tasks()->with(['assignee', 'category'])->get(),
+            'tasks' => $proyecto->tasks()->with(['users', 'category'])->get(),
             'categories' => $proyecto->categorias()->where('tipo', 'gasto')->get(),
         ]);
     }
@@ -34,6 +34,57 @@ class TaskController extends Controller
         ]);
     }
 
+    public function usersLoad(Proyecto $proyecto)
+    {
+        $this->authorize('view', $proyecto);
+
+        // Get all project members
+        $members = $proyecto->miembros;
+
+        // Get all tasks for this project
+        $tasks = $proyecto->tasks;
+        try {
+            \Illuminate\Support\Facades\Log::info("UsersLoad called for project: " . $proyecto->id);
+
+            $this->authorize('view', $proyecto);
+
+            $users = $proyecto->miembros()->with([
+                'tasks' => function ($query) use ($proyecto) {
+                    $query->where('project_id', $proyecto->id);
+                }
+            ])->get();
+
+            \Illuminate\Support\Facades\Log::info("Users fetched: " . $users->count());
+
+            $data = $users->map(function ($user) {
+                // Calculate stats
+                $stats = new \stdClass();
+                $stats->total = $user->tasks->count();
+                $stats->todo = $user->tasks->where('status', 'todo')->count();
+                $stats->in_progress = $user->tasks->where('status', 'in_progress')->count();
+                $stats->done = $user->tasks->where('status', 'done')->count();
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'profile_photo_url' => $user->profile_photo_url,
+                    'stats' => [
+                        'total' => $stats->total ?? 0,
+                        'todo' => $stats->todo ?? 0,
+                        'in_progress' => $stats->in_progress ?? 0,
+                        'done' => $stats->done ?? 0,
+                    ]
+                ];
+            });
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error in UsersLoad: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function store(Request $request, Proyecto $proyecto)
     {
         $this->authorize('addTask', $proyecto);
@@ -44,13 +95,15 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
             'priority' => 'required|in:low,medium,high',
             'due_date' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-            'is_financial' => 'boolean',
-            'amount' => 'nullable|required_if:is_financial,true|numeric|min:0',
-            'category_id' => 'nullable|required_if:is_financial,true|exists:categorias,id',
+            'assignees' => 'nullable|array',
+            'assignees.*' => 'exists:users,id',
         ]);
 
         $task = $proyecto->tasks()->create($validated);
+
+        if (!empty($validated['assignees'])) {
+            $task->users()->sync($validated['assignees']);
+        }
 
         if ($request->wantsJson()) {
             return response()->json($task, 201);
@@ -69,13 +122,15 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
             'priority' => 'required|in:low,medium,high',
             'due_date' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-            'is_financial' => 'boolean',
-            'amount' => 'nullable|required_if:is_financial,true|numeric|min:0',
-            'category_id' => 'nullable|required_if:is_financial,true|exists:categorias,id',
+            'assignees' => 'nullable|array',
+            'assignees.*' => 'exists:users,id',
         ]);
 
         $task->update($validated);
+
+        if (isset($validated['assignees'])) {
+            $task->users()->sync($validated['assignees']);
+        }
 
         if ($request->wantsJson()) {
             return response()->json($task, 200);

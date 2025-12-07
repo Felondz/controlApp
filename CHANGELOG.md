@@ -107,6 +107,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.6.6] - 2025-12-06
+
+### Fixed - UI/UX Refinements
+
+**Layout & Navigation:**
+- 🎨 **Sidebar Toggle**: Moved toggle button to the top navigation bar for easier access and cleaner sidebar header.
+- 🖼️ **Sidebar Logo**: Improved logo behavior - shows icon only when collapsed, full logo when expanded.
+- 📱 **Task Cards**: Optimized layout for responsiveness - horizontal row on desktop, stacked on mobile.
+
+**Finance Widgets:**
+- 🐛 **Account Flow**: Fixed rendering crash when accounts are missing or deleted.
+- ⚡ **Performance**: Disabled Recharts animations in `AccountFlowWidget` to prevent infinite render loops.
+- 📏 **Widget Sizing**: Adjusted default width of Transactions and Bills widgets to `medium` (half-width).
+- 🔄 **Settings Sync**: Fixed widget settings persistence in Finance Dashboard (`finance_dashboard` key).
+
+### Changed
+- 🗑️ **Project Templates**: Removed "Personal Finance" template from creation flow (now auto-created).
+- 🌐 **Translations**: Added missing translations for project themes (`modern`, `nature`, `ocean`, etc.).
+- 🔧 **Linting**: Fixed duplicate translation keys in `es.json` and `en.json`.
+
+---
+
 ## [2.6.5] - 2025-12-05
 
 ### Fixed - Mobile Responsiveness & Cleanup

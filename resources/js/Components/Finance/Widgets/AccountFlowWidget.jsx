@@ -4,11 +4,17 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChartBarIcon } from '@/Components/Icons';
 import { useMemo } from 'react';
 
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
 export default function AccountFlowWidget({
     transactions = [],
     accounts = [],
     isCollaborative = false,
-    currency = 'COP'
+    currency = 'COP',
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
 }) {
     const { t } = useTranslate();
 
@@ -20,16 +26,28 @@ export default function AccountFlowWidget({
         let totalExpense = 0;
 
         transactions.forEach(trans => {
-            const account = accounts.find(a => a.id === trans.cuenta_id);
-            if (!account) return;
+            // Priority:
+            // 1. trans.cuenta object (loaded via with('cuenta'))
+            // 2. accounts array lookup
+            // 3. Fallback object
+            let account = trans.cuenta || accounts.find(a => a.id == trans.cuenta_id);
 
-            const amount = trans.monto || 0;
+            if (!account) {
+                // Fallback for transactions with deleted/detached accounts
+                account = {
+                    id: trans.cuenta_id || 'unknown',
+                    nombre: t('finance.unknown_account', 'Cuenta Desconocida/Cerrada'),
+                    propietario_id: null
+                };
+            }
+
+            const amount = parseFloat(trans.monto) || 0; // Ensure number for math
             const key = account.id;
 
             if (amount > 0) {
                 if (!incomeMap[key]) {
                     incomeMap[key] = {
-                        id: account.id,
+                        id: key,
                         name: account.nombre,
                         account: account,
                         value: 0,
@@ -42,7 +60,7 @@ export default function AccountFlowWidget({
             } else if (amount < 0) {
                 if (!expenseMap[key]) {
                     expenseMap[key] = {
-                        id: account.id,
+                        id: key,
                         name: account.nombre,
                         account: account,
                         value: 0,
@@ -145,13 +163,13 @@ export default function AccountFlowWidget({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 h-full">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('finance.account_flow', 'Flujo por Cuenta')}
-                </h3>
-                <ChartBarIcon className="w-5 h-5 text-gray-400" />
-            </div>
+        <WidgetCard
+            widget={widget}
+            title={t('finance.account_flow', 'Flujo por Cuenta')}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+        >
 
             <div className="w-full">
                 {incomeData.length === 0 && expenseData.length === 0 ? (
@@ -201,6 +219,7 @@ export default function AccountFlowWidget({
                                             dataKey="value"
                                             stroke="rgba(255,255,255,0.3)"
                                             strokeWidth={2}
+                                            isAnimationActive={false}
                                         >
                                             {incomeData.map((entry, index) => (
                                                 <Cell
@@ -267,6 +286,7 @@ export default function AccountFlowWidget({
                                             dataKey="value"
                                             stroke="rgba(255,255,255,0.3)"
                                             strokeWidth={2}
+                                            isAnimationActive={false}
                                         >
                                             {expenseData.map((entry, index) => (
                                                 <Cell
@@ -310,6 +330,7 @@ export default function AccountFlowWidget({
                     </div>
                 )}
             </div>
-        </div>
+        </WidgetCard >
     );
 }
+

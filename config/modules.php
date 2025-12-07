@@ -31,26 +31,8 @@ return [
             'version' => '1.0.0',
             'description' => 'Real-time messaging and collaboration',
         ],
-        'analytics' => [
-            'class' => \App\Modules\Analytics\AnalyticsModule::class,
-            'enabled' => true,
-            'version' => '1.0.0',
-            'description' => 'Analytics and insights from all module events',
-            'settings' => [
-                'async_processing' => true,
-                'retention_days' => 365,
-            ],
-        ],
-        'notifications' => [
-            'class' => \App\Modules\Notifications\NotificationsModule::class,
-            'enabled' => true,
-            'version' => '1.0.0',
-            'description' => 'Multi-channel notification system',
-            'settings' => [
-                'default_channels' => ['database', 'mail'],
-                'queue_notifications' => true,
-            ],
-        ],
+        // NOTE: 'analytics' and 'notifications' modules are legacy and have been removed.
+        // These modules are no longer supported and should not be enabled for new projects.
     ],
 
     /*

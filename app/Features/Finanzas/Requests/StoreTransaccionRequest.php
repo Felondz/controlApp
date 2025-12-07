@@ -32,12 +32,12 @@ class StoreTransaccionRequest extends FormRequest
         return [
             'cuenta_id' => 'nullable|exists:cuentas,id',
             'categoria_id' => [
-                'nullable',
+                'required',
                 'numeric',
                 Rule::exists('categorias', 'id')->where('proyecto_id', $proyecto->id),
             ],
             'monto' => 'required|numeric',
-            'descripcion' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:255',
             'fecha' => 'required|date',
             'notas' => 'nullable|string',
             'status' => 'nullable|in:pending,completed,cancelled',
@@ -49,7 +49,7 @@ class StoreTransaccionRequest extends FormRequest
             // Payment automation fields
             'cuenta_predeterminada_id' => 'nullable|exists:cuentas,id',
             'debito_automatico' => 'boolean',
-            'debito_automatico' => 'boolean',
+
             // Recurrence fields
             'is_recurring' => 'boolean',
             'recurrence_day' => 'nullable|integer|min:1|max:30',

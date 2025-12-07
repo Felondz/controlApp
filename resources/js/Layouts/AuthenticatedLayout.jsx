@@ -66,6 +66,18 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                     className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
                 >
                     <div className="flex-1 flex items-center gap-4">
+                        {/* Sidebar Toggle */}
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="focus:outline-none transition-all duration-200 mr-2"
+                            title={isSidebarOpen ? 'Colapsar menú' : 'Expandir menú'}
+                        >
+                            {isSidebarOpen ? (
+                                <MenuFoldIcon className={`h-6 w-6 ${iconClasses}`} />
+                            ) : (
+                                <MenuUnfoldIcon className={`h-6 w-6 ${iconClasses}`} />
+                            )}
+                        </button>
                         <button
                             onClick={() => window.history.back()}
                             className="focus:outline-none transition-all duration-200"

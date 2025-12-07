@@ -33,6 +33,11 @@ class Task extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps()->withPivot('assigned_at');
+    }
+
     public function category()
     {
         return $this->belongsTo(Categoria::class, 'category_id');
