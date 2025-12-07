@@ -151,14 +151,37 @@ export default function AccountFlowWidget({
     );
 
     const getSliceColor = (entry, index, type) => {
+        // Use owner colors for collaborative projects when owner is set
         if (isCollaborative && entry.account?.propietario_id) {
             return getOwnerColor(entry.account.propietario_id).chartColor;
         }
-        if (type === 'income') {
-            const colors = ['#10B981', '#059669', '#047857', '#065F46', '#064E3B'];
-            return colors[index % colors.length];
-        }
-        const colors = ['#EF4444', '#DC2626', '#B91C1C', '#991B1B', '#7F1D1D'];
+
+        // Use distinct color palettes per account index for clear differentiation
+        // Income: Vibrant greens/teals
+        const incomeColors = [
+            '#10B981', // emerald-500
+            '#14B8A6', // teal-500
+            '#22C55E', // green-500
+            '#06B6D4', // cyan-500
+            '#0D9488', // teal-600
+            '#059669', // emerald-600
+            '#16A34A', // green-600
+            '#0891B2', // cyan-600
+        ];
+
+        // Expense: Vibrant reds/oranges/pinks
+        const expenseColors = [
+            '#EF4444', // red-500
+            '#F97316', // orange-500
+            '#EC4899', // pink-500
+            '#F43F5E', // rose-500
+            '#DC2626', // red-600
+            '#EA580C', // orange-600
+            '#DB2777', // pink-600
+            '#E11D48', // rose-600
+        ];
+
+        const colors = type === 'income' ? incomeColors : expenseColors;
         return colors[index % colors.length];
     };
 

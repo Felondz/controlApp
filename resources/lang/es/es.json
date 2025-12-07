@@ -33,7 +33,8 @@
         "empty": "No hay mensajes aún. ¡Inicia la conversación!",
         "online": "En línea",
         "offline": "Desconectado",
-        "back": "Chats"
+        "back": "Chats",
+        "unread_count": ":count mensajes nuevos"
     },
     "landing": {
         "hero_title": "Toma el Control de Tus Proyectos",
@@ -196,7 +197,10 @@
         "activate": "Activar",
         "menu": "Menú",
         "free": "Gratis",
-        "contact_support": "Contactar Soporte"
+        "contact_support": "Contactar Soporte",
+        "view_all": "Ver todos",
+        "view_details": "Ver detalles",
+        "go_to_chat": "Ir al chat"
     },
     "calculator": {
         "title": "Calculadora Financiera",
@@ -661,7 +665,8 @@
             "admin": "Administrador",
             "member": "Miembro",
             "viewer": "Observador"
-        }
+        },
+        "total_count": ":count miembros"
     },
     "projects": {
         "title": "Proyectos",

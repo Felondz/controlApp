@@ -33,7 +33,8 @@
         "empty": "No messages yet. Start the conversation!",
         "online": "Online",
         "offline": "Offline",
-        "back": "Chats"
+        "back": "Chats",
+        "unread_count": ":count new messages"
     },
     "settings": {
         "theme": {
@@ -240,7 +241,10 @@
         "accept": "Accept",
         "reject": "Reject",
         "light": "Light",
-        "dark": "Dark"
+        "dark": "Dark",
+        "view_all": "View all",
+        "view_details": "View details",
+        "go_to_chat": "Go to chat"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -658,7 +662,8 @@
             "admin": "Administrator",
             "member": "Member",
             "viewer": "Viewer"
-        }
+        },
+        "total_count": ":count members"
     },
     "projects": {
         "title": "Projects",
