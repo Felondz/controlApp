@@ -12,16 +12,11 @@ import AccountDetailsModal from '@/Components/Finance/Modals/AccountDetailsModal
 import BillModal from '@/Components/Finance/Modals/BillModal';
 import PaymentConfirmationModal from '@/Components/Finance/Modals/PaymentConfirmationModal';
 import AccountChart from '@/Components/Finance/AccountChart';
-import DashboardSettingsModal from '@/Components/Finance/Modals/DashboardSettingsModal';
+import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
 import DeleteAccountModal from '@/Components/Finance/Modals/DeleteAccountModal';
-import BalanceSummaryWidget from '@/Components/Finance/Widgets/BalanceSummaryWidget';
-import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
-import SavingsGoalWidget from '@/Components/Finance/Widgets/SavingsGoalWidget';
-import CreditSimulationWidget from '@/Components/Finance/Widgets/CreditSimulationWidget';
-import UpcomingObligationsWidget from '@/Components/Finance/Widgets/UpcomingObligationsWidget';
-import BillsWidget from '@/Components/Finance/Widgets/BillsWidget';
-import FinancialChartsWidget from '@/Components/Finance/Widgets/FinancialChartsWidget';
-import AccountFlowWidget from '@/Components/Finance/Widgets/AccountFlowWidget';
+import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+import { FINANCE_DEFAULT_LAYOUT } from '@/Utils/widgetRegistry';
+
 import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6ToothIcon, BoltIcon } from '@/Components/Icons';
 
 // ... (existing imports)
@@ -404,100 +399,35 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         )}
                     </div>
 
-                    {/* Widgets Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
-                        {widgets.balance_summary && (
-                            <BalanceSummaryWidget
-                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                                currency={proyecto.moneda_default}
-                            />
-                        )}
-                        {widgets.savings_goal && (
-                            <SavingsGoalWidget currency={proyecto.moneda_default} />
-                        )}
-                        {widgets.credit_simulation && (
-                            <CreditSimulationWidget currency={proyecto.moneda_default} />
-                        )}
-                        {widgets.upcoming_obligations && (
-                            <UpcomingObligationsWidget
-                                events={transacciones.map(t => ({
-                                    id: t.id,
-                                    title: t.descripcion || t.categoria?.nombre,
-                                    date: t.fecha,
-                                    amount: t.monto,
-                                    type: t.categoria?.tipo,
-                                    status: 'pending',
-                                    accountName: t.cuenta?.nombre
-                                }))}
-                                financialTasks={financialTasks}
-                                bills={pendingBills}
-                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                                currency={proyecto.moneda_default}
-                                onMarkAsPaid={isAdmin ? handleMarkAsPaid : null}
-                                onPayBill={isAdmin ? handlePayBill : null}
-                                proyectoId={proyecto.id}
-                                onAddBill={handleCreateBill}
-                            />
-                        )}
-                    </div>
-
-
-                    {/* Charts Section - Cash Flow */}
-                    {widgets.financial_charts && (
-                        <div className="mb-8">
-                            <FinancialChartsWidget
-                                transactions={transacciones}
-                                currency={proyecto.moneda_default}
-                            />
-                        </div>
-                    )}
-
-                    {/* Account Flow Widget - Income/Expense by Account */}
-                    {widgets.account_flow && (
-                        <div className="mb-8">
-                            <AccountFlowWidget
-                                transactions={transacciones}
-                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                                isCollaborative={!proyecto.es_personal}
-                                currency={proyecto.moneda_default}
-                            />
-                        </div>
-                    )}
-
-                    {/* Transactions Widget */}
-                    {isAdmin && transacciones.length > 0 && (
-                        <div className="mb-8">
-                            <TransactionsWidget
-                                transactions={transacciones}
-                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                                categories={proyecto.categorias || []}
-                                currency={proyecto.moneda_default}
-                                onEdit={handleEditTransaction}
-                                onDelete={handleDeleteTransaction}
-                                currentUserId={auth.user.id}
-                                projectId={proyecto.id}
-                                isCollaborative={!proyecto.es_personal}
-                            />
-                        </div>
-                    )}
-
-                    {/* Bills Widget */}
-                    {isAdmin && (
-                        <div className="mb-8">
-                            <BillsWidget
-                                bills={pendingBills}
-                                accounts={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                                categories={proyecto.categorias || []}
-                                currency={proyecto.moneda_default}
-                                onAdd={handleCreateBill}
-                                onEdit={handleEditBill}
-                                onDelete={handleDeleteTransaction}
-                                onPay={handlePayBill}
-                                currentUserId={auth.user.id}
-                                projectId={proyecto.id}
-                            />
-                        </div>
-                    )}
+                    {/* Draggable Widgets Grid */}
+                    <DraggableWidgetGrid
+                        project={proyecto}
+                        isAdmin={isAdmin}
+                        dashboardData={{
+                            accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
+                            transactions: transacciones,
+                            pendingBills: pendingBills,
+                            financialTasks: financialTasks,
+                            categories: proyecto.categorias || [],
+                            currency: proyecto.moneda_default,
+                            // Handlers
+                            onEdit: handleEditTransaction,
+                            onDelete: handleDeleteTransaction,
+                            onPay: handlePayBill,
+                            onMarkAsPaid: isAdmin ? handleMarkAsPaid : null,
+                            onPayBill: isAdmin ? handlePayBill : null,
+                            onAddBill: handleCreateBill,
+                            onAdd: handleCreateBill, // For BillsWidget
+                            projectId: proyecto.id,
+                            projects: [],
+                            isCollaborative: !proyecto.es_personal,
+                            currentUserId: auth.user.id
+                        }}
+                        onSettingsClick={() => setShowSettingsModal(true)}
+                        settingsKey="finance_dashboard"
+                        defaultLayout={FINANCE_DEFAULT_LAYOUT}
+                        allowedModules={['finance']}
+                    />
 
 
                     {/* Accounts Section with Charts */}
@@ -663,10 +593,14 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         categorias={proyecto.categorias || []}
                     />
 
-                    <DashboardSettingsModal
+                    <WidgetSettingsModal
                         show={showSettingsModal}
                         onClose={() => setShowSettingsModal(false)}
                         project={proyecto}
+                        isAdmin={isAdmin}
+                        onSave={handleSettingsSave}
+                        allowedModules={['finance']}
+                        settingsKey="finance_dashboard"
                     />
 
                     <DeleteAccountModal

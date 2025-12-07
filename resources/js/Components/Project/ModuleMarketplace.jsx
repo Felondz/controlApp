@@ -132,12 +132,10 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
 
                                 <div className="flex-1">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                                        {['chat', 'marketplace'].includes(module.id)
-                                            ? t(`modules.${module.id}.title`, module.name)
-                                            : t(`modules.${module.id}`, module.name)}
+                                        {t(`modules.${module.id}_label`, t(`modules.${module.id}.title`, module.name))}
                                     </h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                                        {t(`modules.${module.id}_desc`, module.description)}
+                                        {t(`modules.${module.id}_desc`, t(`modules.${module.id}.description`, module.description))}
                                     </p>
                                 </div>
 

@@ -12,28 +12,69 @@
 
 export const WIDGET_DEFINITIONS = {
     // Finance Module Widgets (Admin Only)
-    finance_balance: {
-        id: 'finance_balance',
+    // Finance Module Widgets (Admin Only)
+    finance_balance_summary: {
+        id: 'finance_balance_summary',
         module: 'finance',
         requiresAdmin: true,
-        titleKey: 'widgets.finance_balance',
+        titleKey: 'finance.balance_summary',
         icon: 'CurrencyDollarIcon',
         defaultSize: 'small',
     },
-    finance_upcoming: {
-        id: 'finance_upcoming',
+    finance_savings_goal: {
+        id: 'finance_savings_goal',
         module: 'finance',
         requiresAdmin: true,
-        titleKey: 'widgets.finance_upcoming',
+        titleKey: 'finance.savings_goal',
+        icon: 'BanknotesIcon',
+        defaultSize: 'small',
+    },
+    finance_credit_simulation: {
+        id: 'finance_credit_simulation',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.credit_simulation',
+        icon: 'CalculatorIcon',
+        defaultSize: 'small',
+    },
+    finance_upcoming_obligations: {
+        id: 'finance_upcoming_obligations',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.upcoming_obligations',
         icon: 'CalendarIcon',
+        defaultSize: 'medium',
+    },
+    finance_charts: {
+        id: 'finance_charts',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.cash_flow',
+        icon: 'ChartBarIcon',
+        defaultSize: 'large',
+    },
+    finance_account_flow: {
+        id: 'finance_account_flow',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.account_flow',
+        icon: 'ChartPieIcon',
         defaultSize: 'medium',
     },
     finance_transactions: {
         id: 'finance_transactions',
         module: 'finance',
         requiresAdmin: true,
-        titleKey: 'widgets.finance_transactions',
+        titleKey: 'finance.recent_transactions',
         icon: 'ArrowsRightLeftIcon',
+        defaultSize: 'medium',
+    },
+    finance_bills: {
+        id: 'finance_bills',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.bills',
+        icon: 'DocumentTextIcon',
         defaultSize: 'medium',
     },
 
@@ -43,16 +84,16 @@ export const WIDGET_DEFINITIONS = {
         module: 'tasks',
         requiresAdmin: false,
         titleKey: 'widgets.tasks_summary',
-        icon: 'CheckListIcon',
-        defaultSize: 'small',
+        icon: 'ClipboardDocumentCheckIcon',
+        defaultSize: { w: 1, h: 1 },
     },
-    tasks_overdue: {
-        id: 'tasks_overdue',
+    tasks_users_load: {
+        id: 'tasks_users_load',
         module: 'tasks',
-        requiresAdmin: false,
-        titleKey: 'widgets.tasks_overdue',
-        icon: 'ExclamationTriangleIcon',
-        defaultSize: 'small',
+        requiresAdmin: false, // Maybe true if sensitivity matters? User request didn't specify. Assuming false so members see workload.
+        titleKey: 'widgets.tasks_users_load',
+        icon: 'UserGroupIcon',
+        defaultSize: { w: 1, h: 2 }, // Taller for list
     },
 
     // Chat Module Widgets
@@ -90,15 +131,44 @@ export const WIDGET_DEFINITIONS = {
 /**
  * Default widget layout order
  */
-export const DEFAULT_LAYOUT = [
+/**
+ * Default Layouts
+ */
+
+// Overview Dashboard Default Layout
+export const DEFAULT_OVERVIEW_LAYOUT = [
     'project_info',
-    'finance_balance',
+    'finance_balance_summary',
+    'finance_upcoming_obligations',
+    'finance_bills',
     'tasks_summary',
     'members_summary',
-    'finance_upcoming',
     'chat_recent',
-    'analytics_overview',
 ];
+
+// Widgets hidden by default on Overview
+export const OVERVIEW_HIDDEN_DEFAULTS = [
+    'finance_charts',
+    'finance_account_flow',
+    'finance_transactions',
+    'finance_savings_goal',
+    'finance_credit_simulation',
+];
+
+// Finance Dashboard Default Layout (All finance widgets active)
+export const FINANCE_DEFAULT_LAYOUT = [
+    'finance_balance_summary',
+    'finance_savings_goal',
+    'finance_credit_simulation',
+    'finance_upcoming_obligations',
+    'finance_bills',
+    'finance_charts',
+    'finance_account_flow',
+    'finance_transactions',
+];
+
+// Backward compatibility alias
+export const DEFAULT_LAYOUT = DEFAULT_OVERVIEW_LAYOUT;
 
 /**
  * Get widgets available for a project based on modules and user role

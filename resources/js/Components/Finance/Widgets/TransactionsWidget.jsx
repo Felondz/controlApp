@@ -14,6 +14,8 @@ import {
 } from '@/Components/Icons';
 import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
 
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
 export default function TransactionsWidget({
     transactions = [],
     accounts = [],
@@ -24,7 +26,12 @@ export default function TransactionsWidget({
     currentUserId,
     projectId = null,
     projects = [],
-    isCollaborative = false
+    isCollaborative = false,
+    // Widget props
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
 }) {
     const { t } = useTranslate();
     const [selectedAccount, setSelectedAccount] = useState('all');
@@ -81,28 +88,25 @@ export default function TransactionsWidget({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {t('finance.recent_transactions', 'Transacciones Recientes')}
-                    </h3>
-                </div>
-                <div className="flex items-center gap-2">
-
-                    <button
-                        onClick={() => setShowFilters(!showFilters)}
-                        className={`p-2 rounded-lg transition-colors ${showFilters
-                            ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400'
-                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                            } `}
-                        title={t('finance.filter', 'Filtrar')}
-                    >
-                        <FunnelIcon className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
+        <WidgetCard
+            widget={widget}
+            title={t('finance.recent_transactions', 'Transacciones Recientes')}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+            action={
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`p-1 rounded-lg transition-colors ${showFilters
+                        ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400'
+                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                        } `}
+                    title={t('finance.filter', 'Filtrar')}
+                >
+                    <FunnelIcon className="w-5 h-5" />
+                </button>
+            }
+        >
 
             {/* Filters */}
             {showFilters && (
@@ -274,6 +278,6 @@ export default function TransactionsWidget({
                     // Trigger refresh if needed, usually handled by parent or Inertia
                 }}
             />
-        </div>
+        </WidgetCard>
     );
 }

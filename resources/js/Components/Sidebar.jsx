@@ -218,27 +218,14 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
         >
             {/* Header: Toggle Button + Logo */}
             <div className="flex items-center h-12 shrink-0 border-b border-gray-100 dark:border-gray-700 px-2">
-                {/* Toggle Button */}
-                {onToggle && (
-                    <button
-                        onClick={onToggle}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none"
-                        title={collapsed ? 'Expandir' : 'Colapsar'}
-                    >
-                        {collapsed ? (
-                            <MenuUnfoldIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                        ) : (
-                            <MenuFoldIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                        )}
-                    </button>
-                )}
+                {/* Toggle Button Removed from here */}
 
-                {/* Logo - Only show if NOT collapsed and NO project */}
-                {!collapsed && !project && (
-                    <Link href={route('dashboard')} className="ml-2">
-                        <ApplicationLogo className="h-7 w-auto" />
+                {/* App Logo - Adaptive */}
+                <div className={`w-full flex ${collapsed ? 'justify-center' : 'px-4'}`}>
+                    <Link href={route('dashboard')}>
+                        <ApplicationLogo className="h-8 w-auto" onlyIcon={collapsed} />
                     </Link>
-                )}
+                </div>
             </div>
 
             {/* Spacer if Project Mode and NOT collapsed (to replace Logo space) */}

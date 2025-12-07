@@ -24,6 +24,18 @@
         "name": "ControlApp",
         "description": "Collaborative Project Management Platform"
     },
+    "chat": {
+        "title": "Team Chat",
+        "channels": "Channels",
+        "direct_messages": "Direct Messages",
+        "general": "General",
+        "placeholder": "Type a message...",
+        "empty": "No messages yet. Start the conversation!",
+        "online": "Online",
+        "offline": "Offline",
+        "back": "Chats",
+        "unread_count": ":count new messages"
+    },
     "settings": {
         "theme": {
             "title": "Global Theme",
@@ -201,6 +213,9 @@
         "unavailable": "Unavailable",
         "deactivate": "Deactivate",
         "activate": "Activate",
+        "menu": "Menu",
+        "free": "Free",
+        "contact_support": "Contact Support",
         "add_account": "New Account",
         "add": "Add",
         "error": "Error",
@@ -226,7 +241,10 @@
         "accept": "Accept",
         "reject": "Reject",
         "light": "Light",
-        "dark": "Dark"
+        "dark": "Dark",
+        "view_all": "View all",
+        "view_details": "View details",
+        "go_to_chat": "Go to chat"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -568,7 +586,33 @@
     },
     "tasks": {
         "pending": "Pending Tasks",
-        "due_today": "due today"
+        "due_today": "due today",
+        "board": "Task Board",
+        "create": "New Task",
+        "edit": "Edit Task",
+        "title": "Title",
+        "description": "Description",
+        "status": "Status",
+        "priority_label": "Priority",
+        "due_date": "Due Date",
+        "assignee": "Assignee",
+        "assignees": "Assignees",
+        "unassigned": "Unassigned",
+        "no_members": "No members",
+        "todo": "To Do",
+        "in_progress": "In Progress",
+        "done": "Done",
+        "all_priorities": "All",
+        "all_assignees": "All",
+        "assigned_count": ":count assigned",
+        "load": "Workload",
+        "confirm_delete": "Are you sure you want to delete this task?",
+        "update_error": "Error updating task",
+        "priority": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High"
+        }
     },
     "members": {
         "title": "Member Management",
@@ -618,7 +662,8 @@
             "admin": "Administrator",
             "member": "Member",
             "viewer": "Viewer"
-        }
+        },
+        "total_count": ":count members"
     },
     "projects": {
         "title": "Projects",
@@ -681,8 +726,24 @@
             "custom": {
                 "title": "Custom",
                 "desc": "Manually choose the modules you need."
+            },
+            "personal": {
+                "title": "Personal Finance",
+                "desc": "Control your daily expenses and personal savings."
+            },
+            "event_planning": {
+                "title": "Event Planning",
+                "desc": "Organize weddings, parties, or conferences with budgets and tasks."
+            },
+            "education": {
+                "title": "Education",
+                "desc": "Manage your studies, assignments, and university expenses."
             }
         },
+        "setup_project": "Setup Project",
+        "setup_desc": "Define the basic identity of your new workspace.",
+        "customize_appearance": "Customize Appearance",
+        "help_contact_support": "Need help? Contact support.",
         "upload_image": "Click to upload image",
         "change_image": "Change",
         "placeholders": {
@@ -696,7 +757,13 @@
             "blue-ocean": "Blue Ocean",
             "amber-warm": "Amber Warm",
             "rose-romantic": "Rose Romantic",
-            "cyan-tech": "Cyan Tech"
+            "cyan-tech": "Cyan Tech",
+            "modern": "Modern",
+            "nature": "Nature",
+            "ocean": "Ocean",
+            "warm": "Warm",
+            "romantic": "Romantic",
+            "tech": "Tech"
         },
         "typographies": {
             "sans": "Sans Serif (Default)",
@@ -721,6 +788,8 @@
         "chat_title": "Chat",
         "chat_activity": "Activity",
         "chat_desc": "Real-time communication for project members.",
+        "analytics_label": "Analytics",
+        "analytics_desc": "Visualize project metrics and performance.",
         "marketplace_desc": "Explore and activate modules to power up your projects.",
         "requires": "Requires",
         "chat": {

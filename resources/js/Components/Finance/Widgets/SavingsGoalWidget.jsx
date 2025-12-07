@@ -6,7 +6,15 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function SavingsGoalWidget({ currency = 'COP' }) {
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
+export default function SavingsGoalWidget({
+    currency = 'COP',
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
+}) {
     const { t } = useTranslate();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -30,19 +38,21 @@ export default function SavingsGoalWidget({ currency = 'COP' }) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm relative">
-            <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <ChartBarIcon className="w-5 h-5 text-primary-600" />
-                    {t('finance.savings_goal', 'Meta de Ahorro')}
-                </h3>
+        <WidgetCard
+            widget={widget}
+            title={t('finance.savings_goal', 'Meta de Ahorro')}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+            action={
                 <button
                     onClick={() => setIsEditing(!isEditing)}
                     className="p-1 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                 >
                     {isEditing ? <CheckIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
                 </button>
-            </div>
+            }
+        >
 
             {isEditing ? (
                 <div className="space-y-3">
@@ -127,11 +137,11 @@ export default function SavingsGoalWidget({ currency = 'COP' }) {
             )}
 
             {/* Currency badge - bottom left */}
-            <div className="absolute bottom-4 left-4">
-                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+            <div className="absolute bottom-4 left-4 opacity-50 text-[10px]">
+                <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium">
                     {currency}
                 </span>
             </div>
-        </div>
+        </WidgetCard>
     );
 }

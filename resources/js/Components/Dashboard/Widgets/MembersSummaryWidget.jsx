@@ -1,7 +1,7 @@
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Link } from '@inertiajs/react';
 import WidgetCard from '@/Components/Dashboard/WidgetCard';
-import { UsersIcon } from '@/Components/Icons';
+import { UsersIcon, UserCircleIcon } from '@/Components/Icons';
 
 export default function MembersSummaryWidget({ project, widget, onHide, isDragging, dragHandleProps }) {
     const { t } = useTranslate();
@@ -30,13 +30,23 @@ export default function MembersSummaryWidget({ project, widget, onHide, isDraggi
             <div className="flex items-center justify-between">
                 <div className="flex -space-x-2 overflow-hidden">
                     {displayMembers.map((member) => (
-                        <img
-                            key={member.id}
-                            className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800"
-                            src={member.profile_photo_url}
-                            alt={member.name}
-                            title={member.name}
-                        />
+                        member.profile_photo_url ? (
+                            <img
+                                key={member.id}
+                                className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 object-cover"
+                                src={member.profile_photo_url}
+                                alt={member.name}
+                                title={member.name}
+                            />
+                        ) : (
+                            <div
+                                key={member.id}
+                                className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gray-100 dark:bg-gray-700"
+                                title={member.name}
+                            >
+                                <UserCircleIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                            </div>
+                        )
                     ))}
                     {remainingCount > 0 && (
                         <div className="flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-800 bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300">

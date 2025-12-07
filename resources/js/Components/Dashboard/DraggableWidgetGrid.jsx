@@ -6,19 +6,40 @@ import { getAvailableWidgets, getOrderedWidgets, WIDGET_DEFINITIONS } from '@/Ut
 import WidgetCard from './WidgetCard';
 
 // Widget component imports
-import FinanceSummaryWidget from './Widgets/FinanceSummaryWidget';
+// Widget component imports
+// Keeping for backward compatibility if needed, or remove? Better remove if unused.
+import BalanceSummaryWidget from '../Finance/Widgets/BalanceSummaryWidget';
+import SavingsGoalWidget from '../Finance/Widgets/SavingsGoalWidget';
+import CreditSimulationWidget from '../Finance/Widgets/CreditSimulationWidget';
+import UpcomingObligationsWidget from '../Finance/Widgets/UpcomingObligationsWidget';
+import FinancialChartsWidget from '../Finance/Widgets/FinancialChartsWidget';
+import AccountFlowWidget from '../Finance/Widgets/AccountFlowWidget';
+import TransactionsWidget from '../Finance/Widgets/TransactionsWidget';
+import BillsWidget from '../Finance/Widgets/BillsWidget';
+
 import TasksSummaryWidget from './Widgets/TasksSummaryWidget';
+import UserTasksWidget from './Widgets/UserTasksWidget';
 import ChatRecentWidget from './Widgets/ChatRecentWidget';
 import MembersSummaryWidget from './Widgets/MembersSummaryWidget';
 import ProjectInfoWidget from './Widgets/ProjectInfoWidget';
 
 // Map widget IDs to their components
+// Map widget IDs to their components
 const WIDGET_COMPONENTS = {
-    finance_balance: FinanceSummaryWidget,
-    finance_upcoming: FinanceSummaryWidget, // Will differentiate via props
-    finance_transactions: FinanceSummaryWidget,
+    // Finance
+    finance_balance_summary: BalanceSummaryWidget,
+    finance_savings_goal: SavingsGoalWidget,
+    finance_credit_simulation: CreditSimulationWidget,
+    finance_upcoming_obligations: UpcomingObligationsWidget,
+    finance_charts: FinancialChartsWidget,
+    finance_account_flow: AccountFlowWidget,
+    finance_transactions: TransactionsWidget,
+    finance_bills: BillsWidget,
+
+    // Other Modules
     tasks_summary: TasksSummaryWidget,
-    tasks_overdue: TasksSummaryWidget,
+    tasks_users_load: UserTasksWidget,
+
     chat_recent: ChatRecentWidget,
     members_summary: MembersSummaryWidget,
     project_info: ProjectInfoWidget,
@@ -35,36 +56,55 @@ const WIDGET_COMPONENTS = {
  */
 export default function DraggableWidgetGrid({
     project,
+    dashboardData = {}, // New prop for finance data
     isAdmin = false,
     onSettingsClick,
+    settingsKey = 'dashboard', // Default settings key in project.settings JSON
+    defaultLayout = null, // Optional default layout override
+    defaultHidden = [], // Optional default hidden widgets
+    allowedModules = null // Optional array of module IDs to filter visible widgets
 }) {
     const { t } = useTranslate();
     const modules = project?.modules || [];
     const isPersonal = project?.es_personal || false;
-    const savedSettings = project?.settings?.dashboard || {};
+    const savedSettings = project?.settings?.[settingsKey] || {};
 
     // Get available widgets based on permissions
-    const availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+    let availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+
+    // Further filter available widgets by allowedModules if provided
+    if (allowedModules) {
+        availableWidgets = availableWidgets.filter(widget =>
+            allowedModules.includes(WIDGET_DEFINITIONS[widget.id]?.module)
+        );
+    }
 
     // Get ordered widgets based on saved layout
     const [widgets, setWidgets] = useState(() =>
         getOrderedWidgets(
-            savedSettings.layout || [],
-            savedSettings.hidden || [],
+            savedSettings.layout || defaultLayout || [],
+            savedSettings.hidden || defaultHidden || [],
             availableWidgets
         )
     );
 
     // Update widgets when permissions change
     useEffect(() => {
+        let currentAvailableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+        if (allowedModules) {
+            currentAvailableWidgets = currentAvailableWidgets.filter(widget =>
+                allowedModules.includes(WIDGET_DEFINITIONS[widget.id]?.module)
+            );
+        }
+
         setWidgets(
             getOrderedWidgets(
-                savedSettings.layout || [],
-                savedSettings.hidden || [],
-                availableWidgets
+                savedSettings.layout || defaultLayout || [],
+                savedSettings.hidden || defaultHidden || [],
+                currentAvailableWidgets
             )
         );
-    }, [isAdmin, modules.join(','), isPersonal]);
+    }, [isAdmin, modules.join(','), isPersonal, defaultLayout, defaultHidden, allowedModules?.join(',')]);
 
     // Handle drag end
     const handleDragEnd = useCallback((result) => {
@@ -95,7 +135,7 @@ export default function DraggableWidgetGrid({
     const saveLayout = useCallback((layout, hidden) => {
         const newSettings = {
             ...project?.settings,
-            dashboard: {
+            [settingsKey]: {
                 ...savedSettings,
                 layout,
                 hidden,
@@ -135,22 +175,32 @@ export default function DraggableWidgetGrid({
             );
         }
 
-        switch (widget.id) {
-            case 'finance_balance':
-                return <WidgetComponent {...commonProps} variant="balance" />;
-            case 'finance_upcoming':
-                return <WidgetComponent {...commonProps} variant="upcoming" />;
-            case 'finance_transactions':
-                return <WidgetComponent {...commonProps} variant="transactions" />;
-            case 'tasks_summary':
-                return <WidgetComponent {...commonProps} variant="summary" />;
-            case 'tasks_overdue':
-                return <WidgetComponent {...commonProps} variant="overdue" />;
-            case 'analytics_overview':
-                return <WidgetComponent {...commonProps} />;
-            default:
-                return <WidgetComponent {...commonProps} />;
+        // Pass dashboardData to all widgets
+        const widgetProps = {
+            ...commonProps,
+            ...dashboardData,
+            // Map specific props if needed, or rely on widgets picking what they need from dashboardData
+            // Common props expected by finance widgets:
+            accounts: dashboardData.accounts || [],
+            transactions: dashboardData.transactions || [],
+            pendingBills: dashboardData.pendingBills || [],
+            bills: dashboardData.pendingBills || [], // Map for widgets expecting 'bills'
+            financialTasks: dashboardData.financialTasks || [],
+            categories: dashboardData.categories || [],
+            currency: project?.moneda_default || 'COP',
+            // Handlers
+            onEdit: dashboardData.onEdit,
+            onDelete: dashboardData.onDelete,
+            onAdd: dashboardData.onAdd,
+            onPay: dashboardData.onPay,
+            onLinks: dashboardData.onLinks, // e.g., onMarkAsPaid
+        };
+
+        if (WIDGET_COMPONENTS[widget.id]) {
+            return <WidgetComponent {...widgetProps} />;
         }
+
+        return <WidgetComponent {...commonProps} />;
     };
 
     // Empty state

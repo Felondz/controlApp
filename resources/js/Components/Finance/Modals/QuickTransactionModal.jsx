@@ -240,39 +240,82 @@ export default function QuickTransactionModal({
             return;
         }
 
+        if (activeTab === 'expense' && !data.custom_category) {
+            alert(t('finance.error_select_category', 'Por favor selecciona una categoría.'));
+            return;
+        }
+
         if ((activeTab === 'bill' || data.custom_category === 'other') && !data.descripcion) {
+            // Description is only mandatory for Bills (need concept) or 'Other' category (need detail)
             alert(t('finance.error_description', 'Por favor ingresa una descripción.'));
+            return;
+        }
+
+        if (!finalCategoryId) {
+            alert(t('finance.error_category', 'No se ha podido asignar una categoría. Verifica la configuración de categorías del proyecto.'));
             return;
         }
         // ---------------------------
 
-        const submitData = {
+        const submitOptions = {
+            onSuccess: () => {
+                reset();
+                onSuccess?.();
+                onClose();
+            },
+            onError: (errors) => {
+                console.error('Transaction submission errors:', errors);
+                // Alert first error if any
+                if (Object.keys(errors).length > 0) {
+                    alert(Object.values(errors)[0]);
+                }
+            }
+        };
+
+        const transformData = (data) => ({
             ...data,
             categoria_id: finalCategoryId,
             cuenta_id: (activeTab === 'bill' || !data.cuenta_id) ? null : data.cuenta_id,
             monto: finalAmount * 100, // Convert to cents
             status: activeTab === 'bill' ? 'pending' : 'completed' // Bills are pending, others completed
+        });
+
+        // Set the transformed data manually because Inertia useForm transform() runs on every request
+        // but here we depend on calcuations. Actually, better to use setData just before submit?
+        // Or just pass the data object to post/put?
+        // Wait, Inertia useForm post() uses the CURRENT form data.
+        // We can use transform() hook, but here we calculate finalCategoryId inside submit.
+
+        // We will create a clean payload and use router.visit IF we want to bypass useForm's data
+        // BUT we want useForm error handling.
+        // The issue is: post(url, options) sends `data` state. We want to send modified data.
+        // useForm's transform((data) => ...) sets a transformer for the form.
+
+        // Let's use the transform() helper immediately before submit
+        // Note: transform() returns undefined, it sets the transformer.
+        // But we need to use 'data' from closure, not the fresh data arg if we want to capture calculated vars.
+
+        setData('categoria_id', finalCategoryId);
+        // We can't await setData because it might be async in React batching but useForm updates are usually immediate proxy updates?
+        // No, setData is async-like.
+
+        // Standard way:
+        const payload = {
+            ...data,
+            categoria_id: finalCategoryId,
+            cuenta_id: (activeTab === 'bill' || !data.cuenta_id) ? null : data.cuenta_id,
+            monto: finalAmount * 100,
+            status: activeTab === 'bill' ? 'pending' : 'completed'
         };
 
-        console.log('Submitting Transaction Data:', submitData);
-
-        // If paying a selected bill, we update that transaction
-        // If creating a new bill, we store it
-        const isUpdate = transaction || (selectedBill && activeTab !== 'bill'); // Only update if editing or paying a bill (not creating one)
+        const isUpdate = transaction || (selectedBill && activeTab !== 'bill');
         const targetId = transaction ? transaction.id : (selectedBill ? selectedBill.id : null);
+        const routeName = isUpdate ? 'finance.transactions.update' : 'finance.transactions.store';
+        const routeParams = isUpdate ? [data.proyecto_id, targetId] : [data.proyecto_id];
 
-        const routeName = isUpdate
-            ? 'finance.transactions.update'
-            : 'finance.transactions.store';
-
-        const routeParams = isUpdate
-            ? [data.proyecto_id, targetId]
-            : [data.proyecto_id];
-
-        // Use router manually to ensure we send the exact calculated data
         router.visit(route(routeName, routeParams), {
             method: isUpdate ? 'put' : 'post',
-            data: submitData,
+            data: payload,
             preserveScroll: true,
             onStart: () => setIsSubmitting(true),
             onFinish: () => setIsSubmitting(false),
@@ -280,6 +323,12 @@ export default function QuickTransactionModal({
                 reset();
                 onSuccess?.();
                 onClose();
+            },
+            onError: (errors) => {
+                console.error('Transaction errors:', errors);
+                if (Object.keys(errors).length > 0) {
+                    alert(t('finance.error_saving', 'Error al guardar: ') + Object.values(errors)[0]);
+                }
             }
         });
     };

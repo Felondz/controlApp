@@ -8,13 +8,20 @@ import {
     ClockIcon
 } from '@/Components/Icons';
 
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
 export default function BillsWidget({
     bills = [],
     currency = 'COP',
     onAdd,
     onEdit,
     onDelete,
-    onPay
+    onPay,
+    // Widget props
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
 }) {
     const { t } = useTranslate();
 
@@ -35,30 +42,33 @@ export default function BillsWidget({
         return { text: `${diffDays} ${t('common.days', 'días')}`, color: 'text-gray-500 dark:text-gray-400' };
     };
 
+    const titleContent = (
+        <div className="flex items-center gap-2">
+            <span>{t('finance.pending_bills', 'Facturas Pendientes')}</span>
+            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                {bills.length}
+            </span>
+        </div>
+    );
+
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <BoltIcon className="w-5 h-5 text-yellow-500" />
-                        {t('finance.pending_bills', 'Facturas Pendientes')}
-                    </h3>
-                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        {bills.length}
-                    </span>
-                </div>
-                {onAdd && (
-                    <button
-                        onClick={onAdd}
-                        className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all hover:shadow-md border-2 border-transparent hover:border-primary-500 dark:hover:border-primary-600"
-                        aria-label={t('finance.add_bill', 'Agregar Factura')}
-                    >
-                        <BoltIcon className="h-4 w-4" />
-                        <span className="text-xs font-medium hidden sm:inline">{t('finance.bill', 'Factura')}</span>
-                    </button>
-                )}
-            </div>
+        <WidgetCard
+            widget={widget}
+            title={titleContent}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+            action={onAdd && (
+                <button
+                    onClick={onAdd}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all text-xs font-medium"
+                    aria-label={t('finance.add_bill', 'Agregar Factura')}
+                >
+                    <BoltIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{t('finance.bill', 'Factura')}</span>
+                </button>
+            )}
+        >
 
             {/* Bills List */}
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
@@ -132,6 +142,6 @@ export default function BillsWidget({
                     </div>
                 )}
             </div>
-        </div>
+        </WidgetCard>
     );
 }

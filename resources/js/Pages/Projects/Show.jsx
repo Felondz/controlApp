@@ -6,7 +6,9 @@ import { Head, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Cog6ToothIcon } from '@/Components/Icons';
 import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+
 import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widgetRegistry';
 
 /**
  * Project Dashboard - Professional widget-based dashboard with drag-and-drop
@@ -17,7 +19,7 @@ import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
  * - Widget gallery for management
  * - Responsive design
  */
-export default function Show({ auth, proyecto, isAdmin }) {
+export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [] }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -94,6 +96,19 @@ export default function Show({ auth, proyecto, isAdmin }) {
                 <DraggableWidgetGrid
                     project={proyecto}
                     isAdmin={isAdmin}
+                    dashboardData={{
+                        accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
+                        transactions: transacciones,
+                        pendingBills: pendingBills,
+                        categories: proyecto.categorias || [],
+                        currency: proyecto.moneda_default,
+                        // Overview is read-only for finance mostly, but we pass data.
+                        // Handlers can be null or simple redirects if widgets support it?
+                        // For now we just pass data so they RENDER.
+                        // Actions usually require specific handlers which might not be present here.
+                    }}
+                    defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
+                    defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}
                 />
             </div>
 

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Proyecto;
 use App\Models\Cuenta;
+use App\Models\Task;
 use App\Notifications\VerificacionEmailNotification;
 
 /**
@@ -108,6 +109,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function cuentas()
     {
         return $this->morphMany(Cuenta::class, 'propietario');
+    }
+
+    /**
+     * Tasks assigned to the user.
+     */
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_user')->withPivot('assigned_at')->withTimestamps();
     }
 
     /**

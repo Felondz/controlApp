@@ -15,14 +15,21 @@ export default function WidgetSettingsModal({
     project,
     isAdmin,
     onSave,
+    allowedModules = null, // Optional array of module names to filter by
+    settingsKey = 'dashboard' // Key in project.settings JSON
 }) {
     const { t } = useTranslate();
     const modules = project?.modules || [];
     const isPersonal = project?.es_personal || false;
-    const savedSettings = project?.settings?.dashboard || {};
+    const savedSettings = project?.settings?.[settingsKey] || {};
 
     // Get all available widgets for this user
-    const availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+    const allWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+
+    // Filter by allowedModules if specified
+    const availableWidgets = allowedModules
+        ? allWidgets.filter(w => allowedModules.includes(w.module))
+        : allWidgets;
 
     // Local state for hidden widgets
     const [hidden, setHidden] = useState(savedSettings.hidden || []);
@@ -53,7 +60,7 @@ export default function WidgetSettingsModal({
     const handleSave = () => {
         const newSettings = {
             ...project?.settings,
-            dashboard: {
+            [settingsKey]: {
                 layout: DEFAULT_LAYOUT, // Reset to default order
                 hidden,
             }
@@ -74,60 +81,81 @@ export default function WidgetSettingsModal({
                 </p>
 
                 {/* Widget List */}
-                <div className="space-y-2 max-h-80 overflow-y-auto">
-                    {availableWidgets.map(widget => {
-                        const isHidden = hidden.includes(widget.id);
-                        return (
-                            <div
-                                key={widget.id}
-                                className={`
-                                    flex items-center justify-between p-3 rounded-lg border
-                                    ${isHidden
-                                        ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-60'
-                                        : 'bg-white dark:bg-gray-900 border-primary-200 dark:border-primary-800'
-                                    }
-                                    transition-all duration-200
-                                `}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <ArrowsRightLeftIcon className="w-4 h-4 text-gray-400" />
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                            {t(widget.titleKey, widget.id)}
-                                        </p>
-                                        {widget.requiresAdmin && (
-                                            <span className="text-xs text-warning-600 dark:text-warning-400">
-                                                {t('widgets.admin_only', 'Solo admins')}
-                                            </span>
-                                        )}
-                                        {widget.module && (
-                                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                                                {t(`modules.${widget.module}_label`, widget.module)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
+                {/* Widget List Grouped by Module */}
+                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                    {Object.entries(
+                        availableWidgets.reduce((acc, widget) => {
+                            const module = widget.module || 'core';
+                            if (!acc[module]) acc[module] = [];
+                            acc[module].push(widget);
+                            return acc;
+                        }, {})
+                    ).sort(([a], [b]) => {
+                        if (a === 'core') return -1;
+                        if (b === 'core') return 1;
+                        return a.localeCompare(b);
+                    }).map(([module, widgets]) => (
+                        <div key={module} className="space-y-3">
+                            {/* Section Header */}
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+                                {module === 'core'
+                                    ? t('widgets.core', 'General')
+                                    : t(`modules.${module}_label`, module)}
+                            </h3>
 
-                                <button
-                                    onClick={() => toggleWidget(widget.id)}
-                                    className={`
-                                        p-2 rounded-lg transition-colors
-                                        ${isHidden
-                                            ? 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                            : 'text-primary-600 hover:text-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20'
-                                        }
-                                    `}
-                                    title={isHidden ? t('common.show', 'Mostrar') : t('common.hide', 'Ocultar')}
-                                >
-                                    {isHidden ? (
-                                        <EyeSlashIcon className="w-5 h-5" />
-                                    ) : (
-                                        <EyeIcon className="w-5 h-5" />
-                                    )}
-                                </button>
+                            {/* Widgets in this module */}
+                            <div className="space-y-2">
+                                {widgets.map(widget => {
+                                    const isHidden = hidden.includes(widget.id);
+                                    return (
+                                        <div
+                                            key={widget.id}
+                                            className={`
+                                                flex items-center justify-between p-3 rounded-lg border
+                                                ${isHidden
+                                                    ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-60'
+                                                    : 'bg-white dark:bg-gray-900 border-primary-200 dark:border-primary-800'
+                                                }
+                                                transition-all duration-200
+                                            `}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <ArrowsRightLeftIcon className="w-4 h-4 text-gray-400" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {t(widget.titleKey, widget.id)}
+                                                    </p>
+                                                    {widget.requiresAdmin && (
+                                                        <span className="text-xs text-warning-600 dark:text-warning-400">
+                                                            {t('widgets.admin_only', 'Solo admins')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => toggleWidget(widget.id)}
+                                                className={`
+                                                    p-2 rounded-lg transition-colors
+                                                    ${isHidden
+                                                        ? 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                        : 'text-primary-600 hover:text-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+                                                    }
+                                                `}
+                                                title={isHidden ? t('common.show', 'Mostrar') : t('common.hide', 'Ocultar')}
+                                            >
+                                                {isHidden ? (
+                                                    <EyeSlashIcon className="w-5 h-5" />
+                                                ) : (
+                                                    <EyeIcon className="w-5 h-5" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
                 </div>
 
                 {/* Actions */}

@@ -51,8 +51,12 @@ class ProyectoUiWebController extends Controller
 
     public function create()
     {
+        $availableModules = \App\Models\Module::where('is_active', true)->get();
+
         // Renderiza el componente de React en resources/js/Pages/Projects/CreateProject.jsx
-        return Inertia::render('Projects/CreateProject');
+        return Inertia::render('Projects/CreateProject', [
+            'availableModules' => $availableModules
+        ]);
     }
 
     public function show(Request $request, Proyecto $mis_proyecto)
@@ -68,9 +72,29 @@ class ProyectoUiWebController extends Controller
         // 3. Eager Loading condicional
         $relations = ['categorias']; // Categorías pueden ser visibles (o no, según requerimiento, pero finanzas es lo crítico)
 
+        // 4. Cargar datos específicos para widgets del Dashboard (si es admin)
+        $transacciones = [];
+        $pendingBills = [];
+
         if ($isAdmin) {
-            $relations[] = 'cuentas';
-            // $relations[] = 'transacciones'; // Si se cargaran aquí
+            $relations[] = 'cuentas.propietario';
+            $relations[] = 'cuentasAsociadas.propietario';
+
+            // Cargar últimos movimientos para el widget de transacciones y gráficos
+            $transacciones = $mis_proyecto->transacciones()
+                ->where('status', 'completed')
+                ->with(['categoria', 'cuenta.propietario', 'usuario'])
+                ->orderBy('fecha', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->limit(20) // Limit to 20 for Overview to be lighter than Finance dashboard
+                ->get();
+
+            // Cargar facturas pendientes
+            $pendingBills = $mis_proyecto->transacciones()
+                ->where('status', 'pending')
+                ->with(['categoria', 'cuenta'])
+                ->orderBy('fecha', 'asc')
+                ->get();
         }
 
         if ($mis_proyecto->hasMessagingFeature()) {
@@ -89,6 +113,8 @@ class ProyectoUiWebController extends Controller
         return Inertia::render('Projects/Show', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
+            'transacciones' => $transacciones, // Passed for widgets
+            'pendingBills' => $pendingBills,   // Passed for widgets
         ]);
     }
 

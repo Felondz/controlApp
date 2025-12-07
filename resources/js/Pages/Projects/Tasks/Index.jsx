@@ -33,9 +33,27 @@ export default function Index({ auth, proyecto, tasks, categories }) {
     const filteredTasks = useMemo(() => {
         return localTasks.filter(task => {
             const matchesSearch = task.title.toLowerCase().includes(filters.search.toLowerCase());
-            const matchesAssignee = filters.assignee === 'all' || task.assigned_to === parseInt(filters.assignee);
+            // Check if ANY of the task users matches the filter
+            const matchesAssignee = filters.assignee === 'all' || (task.users && task.users.some(u => u.id === parseInt(filters.assignee)));
             const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
-            return matchesSearch && matchesAssignee && matchesPriority;
+            const matchesPrioriy = filters.priority === 'all' || task.priority === filters.priority;
+
+            // Hide completed tasks if they were completed before today (using updated_at as proxy)
+            let isVisible = true;
+            if (task.status === 'done') {
+                const updatedDate = new Date(task.updated_at);
+                const today = new Date();
+                // Check if it's NOT the same day (and previous)
+                const isSameDay = updatedDate.getDate() === today.getDate() &&
+                    updatedDate.getMonth() === today.getMonth() &&
+                    updatedDate.getFullYear() === today.getFullYear();
+
+                if (!isSameDay) {
+                    isVisible = false;
+                }
+            }
+
+            return matchesSearch && matchesAssignee && matchesPrioriy && isVisible;
         });
     }, [localTasks, filters]);
 
@@ -223,62 +241,83 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
                                                                 onClick={() => handleEditTask(task)}
-                                                                className={`p-2 md:p-4 rounded-md md:rounded-lg shadow-sm border transition-all cursor-pointer group relative ${getStatusColor(task.status)} hover:shadow-md active:scale-95 touch-manipulation`}
+                                                                className={`p-2 md:p-3 rounded-md md:rounded-lg shadow-sm border transition-all cursor-pointer group relative flex flex-col xl:flex-row xl:items-center xl:gap-3 ${getStatusColor(task.status)} hover:shadow-md active:scale-95 touch-manipulation min-h-[80px] xl:min-h-[48px]`}
                                                             >
-                                                                <div className="flex justify-between items-start mb-1.5 md:mb-2">
-                                                                    <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-1 md:px-2 py-0.5 rounded ${getPriorityBadge(task.priority)}`}>
-                                                                        {t(`tasks.priority.${task.priority}`, task.priority).substring(0, 3)}
-                                                                    </span>
+                                                                {/* Absolute Delete Button */}
+                                                                <button
+                                                                    onClick={(e) => handleDeleteTask(e, task)}
+                                                                    className="absolute top-1 right-1 xl:top-1/2 xl:-translate-y-1/2 xl:right-2 text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1 z-10"
+                                                                    title={t('common.delete', 'Eliminar')}
+                                                                >
+                                                                    <TrashIcon className="w-3.5 h-3.5" />
+                                                                </button>
 
-                                                                    <button
-                                                                        onClick={(e) => handleDeleteTask(e, task)}
-                                                                        className="text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-0.5 md:p-1"
-                                                                        title={t('common.delete', 'Eliminar')}
-                                                                    >
-                                                                        <TrashIcon className="w-3 h-3 md:w-4 md:h-4" />
-                                                                    </button>
+                                                                {/* Left: Priority & Title */}
+                                                                <div className="flex flex-col xl:flex-row xl:items-center gap-1.5 xl:gap-3 flex-1 min-w-0 pr-6 xl:pr-8">
+                                                                    <div className="flex items-center justify-between xl:justify-start">
+                                                                        <span className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 ${getPriorityBadge(task.priority)}`}>
+                                                                            {t(`tasks.priority.${task.priority}`, task.priority).substring(0, 3)}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <h5 className="font-medium text-xs md:text-sm text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2 xl:line-clamp-1 leading-tight">
+                                                                        {task.title}
+                                                                    </h5>
                                                                 </div>
 
-                                                                <h5 className="font-medium text-xs md:text-base text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-3 md:line-clamp-2 leading-tight">
-                                                                    {task.title}
-                                                                </h5>
-
-                                                                {task.due_date && (
-                                                                    <div className={`text-[9px] md:text-xs flex items-center gap-1 mt-1.5 md:mt-2 ${new Date(task.due_date) < new Date() && task.status !== 'done'
-                                                                        ? 'text-red-600 dark:text-red-400 font-medium'
-                                                                        : 'text-gray-500 dark:text-gray-400'
-                                                                        }`}>
-                                                                        <ClockIcon className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                                                                        <span className="truncate">
-                                                                            {new Date(task.due_date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-
-                                                                {/* Financial Indicator */}
-                                                                {task.is_financial && (
-                                                                    <div className="flex items-center gap-1 md:gap-2 mt-1.5 md:mt-2 p-1 md:p-1.5 bg-white/50 dark:bg-black/20 rounded border border-gray-100 dark:border-gray-700">
-                                                                        <CurrencyDollarIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-green-600 dark:text-green-400" />
-                                                                        <span className="text-[9px] md:text-[10px] md:text-xs font-semibold text-green-700 dark:text-green-300 truncate">
-                                                                            {new Intl.NumberFormat('es-CO', {
-                                                                                style: 'currency',
-                                                                                currency: proyecto.moneda_default || 'COP',
-                                                                                maximumFractionDigits: 0
-                                                                            }).format(task.amount)}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-
-                                                                {task.assignee && (
-                                                                    <div className="mt-1.5 md:mt-3 flex items-center gap-1.5 md:gap-2">
-                                                                        <div className="w-3.5 h-3.5 md:w-5 md:h-5 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-[9px] md:text-[10px] font-bold">
-                                                                            {task.assignee.name.charAt(0)}
+                                                                {/* Right: Meta Info */}
+                                                                <div className="flex items-center gap-2 mt-1 xl:mt-0 xl:flex-shrink-0 pr-4 xl:pr-6">
+                                                                    {/* Due Date */}
+                                                                    {task.due_date && (
+                                                                        <div className={`text-[10px] flex items-center gap-1 ${new Date(task.due_date) < new Date() && task.status !== 'done'
+                                                                            ? 'text-red-600 dark:text-red-400 font-medium'
+                                                                            : 'text-gray-500 dark:text-gray-400'
+                                                                            }`}>
+                                                                            <ClockIcon className="w-3 h-3" />
+                                                                            <span className="truncate hidden xl:inline">
+                                                                                {new Date(task.due_date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
+                                                                            </span>
+                                                                            <span className="truncate xl:hidden">
+                                                                                {new Date(task.due_date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
+                                                                            </span>
                                                                         </div>
-                                                                        <span className="text-[9px] md:text-xs text-gray-500 dark:text-gray-400 truncate max-w-[60px] md:max-w-[100px]">
-                                                                            {task.assignee.name.split(' ')[0]}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
+                                                                    )}
+
+                                                                    {/* Financial Indicator */}
+                                                                    {task.is_financial && (
+                                                                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/50 dark:bg-black/20 rounded border border-gray-100 dark:border-gray-700">
+                                                                            <CurrencyDollarIcon className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                                                            <span className="text-[10px] font-semibold text-green-700 dark:text-green-300">
+                                                                                {new Intl.NumberFormat('es-CO', {
+                                                                                    style: 'currency',
+                                                                                    currency: proyecto.moneda_default || 'COP',
+                                                                                    maximumFractionDigits: 0,
+                                                                                    notation: "compact"
+                                                                                }).format(task.amount)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Users */}
+                                                                    {task.users && task.users.length > 0 && (
+                                                                        <div className="flex items-center -space-x-1.5 overflow-hidden">
+                                                                            {task.users.slice(0, 3).map((user) => (
+                                                                                <div key={user.id} className="inline-flex h-5 w-5 rounded-full ring-1 ring-white dark:ring-gray-800 bg-primary-100 items-center justify-center text-[8px] font-bold text-primary-700 overflow-hidden" title={user.name}>
+                                                                                    {user.profile_photo_url ? (
+                                                                                        <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                                                                                    ) : (
+                                                                                        user.name.charAt(0)
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                            {task.users.length > 3 && (
+                                                                                <div className="inline-flex h-5 w-5 rounded-full ring-1 ring-white dark:ring-gray-800 bg-gray-100 items-center justify-center text-[8px] font-bold text-gray-600">
+                                                                                    +{task.users.length - 3}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </Draggable>

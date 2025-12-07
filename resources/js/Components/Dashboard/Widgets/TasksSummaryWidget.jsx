@@ -28,7 +28,20 @@ export default function TasksSummaryWidget({ project, widget, onHide, isDragging
         }
     }, [project]);
 
-    if (loading) return <div className="animate-pulse h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>;
+    if (loading) {
+        return (
+            <WidgetCard
+                widget={widget}
+                title={t('widgets.tasks_summary', 'Resumen de Tareas')}
+                icon={ClipboardDocumentCheckIcon}
+                onHide={onHide}
+                isDragging={isDragging}
+                dragHandleProps={dragHandleProps}
+            >
+                <div className="animate-pulse h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+            </WidgetCard>
+        );
+    }
 
     const stats = [
         { label: t('tasks.pending', 'Pendientes'), value: data.pending, color: 'text-warning-500' },

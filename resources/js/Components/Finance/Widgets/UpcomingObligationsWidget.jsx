@@ -3,6 +3,8 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CalendarIcon, ClockIcon, CheckCircleIcon } from '@/Components/Icons';
 
+import WidgetCard from '@/Components/Dashboard/WidgetCard';
+
 export default function UpcomingObligationsWidget({
     events = [],
     financialTasks = [],
@@ -11,7 +13,11 @@ export default function UpcomingObligationsWidget({
     currency = 'COP',
     onMarkAsPaid,
     onPayBill,
-    proyectoId
+    // Widget props
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
 }) {
     const { t } = useTranslate();
 
@@ -150,11 +156,13 @@ export default function UpcomingObligationsWidget({
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm h-full flex flex-col">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-primary-600" />
-                {t('finance.upcoming_payments', 'Próximos Eventos')}
-            </h3>
+        <WidgetCard
+            widget={widget}
+            title={t('finance.upcoming_payments', 'Próximos Eventos')}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+        >
 
             {upcoming.length > 0 ? (
                 <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-thin max-h-[320px]">
@@ -227,11 +235,9 @@ export default function UpcomingObligationsWidget({
             )}
 
             {/* Currency badge - separate row at bottom */}
-            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <span className="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
-                    {currency}
-                </span>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-400 flex justify-between items-center">
+                <span>{currency}</span>
             </div>
-        </div>
+        </WidgetCard>
     );
 }
