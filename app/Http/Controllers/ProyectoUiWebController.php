@@ -243,7 +243,7 @@ class ProyectoUiWebController extends Controller
                 ->with(['categoria', 'cuenta.propietario', 'usuario']) // Load account owner
                 ->orderBy('fecha', 'desc')
                 ->orderBy('created_at', 'desc')
-                ->limit(100)
+                ->limit(300)
                 ->get();
         }
 
@@ -254,12 +254,107 @@ class ProyectoUiWebController extends Controller
 
         // Cargar facturas pendientes (Bills) si es admin
         $pendingBills = [];
+        $creditCardBills = [];
         if ($isAdmin) {
             $pendingBills = $mis_proyecto->transacciones()
                 ->where('status', 'pending')
                 ->with(['categoria', 'cuenta']) // No account usually, but good to have
                 ->orderBy('fecha', 'asc')
                 ->get();
+
+            // Calculate credit card bills from active CC accounts
+            $billingService = new \App\Services\CreditCardBillingService();
+            $allCCs = $mis_proyecto->cuentas
+                ->where('tipo', 'credito')
+                ->where('estado', 'activa')
+                ->merge(
+                    $mis_proyecto->cuentasAsociadas
+                        ->where('tipo', 'credito')
+                        ->where('estado', 'activa')
+                );
+
+            foreach ($allCCs as $cuenta) {
+                $billData = $billingService->getUpcomingBill($cuenta);
+                if ($billData['pago_minimo'] > 0 || $billData['pago_total'] > 0) {
+                    $creditCardBills[] = $billData;
+                }
+            }
+
+            // Calculate Projected Investment Yields (Upcoming Incomes)
+            $upcomingIncomes = [];
+            $investAccounts = $mis_proyecto->cuentas
+                ->whereIn('tipo', ['banco', 'inversion'])
+                ->where('tasa_interes_anual', '>', 0)
+                ->where('estado', 'activa')
+                ->merge(
+                    $mis_proyecto->cuentasAsociadas
+                        ->whereIn('tipo', ['banco', 'inversion'])
+                        ->where('tasa_interes_anual', '>', 0)
+                        ->where('estado', 'activa')
+                );
+
+            foreach ($investAccounts as $cuenta) {
+                if ($cuenta->saldo_actual <= 0)
+                    continue;
+
+                $tea = $cuenta->tasa_interes_anual / 100;
+                $tasaMensual = pow(1 + $tea, 1 / 12) - 1;
+                $interesProyectado = $cuenta->saldo_actual * $tasaMensual;
+
+                // Detect CDT vs Savings (CDT has future expiration)
+                $esCDT = $cuenta->fecha_vencimiento && now()->lt($cuenta->fecha_vencimiento);
+                $label = $esCDT ? 'Rendimiento CDT (' . $cuenta->nombre . ')' : 'Rendimiento Ahorros (' . $cuenta->nombre . ')';
+
+                if ($interesProyectado > 1) { // Ignore < 1 cent
+                    $upcomingIncomes[] = [
+                        'id' => 'yield-' . $cuenta->id,
+                        'title' => $label,
+                        'amount' => round($interesProyectado),
+                        'date' => now()->addMonth()->startOfMonth()->toDateString(), // Next 1st of month
+                        'type' => 'income',
+                        'source' => 'investment_yield',
+                        'account_name' => $cuenta->nombre,
+                    ];
+                }
+            }
+
+            // Calculate Upcoming Loan Installments
+            $loanInstallments = [];
+            $loanAccounts = $mis_proyecto->cuentas
+                ->where('tipo', 'prestamo')
+                ->whereIn('estado', ['activa', 'active']) // Handle potentially different enum values or english/spanish
+                ->filter(function ($cuenta) {
+                    // Ensure it's a debt (negative balance usually, or just active loan)
+                    // Some users might track loans as positive debt. Assuming negative based on accounting.
+                    // But just checking existence is safer if balance logic varies.
+                    return true;
+                });
+
+            foreach ($loanAccounts as $cuenta) {
+                if (!$cuenta->valor_cuota || $cuenta->valor_cuota <= 0)
+                    continue;
+
+                $diaPago = $cuenta->dia_pago ?? 1;
+                $nextPayment = \Carbon\Carbon::now()->day($diaPago);
+                if (\Carbon\Carbon::now()->day > $diaPago) {
+                    $nextPayment->addMonth();
+                }
+
+                $loanInstallments[] = [
+                    'id' => 'loan-' . $cuenta->id,
+                    'title' => 'Cuota ' . $cuenta->nombre,
+                    'account_name' => $cuenta->nombre,
+                    'amount' => $cuenta->valor_cuota,
+                    'date' => $nextPayment->toDateString(),
+                    'type' => 'expense',
+                    'source' => 'loan_installment',
+                    'account_id' => $cuenta->id,
+                    'propietario_id' => $cuenta->propietario_id,
+                ];
+            }
+        } else {
+            $upcomingIncomes = [];
+            $loanInstallments = [];
         }
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
@@ -270,6 +365,9 @@ class ProyectoUiWebController extends Controller
             'transacciones' => $transacciones,
             'financialTasks' => $financialTasks ?? [],
             'pendingBills' => $pendingBills,
+            'creditCardBills' => $creditCardBills,
+            'upcomingIncomes' => $upcomingIncomes,
+            'loanInstallments' => $loanInstallments,
         ]);
     }
 

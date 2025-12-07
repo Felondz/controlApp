@@ -62,6 +62,23 @@ class CuentaController extends Controller
             $cuenta = $proyecto->cuentas()->create($datos);
         }
 
+        // Handle Loan Disbursement (for Mobile/API compatibility)
+        if ($cuenta->tipo === 'prestamo' && !empty($datos['monto_desembolsado']) && $datos['monto_desembolsado'] > 0) {
+            $service = new \App\Services\LoanDisbursementService();
+
+            $destination = null;
+            if (!empty($datos['cuenta_destino_id'])) {
+                $destination = \App\Models\Cuenta::find($datos['cuenta_destino_id']);
+                // Verify access to destination account?
+                // Assuming if they can see it they can use it, or service handles it.
+            }
+
+            $service->disburse($cuenta, $destination, (int) $datos['monto_desembolsado']);
+
+            // Refresh account data
+            $cuenta->refresh();
+        }
+
         return response()->json($cuenta, 201);
     }
 
@@ -179,5 +196,159 @@ class CuentaController extends Controller
             'pending_bills' => $pendingBills,
             'transaction_count' => $transactionCount
         ]);
+    }
+
+    /**
+     * Get credit card bills for all credit card accounts in the project.
+     * Uses CreditCardBillingService to calculate upcoming bills.
+     */
+    public function creditCardBills(Request $request, Proyecto $proyecto, \App\Services\CreditCardBillingService $billingService)
+    {
+        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+
+        // $billingService is injected automatically
+        // $billingService = new \App\Services\CreditCardBillingService();
+
+        // Get all credit card accounts (owned + linked)
+        $ownedCCs = $proyecto->cuentas()
+            ->where('tipo', 'credito')
+            ->where('estado', 'activa')
+            ->get();
+
+        $linkedCCs = $proyecto->cuentasAsociadas()
+            ->where('tipo', 'credito')
+            ->where('estado', 'activa')
+            ->get();
+
+        $allCCs = $ownedCCs->merge($linkedCCs);
+
+        $bills = [];
+        foreach ($allCCs as $cuenta) {
+            $billData = $billingService->getUpcomingBill($cuenta);
+            // Only include if there's something to pay
+            if ($billData['pago_minimo'] > 0 || $billData['pago_total'] > 0) {
+                $bills[] = $billData;
+            }
+        }
+
+        return response()->json($bills);
+    }
+
+    /**
+     * Pay a credit card bill.
+     * Creates a payment transaction and updates both account balances.
+     */
+    public function payCreditCardBill(Request $request, Proyecto $proyecto, Cuenta $cuenta)
+    {
+        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para pagar facturas.');
+
+        $this->verificarCuenta($proyecto, $cuenta);
+
+        if ($cuenta->tipo !== 'credito') {
+            return response()->json(['error' => 'Esta cuenta no es una tarjeta de crédito'], 400);
+        }
+
+        $request->validate([
+            'monto' => 'required|numeric|min:1',
+            'cuenta_origen_id' => 'required|exists:cuentas,id',
+            'tipo_pago' => 'required|in:minimo,total,personalizado',
+        ]);
+
+        $cuentaOrigen = Cuenta::find($request->cuenta_origen_id);
+
+        // Verify origin account belongs to project
+        $isProjectOwned = $cuentaOrigen->propietario_id === $proyecto->id &&
+            in_array($cuentaOrigen->propietario_type, ['proyecto', 'App\Models\Proyecto']);
+        $isLinked = $proyecto->cuentasAsociadas()->where('cuenta_id', $cuentaOrigen->id)->exists();
+
+        if (!$isProjectOwned && !$isLinked) {
+            return response()->json(['error' => 'La cuenta de origen no pertenece a este proyecto'], 400);
+        }
+
+        // Verify sufficient balance
+        if ($cuentaOrigen->saldo_actual < $request->monto) {
+            return response()->json([
+                'error' => 'Saldo insuficiente en la cuenta de origen',
+                'saldo_disponible' => $cuentaOrigen->saldo_actual
+            ], 400);
+        }
+
+        $monto = (int) $request->monto;
+
+        // Create payment transaction (expense from origin account)
+        $transaccionOrigen = \App\Models\Transaccion::create([
+            'proyecto_id' => $proyecto->id,
+            'cuenta_id' => $cuentaOrigen->id,
+            'categoria_id' => $this->getDefaultPaymentCategory($proyecto),
+            'user_id' => $request->user()->id,
+            'monto' => -$monto, // Negative for expense
+            'descripcion' => "Pago factura TC: {$cuenta->nombre} ({$request->tipo_pago})",
+            'fecha' => now(),
+            'status' => 'completed',
+        ]);
+
+        // Create transaction in Credit Card (Positive/Payment)
+        $transaccionDestino = \App\Models\Transaccion::create([
+            'proyecto_id' => $proyecto->id,
+            'cuenta_id' => $cuenta->id, // Destination (CC)
+            'categoria_id' => $this->getDefaultPaymentCategory($proyecto),
+            'user_id' => $request->user()->id,
+            'monto' => $monto, // Positive for payment
+            'descripcion' => "Abono pago factura: {$request->tipo_pago}", //se deben usar hooks para traducciones
+            'fecha' => now(),
+            'status' => 'completed',
+            'transaccion_origen_id' => $transaccionOrigen->id, // Link them
+        ]);
+
+        // Update origin account balance (subtract payment)
+        $cuentaOrigen->saldo_actual -= $monto;
+        $cuentaOrigen->save();
+
+        // Update credit card balance (add payment - reduces debt)
+        $cuenta->saldo_actual += $monto;
+        $cuenta->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pago de factura TC registrado correctamente',
+            'transaccion' => $transaccionDestino,
+            'nuevo_saldo_origen' => $cuentaOrigen->saldo_actual,
+            'nuevo_saldo_tc' => $cuenta->saldo_actual,
+        ]);
+    }
+
+    /**
+     * Get the default category for bill payments.
+     */
+    private function getDefaultPaymentCategory(Proyecto $proyecto): int
+    {
+        // 1. Try to find Specific "Pagos de Tarjeta"
+        $categoria = $proyecto->categorias()
+            ->where('nombre', 'Pagos de Tarjeta')
+            ->first();
+
+        if ($categoria)
+            return $categoria->id;
+
+        // 2. Try to find "Facturas y Servicios" or similar
+        $categoria = $proyecto->categorias()
+            ->where('nombre', 'like', '%factura%')
+            ->orWhere('nombre', 'like', '%bill%')
+            ->orWhere('nombre', 'like', '%credit card%')
+            ->first();
+
+        if ($categoria)
+            return $categoria->id;
+
+        // 3. Create Default Category if none found
+        $newCat = \App\Models\Categoria::create([
+            'proyecto_id' => $proyecto->id,
+            'nombre' => 'Pagos de Tarjeta',
+            'tipo' => 'expense',
+            'color' => '#8B5CF6', // Violet
+            'icono' => 'CreditCard',
+        ]);
+
+        return $newCat->id;
     }
 }

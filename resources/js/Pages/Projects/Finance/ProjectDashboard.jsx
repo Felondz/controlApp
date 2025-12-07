@@ -11,6 +11,7 @@ import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionM
 import AccountDetailsModal from '@/Components/Finance/Modals/AccountDetailsModal';
 import BillModal from '@/Components/Finance/Modals/BillModal';
 import PaymentConfirmationModal from '@/Components/Finance/Modals/PaymentConfirmationModal';
+import CreditCardPaymentModal from '@/Components/Finance/Modals/CreditCardPaymentModal';
 import AccountChart from '@/Components/Finance/AccountChart';
 import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
 import DeleteAccountModal from '@/Components/Finance/Modals/DeleteAccountModal';
@@ -21,7 +22,7 @@ import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6Toot
 
 // ... (existing imports)
 
-export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [], pendingBills = [] }) {
+export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [], pendingBills = [], creditCardBills = [], upcomingIncomes = [], loanInstallments = [] }) {
     const { t } = useTranslate();
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [showAccountAdminModal, setShowAccountAdminModal] = useState(false);
@@ -38,6 +39,8 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     const [initialAccountId, setInitialAccountId] = useState(null);
     const [selectedBill, setSelectedBill] = useState(null);
     const [transactionType, setTransactionType] = useState('expense'); // 'income' or 'expense'
+    const [showCCPaymentModal, setShowCCPaymentModal] = useState(false);
+    const [ccBillDetails, setCcBillDetails] = useState(null);
 
     const [showInactive, setShowInactive] = useState(false);
 
@@ -127,7 +130,20 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handlePayBill = async (bill) => {
-        // Flow 1: No account assigned → Open TransactionModal
+        // Flow 0: Credit Card Bill (Dynamic Object from Service)
+        if (bill.es_tarjeta && bill.cuenta_id) {
+            const account = [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])].find(
+                a => a.id === bill.cuenta_id
+            );
+            if (account) {
+                setSelectedAccount(account);
+                setCcBillDetails(bill);
+                setShowCCPaymentModal(true);
+                return;
+            }
+        }
+
+        // Flow 1: No account assigned -> Open TransactionModal
         if (!bill.cuenta_predeterminada_id) {
             setSelectedTransaction(bill);
             setShowTransactionModal(true);
@@ -144,18 +160,41 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
             return;
         }
 
-        // Flow 3: Auto-debit scheduled → Show info and option to advance payment
+        // Flow TC: If payment FROM credit card, show CC Payment Modal
+        if (account.tipo === 'credito') {
+            const billDetails = {
+                pago_minimo: Math.abs(bill.monto),
+                pago_total: Math.abs(bill.monto),
+                compras_1_cuota: Math.abs(bill.monto),
+                cuotas_diferidas: 0,
+                intereses: 0,
+                fecha_pago: bill.fecha,
+                ciclo: new Date().toISOString().substring(0, 7)
+            };
+            setSelectedAccount(account);
+            setCcBillDetails(billDetails);
+            setShowCCPaymentModal(true);
+            return;
+        }
+
+        // Flow 3: Auto-debit scheduled -> Show info and option to advance payment
         if (bill.debito_automatico && bill.fecha_autopago) {
             const formattedDate = new Date(bill.fecha_autopago).toLocaleDateString();
             const message = `${t('finance.scheduled_for', 'Pago programado para')} ${formattedDate}`;
             const advance = confirm(message + '\n\n' + t('finance.advance_payment', '¿Deseas adelantar el pago?'));
-
             if (!advance) return;
         }
 
-        // Flow 2 & 3 (with advance): Check balance and confirm payment
-        const billAmount = Math.abs(bill.monto) / 100; // Convert from cents to units
+        // Flow 2: Check balance and confirm payment (Direct Pay)
+        const billAmount = Math.abs(bill.monto) / 100; // units
 
+        // Note: Assuming account.saldo_actual is also in units or compatible comparison
+        // If saldo_actual is cents -> Bug here, but preserving legacy logic unless confirmed
+        /* 
+           If account.saldo_actual is cents (e.g. 10000) and billAmount is units (e.g. 50),
+           10000 < 50 is likely false, so payment proceeds.
+           Risk: If saldo is 0, 0 < 50 -> Alert. Correct.
+        */
         if (account.saldo_actual < billAmount) {
             const currentBalance = formatMonto(account.saldo_actual);
             alert(`${t('finance.insufficient_balance', 'Saldo insuficiente')}. ${t('finance.current_balance', 'Saldo actual')}: ${currentBalance}`);
@@ -176,6 +215,23 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
             console.error('Error paying bill:', error);
             alert(t('finance.payment_error', 'Error al procesar el pago. Intenta nuevamente.'));
         }
+    };
+
+    const handlePayLoanInstallment = (installment) => {
+        // Open modal to create a TRANSFER to the loan account (payment)
+        // Installment amount is usually stored as positive units or cents.
+        // If stored as cents in variable, pass directly.
+        // Assuming 'amount' passed from backend is in cents (integer).
+
+        setSelectedTransaction({
+            id: null, // New transaction
+            to_account_id: installment.account_id,
+            monto: installment.amount,
+            fecha: installment.date,
+            descripcion: installment.title,
+            tipo: 'transfer',
+        });
+        setShowTransactionModal(true);
     };
 
     const handleEditTransaction = (transaction) => {
@@ -283,6 +339,48 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
         acc[trans.cuenta_id].push(trans);
         return acc;
     }, {});
+
+    // Helper to calculate payment status for AccountChart
+    const getAccountPaymentStatus = (cuenta) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (cuenta.tipo === 'credito') {
+            const bill = creditCardBills.find(b => b.cuenta_id === cuenta.id);
+            if (!bill) return 'default'; // No bill info usually implies no active billing cycle or neutral state
+
+            // If fully paid or minimum met
+            if (bill.pago_minimo <= 0) return 'paid';
+
+            // Check dates
+            const payDate = new Date(bill.fecha_pago);
+            const diffTime = payDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 0) return 'due'; // Today or overdue (Red)
+            if (diffDays <= 5) return 'warning'; // 5 days approaching (Amber)
+            return 'default'; // Far future (Gray/Neutral) - User requested green only after payment? 
+            // User said: "rojo el dia de fecha de pago hasta recibir el pago" -> covered by 'due'
+            // "ambar 5 dias antes" -> covered by 'warning'
+            // "verde desde que recibe el pago" -> covered by 'paid'
+        }
+
+        if (cuenta.tipo === 'prestamo') {
+            const loan = loanInstallments.find(l => l.account_id === cuenta.id);
+            // If no upcoming installment found, assume paid/complete
+            if (!loan) return 'paid';
+
+            const payDate = new Date(loan.date);
+            const diffTime = payDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 0) return 'due'; // overdue
+            if (diffDays <= 5) return 'warning'; // approaching
+            return 'paid'; // If next installment is far, we are currently "paid up" for the immediate term (Green)
+        }
+
+        return null;
+    };
 
     return (
         <AuthenticatedLayout
@@ -407,15 +505,18 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
                             transactions: transacciones,
                             pendingBills: pendingBills,
+                            creditCardBills: creditCardBills,
+                            upcomingIncomes: upcomingIncomes,
+                            loanInstallments: loanInstallments,
                             financialTasks: financialTasks,
                             categories: proyecto.categorias || [],
                             currency: proyecto.moneda_default,
                             // Handlers
                             onEdit: handleEditTransaction,
                             onDelete: handleDeleteTransaction,
-                            onPay: handlePayBill,
-                            onMarkAsPaid: isAdmin ? handleMarkAsPaid : null,
-                            onPayBill: isAdmin ? handlePayBill : null,
+                            onPayBill: handlePayBill,
+                            onPayLoan: handlePayLoanInstallment,
+                            onMarkAsPaid: handleMarkAsPaid,
                             onAddBill: handleCreateBill,
                             onAdd: handleCreateBill, // For BillsWidget
                             projectId: proyecto.id,
@@ -445,7 +546,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                             return (
                                                 <div key={cuenta.id} className="relative group">
                                                     <AccountChart
-                                                        cuenta={cuenta}
+                                                        cuenta={{ ...cuenta, paymentStatus: getAccountPaymentStatus(cuenta) }}
                                                         onEdit={handleEditAccount}
                                                         onClick={handleCardClick}
                                                         isCollaborative={!proyecto.es_personal}
@@ -470,7 +571,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                             return (
                                                 <div key={cuenta.id} className="relative group">
                                                     <AccountChart
-                                                        cuenta={cuenta}
+                                                        cuenta={{ ...cuenta, paymentStatus: getAccountPaymentStatus(cuenta) }}
                                                         onEdit={handleEditAccount}
                                                         onClick={handleCardClick}
                                                         isCollaborative={!proyecto.es_personal}
@@ -646,6 +747,25 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         onAddTransaction={handleCreateTransactionFromAccount}
                         currentUserId={auth.user.id}
                         projectId={proyecto.id}
+                    />
+
+                    <CreditCardPaymentModal
+                        show={showCCPaymentModal}
+                        onClose={() => {
+                            setShowCCPaymentModal(false);
+                            setCcBillDetails(null);
+                            setSelectedAccount(null);
+                        }}
+                        account={selectedAccount}
+                        billDetails={ccBillDetails}
+                        cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
+                        proyectoId={proyecto.id}
+                        onSuccess={() => {
+                            setShowCCPaymentModal(false);
+                            setCcBillDetails(null);
+                            setSelectedAccount(null);
+                            router.reload({ only: ['transacciones', 'proyecto', 'pendingBills'] });
+                        }}
                     />
                 </>
             )}

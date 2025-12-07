@@ -188,6 +188,16 @@ class StoreCuentaRequest extends FormRequest
                     'date',
                     'after:today',
                 ],
+                // Disbursement fields (optional)
+                'monto_desembolsado' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                ],
+                'cuenta_destino_id' => [
+                    'nullable',
+                    'exists:cuentas,id',
+                ],
             ]);
         }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Proyecto;
 use App\Models\User;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -136,9 +137,7 @@ class ProyectosApiTest extends TestCase
     /**
      * Test 5: Moneda default es obligatoria
      */
-    /**
-     * @test
-     */
+    #[Test]
     public function moneda_default_es_opcional()
     {
         $user = User::factory()->create();

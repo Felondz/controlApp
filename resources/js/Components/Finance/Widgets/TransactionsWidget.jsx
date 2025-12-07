@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency } from '@/Utils/currencyHelpers';
 import { getOwnerColor, getOwnerName, getOwnerInitials } from '@/Utils/ownerHelpers';
+import { translateCategoryName } from '@/Utils/categoryHelpers';
 import {
     PlusIcon,
     MinusIcon,
@@ -61,22 +62,33 @@ export default function TransactionsWidget({
                 }
                 return true;
             })
-            .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Ensure descending order
+            .sort((a, b) => {
+                const dateComparison = new Date(b.fecha) - new Date(a.fecha);
+                if (dateComparison !== 0) return dateComparison;
+                return b.id - a.id; // Fallback to ID descending (newest first)
+            });
 
-        const groups = {};
+        const groupsMap = {};
+
+        // First pass: group by date
         filtered.forEach(trans => {
-            // Adjust for timezone offset to prevent date shifting
             const dateObj = new Date(trans.fecha);
             const userTimezoneOffset = dateObj.getTimezoneOffset() * 60000;
             const adjustedDate = new Date(dateObj.getTime() + userTimezoneOffset);
-            const date = adjustedDate.toLocaleDateString();
+            const dateKey = adjustedDate.toISOString().split('T')[0]; // Use YYYY-MM-DD for sorting
 
-            if (!groups[date]) {
-                groups[date] = [];
+            if (!groupsMap[dateKey]) {
+                groupsMap[dateKey] = {
+                    date: adjustedDate,
+                    label: adjustedDate.toLocaleDateString(),
+                    transactions: []
+                };
             }
-            groups[date].push(trans);
+            groupsMap[dateKey].transactions.push(trans);
         });
-        return groups;
+
+        // Convert to array and sort by date descending
+        return Object.values(groupsMap).sort((a, b) => b.date - a.date);
     }, [transactions, selectedAccount, selectedCategory]);
 
     const getGroupLabel = (dateStr) => {
@@ -150,14 +162,14 @@ export default function TransactionsWidget({
 
             {/* Transactions List */}
             <div className="space-y-6 max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
-                {Object.keys(groupedTransactions).length > 0 ? (
-                    Object.entries(groupedTransactions).map(([date, groupTrans]) => (
-                        <div key={date}>
+                {groupedTransactions.length > 0 ? (
+                    groupedTransactions.map((group) => (
+                        <div key={group.label}>
                             <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 pl-1">
-                                {getGroupLabel(date)}
+                                {getGroupLabel(group.label)}
                             </h4>
                             <div className="space-y-3">
-                                {groupTrans.map((trans) => {
+                                {group.transactions.map((trans) => {
                                     const isIncome = trans.categoria?.tipo?.toLowerCase() === 'ingreso' || trans.monto > 0;
                                     return (
                                         <div
@@ -182,7 +194,7 @@ export default function TransactionsWidget({
                                                     {trans.descripcion || t('finance.no_description', 'Sin descripción')}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                    {trans.categoria?.nombre || t('finance.no_category', 'Sin categoría')}
+                                                    {trans.categoria?.nombre ? translateCategoryName(trans.categoria.nombre, t) : t('finance.no_category', 'Sin categoría')}
                                                     {trans.cuenta?.nombre && ` • ${trans.cuenta.nombre}`}
                                                     {isCollaborative && trans.cuenta?.propietario && (
                                                         <span className={`ml-1 px-1 text-[10px] font-medium rounded ${getOwnerColor(trans.cuenta.propietario_id).bg} ${getOwnerColor(trans.cuenta.propietario_id).text}`}>
@@ -251,7 +263,7 @@ export default function TransactionsWidget({
             </div>
 
             {/* Summary */}
-            {Object.keys(groupedTransactions).length > 0 && (
+            {groupedTransactions.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">

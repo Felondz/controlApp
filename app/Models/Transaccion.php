@@ -53,6 +53,12 @@ class Transaccion extends Model
         'recurrence_interval',
         'recurrence_day',
         'next_occurrence',
+
+        // Credit card installment fields
+        'cuotas',
+        'cuota_actual',
+        'ciclo_facturacion',
+        'transaccion_origen_id',
     ];
 
     // 3. Las relaciones siguen igual
@@ -79,5 +85,21 @@ class Transaccion extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Parent transaction (for installment tracking)
+     */
+    public function transaccionOrigen()
+    {
+        return $this->belongsTo(Transaccion::class, 'transaccion_origen_id');
+    }
+
+    /**
+     * Child installment transactions
+     */
+    public function cuotasHijas()
+    {
+        return $this->hasMany(Transaccion::class, 'transaccion_origen_id');
     }
 }

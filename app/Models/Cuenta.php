@@ -43,6 +43,8 @@ class Cuenta extends Model
         'plazo',
         'valor_cuota',
         'cuotas_pagadas',
+        'monto_desembolsado',
+        'cuenta_destino_id',
     ];
 
     protected $casts = [
@@ -93,5 +95,13 @@ class Cuenta extends Model
     {
         return $this->belongsToMany(Proyecto::class, 'cuenta_proyecto')
             ->withTimestamps();
+    }
+
+    /**
+     * Destination account for loan disbursement
+     */
+    public function cuentaDestino()
+    {
+        return $this->belongsTo(Cuenta::class, 'cuenta_destino_id');
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Proyecto;
 use App\Models\Cuenta;
@@ -45,7 +46,7 @@ class ExportControllerTest extends TestCase
         Sanctum::actingAs($this->user);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_export_transactions_to_csv(): void
     {
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");

@@ -69,6 +69,10 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                 const creditAvailable = creditLimit - creditUsed;
                 const creditPercent = creditLimit > 0 ? (creditUsed / creditLimit) * 100 : 0;
 
+                let percentColor = 'text-green-600 dark:text-green-400';
+                if (creditPercent >= 75) percentColor = 'text-red-600 dark:text-red-400';
+                else if (creditPercent >= 50) percentColor = 'text-amber-600 dark:text-amber-400';
+
                 return {
                     label: t('finance.debt_current', 'Deuda Actual'),
                     value: creditUsed,
@@ -76,7 +80,7 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                     extra: [
                         { label: t('finance.credit_limit', 'Cupo Total'), value: formatMonto(creditLimit) },
                         { label: t('finance.credit_available', 'Cupo Disponible'), value: formatMonto(creditAvailable) },
-                        { label: t('finance.percent_used', '% Utilizado'), value: formatPercent(creditPercent) },
+                        { label: t('finance.percent_used', '% Utilizado'), value: formatPercent(creditPercent), textColor: percentColor },
                         { label: t('finance.interest_rate', 'Tasa'), value: `${cuenta.tasa_interes_anual || 0}%` }
                     ]
                 };
@@ -112,11 +116,19 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
             case 'banco':
             case 'efectivo':
             default:
+                const extras = [];
+                if (cuenta.tasa_interes_anual && parseFloat(cuenta.tasa_interes_anual) > 0) {
+                    extras.push({
+                        label: t('finance.interest_rate_ea', 'Tasa E.A.'),
+                        value: `${cuenta.tasa_interes_anual}%`
+                    });
+                }
+
                 return {
                     label: t('finance.balance_available', 'Saldo Disponible'),
                     value: balance,
                     color: balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
-                    extra: []
+                    extra: extras
                 };
         }
     };
@@ -133,6 +145,47 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
             onClick(cuenta);
         }
     };
+
+    // Helper for payment status color
+    const getPaymentStatusColor = () => {
+        // Defaults if no status provided
+        const defaults = {
+            bg: 'bg-gray-50 dark:bg-gray-700/50',
+            text: 'text-gray-900 dark:text-white',
+            border: 'border-gray-200 dark:border-gray-600',
+            icon: 'text-gray-500 dark:text-gray-400'
+        };
+
+        if (!cuenta.paymentStatus) return defaults;
+
+        switch (cuenta.paymentStatus) {
+            case 'paid': // Verde
+                return {
+                    bg: 'bg-green-50 dark:bg-green-900/20',
+                    text: 'text-green-700 dark:text-green-400',
+                    border: 'border-green-200 dark:border-green-800',
+                    icon: 'text-green-600 dark:text-green-400'
+                };
+            case 'warning': // Ambar (5 días antes)
+                return {
+                    bg: 'bg-amber-50 dark:bg-amber-900/20',
+                    text: 'text-amber-700 dark:text-amber-400',
+                    border: 'border-amber-200 dark:border-amber-800',
+                    icon: 'text-amber-600 dark:text-amber-400'
+                };
+            case 'due': // Rojo (Hoy o vencido)
+                return {
+                    bg: 'bg-red-50 dark:bg-red-900/20',
+                    text: 'text-red-700 dark:text-red-400',
+                    border: 'border-red-200 dark:border-red-800',
+                    icon: 'text-red-600 dark:text-red-400'
+                };
+            default:
+                return defaults;
+        }
+    };
+
+    const statusColor = getPaymentStatusColor();
 
     return (
         <div
@@ -230,7 +283,7 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                     {balanceInfo.extra.map((item, idx) => (
                         <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 text-center">
                             <p className="text-[9px] font-medium text-gray-500 dark:text-gray-400 mb-0.5 truncate">{item.label}</p>
-                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate">{item.value}</p>
+                            <p className={`text-xs font-bold truncate ${item.textColor || 'text-gray-900 dark:text-white'}`}>{item.value}</p>
                         </div>
                     ))}
                 </div>
@@ -239,6 +292,7 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
             {/* Type-Specific Details - Compact with smaller text */}
             {!hasMinimalInfo && (
                 <div className="flex-1 flex flex-col justify-end">
+                    {/* INSIDE CREDIT CARD BLOCK */}
                     {cuenta.tipo === 'credito' && (
                         <div className="space-y-1.5">
                             <div className="bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 flex justify-between items-center">
@@ -248,9 +302,9 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                                     {t('finance.day', 'Día')} {cuenta.dia_corte || '-'}
                                 </span>
                             </div>
-                            <div className="bg-red-50 dark:bg-red-900/20 p-1.5 rounded-lg border border-red-200 dark:border-red-800 flex justify-between items-center">
-                                <span className="text-[9px] font-medium text-gray-600 dark:text-gray-400">{t('finance.payment_date', 'Pago')}</span>
-                                <span className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
+                            <div className={`${statusColor.bg} p-1.5 rounded-lg border ${statusColor.border} flex justify-between items-center`}>
+                                <span className={`text-[9px] font-medium ${statusColor.icon}`}>{t('finance.payment_date', 'Pago')}</span>
+                                <span className={`text-xs font-bold ${statusColor.text} flex items-center gap-1`}>
                                     <ClockIcon className="w-3 h-3" />
                                     {t('finance.day', 'Día')} {cuenta.dia_pago || '-'}
                                 </span>
@@ -259,10 +313,10 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
                     )}
 
                     {cuenta.tipo === 'prestamo' && (
-                        <div className="bg-red-50 dark:bg-red-900/20 p-1.5 rounded-lg border border-red-200 dark:border-red-800">
+                        <div className={`${statusColor.bg} p-1.5 rounded-lg border ${statusColor.border}`}>
                             <div className="flex justify-between items-center">
-                                <span className="text-[9px] font-medium text-gray-600 dark:text-gray-400">{t('finance.payment_day', 'Día Pago')}</span>
-                                <span className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
+                                <span className={`text-[9px] font-medium ${statusColor.icon}`}>{t('finance.payment_day', 'Día Pago')}</span>
+                                <span className={`text-xs font-bold ${statusColor.text} flex items-center gap-1`}>
                                     <CalendarIcon className="w-3 h-3" />
                                     {t('finance.day', 'Día')} {cuenta.dia_pago || '-'}
                                 </span>

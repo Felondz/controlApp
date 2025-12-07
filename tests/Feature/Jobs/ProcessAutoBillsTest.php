@@ -3,6 +3,7 @@
 namespace Tests\Feature\Jobs;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\ProcessAutoBills;
 use App\Models\Transaccion;
 use App\Models\Cuenta;
@@ -42,7 +43,7 @@ class ProcessAutoBillsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function job_can_be_instantiated(): void
     {
         $job = new ProcessAutoBills();

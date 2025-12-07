@@ -1,3 +1,5 @@
+import { useTranslate } from '@/Hooks/useTranslate';
+
 export default function InputLabel({
     value,
     className = '',
@@ -5,6 +7,8 @@ export default function InputLabel({
     optional = false,
     ...props
 }) {
+    const { t } = useTranslate();
+
     return (
         <label
             {...props}
@@ -14,7 +18,7 @@ export default function InputLabel({
             }
         >
             {value ? value : children}
-            {optional && <span className="text-gray-500 dark:text-gray-400 font-normal ms-1">(opcional)</span>}
+            {optional && <span className="text-gray-500 dark:text-gray-400 font-normal ms-1">{t('common.optional', '(Opcional)')}</span>}
         </label>
     );
 }
