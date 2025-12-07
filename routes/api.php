@@ -105,6 +105,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Project Finance
     Route::get('proyectos/{proyecto}/finance/balance', [CuentaController::class, 'balance'])->name('api.finance.balance');
+    Route::get('proyectos/{proyecto}/finance/credit-card-bills', [CuentaController::class, 'creditCardBills'])->name('api.finance.cc-bills');
+    Route::post('proyectos/{proyecto}/cuentas/{cuenta}/pay-cc-bill', [CuentaController::class, 'payCreditCardBill'])->name('api.cuentas.pay-cc-bill');
     Route::apiResource('proyectos.cuentas', CuentaController::class);
 
     // Transacciones (CRUD completo, anidado en Proyectos)

@@ -19,3 +19,6 @@ Schedule::job(new \App\Jobs\ProcessAutoBills)->daily()->at('06:00');
 Schedule::job(new \App\Jobs\ProcessRecurringBills)->daily()->at('06:30');
 
 Schedule::command('finance:check-obligations')->dailyAt('09:00');
+
+// Process financial interest accrual daily (job checks internally if it's 1st of month)
+Schedule::job(new \App\Jobs\ProcessInterestAccrual)->dailyAt('00:01');

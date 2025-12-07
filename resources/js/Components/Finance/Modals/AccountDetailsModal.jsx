@@ -33,7 +33,7 @@ export default function AccountDetailsModal({
     if (!account) return null;
 
     // Filter transactions for this account
-    const accountTransactions = transactions.filter(t => t.cuenta_id === account.id);
+    const accountTransactions = transactions.filter(t => t.cuenta_id == account.id);
 
     // Helper to get icon (Reused from AccountChart logic)
     const getAccountIcon = () => {

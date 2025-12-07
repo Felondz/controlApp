@@ -52,7 +52,7 @@ describe('AccountChart', () => {
         expect(balanceElement).not.toHaveTextContent('1030000');
     });
 
-    it('renders loan account with red styling for payment date', () => {
+    it('renders loan account with red styling for due payment status', () => {
         const loanAccount = {
             ...mockAccount,
             tipo: 'prestamo',
@@ -60,7 +60,8 @@ describe('AccountChart', () => {
             dia_pago: 15,
             valor_cuota: 25000, // $250.00
             plazo: 24,
-            cuotas_pagadas: 5
+            cuotas_pagadas: 5,
+            paymentStatus: 'due'
         };
 
         render(<AccountChart cuenta={loanAccount} />);
@@ -68,27 +69,49 @@ describe('AccountChart', () => {
         // Check for "Día 15"
         expect(screen.getByText(/Día 15/)).toBeInTheDocument();
 
-        // Check for red styling on the payment date container or text
-        // The text "Día 15" should be inside a red container/text
+        // Check for red styling on the text
         const dayText = screen.getByText(/Día 15/);
-        expect(dayText).toHaveClass('text-red-600');
+        expect(dayText).toHaveClass('text-red-700');
     });
 
-    it('renders credit card with red styling for payment date', () => {
+    it('renders loan account with green styling for paid status', () => {
+        const loanAccount = {
+            ...mockAccount,
+            tipo: 'prestamo',
+            paymentStatus: 'paid',
+            dia_pago: 15
+        };
+
+        render(<AccountChart cuenta={loanAccount} />);
+        const dayText = screen.getByText(/Día 15/);
+        expect(dayText).toHaveClass('text-green-700');
+    });
+
+    it('renders credit card with amber styling for warning status', () => {
         const creditAccount = {
             ...mockAccount,
             tipo: 'credito',
-            saldo_actual: 15000, // $150.00
-            limite_credito: 100000, // $1,000.00
-            dia_corte: 5,
+            paymentStatus: 'warning',
             dia_pago: 20
         };
 
         render(<AccountChart cuenta={creditAccount} />);
-
-        // Check for "Día 20" (Payment date)
         const paymentDayText = screen.getByText((content) => content.includes('Día') && content.includes('20'));
-        expect(paymentDayText).toBeInTheDocument();
-        expect(paymentDayText).toHaveClass('text-red-600');
+        expect(paymentDayText).toHaveClass('text-amber-700');
+    });
+
+    it('displays interest rate for savings accounts', () => {
+        const savingsAccount = {
+            ...mockAccount,
+            tipo: 'banco',
+            tasa_interes_anual: 12.5
+        };
+        render(<AccountChart cuenta={savingsAccount} />);
+        expect(screen.getByText('12.5%')).toBeInTheDocument();
+        // Check for label "Tasa" or "Tasa E.A." depending on translation mock
+        // Mock returns defaultVal, so it should match the default text in component
+        // Component uses t('finance.interest_rate', 'Tasa') -> 'Tasa'
+        // But logic for extra pushes { label: ..., value: ..., extras: ...}
+        // Actually the logic is { label: t('...'), value: '12.5%' }
     });
 });

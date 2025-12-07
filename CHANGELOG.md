@@ -5,6 +5,131 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- [Frontend] Indicador de "Tasa E.A." en tarjetas de cuentas de ahorro.
+- [Frontend] Semáforo de colores en tarjetas de cuenta para estado de pago (Verde/Ámbar/Rojo) y porcentaje de uso de TC.
+- [Frontend] Manejo automático de errores 419 (CSRF) con recarga de página.
+- [Backend] Lógica de pago espejo para Tarjetas de Crédito (genera transacción de abono automáticamente).
+
+### Changed
+- [Backend] Aumento del límite de carga de transacciones a 300 en dashboard para mejorar visibilidad histórica.
+- [Backend] Ajuste en timestamp de transacciones creadas "hoy" para usar hora actual exacta.
+- [Backend] Corrección en cálculo de deuda pendiente de TC (resta pagos del ciclo actual).
+- [Backend] Validación de bloqueos financieros restringida correctamente a cuentas de inversión.
+
+### Fixed
+- [Frontend] Ordenamiento de transacciones widget por ID descendente.
+- [Frontend] Comparación de tipos en AccountDetailsModal.
+
+## [2.7.0] - 2025-12-07
+
+### Added - Interest Accrual & Loan Management
+
+**Automated Interest Accrual:**
+- 📈 **Yield Logic**: `ProcessInterestAccrual` job calculates and registers monthly interest for Savings and Investment accounts.
+- ⏰ **Scheduler**: Runs daily at 00:01 (executes logic on 1st of month).
+- 💰 **Yield Projection**: `UpcomingObligationsWidget` now displays projected next-month yields/interests for investments.
+
+**Loan Management Improvements:**
+- 🏦 **Installment Projection**: `UpcomingObligationsWidget` now displays upcoming loan installments calculated by backend.
+- 💸 **Loan Payment**: Added "Pay Installment" button directly in the widget.
+- 🔒 **CDT Protection**: Validation blocks withdrawals from Investment accounts (CDTs) before maturity date.
+
+**Credit Card Payment Refinements:**
+- 🐛 **Payment Fix**: Fixed "category_id required" error when paying credit cards via modal.
+- 🐛 **Validation Fix**: Fixed critical bug where all accounts with expiration dates (like CCs) were blocked for withdrawals. Now restricted correctly to 'inversion' type.
+- 🏷️ **Auto-Category**: Backend automatically creates/assigns "Pagos de Tarjeta" category if missing.
+- 🔧 **Endpoint Dedicated**: `CreditCardPaymentModal` now uses the dedicated `pay-credit-card` endpoint for robust balance updates.
+
+**Translations (ES + EN):**
+- Added keys: `pay_loan`, `yield`, `loan_installment`, `yield_rate_annual`.
+
+**Files Modified:**
+- `app/Jobs/ProcessInterestAccrual.php` (NEW)
+- `app/Http/Controllers/ProyectoUiWebController.php`
+- `app/Http/Controllers/Api/CuentaController.php`
+- `resources/js/Pages/Projects/Finance/ProjectDashboard.jsx`
+- `resources/js/Components/Finance/Widgets/UpcomingObligationsWidget.jsx`
+- `resources/js/Components/Finance/Modals/CreditCardPaymentModal.jsx`
+- `routes/console.php`
+
+## [2.6.7] - 2025-12-07
+
+### Fixed - Translations & Mobile Responsiveness
+
+**Missing Translations Added (ES + EN):**
+- `finance.category` - "Categoría" / "Category"
+- `finance.description` - "Descripción" / "Description"
+- `finance.concept` - "Concepto" / "Concept"  
+- `finance.new_bill` - "Nueva Factura" / "New Bill"
+- `finance.bills_and_services` - "Facturas y Servicios" / "Bills & Services"
+- `finance.no_pending_bills` - "No hay facturas pendientes" / "No pending bills"
+- `finance.income_desc`, `finance.other_desc`, `finance.bill_desc` - Placeholder translations
+- `finance.categories.*` - Default category name translations (8 keys)
+- `widgets.tasks_users_load` - "Carga de Trabajo" / "Workload"
+- `common.optional` - "(Opcional)" / "(Optional)"
+- `common.days`, `common.today`, `common.yesterday`, `common.tomorrow`, `common.overdue`
+
+**Component Improvements:**
+- 🔧 **InputLabel**: `optional` prop now uses translation system instead of hardcoded Spanish text
+- 📊 **TransactionsWidget**: Category names now translated via `translateCategoryName` helper
+- 📊 **BillsWidget**: Category names now translated via `translateCategoryName` helper
+
+**Mobile Responsiveness Improvements:**
+- 📱 **AccountModal**: Loan fields grid now responsive (1 column on mobile, 3 columns on desktop)
+- Fixed truncated labels for "Installment Value" and "Paid Installments" on small screens
+
+**Files Modified:**
+- [es.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/es/es.json) - Added 20+ translation keys
+- [en.json](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/lang/en/en.json) - Added 20+ translation keys
+- [InputLabel.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/InputLabel.jsx) - Uses `t()` for optional text
+- [TransactionsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/TransactionsWidget.jsx) - Category translation
+- [BillsWidget.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Widgets/BillsWidget.jsx) - Category translation
+- [AccountModal.jsx](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Components/Finance/Modals/AccountModal.jsx) - Responsive grid fix
+- [categoryHelpers.js](file:///home/guarox/Documentos/proyectos-personales/controlApp/resources/js/Utils/categoryHelpers.js) - NEW: Helper for translating default category names
+
+### Added - Credit Card & Loan Management
+
+**Credit Card (TC) Improvements:**
+- 💳 **Installments (Cuotas)**: Transactions now support 1-48 installments for credit card purchases
+- 📊 **Billing Cycle Tracking**: Transactions are grouped by billing cycle (`ciclo_facturacion`)
+- 🧮 **CreditCardBillingService**: Calculates minimum payment, interest charges, and deferred installments
+- 🎯 **CreditCardPaymentModal**: Smart payment modal with Minimum/Total/Custom payment options
+
+**Loan/Personal Credit Improvements:**
+- 💰 **Loan Disbursement**: Track where loan funds were deposited on account creation
+- 🏦 **LoanDisbursementService**: Creates automatic income transaction to destination account
+
+**Investment Interest:**
+- 📈 **InvestmentInterestService**: Calculates and registers monthly interest for investment/savings accounts
+
+**New Translations (ES + EN):**
+- `finance.installments`, `finance.with_interest`, `finance.no_interest`
+- `finance.credit_card_bill`, `finance.minimum_payment`, `finance.total_payment`
+- `finance.pay_from`, `finance.pay_now`, `finance.credit_card_payment`
+- `finance.loan_disbursement`, `finance.destination_account`, `finance.amount_to_deposit`
+
+**Backend:**
+- NEW: `2025_12_07_150000_add_installments_to_transacciones_table.php`
+- NEW: `2025_12_07_150001_add_loan_disbursement_to_cuentas_table.php`
+- NEW: `app/Services/CreditCardBillingService.php`
+- NEW: `app/Services/InvestmentInterestService.php`
+- NEW: `app/Services/LoanDisbursementService.php`
+- MOD: `Transaccion.php` - Added cuotas, ciclo_facturacion, transaccion_origen_id
+- MOD: `Cuenta.php` - Added monto_desembolsado, cuenta_destino_id
+
+**Frontend:**
+- NEW: `CreditCardPaymentModal.jsx` - Smart TC payment with min/total/custom options
+- MOD: `QuickTransactionModal.jsx` - Installment selector (1-48) for credit card expenses
+- MOD: `AccountModal.jsx` - Disbursement fields for loans, 18+ hint translations
+- MOD: `UpcomingObligationsWidget.jsx` - Now shows calculated CC bills with minimum payment
+- MOD: `DraggableWidgetGrid.jsx` - Passes creditCardBills to widgets
+- MOD: `ProjectDashboard.jsx` - Receives and passes creditCardBills
+
+**API:**
+- NEW: `GET /api/proyectos/{id}/finance/credit-card-bills` - Returns calculated CC bills
+
 ## [Unreleased] - Pre-Release Security Fixes
 
 ### Added

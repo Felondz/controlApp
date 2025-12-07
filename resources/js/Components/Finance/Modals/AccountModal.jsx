@@ -36,6 +36,9 @@ export default function AccountModal({
         plazo: account?.plazo || '',
         valor_cuota: account?.valor_cuota ? (account.valor_cuota / 100).toFixed(2) : '',
         cuotas_pagadas: account?.cuotas_pagadas || '',
+        // Loan disbursement
+        monto_desembolsado: account?.monto_desembolsado ? (account.monto_desembolsado / 100).toFixed(2) : '',
+        cuenta_destino_id: account?.cuenta_destino_id || '',
         // Payroll
         es_nomina: account?.es_nomina || false,
         dia_nomina: account?.dia_nomina || [],
@@ -256,7 +259,7 @@ export default function AccountModal({
                     {/* Campos Dinámicos para Crédito y Préstamo */}
                     {(data.tipo === 'credito' || data.tipo === 'prestamo') && (
                         <>
-                            {data.tipo === 'prestamo' && (
+                            {data.tipo === 'prestamo' && (<>
                                 <div className="grid grid-cols-3 gap-4 mb-4">
                                     <div>
                                         <div className="flex items-center gap-2">
@@ -322,7 +325,55 @@ export default function AccountModal({
                                         <InputError message={errors.cuotas_pagadas} className="mt-2" />
                                     </div>
                                 </div>
-                            )}
+
+                                {/* Loan Disbursement Section - Only for NEW loans */}
+                                {!account && (
+                                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                        <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-3">
+                                            {t('finance.loan_disbursement', 'Desembolso de Crédito')}
+                                        </h4>
+                                        <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+                                            {t('finance.loan_disbursement_desc', '¿A qué cuenta fue consignado el dinero del préstamo?')}
+                                        </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <InputLabel htmlFor="monto_desembolsado" value={t('finance.amount_to_deposit', 'Monto a consignar')} optional />
+                                                <TextInput
+                                                    id="monto_desembolsado"
+                                                    type="number"
+                                                    step="0.01"
+                                                    min="0"
+                                                    value={data.monto_desembolsado}
+                                                    onChange={(e) => setData('monto_desembolsado', e.target.value)}
+                                                    className="mt-1 block w-full"
+                                                    placeholder={t('placeholders.example_amount', 'Ej: 5000000')}
+                                                />
+                                                <InputError message={errors.monto_desembolsado} className="mt-2" />
+                                            </div>
+                                            <div>
+                                                <InputLabel htmlFor="cuenta_destino_id" value={t('finance.destination_account', 'Cuenta destino')} optional />
+                                                <select
+                                                    id="cuenta_destino_id"
+                                                    value={data.cuenta_destino_id}
+                                                    onChange={(e) => setData('cuenta_destino_id', e.target.value)}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 shadow-sm"
+                                                >
+                                                    <option value="">{t('finance.cash_disbursement', 'Efectivo (sin seguimiento)')}</option>
+                                                    {(proyecto?.cuentas || [])
+                                                        .filter(c => c.tipo === 'banco' && c.estado === 'activa')
+                                                        .map(c => (
+                                                            <option key={c.id} value={c.id}>
+                                                                {c.nombre} {c.banco ? `(${c.banco})` : ''}
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </select>
+                                                <InputError message={errors.cuenta_destino_id} className="mt-2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>)}
                             <div className="grid grid-cols-2 gap-4">
                                 {data.tipo === 'credito' && (
                                     <div>

@@ -184,6 +184,7 @@ export default function DraggableWidgetGrid({
             accounts: dashboardData.accounts || [],
             transactions: dashboardData.transactions || [],
             pendingBills: dashboardData.pendingBills || [],
+            creditCardBills: dashboardData.creditCardBills || [],
             bills: dashboardData.pendingBills || [], // Map for widgets expecting 'bills'
             financialTasks: dashboardData.financialTasks || [],
             categories: dashboardData.categories || [],

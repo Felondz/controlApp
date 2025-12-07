@@ -1,5 +1,6 @@
 import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency } from '@/Utils/currencyHelpers';
+import { translateCategoryName } from '@/Utils/categoryHelpers';
 import {
     BoltIcon,
     PencilIcon,
@@ -97,7 +98,7 @@ export default function BillsWidget({
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                         <span className={remaining.color}>{remaining.text}</span>
-                                        {bill.categoria?.nombre && ` • ${bill.categoria.nombre}`}
+                                        {bill.categoria?.nombre && ` • ${translateCategoryName(bill.categoria.nombre, t)}`}
                                     </p>
                                 </div>
 

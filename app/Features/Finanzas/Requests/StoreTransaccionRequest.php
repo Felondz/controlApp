@@ -53,7 +53,37 @@ class StoreTransaccionRequest extends FormRequest
             // Recurrence fields
             'is_recurring' => 'boolean',
             'recurrence_day' => 'nullable|integer|min:1|max:30',
+
+            // Credit card installments (deferred purchases)
+            'cuotas' => 'nullable|integer|min:1|max:48',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Validation for Investment/CDT accounts
+            if ($this->has('cuenta_id') && $this->cuenta_id) {
+                $cuenta = \App\Models\Cuenta::find($this->cuenta_id);
+
+                // If account is INVESTMENT/CDT AND has a future expiration date
+                if ($cuenta && $cuenta->tipo === 'inversion' && $cuenta->fecha_vencimiento && now()->lt($cuenta->fecha_vencimiento)) {
+                    // Block withdrawals (negative amount)
+                    if ($this->monto < 0) {
+                        $validator->errors()->add(
+                            'cuenta_id',
+                            'Esta cuenta de inversión (CDT) está bloqueada para retiros hasta el ' . $cuenta->fecha_vencimiento->format('d/m/Y')
+                        );
+                    }
+                }
+            }
+        });
     }
 
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)

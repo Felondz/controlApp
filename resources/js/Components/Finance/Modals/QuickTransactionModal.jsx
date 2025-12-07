@@ -48,13 +48,14 @@ export default function QuickTransactionModal({
     const { data, setData, errors, reset } = useForm({
         proyecto_id: proyectoId || (transaction?.proyecto_id || null),
         cuenta_id: transaction?.cuenta_id || initialAccountId || '',
-        categoria_id: transaction?.categoria_id || '', // We will map this to our static categories or handle in backend
+        categoria_id: transaction?.categoria_id || '',
         monto: transaction?.monto ? (Math.abs(transaction.monto) / 100).toFixed(2) : '',
         descripcion: transaction?.descripcion || '',
         notas: transaction?.notas || '',
         tipo: transaction?.monto > 0 ? 'income' : (initialType || 'expense'),
         task_id: null,
-        custom_category: '' // For 'other' selection
+        custom_category: '',
+        cuotas: transaction?.cuotas || 1, // Credit card installments (1-48)
     });
 
     // Quick Actions Configuration (Now the ONLY way to select category for expenses)
@@ -300,12 +301,17 @@ export default function QuickTransactionModal({
         // No, setData is async-like.
 
         // Standard way:
+        const selectedAccount = availableCuentas.find(c => c.id == data.cuenta_id);
+        const isCreditCard = selectedAccount?.tipo === 'credito';
+
         const payload = {
             ...data,
             categoria_id: finalCategoryId,
             cuenta_id: (activeTab === 'bill' || !data.cuenta_id) ? null : data.cuenta_id,
             monto: finalAmount * 100,
-            status: activeTab === 'bill' ? 'pending' : 'completed'
+            status: activeTab === 'bill' ? 'pending' : 'completed',
+            cuotas: isCreditCard ? (data.cuotas || 1) : 1,
+            cuota_actual: 1, // First installment
         };
 
         const isUpdate = transaction || (selectedBill && activeTab !== 'bill');
@@ -398,6 +404,34 @@ export default function QuickTransactionModal({
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    )}
+
+                    {/* Installments Selector for Credit Card */}
+                    {activeTab === 'expense' && data.cuenta_id && availableCuentas.find(c => c.id == data.cuenta_id)?.tipo === 'credito' && (
+                        <div>
+                            <InputLabel value={t('finance.installments', 'Cuotas')} />
+                            <div className="flex items-center gap-2 mt-1">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="48"
+                                    value={data.cuotas}
+                                    onChange={(e) => setData('cuotas', Math.min(48, Math.max(1, parseInt(e.target.value) || 1)))}
+                                    className="w-20 text-center border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
+                                />
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    {data.cuotas > 1
+                                        ? t('finance.with_interest', 'con interés')
+                                        : t('finance.no_interest', 'sin interés')
+                                    }
+                                </span>
+                            </div>
+                            {data.cuotas > 1 && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {t('finance.monthly_payment', 'Pago mensual')}: ~${(parseFloat(data.monto || 0) / data.cuotas).toFixed(2)}
+                                </p>
+                            )}
                         </div>
                     )}
 

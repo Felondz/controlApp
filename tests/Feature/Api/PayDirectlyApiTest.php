@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Proyecto;
 use App\Models\Transaccion;
@@ -44,7 +45,7 @@ class PayDirectlyApiTest extends TestCase
         Sanctum::actingAs($this->user);
     }
 
-    /** @test */
+    #[Test]
     public function non_member_cannot_pay_bill(): void
     {
         // Create a pending bill with default account

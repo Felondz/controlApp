@@ -41,6 +41,13 @@ class TransaccionController extends Controller
 
         $datosValidados = $request->validated();
 
+        // If date is TODAY, use NOW() to capture time for proper sorting (transactions view)
+        // This ensures the latest transactions appear first when filtering by date
+        $fechaInput = \Carbon\Carbon::parse($datosValidados['fecha']);
+        if ($fechaInput->isToday()) {
+            $datosValidados['fecha'] = now()->toDateTimeString();
+        }
+
         // Auto-calculate fecha_autopago if debito_automatico is enabled
         if (isset($datosValidados['debito_automatico']) && $datosValidados['debito_automatico'] && isset($datosValidados['cuenta_predeterminada_id'])) {
             $cuenta = \App\Models\Cuenta::find($datosValidados['cuenta_predeterminada_id']);

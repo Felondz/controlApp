@@ -10,9 +10,13 @@ export default function UpcomingObligationsWidget({
     financialTasks = [],
     bills = [],
     accounts = [],
+    creditCardBills = [],
     currency = 'COP',
     onMarkAsPaid,
     onPayBill,
+    onPayLoan,
+    upcomingIncomes = [],
+    loanInstallments = [],
     // Widget props
     widget,
     isDragging,
@@ -59,28 +63,42 @@ export default function UpcomingObligationsWidget({
                     category: task.category
                 })),
 
-            // Account Payments (Credit Cards & Loans)
-            ...accounts
-                .filter(acc => (acc.tipo === 'credito' || acc.tipo === 'prestamo') && acc.dia_pago && acc.estado === 'activa')
-                .map(acc => {
-                    const nextDate = getNextPaymentDate(acc.dia_pago);
-                    if (!nextDate) return null;
+            // Investment Yields (Backend Calculated)
+            ...upcomingIncomes.map(inc => ({
+                id: inc.id,
+                title: inc.title,
+                date: inc.date,
+                amount: inc.amount,
+                type: 'ingreso',
+                source: 'investment_yield',
+                accountName: inc.account_name,
+            })),
 
-                    // Estimate payment amount (quota for loans, or generic message for cards)
-                    const amount = acc.tipo === 'prestamo' ? (acc.valor_cuota || 0) : 0;
+            // Loan Installments (Backend Calculated)
+            ...loanInstallments.map(loan => ({
+                id: loan.id,
+                title: loan.title,
+                date: loan.date,
+                amount: loan.amount,
+                type: 'gasto',
+                source: 'loan_installment',
+                accountName: loan.account_name,
+                loanData: loan
+            })),
 
-                    return {
-                        id: `account-${acc.id}`,
-                        title: acc.nombre, // Use Account Name as Title
-                        date: nextDate.toISOString(),
-                        amount: amount,
-                        type: 'gasto',
-                        source: 'account',
-                        accountType: acc.tipo,
-                        accountName: acc.banco || t('finance.account', 'Cuenta') // Show Bank or Type in subtitle
-                    };
-                })
-                .filter(Boolean),
+            // Credit Card Bills (calculated from transactions)
+            ...creditCardBills.map(ccBill => ({
+                id: `cc-bill-${ccBill.cuenta_id}`,
+                title: ccBill.cuenta_nombre || t('finance.credit_card', 'Tarjeta de Crédito'),
+                date: ccBill.fecha_pago,
+                amount: ccBill.pago_minimo,
+                pagoTotal: ccBill.pago_total,
+                type: 'gasto',
+                source: 'creditcard',
+                accountType: 'credito',
+                billDetails: ccBill,
+                accountName: t('finance.credit_card_bill', 'Factura TC')
+            })),
 
             // Pending Bills
             ...bills.map(bill => ({
@@ -122,7 +140,7 @@ export default function UpcomingObligationsWidget({
 
         return allObligations
             .sort((a, b) => new Date(a.date) - new Date(b.date));
-    }, [events, financialTasks, accounts, bills]);
+    }, [events, financialTasks, bills, creditCardBills, upcomingIncomes, loanInstallments]);
 
     const formatCurrency = (value) => {
         return formatCurrencyHelper(value, currency, true);
@@ -191,6 +209,9 @@ export default function UpcomingObligationsWidget({
                                     {event.source === 'task' && <span className="text-blue-500">{event.category?.name || t('tasks.task', 'Tarea')}</span>}
                                     {event.source === 'payroll' && <span className="text-green-500">{t('finance.payroll', 'Nómina')}</span>}
                                     {event.source === 'account' && <span className="text-gray-500">{event.accountName || t('finance.account', 'Cuenta')}</span>}
+                                    {event.source === 'creditcard' && <span className="text-purple-500">{t('finance.credit_card_bill', 'Factura TC')}</span>}
+                                    {event.source === 'investment_yield' && <span className="text-emerald-500 font-medium">{t('finance.yield', 'Rendimiento')}</span>}
+                                    {event.source === 'loan_installment' && <span className="text-orange-500">{t('finance.loan_installment', 'Cuota Crédito')}</span>}
                                     {' • '}
                                     <span className={event.type === 'ingreso' ? 'text-green-600' : 'text-red-500'}>{getDaysRemaining(event.date)}</span>
                                 </p>
@@ -219,6 +240,24 @@ export default function UpcomingObligationsWidget({
                                     onClick={(e) => { e.stopPropagation(); onPayBill(event.billData); }}
                                     className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
                                     title={t('finance.pay_bill', 'Pagar factura')}
+                                >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                </button>
+                            )}
+                            {event.source === 'creditcard' && onPayBill && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onPayBill(event.billDetails); }}
+                                    className="p-1 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded"
+                                    title={t('finance.pay_cc_bill', 'Pagar Tarjeta')}
+                                >
+                                    <CheckCircleIcon className="w-4 h-4" />
+                                </button>
+                            )}
+                            {event.source === 'loan_installment' && onPayLoan && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); onPayLoan(event.loanData); }}
+                                    className="p-1 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded"
+                                    title={t('finance.pay_loan', 'Pagar Cuota')}
                                 >
                                     <CheckCircleIcon className="w-4 h-4" />
                                 </button>
