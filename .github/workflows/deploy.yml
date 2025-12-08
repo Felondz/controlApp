@@ -126,8 +126,10 @@ jobs:
              docker compose exec -T app php artisan db:seed --force
           fi
           
+          docker compose exec -T app php artisan storage:link
+          # Asegurar que existan los directorios de vistas antes de limpiar cache
+          docker compose exec -T app mkdir -p storage/framework/views
           docker compose exec -T app php artisan optimize:clear
-          docker compose exec -T app php artisan storage:link  ANTES para asegurar rutas
           docker compose exec -T app php artisan optimize
           docker compose exec -T app php artisan view:cache
           docker compose exec -T app php artisan queue:restart
