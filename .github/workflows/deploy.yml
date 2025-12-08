@@ -48,19 +48,18 @@ jobs:
     needs: build-and-push
     runs-on: [self-hosted, homelab]
     steps:
-      # 1. Definir variables de entorno según la rama
       - name: Set Environment Variables
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp" >> $GITHUB_ENV
-            echo "APP_DOMAIN=controlapp.site" >> $GITHUB_ENV # Tu dominio real
+            echo "APP_DOMAIN=controlapp.site" >> $GITHUB_ENV
             echo "APP_ENV=production" >> $GITHUB_ENV
             echo "IMAGE_TAG=latest" >> $GITHUB_ENV
             echo "DB_DATABASE=control_prod" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp-ptr" >> $GITHUB_ENV
             echo "APP_DOMAIN=ptr.controlapp.site" >> $GITHUB_ENV
-            echo "APP_ENV=local" >> $GITHUB_ENV # O 'staging'
+            echo "APP_ENV=local" >> $GITHUB_ENV
             echo "IMAGE_TAG=testing" >> $GITHUB_ENV
             echo "DB_DATABASE=control_ptr" >> $GITHUB_ENV
           fi
@@ -71,67 +70,67 @@ jobs:
       - name: Pull latest image
         run: docker pull ghcr.io/felondz/controlapp:$IMAGE_TAG
 
-      # 2. Crear directorio si no existe (importante para la primera vez del PTR)
       - name: Prepare Directory
-        run: |
-          mkdir -p $DEPLOY_PATH
-          
+        run: mkdir -p $DEPLOY_PATH
+
+      # --- CORRECCIÓN 1: Descargar el archivo DE LA RAMA CORRECTA ---
       - name: Download Docker Compose
         run: |
+          # Agregamos '?ref=${{ github.ref }}' para bajar el archivo de la rama actual (develop o main)
+          # Si no pones esto, siempre baja el de main (que quizás es el viejo)
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3.raw" \
             -o $DEPLOY_PATH/docker-compose.yml \
-            -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
+            -L "https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml?ref=${{ github.ref_name }}"
 
-      # 3. Crear archivo .env dinámicamente (Opcional pero recomendado)
-      # Aquí inyectamos las variables para que docker compose las lea
+      # --- CORRECCIÓN 2: Agregar TODAS las variables al .env ---
       - name: Create .env file
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
           APP_KEY: ${{ secrets.APP_KEY }}
+          MEILISEARCH_KEY: ${{ secrets.MEILISEARCH_KEY }}
         run: |
           cd $DEPLOY_PATH
-          # Crea un .env básico con las variables necesarias para el compose
           echo "APP_ENV=$APP_ENV" > .env
           echo "APP_DOMAIN=$APP_DOMAIN" >> .env
           echo "IMAGE_TAG=$IMAGE_TAG" >> .env
-          # Agrega aquí tus secretos de Github (DB_PASSWORD, etc)
+          echo "DB_DATABASE=$DB_DATABASE" >> .env
+          
+          # Variables Secretas (Mapeadas desde env)
           echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "APP_KEY=$APP_KEY" >> .env
+          echo "MEILISEARCH_KEY=$MEILISEARCH_KEY" >> .env
 
       - name: Deploy and Optimize
         run: |
           cd $DEPLOY_PATH
           
-          echo "🚀 Desplegando en entorno: $APP_ENV - URL: $APP_DOMAIN"
+          # Bajamos los contenedores viejos PRIMERO para refrescar la configuración de nombres
+          # Esto ayuda si cambiaste nombres en el docker-compose
+          docker compose down --remove-orphans || true
           
-          # Levantar contenedores pasando las variables de entorno
-          docker compose up -d --force-recreate --remove-orphans
+          echo "🚀 Desplegando en entorno: ${{ env.APP_ENV }}"
+          docker compose up -d --force-recreate
           
           echo "⏳ Esperando estabilización (15s)..."
           sleep 15
           
-          # Comandos de Laravel (usando el nombre dinámico del servicio si es necesario, 
-          # pero 'app' dentro del contexto de esa carpeta funciona bien)
-          
-          echo "🗄️ Ejecutando migraciones..."
+          # Comandos de Laravel
+          # Usamos el nombre del servicio 'app' que docker-compose resuelve internamente
           docker compose exec -T app php artisan migrate --force
-
-          # OJO: Solo correr seeders en PTR/Testing para no dañar datos reales
-          if [[ "$APP_ENV" != "production" ]]; then
+          
+          if [[ "${{ env.APP_ENV }}" != "production" ]]; then
              echo "🌱 Seeders de prueba..."
              docker compose exec -T app php artisan db:seed --force
           fi
           
-          echo "🧹 Optimizando..."
           docker compose exec -T app php artisan optimize:clear
           docker compose exec -T app php artisan optimize
           docker compose exec -T app php artisan view:cache
           docker compose exec -T app php artisan storage:link
           docker compose exec -T app php artisan queue:restart
-
-          # Meilisearch (Opcional: podrías querer índices separados para testing)
-          # docker compose exec -T app php artisan scout:import "App\Models\User"
           
       - name: Cleanup
         run: docker image prune -f
