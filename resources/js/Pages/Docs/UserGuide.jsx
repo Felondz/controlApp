@@ -1,23 +1,91 @@
 import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import ThemeToggle from '@/Components/ThemeToggle';
+// Inline icons for guide steps
+const StepIcon = ({ colorClass }) => (
+    <svg className={`w-8 h-8 text-${colorClass}-600 dark:text-${colorClass}-400`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
+const StepCard = ({ number, title, steps, colorClass }) => (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
+        <div className={`h-2 bg-${colorClass}-500`} />
+        <div className="p-8">
+            <div className="flex items-center mb-6">
+                <span className={`flex items-center justify-center w-12 h-12 rounded-full bg-${colorClass}-100 dark:bg-${colorClass}-900/30 text-${colorClass}-600 dark:text-${colorClass}-400 font-bold text-xl mr-4`}>
+                    {number}
+                </span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {title}
+                </h3>
+            </div>
+            <div className="space-y-4">
+                {steps.map((step, idx) => (
+                    <div key={idx} className="flex items-start">
+                        <div className={`mt-1 min-w-[20px] h-5 w-5 rounded-full border-2 border-${colorClass}-200 dark:border-${colorClass}-800 flex items-center justify-center mr-3`}>
+                            <div className={`w-2.5 h-2.5 rounded-full bg-${colorClass}-500`} />
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                            {step}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
 
 export default function UserGuide() {
     const { t } = useTranslate();
 
+    const guideSteps = [
+        {
+            title: t('docs.steps.project_create_title'),
+            color: 'primary',
+            steps: [
+                t('docs.steps.project_create_step1'),
+                t('docs.steps.project_create_step2'),
+                t('docs.steps.project_create_step3'),
+            ]
+        },
+        {
+            title: t('docs.steps.finance_add_title'),
+            color: 'success',
+            steps: [
+                t('docs.steps.finance_add_step1'),
+                t('docs.steps.finance_add_step2'),
+                t('docs.steps.finance_add_step3'),
+            ]
+        },
+        {
+            title: t('docs.steps.team_invite_title'),
+            color: 'info',
+            steps: [
+                t('docs.steps.team_invite_step1'),
+                t('docs.steps.team_invite_step2'),
+                t('docs.steps.team_invite_step3'),
+            ]
+        }
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 selection:bg-primary-500 selection:text-white">
             <Head title={t('docs.user_guide_title')} />
 
             {/* Header */}
-            <header className="bg-white dark:bg-gray-800 shadow sticky top-0 z-10">
+            <header className="bg-white dark:bg-gray-800 shadow sticky top-0 z-10 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center space-x-4">
-                        <Link href={route('docs.index')} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
+                        <Link href={route('docs.index')} className="group flex items-center text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors">
+                            <div className="p-2 rounded-full group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 mr-2 transition-colors">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </div>
+                            <span className="font-medium hidden sm:inline">{t('common.back')}</span>
                         </Link>
+                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-2"></div>
                         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                             {t('docs.user_guide_title')}
                         </h1>
@@ -28,86 +96,54 @@ export default function UserGuide() {
 
             {/* Content */}
             <main className="container mx-auto px-4 py-12">
-                <div className="max-w-4xl mx-auto space-y-16">
+                <div className="max-w-6xl mx-auto">
 
-                    {/* Intro Section */}
-                    <section className="text-center">
-                        <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                    {/* Hero Intro */}
+                    <div className="text-center mb-16">
+                        <span className="inline-block py-1 px-3 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-sm font-semibold mb-4 tracking-wide uppercase">
+                            {t('docs.hub_title')}
+                        </span>
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
                             {t('docs.user_guide_intro_title')}
                         </h2>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                             {t('docs.user_guide_intro_desc')}
                         </p>
-                    </section>
+                    </div>
 
-                    {/* Feature: Projects */}
-                    <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
-                        <div className="md:w-1/2 bg-primary-50 dark:bg-primary-900/20 p-8 flex items-center justify-center">
-                            <svg className="w-32 h-32 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                        </div>
-                        <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                {t('docs.features.projects_title')}
+                    {/* Steps Grid */}
+                    <div className="grid md:grid-cols-3 gap-8 mb-20">
+                        {guideSteps.map((guide, index) => (
+                            <StepCard
+                                key={index}
+                                number={index + 1}
+                                title={guide.title}
+                                steps={guide.steps}
+                                colorClass={guide.color}
+                            />
+                        ))}
+                    </div>
+
+                    {/* CTA Section */}
+                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-primary-900 dark:to-primary-800 rounded-3xl p-12 text-center shadow-2xl relative overflow-hidden">
+                        {/* Decorative circles */}
+                        <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
+                        <div className="absolute bottom-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full translate-x-1/2 translate-y-1/2 blur-2xl"></div>
+
+                        <div className="relative z-10">
+                            <h3 className="text-3xl font-bold text-white mb-6">
+                                {t('docs.cta.start_title')}
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-4">
-                                {t('docs.features.projects_desc')}
-                            </p>
-                            <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                                <li className="flex items-center">
-                                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                    {t('docs.features.projects_list_1')}
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                    {t('docs.features.projects_list_2')}
-                                </li>
-                            </ul>
+                            <div className="flex flex-col sm:flex-row justify-center gap-4">
+                                <Link href={route('register')} className="px-8 py-3 bg-primary-500 hover:bg-primary-400 text-white font-bold rounded-xl transition-all shadow-lg transform hover:-translate-y-0.5">
+                                    {t('docs.cta.create_account')}
+                                </Link>
+                                <Link href={route('login')} className="px-8 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl transition-all border border-white/20">
+                                    {t('docs.cta.login')}
+                                </Link>
+                            </div>
                         </div>
-                    </section>
-
-                    {/* Feature: Finance */}
-                    <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row-reverse">
-                        <div className="md:w-1/2 bg-success-50 dark:bg-success-900/20 p-8 flex items-center justify-center">
-                            <svg className="w-32 h-32 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                                {t('docs.features.finance_title')}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-400 mb-4">
-                                {t('docs.features.finance_desc')}
-                            </p>
-                            <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                                <li className="flex items-center">
-                                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                    {t('docs.features.finance_list_1')}
-                                </li>
-                                <li className="flex items-center">
-                                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                    {t('docs.features.finance_list_2')}
-                                </li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    {/* Getting Started */}
-                    <section className="text-center py-8">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                            {t('docs.cta.start_title')}
-                        </h3>
-                        <div className="flex justify-center space-x-4">
-                            <Link href={route('register')} className="px-8 py-3 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors shadow-lg">
-                                {t('docs.cta.create_account')}
-                            </Link>
-                            <Link href={route('login')} className="px-8 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow border border-gray-200 dark:border-gray-600">
-                                {t('docs.cta.login')}
-                            </Link>
-                        </div>
-                    </section>
+                    </div>
 
                 </div>
             </main>

@@ -1,15 +1,14 @@
-name: Deploy to Homelab
+name: CI/CD Pipeline (Multi-Environment)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ] # Agregamos la rama de testing
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: felondz/controlapp
 
 jobs:
-  # TRABAJO 1: Construir y Subir Imagen a GitHub
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -26,13 +25,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Generamos metadatos dinámicos según la rama
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest
+            # Si es main, usa 'latest'. Si es develop, usa 'testing'
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=testing,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -42,75 +44,94 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  # TRABAJO 2: Desplegar en TU Servidor (Runner Self-Hosted)
   deploy:
     needs: build-and-push
     runs-on: [self-hosted, homelab]
     steps:
+      # 1. Definir variables de entorno según la rama
+      - name: Set Environment Variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp" >> $GITHUB_ENV
+            echo "APP_DOMAIN=controlapp.site" >> $GITHUB_ENV # Tu dominio real
+            echo "APP_ENV=production" >> $GITHUB_ENV
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+            echo "DB_DATABASE=control_prod" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp-ptr" >> $GITHUB_ENV
+            echo "APP_DOMAIN=ptr.controlapp.site" >> $GITHUB_ENV
+            echo "APP_ENV=local" >> $GITHUB_ENV # O 'staging'
+            echo "IMAGE_TAG=testing" >> $GITHUB_ENV
+            echo "DB_DATABASE=control_ptr" >> $GITHUB_ENV
+          fi
+
       - name: Login to GitHub Container Registry (Local)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Pull latest image
-        run: docker pull ghcr.io/felondz/controlapp:latest
+        run: docker pull ghcr.io/felondz/controlapp:$IMAGE_TAG
 
-      - name: Update Docker Compose File
-        # Descarga siempre la última versión de tu docker-compose de producción
+      # 2. Crear directorio si no existe (importante para la primera vez del PTR)
+      - name: Prepare Directory
         run: |
-          mkdir -p /home/guaro/docker-sites/controlapp
+          mkdir -p $DEPLOY_PATH
+          
+      - name: Download Docker Compose
+        run: |
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3.raw" \
-            -o /home/guaro/docker-sites/controlapp/docker-compose.yml \
+            -o $DEPLOY_PATH/docker-compose.yml \
             -L https://api.github.com/repos/Felondz/controlApp/contents/docker-compose.prod.yml
+
+      # 3. Crear archivo .env dinámicamente (Opcional pero recomendado)
+      # Aquí inyectamos las variables para que docker compose las lea
+      - name: Create .env file
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+        run: |
+          cd $DEPLOY_PATH
+          # Crea un .env básico con las variables necesarias para el compose
+          echo "APP_ENV=$APP_ENV" > .env
+          echo "APP_DOMAIN=$APP_DOMAIN" >> .env
+          echo "IMAGE_TAG=$IMAGE_TAG" >> .env
+          # Agrega aquí tus secretos de Github (DB_PASSWORD, etc)
+          echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+          echo "APP_KEY=$APP_KEY" >> .env
 
       - name: Deploy and Optimize
         run: |
-          cd /home/guaro/docker-sites/controlapp
+          cd $DEPLOY_PATH
           
-          # 1. Detener contenedores viejos para evitar conflictos de puerto/memoria
-          # (Opcional, pero recomendado si hay cambios grandes)
-          # docker compose down 
+          echo "🚀 Desplegando en entorno: $APP_ENV - URL: $APP_DOMAIN"
           
-          # 2. Levantar contenedores con la nueva imagen
-          echo "🚀 Levantando contenedores..."
+          # Levantar contenedores pasando las variables de entorno
           docker compose up -d --force-recreate --remove-orphans
           
-          # 3. Espera de seguridad (Dar tiempo a MySQL y Redis para iniciar)
-          echo "⏳ Esperando estabilización de servicios (30s)..."
-          sleep 30
+          echo "⏳ Esperando estabilización (15s)..."
+          sleep 15
           
-          # 4. Ejecutar migraciones de base de datos
+          # Comandos de Laravel (usando el nombre dinámico del servicio si es necesario, 
+          # pero 'app' dentro del contexto de esa carpeta funciona bien)
+          
           echo "🗄️ Ejecutando migraciones..."
           docker compose exec -T app php artisan migrate --force
 
-          # 5. Ejecutar Seeders (Crear/Actualizar SuperAdmin)
-          echo "🌱 Verificando SuperAdmin y Seeders..."
-          docker compose exec -T app php artisan db:seed --force
+          # OJO: Solo correr seeders en PTR/Testing para no dañar datos reales
+          if [[ "$APP_ENV" != "production" ]]; then
+             echo "🌱 Seeders de prueba..."
+             docker compose exec -T app php artisan db:seed --force
+          fi
           
-          # 6. --- OPTIMIZACIÓN CRÍTICA (ESTO EVITA EL ERROR 504) ---
-          echo "🧹 Limpiando y cacheando configuración..."
-          
-          # Borrar cualquier caché vieja que pueda causar conflictos
+          echo "🧹 Optimizando..."
           docker compose exec -T app php artisan optimize:clear
-          
-          # Regenerar caché de configuración, rutas y eventos para producción
           docker compose exec -T app php artisan optimize
-          
-          # Cachear las vistas (importante para rendimiento en monolitos Blade/Inertia)
           docker compose exec -T app php artisan view:cache
-          
-          # Asegurar que los enlaces simbólicos de storage existan
           docker compose exec -T app php artisan storage:link
-          
-          # Reiniciar cola de trabajos (si usas workers, para que tomen el nuevo código)
-          # Reiniciar cola de trabajos (si usas workers, para que tomen el nuevo código)
           docker compose exec -T app php artisan queue:restart
 
-          # 7. Indexar datos en Meilisearch (Automatización de Búsqueda)
-          echo "🔍 Indexando datos en Meilisearch..."
-          docker compose exec -T app php artisan scout:import "App\Models\User"
-          docker compose exec -T app php artisan scout:import "App\Models\Proyecto"
-          # ---------------------------------------------------------
+          # Meilisearch (Opcional: podrías querer índices separados para testing)
+          # docker compose exec -T app php artisan scout:import "App\Models\User"
           
-          # 7. Limpieza de imágenes viejas de Docker (ahorra espacio en disco)
-          echo "🗑️ Limpiando imágenes antiguas..."
-          docker image prune -f
+      - name: Cleanup
+        run: docker image prune -f
