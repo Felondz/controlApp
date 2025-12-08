@@ -127,9 +127,9 @@ jobs:
           fi
           
           docker compose exec -T app php artisan optimize:clear
+          docker compose exec -T app php artisan storage:link  ANTES para asegurar rutas
           docker compose exec -T app php artisan optimize
           docker compose exec -T app php artisan view:cache
-          docker compose exec -T app php artisan storage:link
           docker compose exec -T app php artisan queue:restart
           
       - name: Cleanup
