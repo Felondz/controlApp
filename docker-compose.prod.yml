@@ -29,20 +29,20 @@ services:
       # -----------------------------------------------------
 
       # Router Principal (HTTPS)
-      - "traefik.http.routers.controlapp-root-https.rule=Host(`controlapp.site`)"
-      - "traefik.http.routers.controlapp-root-https.entrypoints=websecure"
-      - "traefik.http.routers.controlapp-root-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.tls.certresolver=letsencrypt"
       
       # Redirección HTTP -> HTTPS
-      - "traefik.http.routers.controlapp-root-http.rule=Host(`controlapp.site`)"
-      - "traefik.http.routers.controlapp-root-http.entrypoints=web"
-      - "traefik.http.routers.controlapp-root-http.middlewares=cattleya-https-redirect"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.entrypoints=web"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.middlewares=cattleya-https-redirect"
       - "traefik.http.middlewares.cattleya-https-redirect.redirectscheme.scheme=https"
 
       # Router API
-      - "traefik.http.routers.controlapp-api-https.rule=Host(`api.controlapp.site`)"
-      - "traefik.http.routers.controlapp-api-https.entrypoints=websecure"
-      - "traefik.http.routers.controlapp-api-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.rule=Host(`api.${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.tls.certresolver=letsencrypt"
 
       # Servicio (Puerto 80 es correcto para Apache)
       - "traefik.http.services.controlapp-service.loadbalancer.server.port=80"
