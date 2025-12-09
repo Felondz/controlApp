@@ -130,6 +130,10 @@ jobs:
           docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
 
           # 2. Comandos de base de datos (Ahora seguros por permisos)
+          # AUTO-FIX: Crear BD y Usuario si no existen (Usando root password = DB_PASSWORD)
+          echo "🔧 Asegurando infraestructura de BD..."
+          docker compose exec -T db mysql -u root -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE; CREATE USER IF NOT EXISTS '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USERNAME'@'%'; FLUSH PRIVILEGES;"
+          
           docker compose exec -T app php artisan migrate --force
           
           if [[ "${{ env.APP_ENV }}" != "production" ]]; then
