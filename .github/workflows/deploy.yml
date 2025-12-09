@@ -94,8 +94,8 @@ jobs:
           cd $DEPLOY_PATH
           echo "APP_ENV=$APP_ENV" > .env
           echo "APP_DOMAIN=$APP_DOMAIN" >> .env
-          echo "APP_URL=https://$APP_DOMAIN" >> .env # Importante para rutas
-          echo "ASSET_URL=https://$APP_DOMAIN" >> .env # FIX CORS: Assets desde el mismo dominio
+          echo "APP_URL=https://$APP_DOMAIN" >> .env
+          echo "ASSET_URL=/" >> .env # FIX: Rutas relativas para evitar CORS y problemas de protocolo
           echo "IMAGE_TAG=$IMAGE_TAG" >> .env
           echo "DB_DATABASE=$DB_DATABASE" >> .env
           echo "DB_HOST=db" >> .env # FIX: Conexión interna siempre es 'db'
