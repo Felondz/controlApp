@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Trust Cloudflare/Traefik proxies to fix HTTPS detection
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: '*'); // Force Rebuild
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
