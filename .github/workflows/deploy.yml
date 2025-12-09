@@ -110,6 +110,10 @@ jobs:
           echo "SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}" >> .env
 
       - name: Deploy and Optimize
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_DATABASE: ${{ env.DB_DATABASE }}
         run: |
           cd $DEPLOY_PATH
           
