@@ -59,11 +59,11 @@
                 "icon": "👥"
             }
         ],
-        "coming_soon_title": "Próximamente",
-        "coming_soon_message": "Estamos trabajando duro para ofrecerte la mejor experiencia. El frontend se encuentra actualmente en desarrollo activo.",
+        "coming_soon_title": "Mejora Continua",
+        "coming_soon_message": "Estamos comprometidos con la evolución constante de la plataforma. Nuevas características y módulos son agregados regularmente base a tu feedback.",
         "footer_copyright": "© :year ControlApp. Todos los derechos reservados.",
-        "test_environment_warning": "⚠️ Entorno de Pruebas: Toda la información será borrada periódicamente.",
-        "working_on_something": "Trabajando en algo increíble..."
+        "test_environment_warning": "",
+        "working_on_something": "Evolucionando para ti..."
     },
     "auth": {
         "session_expired": "Sesión Expirada",
@@ -135,7 +135,7 @@
         "delete": "Eliminar Categoría"
     },
     "common": {
-        "documentation": "Documentación",
+        "documentation": "Guías",
         "security_note_title": "Nota de Seguridad",
         "security_note_desc": "La documentación técnica detallada está restringida a colaboradores verificados.",
         "save": "Guardar",
@@ -303,17 +303,17 @@
         "admin_only": "Solo admins"
     },
     "docs": {
-        "hub_title": "Centro de Documentación",
-        "hub_user_title": "Soy Usuario",
-        "hub_user_desc": "Guía visual paso a paso para aprender a usar todas las funcionalidades de la plataforma.",
-        "hub_dev_title": "Soy Desarrollador",
-        "hub_dev_desc": "Documentación técnica, estructura de base de datos y guías de contribución.",
-        "view_user_guide": "Ver Guía de Usuario",
-        "explore_code": "Explorar Código",
-        "user_guide_title": "Guía de Usuario",
-        "user_guide_intro_title": "Bienvenido a ControlApp",
-        "user_guide_intro_desc": "Tu plataforma integral para gestionar proyectos personales, finanzas y colaboración de manera sencilla y eficiente.",
-        "dev_docs_title": "Documentación de Desarrollo",
+        "hub_title": "Centro de Aprendizaje",
+        "hub_user_title": "Guías de Usuario",
+        "hub_user_desc": "Infografías y tutoriales paso a paso para dominar la plataforma.",
+        "hub_dev_title": "Zona de Desarrolladores",
+        "hub_dev_desc": "Recursos técnicos y referencia de API para integraciones.",
+        "view_user_guide": "Ver Guías",
+        "explore_code": "Acceso Técnico",
+        "user_guide_title": "Guía de Inicio Rápido",
+        "user_guide_intro_title": "Todo lo que necesitas saber",
+        "user_guide_intro_desc": "Aprende a gestionar tus proyectos y finanzas en minutos con estas guías visuales.",
+        "dev_docs_title": "Documentación Técnica",
         "dev_docs_empty": "No hay archivos en este directorio.",
         "features": {
             "projects_title": "Gestión de Proyectos",
@@ -325,10 +325,24 @@
             "finance_list_1": "Registro de transacciones",
             "finance_list_2": "Balance en tiempo real"
         },
+        "steps": {
+            "project_create_title": "Crear tu primer Proyecto",
+            "project_create_step1": "Ve a 'Mis Proyectos' desde el menú lateral.",
+            "project_create_step2": "Haz clic en el botón '+ Crear Proyecto'.",
+            "project_create_step3": "Elige una plantilla (Freelancer, Startup) o Personalizado.",
+            "finance_add_title": "Registrar una Transacción",
+            "finance_add_step1": "Entra a un proyecto y ve a la pestaña 'Finanzas'.",
+            "finance_add_step2": "Usa el botón 'Agregar Ingreso' o 'Agregar Gasto'.",
+            "finance_add_step3": "Selecciona la categoría y guarda.",
+            "team_invite_title": "Invitar a tu Equipo",
+            "team_invite_step1": "En tu proyecto, ve a la pestaña 'Miembros'.",
+            "team_invite_step2": "Haz clic en 'Invitar Miembro' e ingresa su email.",
+            "team_invite_step3": "Asigna un rol (Admin o Miembro) y envía."
+        },
         "cta": {
-            "start_title": "¿Listo para empezar?",
-            "create_account": "Crear Cuenta",
-            "login": "Iniciar Sesión"
+            "start_title": "¿Listo para tomar el control?",
+            "create_account": "Crear Cuenta Gratis",
+            "login": "Ingresar a la Plataforma"
         }
     },
     "errors": {

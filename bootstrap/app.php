@@ -37,6 +37,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'http://controlapp.test/stripe/*',
             'http://localhost/stripe/*',
         ]);
+
+        // Trust Cloudflare/Traefik proxies to fix HTTPS detection
+        $middleware->trustProxies(at: '*'); // Force Rebuild
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

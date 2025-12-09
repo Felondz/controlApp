@@ -75,11 +75,11 @@
                 "icon": "👥"
             }
         ],
-        "coming_soon_title": "Coming Soon",
-        "coming_soon_message": "We're working hard to bring you the best experience. The frontend is currently under active development.",
+        "coming_soon_title": "Continuous Improvement",
+        "coming_soon_message": "We are committed to constantly evolving the platform. New features are added regularly based on your feedback.",
         "footer_copyright": "© :year ControlApp. All rights reserved.",
-        "test_environment_warning": "⚠️ Test Environment: All information will be deleted periodically.",
-        "working_on_something": "Working on something amazing..."
+        "test_environment_warning": "",
+        "working_on_something": "Evolving for you..."
     },
     "auth": {
         "session_expired": "Session Expired",
@@ -142,18 +142,18 @@
         "verification_email_sent": "A new verification email has been sent to your inbox"
     },
     "docs": {
-        "hub_title": "Documentation Hub",
-        "hub_user_title": "I am a User",
-        "hub_user_desc": "Step-by-step visual guide to learn how to use all platform features.",
-        "hub_dev_title": "I am a Developer",
-        "hub_dev_desc": "Technical documentation, database structure, and contribution guides.",
-        "view_user_guide": "View User Guide",
-        "explore_code": "Explore Code",
-        "dev_docs_title": "Developer Documentation",
+        "hub_title": "Learning Center",
+        "hub_user_title": "User Guides",
+        "hub_user_desc": "Infographics and step-by-step tutorials to master the platform.",
+        "hub_dev_title": "Developer Zone",
+        "hub_dev_desc": "Technical resources and API reference for integrations.",
+        "view_user_guide": "View Guides",
+        "explore_code": "Technical Access",
+        "dev_docs_title": "Technical Documentation",
         "dev_docs_empty": "No files in this directory.",
-        "user_guide_title": "User Guide",
-        "user_guide_intro_title": "Welcome to ControlApp",
-        "user_guide_intro_desc": "Your comprehensive platform for managing personal projects, finances, and collaboration simply and efficiently.",
+        "user_guide_title": "Quick Start Guide",
+        "user_guide_intro_title": "Everything you need to know",
+        "user_guide_intro_desc": "Learn to manage your projects and finances in minutes with these visual guides.",
         "features": {
             "projects_title": "Project Management",
             "projects_desc": "Organize your ideas into concrete projects. Create new projects, assign categories, and keep everything tidy in one place.",
@@ -164,10 +164,24 @@
             "finance_list_1": "Transaction recording",
             "finance_list_2": "Real-time balance"
         },
+        "steps": {
+            "project_create_title": "Create your first Project",
+            "project_create_step1": "Go to 'My Projects' from the sidebar.",
+            "project_create_step2": "Click the '+ Create Project' button.",
+            "project_create_step3": "Choose a template (Freelancer, Startup) or Custom.",
+            "finance_add_title": "Register a Transaction",
+            "finance_add_step1": "Enter a project and go to the 'Finance' tab.",
+            "finance_add_step2": "Use the 'Add Income' or 'Add Expense' button.",
+            "finance_add_step3": "Select the category and save.",
+            "team_invite_title": "Invite your Team",
+            "team_invite_step1": "In your project, go to the 'Members' tab.",
+            "team_invite_step2": "Click 'Invite Member' and enter their email.",
+            "team_invite_step3": "Assign a role (Admin or Member) and send."
+        },
         "cta": {
-            "start_title": "Ready to start?",
-            "create_account": "Create Account",
-            "login": "Log In"
+            "start_title": "Ready to take control?",
+            "create_account": "Create Free Account",
+            "login": "Login to Platform"
         }
     },
     "categories": {
@@ -180,7 +194,7 @@
         "delete": "Delete Category"
     },
     "common": {
-        "documentation": "Documentation",
+        "documentation": "Guides",
         "security_note_title": "Security Note",
         "security_note_desc": "Detailed technical documentation is restricted to verified collaborators.",
         "loading": "Loading...",

@@ -5,19 +5,16 @@ import ThemeToggle from '@/Components/ThemeToggle';
 import Dropdown from '@/Components/Dropdown';
 import { MenuIcon, XIcon, LoginIcon, UserPlusIcon } from '@/Components/Icons';
 
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
+export default function Welcome({ auth }) {
     const { t } = useTranslate();
     const currentYear = new Date().getFullYear();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-info-50 to-primary-100 dark:from-secondary-900 dark:to-secondary-800">
+        <div className="min-h-screen bg-white dark:bg-gray-900 selection:bg-primary-500 selection:text-white">
             <Head title={t('app.name')} />
 
-            {/* Test Environment Warning */}
-            <div className="bg-warning-500 text-white text-center py-2 px-4 font-bold shadow-md">
-                {t('landing.test_environment_warning')}
-            </div>
+            {/* Production Header - No Warning Banner */}
 
             {/* Header */}
             <header className="container mx-auto px-4 py-6">
@@ -182,22 +179,24 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 </div>
             </section>
 
-            {/* Coming Soon Banner */}
-            <section className="bg-primary-600 text-white py-16">
+            {/* Continuous Improvement Banner */}
+            <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
                 <div className="container mx-auto px-4 text-center">
                     <div className="max-w-3xl mx-auto">
-                        <h2 className="text-3xl font-bold mb-4">
+                        <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-6 backdrop-blur-sm">
+                            <svg className="w-8 h-8 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-3xl font-bold mb-4 tracking-tight">
                             {t('landing.coming_soon_title')}
                         </h2>
-                        <p className="text-xl text-primary-100 mb-8">
+                        <p className="text-lg text-primary-100 mb-8 leading-relaxed">
                             {t('landing.coming_soon_message')}
                         </p>
                         <div className="flex justify-center">
-                            <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                            <div className="inline-flex items-center px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-sm font-medium tracking-wide">
+                                <span className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></span>
                                 <span>{t('landing.working_on_something')}</span>
                             </div>
                         </div>
@@ -221,9 +220,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             {t('landing.footer_copyright').replace(':year', currentYear)}
                         </p>
                     </div>
-                    <div className="mt-8 text-center text-sm text-secondary-500">
-                        <p>Laravel v{laravelVersion} (PHP v{phpVersion})</p>
-                    </div>
+
                 </div>
             </footer>
         </div>

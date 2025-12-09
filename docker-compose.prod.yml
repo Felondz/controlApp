@@ -2,7 +2,7 @@ services:
   # --- APLICACIÓN PRINCIPAL ---
   app:
     image: ghcr.io/felondz/controlapp:latest
-    container_name: controlapp_app
+    container_name: controlapp_app_${APP_ENV}
     restart: unless-stopped
     env_file: ./.env
     
@@ -29,28 +29,28 @@ services:
       # -----------------------------------------------------
 
       # Router Principal (HTTPS)
-      - "traefik.http.routers.controlapp-root-https.rule=Host(`controlapp.site`)"
-      - "traefik.http.routers.controlapp-root-https.entrypoints=websecure"
-      - "traefik.http.routers.controlapp-root-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-root-https-${APP_ENV}.tls.certresolver=letsencrypt"
       
       # Redirección HTTP -> HTTPS
-      - "traefik.http.routers.controlapp-root-http.rule=Host(`controlapp.site`)"
-      - "traefik.http.routers.controlapp-root-http.entrypoints=web"
-      - "traefik.http.routers.controlapp-root-http.middlewares=cattleya-https-redirect"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.rule=Host(`${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.entrypoints=web"
+      - "traefik.http.routers.controlapp-root-http-${APP_ENV}.middlewares=cattleya-https-redirect"
       - "traefik.http.middlewares.cattleya-https-redirect.redirectscheme.scheme=https"
 
       # Router API
-      - "traefik.http.routers.controlapp-api-https.rule=Host(`api.controlapp.site`)"
-      - "traefik.http.routers.controlapp-api-https.entrypoints=websecure"
-      - "traefik.http.routers.controlapp-api-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.rule=Host(`api.${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.entrypoints=websecure"
+      - "traefik.http.routers.controlapp-api-https-${APP_ENV}.tls.certresolver=letsencrypt"
 
       # Servicio (Puerto 80 es correcto para Apache)
-      - "traefik.http.services.controlapp-service.loadbalancer.server.port=80"
+      - "traefik.http.services.controlapp-service-${APP_ENV}.loadbalancer.server.port=80"
 
   # --- BASE DE DATOS ---
   db:
     image: mysql:8.0
-    container_name: controlapp_db
+    container_name: controlapp_db_${APP_ENV}
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -71,7 +71,7 @@ services:
   # --- REDIS ---
   redis:
     image: redis:alpine
-    container_name: controlapp_redis
+    container_name: controlapp_redis_${APP_ENV}
     restart: unless-stopped
     volumes:
       - redis_data:/data
@@ -87,7 +87,7 @@ services:
   # --- MEILISEARCH ---
   meilisearch:
     image: getmeili/meilisearch:v1.10
-    container_name: controlapp_meilisearch
+    container_name: controlapp_meilisearch_${APP_ENV}
     restart: unless-stopped
     environment:
       - MEILI_MASTER_KEY=${MEILISEARCH_KEY}
