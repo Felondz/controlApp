@@ -110,6 +110,10 @@ jobs:
           echo "SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}" >> .env
 
       - name: Deploy and Optimize
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_DATABASE: ${{ env.DB_DATABASE }}
         run: |
           cd $DEPLOY_PATH
           
@@ -118,7 +122,7 @@ jobs:
           docker compose down --remove-orphans || true
           
           echo "🚀 Desplegando en entorno: ${{ env.APP_ENV }}"
-          docker compose pull || echo "⚠️ No se pudo bajar la imagen (¿Login?), usando local..."
+          docker compose pull
           docker compose up -d --force-recreate || ( echo "❌ Error al levantar contenedores. Mostrando logs: " && docker compose logs meilisearch && docker compose logs db && exit 1 )
           
           echo "⏳ Esperando estabilización (15s)..."
@@ -130,6 +134,10 @@ jobs:
           docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
 
           # 2. Comandos de base de datos (Ahora seguros por permisos)
+          # AUTO-FIX: Crear BD y Usuario si no existen (Usando root password = DB_PASSWORD)
+          echo "🔧 Asegurando infraestructura de BD..."
+          docker compose exec -T db mysql -u root -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE; CREATE USER IF NOT EXISTS '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USERNAME'@'%'; FLUSH PRIVILEGES;"
+          
           docker compose exec -T app php artisan migrate --force
           
           if [[ "${{ env.APP_ENV }}" != "production" ]]; then
