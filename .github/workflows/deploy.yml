@@ -130,6 +130,11 @@ jobs:
           fi
           
           docker compose exec -T app php artisan storage:link
+          
+          # FIX: Permisos de escritura críticos para evitar Error 500
+          docker compose exec -T app chmod -R 777 storage bootstrap/cache
+          docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
+
           # Asegurar que existan los directorios de vistas antes de limpiar cache
           docker compose exec -T app mkdir -p storage/framework/views
           docker compose exec -T app php artisan optimize:clear
