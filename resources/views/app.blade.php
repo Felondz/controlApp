@@ -5,8 +5,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+    <title inertia>{{ config('app.name', 'ControlApp') }}</title>
+    <meta name="description" content="Gestión inteligente de proyectos y finanzas personales.">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ config('app.url') }}">
+    <meta property="og:title" content="{{ config('app.name', 'ControlApp') }}">
+    <meta property="og:description"
+        content="Gestión inteligente de proyectos y finanzas personales. Organiza tu equipo y tu dinero en un solo lugar.">
+    <meta property="og:image" content="{{ asset('favicon.ico') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:url" content="{{ config('app.url') }}">
+    <meta property="twitter:title" content="{{ config('app.name', 'ControlApp') }}">
+    <meta property="twitter:description" content="Gestión inteligente de proyectos y finanzas personales.">
+    <meta property="twitter:image" content="{{ asset('favicon.ico') }}">
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- Fonts -->
