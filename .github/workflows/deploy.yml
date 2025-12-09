@@ -136,7 +136,8 @@ jobs:
           # 2. Comandos de base de datos (Ahora seguros por permisos)
           # AUTO-FIX: Crear BD y Usuario si no existen (Usando root password = DB_PASSWORD)
           echo "🔧 Asegurando infraestructura de BD..."
-          docker compose exec -T db mysql -u root -p"$DB_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE; CREATE USER IF NOT EXISTS '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USERNAME'@'%'; FLUSH PRIVILEGES;"
+          # Usamos variable de entorno MYSQL_PWD para evitar el warning de seguridad y esconder la pass de 'ps'
+          docker compose exec -T -e MYSQL_PWD="$DB_PASSWORD" db mysql -u root -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE; CREATE USER IF NOT EXISTS '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USERNAME'@'%'; FLUSH PRIVILEGES;"
           
           docker compose exec -T app php artisan migrate --force
           
