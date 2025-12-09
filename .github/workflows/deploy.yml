@@ -120,8 +120,12 @@ jobs:
           echo "⏳ Esperando estabilización (15s)..."
           sleep 15
           
-          # Comandos de Laravel
-          # Usamos el nombre del servicio 'app' que docker-compose resuelve internamente
+          # 1. FIX PRIORITARIO: Permisos y directorios antes de cualquier comando artisan
+          docker compose exec -T app mkdir -p storage/framework/views
+          docker compose exec -T app chmod -R 777 storage bootstrap/cache
+          docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
+
+          # 2. Comandos de base de datos (Ahora seguros por permisos)
           docker compose exec -T app php artisan migrate --force
           
           if [[ "${{ env.APP_ENV }}" != "production" ]]; then
@@ -129,14 +133,8 @@ jobs:
              docker compose exec -T app php artisan db:seed --force
           fi
           
+          # 3. Optimización y Enlaces
           docker compose exec -T app php artisan storage:link
-          
-          # FIX: Permisos de escritura críticos para evitar Error 500
-          docker compose exec -T app chmod -R 777 storage bootstrap/cache
-          docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
-
-          # Asegurar que existan los directorios de vistas antes de limpiar cache
-          docker compose exec -T app mkdir -p storage/framework/views
           docker compose exec -T app php artisan optimize:clear
           docker compose exec -T app php artisan optimize
           docker compose exec -T app php artisan view:cache
