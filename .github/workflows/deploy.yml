@@ -118,7 +118,7 @@ jobs:
           docker compose down --remove-orphans || true
           
           echo "🚀 Desplegando en entorno: ${{ env.APP_ENV }}"
-          docker compose pull || echo "⚠️ No se pudo bajar la imagen (¿Login?), usando local..."
+          docker compose pull
           docker compose up -d --force-recreate || ( echo "❌ Error al levantar contenedores. Mostrando logs: " && docker compose logs meilisearch && docker compose logs db && exit 1 )
           
           echo "⏳ Esperando estabilización (15s)..."
