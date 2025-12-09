@@ -98,6 +98,7 @@ jobs:
           echo "ASSET_URL=/" >> .env # FIX: Rutas relativas para evitar CORS y problemas de protocolo
           echo "IMAGE_TAG=$IMAGE_TAG" >> .env
           echo "DB_DATABASE=$DB_DATABASE" >> .env
+          echo "DB_CONNECTION=mysql" >> .env # FIX: Forzar driver de MySQL para evitar fallback a sqlite
           echo "DB_HOST=db" >> .env # FIX: Conexión interna siempre es 'db'
           
           # Variables Secretas (Mapeadas desde env)
