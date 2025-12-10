@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2025-12-10
+
+### Changed - Code Cleanup & Architecture Refactoring
+- ♻️ **Finance Module**: Removed dead code (`TaskEventListener`) related to obsolete `tasks.financial_task.created` integration.
+- ♻️ **Architecture Verification**: Confirmed modular boundaries and event-driven patterns in `architecture_analysis.md`.
+- 📚 **Documentation**: Updated README to reflect v2.7.0 status.
+
 ## [Unreleased]
 ### Added
 - [Frontend] Indicador de "Tasa E.A." en tarjetas de cuentas de ahorro.

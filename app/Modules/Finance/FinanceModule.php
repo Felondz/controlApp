@@ -49,9 +49,7 @@ class FinanceModule extends AbstractModule
                 'budgets',
                 'financial_reports',
             ],
-            'consumes' => [
-                'tasks.financial_tasks', // For financial task integration
-            ],
+            'consumes' => [],
             'exposes' => [
                 'api' => [
                     '/api/proyectos/{proyecto}/transacciones',
@@ -92,14 +90,7 @@ class FinanceModule extends AbstractModule
      */
     public function getEventListeners(): array
     {
-        return [
-            'tasks.task.completed' => [
-                [\App\Modules\Finance\Listeners\TaskEventListener::class, 'handleTaskCompleted'],
-            ],
-            'tasks.financial_task.created' => [
-                [\App\Modules\Finance\Listeners\TaskEventListener::class, 'handleFinancialTaskCreated'],
-            ],
-        ];
+        return [];
     }
 
     /**

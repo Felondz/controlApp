@@ -49,8 +49,8 @@ class AppServiceProvider extends ServiceProvider
         // 2. REGISTRO DE MORPH MAP (ADR-002: Alias para Polimórficas)
         // Esto garantiza que la BD guarde 'proyecto' en lugar de 'App\Models\Proyecto'
         Relation::morphMap([
-            'proyecto' => \App\Models\Proyecto::class,
-            'usuario' => \App\Models\User::class, // Aunque User ya está importado, lo definimos aquí
+            'proyecto' => Proyecto::class,
+            'usuario' => User::class,
         ]);
 
         // 3. SUPER ADMIN GOD MODE (Issue #15)
