@@ -12,16 +12,21 @@ import { WIDGET_DEFINITIONS, getAvailableWidgets, DEFAULT_LAYOUT } from '@/Utils
 export default function WidgetSettingsModal({
     show,
     onClose,
-    project,
+    project = null,
+    user = null,
     isAdmin,
     onSave,
     allowedModules = null, // Optional array of module names to filter by
     settingsKey = 'dashboard' // Key in project.settings JSON
 }) {
     const { t } = useTranslate();
+
+    // Determine context settings
+    const contextSettings = project ? project.settings : (user ? user.settings : {});
+    const savedSettings = contextSettings?.[settingsKey] || {};
+
     const modules = project?.modules || [];
     const isPersonal = project?.es_personal || false;
-    const savedSettings = project?.settings?.[settingsKey] || {};
 
     // Get all available widgets for this user
     const allWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
@@ -30,6 +35,8 @@ export default function WidgetSettingsModal({
     const availableWidgets = allowedModules
         ? allWidgets.filter(w => allowedModules.includes(w.module))
         : allWidgets;
+
+    console.log('WidgetSettingsModal: availableWidgets', availableWidgets);
 
     // Local state for hidden widgets
     const [hidden, setHidden] = useState(savedSettings.hidden || []);
@@ -59,7 +66,7 @@ export default function WidgetSettingsModal({
     // Save changes
     const handleSave = () => {
         const newSettings = {
-            ...project?.settings,
+            ...contextSettings,
             [settingsKey]: {
                 layout: DEFAULT_LAYOUT, // Reset to default order
                 hidden,
@@ -105,11 +112,12 @@ export default function WidgetSettingsModal({
 
                             {/* Widgets in this module */}
                             <div className="space-y-2">
-                                {widgets.map(widget => {
-                                    const isHidden = hidden.includes(widget.id);
+                                {widgets.filter(Boolean).map(widget => {
+                                    const widgetId = widget?.id || Math.random().toString();
+                                    const isHidden = hidden.includes(widgetId);
                                     return (
                                         <div
-                                            key={widget.id}
+                                            key={widgetId}
                                             className={`
                                                 flex items-center justify-between p-3 rounded-lg border
                                                 ${isHidden
@@ -123,9 +131,9 @@ export default function WidgetSettingsModal({
                                                 <ArrowsRightLeftIcon className="w-4 h-4 text-gray-400" />
                                                 <div>
                                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {t(widget.titleKey, widget.id)}
+                                                        {t(widget?.titleKey, widget?.id)}
                                                     </p>
-                                                    {widget.requiresAdmin && (
+                                                    {widget?.requiresAdmin && (
                                                         <span className="text-xs text-warning-600 dark:text-warning-400">
                                                             {t('widgets.admin_only', 'Solo admins')}
                                                         </span>
@@ -134,7 +142,7 @@ export default function WidgetSettingsModal({
                                             </div>
 
                                             <button
-                                                onClick={() => toggleWidget(widget.id)}
+                                                onClick={() => toggleWidget(widgetId)}
                                                 className={`
                                                     p-2 rounded-lg transition-colors
                                                     ${isHidden
@@ -177,6 +185,6 @@ export default function WidgetSettingsModal({
                     </div>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 }

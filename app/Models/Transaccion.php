@@ -59,6 +59,8 @@ class Transaccion extends Model
         'cuota_actual',
         'ciclo_facturacion',
         'transaccion_origen_id',
+        'source_type',
+        'source_id',
     ];
 
     // 3. Las relaciones siguen igual
@@ -101,5 +103,12 @@ class Transaccion extends Model
     public function cuotasHijas()
     {
         return $this->hasMany(Transaccion::class, 'transaccion_origen_id');
+    }
+    /**
+     * Get the source model that generated this transaction (InventarioMovement, PayrollRun, etc).
+     */
+    public function source()
+    {
+        return $this->morphTo();
     }
 }

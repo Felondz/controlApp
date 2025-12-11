@@ -97,6 +97,8 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'assignees' => 'nullable|array',
             'assignees.*' => 'exists:users,id',
+            'related_type' => 'nullable|string|max:255',
+            'related_id' => 'nullable|string|max:255',
         ]);
 
         $task = $proyecto->tasks()->create($validated);
@@ -124,6 +126,8 @@ class TaskController extends Controller
             'due_date' => 'nullable|date',
             'assignees' => 'nullable|array',
             'assignees.*' => 'exists:users,id',
+            'related_type' => 'nullable|string|max:255',
+            'related_id' => 'nullable|string|max:255',
         ]);
 
         $task->update($validated);

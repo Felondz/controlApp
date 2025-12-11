@@ -962,6 +962,41 @@
             "dependency_warning": "Este módulo requiere :modules para funcionar."
         }
     },
+    "inventory": {
+        "title": "Inventario: Items & Stock",
+        "search_placeholder": "Buscar por SKU o Nombre...",
+        "new_item": "Nuevo Item",
+        "sku": "SKU",
+        "name": "Nombre",
+        "type": "Tipo",
+        "current_stock": "Stock Actual",
+        "est_cost": "Costo Est.",
+        "actions": "Acciones",
+        "low_stock": "Stock Bajo",
+        "no_items": "No se encontraron items.",
+        "showing_results": "Mostrando :from - :to de :total resultados",
+        "empty_state": "No se encontraron items en el inventario.",
+        "unit": "Unidad",
+        "cost_price": "Costo",
+        "view": "Ver"
+    },
+    "operations": {
+        "title": "Operaciones: Lotes de Producción",
+        "search_placeholder": "Buscar lotes...",
+        "filter_process": "Filtrar Proceso",
+        "all_processes": "Todos los Procesos",
+        "new_lote": "Nuevo Lote",
+        "status": "Estado",
+        "active": "Activo",
+        "process_general": "Proceso Gral.",
+        "current_stage": "Etapa Actual",
+        "quantity": "Cantidad",
+        "start_date": "Inicio",
+        "no_active_lotes": "No hay lotes activos",
+        "create_first_lote": "Comienza creando un nuevo lote de producción.",
+        "units": "unidades",
+        "no_results": "No hay lotes de producción activos que coincidan con tu búsqueda."
+    },
     "validation": {
         "checkbox_required": "Debes marcar esta casilla para continuar"
     }

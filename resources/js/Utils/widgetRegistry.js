@@ -106,8 +106,38 @@ export const WIDGET_DEFINITIONS = {
         defaultSize: 'medium',
     },
 
+    // Operations Module Widgets
+    operations_lotes_list: {
+        id: 'operations_lotes_list',
+        module: 'operations',
+        requiresAdmin: false,
+        titleKey: 'operations.title',
+        icon: 'FactoryIcon',
+        defaultSize: 'large',
+    },
+
+    // Inventory Module Widgets
+    inventory_items_table: {
+        id: 'inventory_items_table',
+        module: 'inventory',
+        requiresAdmin: false,
+        titleKey: 'inventory.title',
+        icon: 'PackageIcon',
+        defaultSize: 'large',
+    },
+
     // Analytics Module Widgets
     // (Deprecated)
+
+    // Global Dashboard Widgets
+    projects_list: {
+        id: 'projects_list',
+        module: null,
+        requiresAdmin: false,
+        titleKey: 'dashboard.projects',
+        icon: 'Squares2X2Icon',
+        defaultSize: 'full', // Occupy full width
+    },
 
     // Core Widgets (No module required)
     members_summary: {
@@ -167,6 +197,21 @@ export const FINANCE_DEFAULT_LAYOUT = [
     'finance_transactions',
 ];
 
+// Operations Dashboard Default Layout
+export const OPERATIONS_DEFAULT_LAYOUT = [
+    'operations_lotes_list',
+];
+
+// Inventory Dashboard Default Layout
+export const INVENTORY_DEFAULT_LAYOUT = [
+    'inventory_items_table',
+];
+
+// Global Dashboard Default Layout
+export const GLOBAL_DASHBOARD_DEFAULT_LAYOUT = [
+    'projects_list',
+];
+
 // Backward compatibility alias
 export const DEFAULT_LAYOUT = DEFAULT_OVERVIEW_LAYOUT;
 
@@ -180,6 +225,8 @@ export const DEFAULT_LAYOUT = DEFAULT_OVERVIEW_LAYOUT;
  */
 export function getAvailableWidgets(modules = [], isAdmin = false, isPersonal = false) {
     return Object.values(WIDGET_DEFINITIONS).filter(widget => {
+        if (!widget) return false;
+
         // Check module requirement
         if (widget.module && !modules.includes(widget.module)) {
             return false;

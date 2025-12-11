@@ -56,6 +56,8 @@ class StoreTransaccionRequest extends FormRequest
 
             // Credit card installments (deferred purchases)
             'cuotas' => 'nullable|integer|min:1|max:48',
+            'source_type' => 'nullable|string|max:255',
+            'source_id' => 'nullable|string|max:255',
         ];
     }
 

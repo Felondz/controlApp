@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_path',
         'global_theme',
         'enabled_tools',
+        'settings',
     ];
 
     /**
@@ -84,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
             'enabled_tools' => 'array',
+            'settings' => 'array',
         ];
     }
 

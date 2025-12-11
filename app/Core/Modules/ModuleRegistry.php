@@ -136,8 +136,12 @@ class ModuleRegistry
     public function boot(): void
     {
         foreach ($this->enabled() as $name => $module) {
-            // Modules can perform initialization here if needed
-            // For now, just ensure they're loaded
+            // Boot the module
+            try {
+                $module->boot();
+            } catch (\Exception $e) {
+                logger()->error("Failed to boot module '{$name}': {$e->getMessage()}");
+            }
         }
     }
 

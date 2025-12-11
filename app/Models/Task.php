@@ -17,6 +17,8 @@ class Task extends Model
         'priority',
         'due_date',
         'assigned_to',
+        'related_type',
+        'related_id',
     ];
 
     protected $casts = [
@@ -41,5 +43,12 @@ class Task extends Model
     public function category()
     {
         return $this->belongsTo(Categoria::class, 'category_id');
+    }
+    /**
+     * Get the parent related model (LoteProduccion, SafetyIssue, etc).
+     */
+    public function related()
+    {
+        return $this->morphTo();
     }
 }

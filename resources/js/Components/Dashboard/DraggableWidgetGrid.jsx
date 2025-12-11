@@ -22,8 +22,10 @@ import UserTasksWidget from './Widgets/UserTasksWidget';
 import ChatRecentWidget from './Widgets/ChatRecentWidget';
 import MembersSummaryWidget from './Widgets/MembersSummaryWidget';
 import ProjectInfoWidget from './Widgets/ProjectInfoWidget';
+import InventoryItemsWidget from './Widgets/InventoryItemsWidget';
+import LotesListWidget from './Widgets/LotesListWidget';
+import ProjectsListWidget from './Widgets/ProjectsListWidget'; // Added import for ProjectsListWidget
 
-// Map widget IDs to their components
 // Map widget IDs to their components
 const WIDGET_COMPONENTS = {
     // Finance
@@ -35,6 +37,12 @@ const WIDGET_COMPONENTS = {
     finance_account_flow: AccountFlowWidget,
     finance_transactions: TransactionsWidget,
     finance_bills: BillsWidget,
+
+    // Operations
+    operations_lotes_list: LotesListWidget,
+
+    // Inventory
+    inventory_items_table: InventoryItemsWidget,
 
     // Other Modules
     tasks_summary: TasksSummaryWidget,
@@ -55,7 +63,9 @@ const WIDGET_COMPONENTS = {
  * - Layout persistence to project settings
  */
 export default function DraggableWidgetGrid({
-    project,
+    // ... props ...
+    user = null, // Optional user object for global settings
+    project = null,
     dashboardData = {}, // New prop for finance data
     isAdmin = false,
     onSettingsClick,
@@ -65,9 +75,16 @@ export default function DraggableWidgetGrid({
     allowedModules = null // Optional array of module IDs to filter visible widgets
 }) {
     const { t } = useTranslate();
+
+    // Determine context (Project or User Global)
+    const contextSettings = project ? project.settings : (user ? user.settings : {});
+    const savedSettings = contextSettings?.[settingsKey] || {};
+
     const modules = project?.modules || [];
     const isPersonal = project?.es_personal || false;
-    const savedSettings = project?.settings?.[settingsKey] || {};
+
+    // If global dashboard (no project), assume specific modules aren't relevant OR pass allowedModules explicitly
+    // For global dashboard, we might want to show everything available to user context
 
     // Get available widgets based on permissions
     let availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
@@ -134,7 +151,7 @@ export default function DraggableWidgetGrid({
     // Save layout to backend
     const saveLayout = useCallback((layout, hidden) => {
         const newSettings = {
-            ...project?.settings,
+            ...contextSettings,
             [settingsKey]: {
                 ...savedSettings,
                 layout,
@@ -142,17 +159,30 @@ export default function DraggableWidgetGrid({
             }
         };
 
-        // Debounced save using Inertia
-        router.put(
-            route('finance.projects.update-settings', { project: project.id }),
-            { settings: newSettings },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                only: ['proyecto'],
-            }
-        );
-    }, [project?.id, project?.settings, savedSettings]);
+        if (project) {
+            // Save to Project Settings
+            router.put(
+                route('finance.projects.update-settings', { project: project.id }),
+                { settings: newSettings },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    only: ['proyecto'],
+                }
+            );
+        } else {
+            // Save to User Preferences
+            router.post(
+                route('preferences.dashboard.update'),
+                { settings: newSettings },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    only: ['auth'], // Update auth user prop
+                }
+            );
+        }
+    }, [project, user, contextSettings, savedSettings, settingsKey]);
 
     // Render widget content
     const renderWidgetContent = (widget, provided, snapshot) => {
@@ -235,7 +265,11 @@ export default function DraggableWidgetGrid({
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         style={provided.draggableProps.style}
-                                        className={widget.defaultSize === 'large' ? 'col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4' : (widget.defaultSize === 'medium' ? 'col-span-1 md:col-span-2' : 'col-span-1')}
+                                        className={
+                                            widget.defaultSize === 'full' ? 'col-span-full' :
+                                                (widget.defaultSize === 'large' ? 'col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4' :
+                                                    (widget.defaultSize === 'medium' ? 'col-span-1 md:col-span-2' : 'col-span-1'))
+                                        }
                                     >
                                         {renderWidgetContent(widget, provided, snapshot)}
                                     </div>

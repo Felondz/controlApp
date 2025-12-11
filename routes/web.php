@@ -124,6 +124,8 @@ Route::middleware('auth')->group(function () {
     // User Preferences
     Route::post('/preferences/theme', [\App\Http\Controllers\UserPreferencesController::class, 'updateTheme'])
         ->name('preferences.theme.update');
+    Route::post('/preferences/dashboard', [\App\Http\Controllers\UserPreferencesController::class, 'updateDashboardSettings'])
+        ->name('preferences.dashboard.update');
 
     // Tools Market
     Route::prefix('tools')->name('tools.')->group(function () {
@@ -141,6 +143,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/calculator/calculate', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
         Route::get('/calculator/export/csv', [CalculatorController::class, 'exportCsv'])->name('calculator.export.csv');
         Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
+    });
+
+    // Inventory Items Routes (Global prefix by project)
+    Route::prefix('mis-proyectos/{proyecto}/inventory')->group(function () {
+        Route::get('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'index'])->name('inventory.items.index');
+        Route::post('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'store'])->name('inventory.items.store');
+        Route::post('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'update'])->name('inventory.items.update'); // Using POST for file upload spoofing if needed, or _method PUT
+        Route::delete('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
     });
 });
 

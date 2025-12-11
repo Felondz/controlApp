@@ -90,7 +90,21 @@ class FinanceModule extends AbstractModule
      */
     public function getEventListeners(): array
     {
-        return [];
+        return [
+            \App\Modules\Inventory\Events\InventoryTransactionConfirmed::class => [
+                \App\Modules\Finance\Listeners\CreateFinanceTransaction::class,
+            ],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConsoleCommands(): array
+    {
+        return [
+            \App\Modules\Finance\Console\Commands\ProcessDueContracts::class,
+        ];
     }
 
     /**

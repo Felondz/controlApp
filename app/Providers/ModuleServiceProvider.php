@@ -50,6 +50,11 @@ class ModuleServiceProvider extends ServiceProvider
 
         // Register event listeners
         $this->registerEventListeners($registry, $eventBus);
+
+        // Register console commands
+        if ($this->app->runningInConsole()) {
+            $this->registerModuleCommands($registry);
+        }
     }
 
     /**
@@ -67,9 +72,18 @@ class ModuleServiceProvider extends ServiceProvider
                 continue;
             }
 
-            // Register module routes
-            // This is a placeholder - actual implementation would use Route facade
-            // and properly namespace the routes
+            // Handle 'web' routes
+            if (isset($routes['web']) && is_string($routes['web']) && file_exists($routes['web'])) {
+                \Illuminate\Support\Facades\Route::middleware('web')
+                    ->group($routes['web']);
+            }
+
+            // Handle 'api' routes
+            if (isset($routes['api']) && is_string($routes['api']) && file_exists($routes['api'])) {
+                \Illuminate\Support\Facades\Route::prefix('api')
+                    ->middleware('api')
+                    ->group($routes['api']);
+            }
         }
     }
 
@@ -91,6 +105,25 @@ class ModuleServiceProvider extends ServiceProvider
 
             // Register listeners with the event bus
             $eventBus->registerListeners($listeners);
+        }
+    }
+
+    /**
+     * Register console commands for all enabled modules.
+     *
+     * @param ModuleRegistry $registry
+     * @return void
+     */
+    protected function registerModuleCommands(ModuleRegistry $registry): void
+    {
+        foreach ($registry->enabled() as $name => $module) {
+            $commands = $module->getConsoleCommands();
+
+            if (empty($commands)) {
+                continue;
+            }
+
+            $this->commands($commands);
         }
     }
 }
