@@ -3,7 +3,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CurrencyDollarIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from '@/Components/Icons';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function BalanceSummaryWidget({
     accounts = [],

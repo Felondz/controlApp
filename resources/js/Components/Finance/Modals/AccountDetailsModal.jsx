@@ -3,7 +3,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
+import { TransactionsWidget } from '@/Modules/Finance/Widgets';
 import { formatCurrency } from '@/Utils/currencyHelpers';
 import {
     XMarkIcon,

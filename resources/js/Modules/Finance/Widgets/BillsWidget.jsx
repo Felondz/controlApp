@@ -9,7 +9,7 @@ import {
     ClockIcon
 } from '@/Components/Icons';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function BillsWidget({
     bills = [],

@@ -5,9 +5,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Cog6ToothIcon } from '@/Components/Icons';
-import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+import { DraggableWidgetGrid } from '@/Modules/Core/Widgets';
 
-import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widgetRegistry';
 
 /**

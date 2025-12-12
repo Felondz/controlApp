@@ -6,7 +6,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function SavingsGoalWidget({
     currency = 'COP',

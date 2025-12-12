@@ -15,7 +15,7 @@ import {
 } from '@/Components/Icons';
 import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function TransactionsWidget({
     transactions = [],

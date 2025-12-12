@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChartBarIcon } from '@/Components/Icons';
 import { useMemo } from 'react';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function AccountFlowWidget({
     transactions = [],

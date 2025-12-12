@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import ChatWidget from '@/Components/Project/ChatWidget';
+import { ChatWidget } from '@/Modules/Chat/Widgets';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { getThemeStyle } from '@/Utils/themeStyles';
 import { ChatIcon } from '@/Components/Icons';

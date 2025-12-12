@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Cog6ToothIcon } from '@/Components/Icons';
 import DraggableProjectGrid from '@/Components/Dashboard/DraggableProjectGrid';
-import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import { useState } from 'react';
 
 export default function Dashboard({ auth, proyectos = [] }) {

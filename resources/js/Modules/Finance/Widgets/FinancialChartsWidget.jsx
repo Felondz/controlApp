@@ -4,7 +4,7 @@ import { formatCurrency } from '@/Utils/currencyHelpers';
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChartBarIcon } from '@/Components/Icons';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function FinancialChartsWidget({
     transactions = [],

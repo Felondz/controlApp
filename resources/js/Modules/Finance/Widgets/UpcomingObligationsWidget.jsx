@@ -3,7 +3,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { formatCurrency as formatCurrencyHelper } from '@/Utils/currencyHelpers';
 import { CalendarIcon, ClockIcon, CheckCircleIcon } from '@/Components/Icons';
 
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 export default function UpcomingObligationsWidget({
     events = [],

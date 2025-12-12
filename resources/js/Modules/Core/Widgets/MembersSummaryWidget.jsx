@@ -1,6 +1,6 @@
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Link } from '@inertiajs/react';
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 import { UsersIcon, UserCircleIcon } from '@/Components/Icons';
 
 export default function MembersSummaryWidget({ project, widget, onHide, isDragging, dragHandleProps }) {

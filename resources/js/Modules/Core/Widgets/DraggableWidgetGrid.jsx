@@ -5,26 +5,15 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { getAvailableWidgets, getOrderedWidgets, WIDGET_DEFINITIONS } from '@/Utils/widgetRegistry';
 import WidgetCard from './WidgetCard';
 
-// Widget component imports
-// Widget component imports
-// Keeping for backward compatibility if needed, or remove? Better remove if unused.
-import BalanceSummaryWidget from '../Finance/Widgets/BalanceSummaryWidget';
-import SavingsGoalWidget from '../Finance/Widgets/SavingsGoalWidget';
-import CreditSimulationWidget from '../Finance/Widgets/CreditSimulationWidget';
-import UpcomingObligationsWidget from '../Finance/Widgets/UpcomingObligationsWidget';
-import FinancialChartsWidget from '../Finance/Widgets/FinancialChartsWidget';
-import AccountFlowWidget from '../Finance/Widgets/AccountFlowWidget';
-import TransactionsWidget from '../Finance/Widgets/TransactionsWidget';
-import BillsWidget from '../Finance/Widgets/BillsWidget';
-
-import TasksSummaryWidget from './Widgets/TasksSummaryWidget';
-import UserTasksWidget from './Widgets/UserTasksWidget';
-import ChatRecentWidget from './Widgets/ChatRecentWidget';
-import MembersSummaryWidget from './Widgets/MembersSummaryWidget';
-import ProjectInfoWidget from './Widgets/ProjectInfoWidget';
-import InventoryItemsWidget from './Widgets/InventoryItemsWidget';
-import LotesListWidget from './Widgets/LotesListWidget';
-import ProjectsListWidget from './Widgets/ProjectsListWidget'; // Added import for ProjectsListWidget
+// Widget component imports - using absolute modular paths
+import { BalanceSummaryWidget, SavingsGoalWidget, CreditSimulationWidget, UpcomingObligationsWidget, FinancialChartsWidget, AccountFlowWidget, TransactionsWidget, BillsWidget } from '@/Modules/Finance/Widgets';
+import { TasksSummaryWidget, UserTasksWidget } from '@/Modules/Tasks/Widgets';
+import { ChatRecentWidget } from '@/Modules/Chat/Widgets';
+import { InventoryItemsWidget } from '@/Modules/Inventory/Widgets';
+import { LotesListWidget } from '@/Modules/Operations/Widgets';
+import MembersSummaryWidget from './MembersSummaryWidget';
+import ProjectInfoWidget from './ProjectInfoWidget';
+import ProjectsListWidget from './ProjectsListWidget';
 
 // Map widget IDs to their components
 const WIDGET_COMPONENTS = {

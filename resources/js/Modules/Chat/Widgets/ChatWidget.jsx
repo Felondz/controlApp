@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import ChatSidebar from './ChatSidebar';
-import ChatWindow from './ChatWindow';
+import ChatSidebar from '@/Components/Project/ChatSidebar';
+import ChatWindow from '@/Components/Project/ChatWindow';
 
 export default function ChatWidget({ project, user }) {
     const [messages, setMessages] = useState([]);

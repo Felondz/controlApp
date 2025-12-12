@@ -6,8 +6,7 @@ import SecondaryButton from "@/Components/SecondaryButton";
 import SearchInput from "@/Components/SearchInput";
 import { PlusIcon, SearchIcon, PackageIcon, ExclamationTriangleIcon, Cog6ToothIcon } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
-import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
-import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { DraggableWidgetGrid, WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import ItemModal from './ItemModal';
 
 export default function InventoryIndex({ auth, proyecto, items, filters }) {

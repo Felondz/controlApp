@@ -36,8 +36,6 @@ export default function WidgetSettingsModal({
         ? allWidgets.filter(w => w && allowedModules.includes(w.module))
         : allWidgets;
 
-    console.log('WidgetSettingsModal: availableWidgets', availableWidgets);
-
     // Local state for hidden widgets
     const [hidden, setHidden] = useState(savedSettings.hidden || []);
 

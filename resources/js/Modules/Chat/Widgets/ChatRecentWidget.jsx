@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 import { ChatBubbleLeftRightIcon } from '@/Components/Icons';
 import axios from 'axios';
 

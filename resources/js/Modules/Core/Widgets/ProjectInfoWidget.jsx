@@ -5,7 +5,7 @@ import { InformationCircleIcon, CalendarIcon, CurrencyDollarIcon } from '@/Compo
 /**
  * ProjectInfoWidget - Project overview info for dashboard
  */
-import WidgetCard from '@/Components/Dashboard/WidgetCard';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
 /**
  * ProjectInfoWidget - Project overview info for dashboard
