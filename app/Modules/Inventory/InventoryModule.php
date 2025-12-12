@@ -85,15 +85,15 @@ class InventoryModule extends AbstractModule
     {
         return [
             // Listen for Finance Contract Execution to create Draft Inventory Entries
-            \App\Modules\Finance\Events\SupplyContractExecuted::class => [
+            'finance.contract.executed' => [
                 \App\Modules\Inventory\Listeners\CreateInventoryDraftEntry::class,
             ],
-            // Alert logic
-            \App\Modules\Inventory\Events\InventoryLowStock::class => [
+            // Alert logic - low stock creates replenishment task
+            'inventory.stock.low' => [
                 \App\Modules\Inventory\Listeners\CreateReplenishmentTask::class,
             ],
             // Production Finished -> Add Stock
-            \App\Modules\Operations\Events\LoteFinished::class => [
+            'operations.lote.finished' => [
                 \App\Modules\Inventory\Listeners\CreateFinishedGoodsEntry::class,
             ],
         ];

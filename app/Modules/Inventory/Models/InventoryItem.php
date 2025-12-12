@@ -12,6 +12,14 @@ class InventoryItem extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\InventoryItemFactory::new();
+    }
+
     protected $fillable = [
         'proyecto_id',
         'parent_id', // Null for Simple Product or Parent Variable. Filled for Variants.
@@ -65,5 +73,23 @@ class InventoryItem extends Model
     public function transactions()
     {
         return $this->hasMany(InventoryTransaction::class);
+    }
+    public function toSearchableArray()
+    {
+        return [
+            'id' => $this->id,
+            'proyecto_id' => $this->proyecto_id,
+            'name' => $this->name,
+            'sku' => $this->sku,
+            'type' => $this->type,
+            'unit' => $this->unit,
+            'description' => $this->description,
+            'cost_price' => (float) $this->cost_price,
+            'sale_price' => (float) $this->sale_price,
+            'current_stock' => (float) $this->current_stock,
+            'min_stock_level' => (float) $this->min_stock_level,
+            'is_low_stock' => $this->current_stock <= $this->min_stock_level,
+            'is_active' => (bool) $this->is_active,
+        ];
     }
 }

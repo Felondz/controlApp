@@ -117,6 +117,22 @@ export const WIDGET_DEFINITIONS = {
     },
 
     // Inventory Module Widgets
+    inventory_summary: {
+        id: 'inventory_summary',
+        module: 'inventory',
+        requiresAdmin: false,
+        titleKey: 'inventory.summary',
+        icon: 'ChartBarIcon',
+        defaultSize: 'medium',
+    },
+    inventory_low_stock: {
+        id: 'inventory_low_stock',
+        module: 'inventory',
+        requiresAdmin: false,
+        titleKey: 'inventory.low_stock_alert',
+        icon: 'ExclamationTriangleIcon',
+        defaultSize: 'medium',
+    },
     inventory_items_table: {
         id: 'inventory_items_table',
         module: 'inventory',
@@ -137,6 +153,7 @@ export const WIDGET_DEFINITIONS = {
         titleKey: 'dashboard.projects',
         icon: 'Squares2X2Icon',
         defaultSize: 'full', // Occupy full width
+        globalOnly: true,
     },
 
     // Core Widgets (No module required)
@@ -204,6 +221,8 @@ export const OPERATIONS_DEFAULT_LAYOUT = [
 
 // Inventory Dashboard Default Layout
 export const INVENTORY_DEFAULT_LAYOUT = [
+    'inventory_summary',
+    'inventory_low_stock',
     'inventory_items_table',
 ];
 
@@ -223,9 +242,14 @@ export const DEFAULT_LAYOUT = DEFAULT_OVERVIEW_LAYOUT;
  * @param {boolean} isPersonal - Whether this is a personal project
  * @returns {Object[]} Array of available widget definitions
  */
-export function getAvailableWidgets(modules = [], isAdmin = false, isPersonal = false) {
+export function getAvailableWidgets(modules = [], isAdmin = false, isPersonal = false, isProjectContext = false) {
     return Object.values(WIDGET_DEFINITIONS).filter(widget => {
         if (!widget) return false;
+
+        // Check global only widgets (hide in project context)
+        if (widget.globalOnly && isProjectContext) {
+            return false;
+        }
 
         // Check module requirement
         if (widget.module && !modules.includes(widget.module)) {

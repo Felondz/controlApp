@@ -154,7 +154,11 @@ Route::middleware('auth')->group(function () {
     });
 
     // Operations Module Routes
-    Route::get('mis-proyectos/{proyecto}/operations/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
+    Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
+        Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
+        Route::get('/lotes/create', [\App\Modules\Operations\Controllers\LoteController::class, 'create'])->name('operations.lotes.create');
+        Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
+    });
 });
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');

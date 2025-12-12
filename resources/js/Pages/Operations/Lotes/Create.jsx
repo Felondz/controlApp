@@ -26,7 +26,8 @@ export default function Create({ auth, proyecto, processes }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{t('operations.create_lote')}</h2>}
+            project={proyecto}
+            header={<h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">{t('operations.create_lote')}</h2>}
         >
             <Head title={t('operations.create_lote')} />
 

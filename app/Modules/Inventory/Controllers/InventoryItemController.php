@@ -8,6 +8,7 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class InventoryItemController extends Controller
 {
@@ -16,21 +17,65 @@ class InventoryItemController extends Controller
      */
     public function index(Request $request, Proyecto $proyecto)
     {
-        $query = InventoryItem::where('proyecto_id', $proyecto->id);
+        try {
+            // Attempt to use Scout/Meilisearch
+            // Note: If Meilisearch is not running or Index does not exist, this might throw an exception depending on driver
+            // However, Scout basic search usually returns a Builder. The exception happens at execution (paginate).
+            
+            $query = InventoryItem::search($request->input('search', ''));
+            
+            // Scope to Project
+            $query->where('proyecto_id', $proyecto->id);
 
-        if ($request->has('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('sku', 'like', '%' . $request->search . '%');
-            });
+            // Column Filters
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+            
+            // Stock Status Filter (requires is_low_stock in searchable array)
+            if ($request->filled('stock_status')) {
+                 if ($request->stock_status === 'low') {
+                     $query->where('is_low_stock', true);
+                 } elseif ($request->stock_status === 'normal') {
+                     $query->where('is_low_stock', false);
+                 }
+            }
+
+            $items = $query->paginate(10)->withQueryString();
+
+        } catch (\Exception $e) {
+            // Fallback to Standard SQL if Search Engine fails (e.g. Index not found, Connection Refused)
+            // This ensures the page is always usable.
+            
+            $query = InventoryItem::where('proyecto_id', $proyecto->id);
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('sku', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+
+            if ($request->filled('stock_status')) {
+                 if ($request->stock_status === 'low') {
+                     $query->whereColumn('current_stock', '<=', 'min_stock_level');
+                 } elseif ($request->stock_status === 'normal') {
+                     $query->whereColumn('current_stock', '>', 'min_stock_level');
+                 }
+            }
+
+            $items = $query->paginate(10)->withQueryString();
         }
-
-        $items = $query->paginate(10)->withQueryString();
 
         return \Inertia\Inertia::render('Inventory/Items/Index', [
             'proyecto' => $proyecto,
             'items' => $items,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'type', 'stock_status']),
         ]);
     }
 

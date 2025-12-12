@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { Cog6ToothIcon } from '@/Components/Icons';
+
 import DraggableProjectGrid from '@/Components/Dashboard/DraggableProjectGrid';
 import { WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import { useState } from 'react';
@@ -33,6 +33,7 @@ export default function Dashboard({ auth, proyectos = [] }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
+            showBackButton={false}
             header={
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-4">
@@ -40,14 +41,6 @@ export default function Dashboard({ auth, proyectos = [] }) {
                             {t('dashboard.title')}
                         </h2>
                     </div>
-                    <button
-                        onClick={() => setShowSettingsModal(true)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                        title={t('dashboard.customize')}
-                    >
-                        <Cog6ToothIcon className="w-4 h-4" />
-                        <span className="hidden sm:inline">{t('dashboard.customize', 'Personalizar')}</span>
-                    </button>
                 </div>
             }
         >

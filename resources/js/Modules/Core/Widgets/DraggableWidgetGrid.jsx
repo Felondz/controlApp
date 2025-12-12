@@ -9,7 +9,7 @@ import WidgetCard from './WidgetCard';
 import { BalanceSummaryWidget, SavingsGoalWidget, CreditSimulationWidget, UpcomingObligationsWidget, FinancialChartsWidget, AccountFlowWidget, TransactionsWidget, BillsWidget } from '@/Modules/Finance/Widgets';
 import { TasksSummaryWidget, UserTasksWidget } from '@/Modules/Tasks/Widgets';
 import { ChatRecentWidget } from '@/Modules/Chat/Widgets';
-import { InventoryItemsWidget } from '@/Modules/Inventory/Widgets';
+import { InventoryItemsWidget, InventorySummaryWidget, LowStockWidget } from '@/Modules/Inventory/Widgets';
 import { LotesListWidget } from '@/Modules/Operations/Widgets';
 import MembersSummaryWidget from './MembersSummaryWidget';
 import ProjectInfoWidget from './ProjectInfoWidget';
@@ -31,6 +31,8 @@ const WIDGET_COMPONENTS = {
     operations_lotes_list: LotesListWidget,
 
     // Inventory
+    inventory_summary: InventorySummaryWidget,
+    inventory_low_stock: LowStockWidget,
     inventory_items_table: InventoryItemsWidget,
 
     // Other Modules
@@ -77,7 +79,7 @@ export default function DraggableWidgetGrid({
     // For global dashboard, we might want to show everything available to user context
 
     // Get available widgets based on permissions
-    let availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+    let availableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal, !!project);
 
     // Further filter available widgets by allowedModules if provided
     if (allowedModules) {
@@ -106,7 +108,7 @@ export default function DraggableWidgetGrid({
 
     // Update widgets when permissions change
     useEffect(() => {
-        let currentAvailableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal);
+        let currentAvailableWidgets = getAvailableWidgets(modules, isAdmin, isPersonal, !!project);
         if (allowedModules) {
             currentAvailableWidgets = currentAvailableWidgets.filter(widget =>
                 allowedModules.includes(WIDGET_DEFINITIONS[widget.id]?.module)

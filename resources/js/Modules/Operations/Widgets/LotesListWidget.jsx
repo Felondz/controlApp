@@ -1,36 +1,58 @@
 import { Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { FactoryIcon, ClockIcon } from '@/Components/Icons';
+import { FactoryIcon, ClockIcon, PlusIcon } from '@/Components/Icons';
 import PrimaryButton from "@/Components/PrimaryButton";
-import { PlusIcon } from '@/Components/Icons';
+import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 
-export default function LotesListWidget({ project, lotes = { data: [] } }) {
+export default function LotesListWidget({
+    project,
+    lotes = { data: [] },
+    widget,
+    isDragging,
+    dragHandleProps,
+    onHide
+}) {
     const { t } = useTranslate();
 
     // Handling case where lotes might not be available yet or format is different
     const lotesData = lotes.data || [];
 
-    return (
-        <div className="h-full flex flex-col">
-            <div className="flex justify-between items-center mb-4 px-1">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t('operations.active', 'Activo')}</h3>
-                <Link href={route('operations.lotes.create', project.id)}>
-                    <PrimaryButton size="sm">
-                        <PlusIcon className="mr-2 h-3 w-3" /> {t('operations.new_lote', 'Nuevo')}
-                    </PrimaryButton>
-                </Link>
-            </div>
+    // Safely try to get the create route
+    let createUrl = null;
+    try {
+        createUrl = route('operations.lotes.create', project.id);
+    } catch (e) {
+        // Route not available, use fallback URL
+        createUrl = `/mis-proyectos/${project.id}/operations/lotes/create`;
+    }
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 overflow-y-auto min-h-[300px]">
+    const actionButton = (
+        <Link href={createUrl}>
+            <PrimaryButton size="sm">
+                <PlusIcon className="mr-2 h-3 w-3" /> {t('operations.new_lote', 'Nuevo')}
+            </PrimaryButton>
+        </Link>
+    );
+
+    return (
+        <WidgetCard
+            widget={widget}
+            title={t('operations.title', 'Operaciones')}
+            action={actionButton}
+            onHide={onHide}
+            isDragging={isDragging}
+            dragHandleProps={dragHandleProps}
+        >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[200px]">
                 {lotesData.map((lote) => (
-                    <Link href={`/proyectos/${project.id}/operations/lotes/${lote.id}`} key={lote.id} className="block h-full">
-                        <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700 overflow-hidden relative group p-4">
+                    <Link href={`/mis-proyectos/${project.id}/operations/lotes/${lote.id}`} key={lote.id} className="block h-full">
+                        <div className="h-full bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-600 overflow-hidden relative group p-4">
 
                             {/* Status Badge */}
                             <div className="absolute top-2 right-2">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase ${lote.status === 'active'
-                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                     }`}>
                                     {lote.status}
                                 </span>
@@ -85,6 +107,7 @@ export default function LotesListWidget({ project, lotes = { data: [] } }) {
                     </div>
                 )}
             </div>
-        </div>
+        </WidgetCard>
     );
 }
+

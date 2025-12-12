@@ -9,6 +9,7 @@ export default function Index({ auth, proyecto }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
+            project={proyecto}
             header={
                 <div className="flex items-center gap-4">
                     <Link

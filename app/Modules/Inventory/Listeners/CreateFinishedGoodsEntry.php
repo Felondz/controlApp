@@ -2,24 +2,63 @@
 
 namespace App\Modules\Inventory\Listeners;
 
+use App\Core\Events\Contracts\ModuleEvent;
 use App\Modules\Operations\Events\LoteFinished;
+use App\Modules\Operations\Models\LoteProduccion;
 use App\Modules\Inventory\Models\InventoryTransaction;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class CreateFinishedGoodsEntry
+/**
+ * CreateFinishedGoodsEntry Listener
+ * 
+ * Creates inventory entries for finished goods when a production batch completes.
+ * Runs asynchronously via Redis queue.
+ */
+class CreateFinishedGoodsEntry implements ShouldQueue
 {
+    use InteractsWithQueue;
+
+    /**
+     * The name of the connection the job should be sent to.
+     *
+     * @var string|null
+     */
+    public $connection = 'redis';
+
     /**
      * Handle the event.
      *
-     * @param  LoteFinished  $event
+     * @param ModuleEvent $event
      * @return void
      */
-    public function handle(LoteFinished $event)
+    public function handle(ModuleEvent $event): void
     {
-        $lote = $event->lote;
+        // Only handle operations.lote.finished
+        if ($event->getName() !== 'operations.lote.finished') {
+            return;
+        }
+
+        // Get data from event
+        if ($event instanceof LoteFinished) {
+            $lote = $event->lote;
+        } else {
+            // Fallback: load from payload
+            $loteId = $event->get('lote_id');
+            
+            $lote = LoteProduccion::find($loteId);
+            
+            if (!$lote) {
+                Log::channel('modules')->warning("CreateFinishedGoodsEntry: Could not find lote", [
+                    'lote_id' => $loteId,
+                ]);
+                return;
+            }
+        }
 
         if (!$lote->inventory_item_id) {
-            Log::warning("Lote {$lote->code} finished but has no product (inventory_item_id) defined. Skipping stock entry.");
+            Log::channel('modules')->warning("CreateFinishedGoodsEntry: Lote {$lote->code} finished but has no product (inventory_item_id) defined. Skipping stock entry.");
             return;
         }
 
@@ -27,15 +66,13 @@ class CreateFinishedGoodsEntry
         $qty = $lote->current_quantity;
 
         if ($qty <= 0) {
-            Log::warning("Lote {$lote->code} finished with zero quantity. Skipping stock entry.");
+            Log::channel('modules')->warning("CreateFinishedGoodsEntry: Lote {$lote->code} finished with zero quantity. Skipping stock entry.");
             return;
         }
 
-        Log::info("Lote Finished [{$lote->code}]. Adding {$qty} to Inventory Item {$lote->inventory_item_id}");
+        Log::channel('modules')->info("CreateFinishedGoodsEntry: Lote Finished [{$lote->code}]. Adding {$qty} to Inventory Item {$lote->inventory_item_id}");
 
-        // Estimate logic cost? 
-        // For simple implementations, maybe 0 or standard cost? 
-        // We leave unit_price as 0 or current cost for now as we don't have full cost accounting yet.
+        // Estimate logic cost
         $unitPrice = 0;
         if ($lote->product && $lote->product->cost_price > 0) {
             $unitPrice = $lote->product->cost_price;
@@ -58,5 +95,7 @@ class CreateFinishedGoodsEntry
             'notes' => "Finished Goods from Lote: {$lote->code}",
             'transaction_date' => now(),
         ]);
+
+        Log::channel('modules')->info("CreateFinishedGoodsEntry: Stock entry created for Lote {$lote->code}");
     }
 }

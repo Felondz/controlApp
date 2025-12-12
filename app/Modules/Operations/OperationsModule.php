@@ -90,7 +90,7 @@ class OperationsModule extends AbstractModule
     public function getEventListeners(): array
     {
         return [
-            \App\Modules\Operations\Events\StageChanged::class => [
+            'operations.lote.stage_changed' => [
                 \App\Modules\Operations\Listeners\GenerateStageTasks::class,
             ],
         ];

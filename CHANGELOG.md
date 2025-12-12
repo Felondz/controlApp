@@ -4,6 +4,43 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+### 11 de Diciembre de 2025 (Late)
+
+#### ⚡ EventBus Async Migration: Operations & Inventory Modules
+
+**Type**: Architecture Enhancement
+**Impact**: MEDIUM - Event-driven async processing for all modules
+**Tests Affected**: 62/62 ✅ (all passing)
+
+**Description**:
+Migrated Operations and Inventory modules to the async EventBus architecture, following the pattern established by Chat module. All inter-module communication now uses string-based events and async listeners via Redis queue.
+
+**Events Migrated to `BaseModuleEvent`**:
+- `operations.lote.stage_changed` (StageChanged.php)
+- `operations.lote.finished` (LoteFinished.php)
+- `inventory.stock.low` (InventoryLowStock.php)
+- `finance.contract.executed` (SupplyContractExecuted.php)
+
+**Listeners Converted to `ShouldQueue + Redis`**:
+- `GenerateStageTasks` - Creates tasks from stage templates when batch moves to new stage
+- `CreateFinishedGoodsEntry` - Adds finished goods to inventory when production batch completes
+- `CreateInventoryDraftEntry` - Creates draft inventory entries when supply contract executes
+- `CreateReplenishmentTask` - Creates replenishment task when item falls below minimum stock
+
+**Module Updates**:
+- `OperationsModule.php` - `getEventListeners()` now uses strings instead of class FQCN
+- `InventoryModule.php` - `getEventListeners()` now uses strings instead of class FQCN
+
+**Documentation Updated**:
+- `docs/private/en/01-core/MODULES_ARCHITECTURE.md`
+- `docs/private/es/01-core/MODULES_ARCHITECTURE.md`
+- `docs/development/operations_module_log.md`
+
+**Commit Simulado**: `feat(events): migrate operations and inventory to async eventbus`
+
+---
+
 ### 11 de Diciembre de 2025
 
 #### 🏗️ REFACTOR: Complete Backend Modular Architecture Migration (v2.8.0)

@@ -10,7 +10,6 @@ import { DraggableWidgetGrid, WidgetSettingsModal } from '@/Modules/Core/Widgets
 import ItemModal from './ItemModal';
 
 export default function InventoryIndex({ auth, proyecto, items, filters }) {
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const { t } = useTranslate();
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
@@ -32,6 +31,7 @@ export default function InventoryIndex({ auth, proyecto, items, filters }) {
 
     const dashboardData = {
         items,
+        filters,
         onAdd: handleAddItem,
         onEdit: handleEditItem,
     };
@@ -57,32 +57,27 @@ export default function InventoryIndex({ auth, proyecto, items, filters }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{t('inventory.title')}</h2>}
+            project={proyecto}
+            header={
+                <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">
+                    {t('inventory.title')}
+                </h2>
+            }
         >
             <Head title={t('modules.inventory') || 'Inventario'} />
 
             <div className="py-12">
                 <div className="max-w-[1920px] mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                    {/* Header Actions */}
-                    <div className="flex justify-between items-center gap-4 mb-6">
-                        <div className="relative w-full max-w-sm">
-                            <SearchInput
-                                placeholder={t('inventory.search_placeholder')}
-                                className="w-full"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
+                    {/* Header Actions - Search moved to Widget */}
+                    <div className="flex justify-end items-center gap-4 mb-6">
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setShowSettingsModal(true)}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                                title={t('dashboard.customize')}
+                                className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                title={t('dashboard.customize', 'Personalizar')}
                             >
-                                <Cog6ToothIcon className="w-5 h-5" />
-                                <span className="hidden sm:inline">{t('dashboard.customize', 'Personalizar')}</span>
+                                <Cog6ToothIcon className="w-6 h-6" />
                             </button>
                         </div>
                     </div>

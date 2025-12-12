@@ -73,21 +73,13 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         </div>
 
                         {/* Settings Button */}
+                        {/* Settings Button */}
                         <button
                             onClick={() => setShowSettingsModal(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 
-                                       bg-white dark:bg-gray-800 
-                                       border border-gray-300 dark:border-gray-600 
-                                       rounded-lg shadow-sm
-                                       text-gray-700 dark:text-gray-300
-                                       hover:bg-gray-50 dark:hover:bg-gray-700
-                                       transition-colors"
-                            title={t('dashboard.customize', 'Personalizar Dashboard')}
+                            className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                            title={t('dashboard.customize', 'Personalizar Panel')}
                         >
-                            <Cog6ToothIcon className="w-5 h-5" />
-                            <span className="hidden sm:inline">
-                                {t('dashboard.customize', 'Personalizar')}
-                            </span>
+                            <Cog6ToothIcon className="w-6 h-6" />
                         </button>
                     </div>
                 </div>

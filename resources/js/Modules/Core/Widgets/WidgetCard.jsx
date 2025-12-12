@@ -63,7 +63,7 @@ export default function WidgetCard({
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-primary-700 dark:text-primary-300 flex items-center gap-2">
                         {widget?.icon && !title && (
                             // Optional: Render icon if no title prop (or if we want icon + title)
                             // For now let's just render title

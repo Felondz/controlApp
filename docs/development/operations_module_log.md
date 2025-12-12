@@ -125,33 +125,70 @@ Se ha desplegado el esquema completo de base de datos:
 
 ---
 
-## 7. Fase 6: Arquitectura Orientada a Eventos (Piloto)
-**Fecha**: Diciembre 11, 2025
-**Objetivo**: Migración a Event-Driven Architecture para optimización de rendimiento (Solución N+1).
+## 7. Fase 6: Arquitectura Orientada a Eventos (EventBus Asíncrono)
+**Fecha de Inicio**: Diciembre 11, 2025
+**Objetivo**: Migración a Event-Driven Architecture con `ModuleEventBus` asíncrono para todos los módulos.
 
-### Problema Detectado
-*   **Síntoma**: Múltiples consultas repetitivas (`select count(*) ... messages`) en cada carga del Dashboard.
-*   **Causa**: Cálculo "on-the-fly" de mensajes no leídos para cada proyecto en `ProyectoUiWebController`.
-*   **Impacto**: Saturación de logs de depuración y tiempos de respuesta dependientes de la cantidad de mensajes.
+### 7.1 Estado de Migración por Módulo
 
-### Solución Arquitectónica
-Se implementa una arquitectura de **"Read Model"** asíncrona:
-1.  **Columna Caché**: Se añade `unread_messages_count` a la tabla pivote `proyecto_user`.
-2.  **Workers & Eventos**: `ModuleEventBus` se configura en modo ASYNC (`MODULE_EVENT_ASYNC=true`).
-3.  **Listener Reactivo**: Nuevo listener `UpdateUnreadCount` que incrementa el contador en segundo plano al ocurrir `chat.message.sent`.
-4.  **Logging Dedicado**: Nuevo canal de log `modules` en `storage/logs/modules.log` controlado por `MODULE_EVENT_LOG=true`.
+| Módulo | Estado | Eventos Migrados | Listeners con ShouldQueue |
+|--------|--------|------------------|---------------------------|
+| **Chat** | ✅ Completado | `chat.message.sent` | `UpdateUnreadCount` |
+| **Operations** | ✅ Completado | `operations.lote.stage_changed`, `operations.lote.finished` | `GenerateStageTasks` |
+| **Inventory** | ✅ Completado | `inventory.stock.low` | `CreateFinishedGoodsEntry`, `CreateInventoryDraftEntry`, `CreateReplenishmentTask` |
+| **Finance** | ✅ Completado | `finance.contract.executed` | - (emite eventos, no escucha) |
 
-### Plan de Ejecución
-1.  [x] Migración de base de datos (`proyecto_user`).
-2.  [x] Configuración de Logging en `config/logging.php`.
-3.  [x] Implementación de `UpdateUnreadCountListener`.
-4.  [x] Refactorización de Controladores para leer/escribir en la nueva columna.
+### 7.2 Problema Original (N+1 Queries)
+*   **Síntoma**: Consultas repetitivas (`select count(*) ... messages`) en Dashboard.
+*   **Causa**: Cálculo "on-the-fly" de mensajes no leídos en `ProyectoUiWebController`.
+*   **Solución**: Arquitectura "Read Model" con columna caché `unread_messages_count`.
 
-### Infraestructura y Despliegue (Docker)
-Para soportar la carga asíncrona en producción, se ajustó la arquitectura de contenedores:
-*   **Servicio Worker**: Se agregó un contenedor dedicado `worker` en `docker-compose.prod.yml`.
-*   **Escalabilidad**: Se configuró `replicas: 3` para garantizar alta disponibilidad y concurrencia.
-*   **Queue Driver**: Se estableció `Redis` como motor de colas por defecto para máximo rendimiento.
+### 7.3 Patrón de Implementación (Referencia: Chat Module)
+
+#### Eventos
+Todos los eventos deben extender `BaseModuleEvent`:
+```php
+class MessageSent extends BaseModuleEvent
+{
+    public function getName(): string
+    {
+        return 'chat.message.sent';  // String-based naming
+    }
+}
+```
+
+#### Listeners
+Implementar `ShouldQueue` con conexión Redis:
+```php
+class UpdateUnreadCount implements ShouldQueue
+{
+    use InteractsWithQueue;
+    public $connection = 'redis';
+    
+    public function handle(ModuleEvent $event): void { ... }
+}
+```
+
+#### Registro en Módulo
+Usar strings en `getEventListeners()`:
+```php
+'chat.message.sent' => [UpdateUnreadCount::class]
+```
+
+### 7.4 Infraestructura
+
+| Componente | Configuración |
+|------------|---------------|
+| Queue Driver | Redis |
+| Workers | 3 réplicas en producción |
+| Logging | `storage/logs/modules.log` |
+| Env Vars | `MODULE_EVENT_ASYNC=true`, `MODULE_EVENT_LOG=true` |
+
+### 7.5 Resultados (Diciembre 11, 2025)
+1.  [x] Migrar eventos de Operations a `BaseModuleEvent`
+2.  [x] Migrar eventos de Inventory a `BaseModuleEvent`
+3.  [x] Agregar `ShouldQueue` a todos los listeners
+4.  [x] Tests de integración pasados (62 tests, 200 assertions)
 
 ---
 
