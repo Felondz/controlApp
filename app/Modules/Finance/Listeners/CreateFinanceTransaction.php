@@ -3,7 +3,7 @@
 namespace App\Modules\Finance\Listeners;
 
 use App\Modules\Inventory\Events\InventoryTransactionConfirmed;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use Illuminate\Support\Facades\Log;
 
 class CreateFinanceTransaction

@@ -6,8 +6,8 @@ use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Proyecto;
-use App\Models\Transaccion;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Transaccion;
+use App\Modules\Finance\Models\Cuenta;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

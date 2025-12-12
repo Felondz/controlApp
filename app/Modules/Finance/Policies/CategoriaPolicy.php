@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Modules\Finance\Policies;
 
 use App\Models\User;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Categoria;
 use App\Models\Proyecto;
 
 class CategoriaPolicy

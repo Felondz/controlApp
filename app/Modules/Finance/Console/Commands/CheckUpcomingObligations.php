@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Modules\Finance\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 use App\Notifications\UpcomingPaymentNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;

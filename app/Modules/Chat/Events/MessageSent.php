@@ -3,7 +3,7 @@
 namespace App\Modules\Chat\Events;
 
 use App\Core\Events\BaseModuleEvent;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 
 /**
  * MessageSent Event

@@ -1,15 +1,15 @@
 <?php
 
 // 1. ¡Este es el cambio más importante!
-namespace App\Models;
+namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 // 2. Los 'use' ahora son más simples porque todos están en App\Models
 use App\Models\Proyecto;
-use App\Models\Cuenta;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Finance\Models\Categoria;
 use App\Models\User;
 
 /**
@@ -31,6 +31,11 @@ use App\Models\User;
 class Transaccion extends Model
 {
     use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\TransaccionFactory::new();
+    }
 
     protected $table = 'transacciones';
 

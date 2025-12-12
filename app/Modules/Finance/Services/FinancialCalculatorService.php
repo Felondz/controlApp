@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Modules\Finance\Services;
 
 class FinancialCalculatorService
 {

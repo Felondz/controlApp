@@ -3,7 +3,7 @@
 namespace App\Modules\Tasks\Events;
 
 use App\Core\Events\BaseModuleEvent;
-use App\Models\Task;
+use App\Modules\Tasks\Models\Task;
 
 /**
  * TaskCreated Event

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
 use App\Models\User;
-use App\Models\Categoria;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Categoria;
+use App\Modules\Finance\Models\Transaccion;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -101,7 +101,7 @@ class CreditCardTest extends TestCase
         ]);
 
         // Mock Service - Unconditional Return to Verify Injection
-        $this->mock(\App\Services\CreditCardBillingService::class, function ($mock) use ($cuentaTC) {
+        $this->mock(\App\Modules\Finance\Services\CreditCardBillingService::class, function ($mock) use ($cuentaTC) {
             $mock->shouldReceive('getUpcomingBill')
                 ->zeroOrMoreTimes() // Accept any number of calls
                 ->andReturnUsing(function ($cuenta) use ($cuentaTC) {

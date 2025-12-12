@@ -263,7 +263,7 @@ class ProyectoUiWebController extends Controller
                 ->get();
 
             // Calculate credit card bills from active CC accounts
-            $billingService = new \App\Services\CreditCardBillingService();
+            $billingService = new \App\Modules\Finance\Services\CreditCardBillingService();
             $allCCs = $mis_proyecto->cuentas
                 ->where('tipo', 'credito')
                 ->where('estado', 'activa')

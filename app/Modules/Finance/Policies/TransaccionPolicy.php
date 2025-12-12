@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Modules\Finance\Policies;
 
 use App\Models\User;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use App\Models\Proyecto;
 
 class TransaccionPolicy

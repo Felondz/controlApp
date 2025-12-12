@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Observers;
+namespace App\Modules\Finance\Observers;
 
-use App\Models\Transaccion;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Transaccion;
+use App\Modules\Finance\Models\Cuenta;
 use Illuminate\Support\Facades\DB;
 
 class TransaccionObserver

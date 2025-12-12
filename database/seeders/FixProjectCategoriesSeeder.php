@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Proyecto;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Categoria;
 
 class FixProjectCategoriesSeeder extends Seeder
 {

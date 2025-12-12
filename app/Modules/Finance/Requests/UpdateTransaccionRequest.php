@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Features\Finanzas\Requests;
+namespace App\Modules\Finance\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 
 class UpdateTransaccionRequest extends FormRequest
 {

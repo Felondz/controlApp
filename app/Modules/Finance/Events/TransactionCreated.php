@@ -3,7 +3,7 @@
 namespace App\Modules\Finance\Events;
 
 use App\Core\Events\BaseModuleEvent;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 
 /**
  * TransactionCreated Event

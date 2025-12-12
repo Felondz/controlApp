@@ -1,15 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Transaccion;
+use App\Models\Proyecto;
+use App\Modules\Finance\Models\Transaccion;
 
 class Cuenta extends Model
 {
     /** @use HasFactory<\Database\Factories\CuentaFactory> */
     use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\CuentaFactory::new();
+    }
 
     protected $fillable = [
         'nombre',

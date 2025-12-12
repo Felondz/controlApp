@@ -3,7 +3,7 @@
 namespace App\Modules\Finance\Jobs;
 
 use App\Modules\Finance\Models\SupplyContract;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use App\Modules\Finance\Events\SupplyContractExecuted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

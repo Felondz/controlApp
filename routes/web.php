@@ -6,7 +6,7 @@ use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
 use App\Http\Controllers\ToolController;
-use App\Features\Finanzas\Controllers\TransaccionController;
+use App\Modules\Finance\Controllers\TransaccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -102,9 +102,9 @@ Route::middleware('auth')->group(function () {
         ->name('finance.projects.update-settings');
 
     // Tasks Module
-    Route::resource('mis-proyectos.tasks', \App\Http\Controllers\TaskController::class)
+    Route::resource('mis-proyectos.tasks', \App\Modules\Tasks\Controllers\TaskController::class)
         ->parameters(['mis-proyectos' => 'proyecto'])
-        ->only(['index', 'store', 'update', 'destroy']);
+        ->except(['create', 'edit', 'show']);
 
     // Accept Invitation
     Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])

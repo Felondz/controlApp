@@ -62,6 +62,6 @@ class LoteProduccion extends Model
     // Tasks related to this batch
     public function tasks()
     {
-        return $this->morphMany(\App\Models\Task::class, 'related');
+        return $this->morphMany(\App\Modules\Tasks\Models\Task::class, 'related');
     }
 }

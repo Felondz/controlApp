@@ -3,7 +3,7 @@
 namespace App\Modules\Finance\Events;
 
 use App\Modules\Finance\Models\SupplyContract;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 

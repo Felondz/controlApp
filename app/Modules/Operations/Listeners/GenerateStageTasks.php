@@ -3,7 +3,7 @@
 namespace App\Modules\Operations\Listeners;
 
 use App\Modules\Operations\Events\StageChanged;
-use App\Models\Task;
+use App\Modules\Tasks\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 

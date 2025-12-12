@@ -8,8 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Proyecto;
-use App\Models\Cuenta;
-use App\Models\Task;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Tasks\Models\Task;
 use App\Notifications\VerificacionEmailNotification;
 
 /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Modules\Finance\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
 use App\Http\Requests\StoreCuentaRequest;
 use App\Http\Requests\UpdateCuentaRequest;
@@ -64,11 +64,11 @@ class CuentaController extends Controller
 
         // Handle Loan Disbursement (for Mobile/API compatibility)
         if ($cuenta->tipo === 'prestamo' && !empty($datos['monto_desembolsado']) && $datos['monto_desembolsado'] > 0) {
-            $service = new \App\Services\LoanDisbursementService();
+            $service = new \App\Modules\Finance\Services\LoanDisbursementService();
 
             $destination = null;
             if (!empty($datos['cuenta_destino_id'])) {
-                $destination = \App\Models\Cuenta::find($datos['cuenta_destino_id']);
+                $destination = \App\Modules\Finance\Models\Cuenta::find($datos['cuenta_destino_id']);
                 // Verify access to destination account?
                 // Assuming if they can see it they can use it, or service handles it.
             }
@@ -202,12 +202,12 @@ class CuentaController extends Controller
      * Get credit card bills for all credit card accounts in the project.
      * Uses CreditCardBillingService to calculate upcoming bills.
      */
-    public function creditCardBills(Request $request, Proyecto $proyecto, \App\Services\CreditCardBillingService $billingService)
+    public function creditCardBills(Request $request, Proyecto $proyecto, \App\Modules\Finance\Services\CreditCardBillingService $billingService)
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
         // $billingService is injected automatically
-        // $billingService = new \App\Services\CreditCardBillingService();
+        // $billingService = new \App\Modules\Finance\Services\CreditCardBillingService();
 
         // Get all credit card accounts (owned + linked)
         $ownedCCs = $proyecto->cuentas()
@@ -276,7 +276,7 @@ class CuentaController extends Controller
         $monto = (int) $request->monto;
 
         // Create payment transaction (expense from origin account)
-        $transaccionOrigen = \App\Models\Transaccion::create([
+        $transaccionOrigen = \App\Modules\Finance\Models\Transaccion::create([
             'proyecto_id' => $proyecto->id,
             'cuenta_id' => $cuentaOrigen->id,
             'categoria_id' => $this->getDefaultPaymentCategory($proyecto),
@@ -288,7 +288,7 @@ class CuentaController extends Controller
         ]);
 
         // Create transaction in Credit Card (Positive/Payment)
-        $transaccionDestino = \App\Models\Transaccion::create([
+        $transaccionDestino = \App\Modules\Finance\Models\Transaccion::create([
             'proyecto_id' => $proyecto->id,
             'cuenta_id' => $cuenta->id, // Destination (CC)
             'categoria_id' => $this->getDefaultPaymentCategory($proyecto),
@@ -341,7 +341,7 @@ class CuentaController extends Controller
             return $categoria->id;
 
         // 3. Create Default Category if none found
-        $newCat = \App\Models\Categoria::create([
+        $newCat = \App\Modules\Finance\Models\Categoria::create([
             'proyecto_id' => $proyecto->id,
             'nombre' => 'Pagos de Tarjeta',
             'tipo' => 'expense',

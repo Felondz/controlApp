@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\Finanzas\Requests;
+namespace App\Modules\Finance\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -72,7 +72,7 @@ class StoreTransaccionRequest extends FormRequest
         $validator->after(function ($validator) {
             // Validation for Investment/CDT accounts
             if ($this->has('cuenta_id') && $this->cuenta_id) {
-                $cuenta = \App\Models\Cuenta::find($this->cuenta_id);
+                $cuenta = \App\Modules\Finance\Models\Cuenta::find($this->cuenta_id);
 
                 // If account is INVESTMENT/CDT AND has a future expiration date
                 if ($cuenta && $cuenta->tipo === 'inversion' && $cuenta->fecha_vencimiento && now()->lt($cuenta->fecha_vencimiento)) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Modules\Finance\Jobs;
 
-use App\Models\Cuenta;
-use App\Models\Transaccion;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Finance\Models\Transaccion;
+use App\Modules\Finance\Models\Categoria;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

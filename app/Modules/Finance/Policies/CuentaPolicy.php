@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Modules\Finance\Policies;
 
 use App\Models\User;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
 
 class CuentaPolicy

@@ -4,6 +4,60 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### 11 de Diciembre de 2025
+
+#### 🏗️ REFACTOR: Complete Backend Modular Architecture Migration (v2.8.0)
+
+**Type**: Architecture Refactoring
+**Impact**: HIGH - Major structural change to backend codebase
+**Tests Affected**: 305/305 ✅ (all passing)
+
+**Description**:
+Completed the migration of all feature-specific code from `app/Models/`, `app/Http/Controllers/`, and `app/Features/` into their respective module directories under `app/Modules/`. This enforces strict modular architecture boundaries and improves codebase scalability.
+
+**Files Moved**:
+
+1. **Finance Module** (`app/Modules/Finance/`):
+   - **Models**: `Cuenta.php`, `Transaccion.php`, `Categoria.php`
+   - **Controllers**: `TransaccionController.php`, `CuentaController.php`
+   - **Requests**: `StoreTransaccionRequest.php`, `UpdateTransaccionRequest.php`
+   - **Jobs**: `ProcessAutoBills.php`, `ProcessRecurringBills.php`, `ProcessInterestAccrual.php`
+   - **Services**: `CreditCardBillingService.php`, `FinancialCalculatorService.php`, `InvestmentInterestService.php`, `LoanDisbursementService.php`
+   - **Policies**: `CuentaPolicy.php`, `CategoriaPolicy.php`, `TransaccionPolicy.php`
+   - **Observers**: `TransaccionObserver.php`
+   - **Commands**: `CheckUpcomingObligations.php`
+
+2. **Tasks Module** (`app/Modules/Tasks/`):
+   - **Models**: `Task.php`
+   - **Controllers**: `TaskController.php`
+
+3. **Chat Module** (`app/Modules/Chat/`):
+   - **Models**: `Message.php`
+
+**Namespace Updates**:
+- All moved files updated to new namespaces (e.g., `App\Modules\Finance\Models\Cuenta`)
+- Global search and replace across `app/`, `tests/`, `database/`, `routes/`
+- Updated route files (`api.php`, `web.php`) with new controller imports
+- Updated `Proyecto.php` model with new relationship imports
+
+**Factory Resolution Fixes**:
+- Added `newFactory()` method to all moved models
+- Added `$model` property to corresponding factories
+- Created new `TaskFactory.php`
+
+**Documentation Updated**:
+- `docs/private/ARCHITECTURE_MODULES.md`
+- `docs/private/en/01-core/MODULES_ARCHITECTURE.md`
+- `docs/private/es/01-core/MODULES_ARCHITECTURE.md`
+
+**Validation**:
+- ✅ 305 backend tests passing
+- ✅ All namespaces correctly resolved
+- ✅ Factory resolution working for all moved models
+
+**Commit Simulado**: `refactor(arch): complete backend modular architecture migration v2.8.0`
+
+---
 
 ## [2.7.1] - 2025-12-10
 

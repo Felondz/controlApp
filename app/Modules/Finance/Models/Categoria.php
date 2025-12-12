@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Proyecto;
 
 class Categoria extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\CategoriaFactory::new();
+    }
 
     /**
      * Los atributos que se pueden asignar masivamente.

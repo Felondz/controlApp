@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
-use App\Models\Cuenta;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Finance\Models\Categoria;
 
 class SupplyContract extends Model
 {

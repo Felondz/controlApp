@@ -1,13 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Tasks\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Proyecto;
+use App\Models\User;
+use App\Modules\Finance\Models\Categoria;
 
 class Task extends Model
 {
     use HasFactory;
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\TaskFactory::new();
+    }
 
     protected $fillable = [
         'project_id',

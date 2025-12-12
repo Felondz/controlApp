@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Proyecto;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 use Illuminate\Http\JsonResponse;
 
 class ProjectMessageUiWebController extends Controller

@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 // Importa TODOS los modelos con los que se relaciona
 use App\Models\User;
-use App\Models\Cuenta;
-use App\Models\Categoria;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Finance\Models\Categoria;
+use App\Modules\Finance\Models\Transaccion;
 use App\Models\Invitacion;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
+use App\Modules\Tasks\Models\Task;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 

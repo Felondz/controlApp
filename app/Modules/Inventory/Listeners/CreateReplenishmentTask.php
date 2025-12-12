@@ -3,7 +3,7 @@
 namespace App\Modules\Inventory\Listeners;
 
 use App\Modules\Inventory\Events\InventoryLowStock;
-use App\Models\Task;
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Support\Facades\Log;
 
 class CreateReplenishmentTask
