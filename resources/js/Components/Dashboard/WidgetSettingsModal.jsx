@@ -33,7 +33,7 @@ export default function WidgetSettingsModal({
 
     // Filter by allowedModules if specified
     const availableWidgets = allowedModules
-        ? allWidgets.filter(w => allowedModules.includes(w.module))
+        ? allWidgets.filter(w => w && allowedModules.includes(w.module))
         : allWidgets;
 
     console.log('WidgetSettingsModal: availableWidgets', availableWidgets);
@@ -91,7 +91,7 @@ export default function WidgetSettingsModal({
                 {/* Widget List Grouped by Module */}
                 <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
                     {Object.entries(
-                        availableWidgets.reduce((acc, widget) => {
+                        (availableWidgets || []).filter(w => w).reduce((acc, widget) => {
                             const module = widget.module || 'core';
                             if (!acc[module]) acc[module] = [];
                             acc[module].push(widget);

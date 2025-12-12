@@ -152,6 +152,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'update'])->name('inventory.items.update'); // Using POST for file upload spoofing if needed, or _method PUT
         Route::delete('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
     });
+
+    // Operations Module Routes
+    Route::get('mis-proyectos/{proyecto}/operations/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
 });
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');

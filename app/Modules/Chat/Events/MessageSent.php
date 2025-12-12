@@ -22,7 +22,7 @@ class MessageSent extends BaseModuleEvent
         parent::__construct('chat', [
             'message_id' => $message->id,
             'sender_id' => $message->user_id,
-            'receiver_id' => $message->receiver_id,
+            'recipient_id' => $message->recipient_id,
             'content' => $message->content,
             'is_read' => $message->is_read,
             'sent_at' => $message->created_at->toIso8601String(),

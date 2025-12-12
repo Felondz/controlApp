@@ -378,26 +378,11 @@ class ProyectoUiWebController extends Controller
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
-            $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+            // New logic: Read from cached column (Read Model)
+            $unreadCount = \Illuminate\Support\Facades\DB::table('proyecto_user')
                 ->where('proyecto_id', $proyecto->id)
                 ->where('user_id', $user->id)
-                ->first();
-            $lastReadAt = $pivot ? $pivot->last_read_at : null;
-
-            $generalUnread = $proyecto->messages()
-                ->whereNull('recipient_id')
-                ->where('user_id', '!=', $user->id)
-                ->when($lastReadAt, function ($q) use ($lastReadAt) {
-                    $q->where('created_at', '>', $lastReadAt);
-                })
-                ->count();
-
-            $privateUnread = $proyecto->messages()
-                ->where('recipient_id', $user->id)
-                ->whereNull('read_at')
-                ->count();
-
-            $unreadCount = $generalUnread + $privateUnread;
+                ->value('unread_messages_count') ?? 0;
         }
         $proyecto->unread_messages_count = $unreadCount;
     }
@@ -438,10 +423,23 @@ class ProyectoUiWebController extends Controller
         // Obtenemos los proyectos (personales + membresías)
         $proyectos = $user->proyectosPersonales->merge($user->proyectos);
 
+        // Optimization: Batch load unread counts (N+1 Solution)
+        $unreadCounts = \Illuminate\Support\Facades\DB::table('proyecto_user')
+            ->where('user_id', $user->id)
+            ->whereIn('proyecto_id', $proyectos->pluck('id'))
+            ->pluck('unread_messages_count', 'proyecto_id');
+
         // Procesamos para agregar flag de admin y conteo de mensajes no leídos
-        $proyectos->transform(function ($proyecto) use ($user) {
+        $proyectos->transform(function ($proyecto) use ($user, $unreadCounts) {
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
-            $this->appendUnreadCount($proyecto, $user);
+
+            // Use batched cache if messaging is enabled
+            if ($proyecto->hasMessagingFeature()) {
+                $proyecto->unread_messages_count = $unreadCounts[$proyecto->id] ?? 0;
+            } else {
+                $proyecto->unread_messages_count = 0;
+            }
+
             return $proyecto;
         });
 

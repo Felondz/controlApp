@@ -65,6 +65,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'modules' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/modules.log'),
+            'level' => env('MODULE_EVENT_LOG', false) ? 'debug' : 'emergency', // Only log if enabled
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
@@ -89,7 +96,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],

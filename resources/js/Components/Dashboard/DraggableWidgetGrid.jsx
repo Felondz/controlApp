@@ -51,6 +51,7 @@ const WIDGET_COMPONENTS = {
     chat_recent: ChatRecentWidget,
     members_summary: MembersSummaryWidget,
     project_info: ProjectInfoWidget,
+    projects_list: ProjectsListWidget,
 };
 
 /**
@@ -104,6 +105,15 @@ export default function DraggableWidgetGrid({
             availableWidgets
         )
     );
+    const [enabled, setEnabled] = useState(false);
+
+    useEffect(() => {
+        const animation = requestAnimationFrame(() => setEnabled(true));
+        return () => {
+            cancelAnimationFrame(animation);
+            setEnabled(false);
+        };
+    }, []);
 
     // Update widgets when permissions change
     useEffect(() => {
@@ -121,7 +131,7 @@ export default function DraggableWidgetGrid({
                 currentAvailableWidgets
             )
         );
-    }, [isAdmin, modules.join(','), isPersonal, defaultLayout, defaultHidden, allowedModules?.join(',')]);
+    }, [isAdmin, modules.map(m => m.id || m).join(','), isPersonal, (defaultLayout || []).join(','), (defaultHidden || []).join(','), (allowedModules || []).join(',')]);
 
     // Handle drag end
     const handleDragEnd = useCallback((result) => {
@@ -183,6 +193,10 @@ export default function DraggableWidgetGrid({
             );
         }
     }, [project, user, contextSettings, savedSettings, settingsKey]);
+
+    if (!enabled) {
+        return null; // Or a loading skeleton
+    }
 
     // Render widget content
     const renderWidgetContent = (widget, provided, snapshot) => {

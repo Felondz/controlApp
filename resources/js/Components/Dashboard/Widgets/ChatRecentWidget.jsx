@@ -58,12 +58,14 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
             isDragging={isDragging}
             dragHandleProps={dragHandleProps}
             action={
-                <Link
-                    href={route('mis-proyectos.chat', { mis_proyecto: project.id })}
-                    className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
-                >
-                    {t('common.go_to_chat', 'Ir al chat')}
-                </Link>
+                project ? (
+                    <Link
+                        href={route('mis-proyectos.chat', { mis_proyecto: project.id })}
+                        className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                    >
+                        {t('common.go_to_chat', 'Ir al chat')}
+                    </Link>
+                ) : null
             }
         >
             <div className="space-y-3">

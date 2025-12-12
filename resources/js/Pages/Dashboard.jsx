@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Cog6ToothIcon } from '@/Components/Icons';
-import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+import DraggableProjectGrid from '@/Components/Dashboard/DraggableProjectGrid';
 import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
 import { useState } from 'react';
 
@@ -55,12 +55,10 @@ export default function Dashboard({ auth, proyectos = [] }) {
 
             <div className="py-12">
                 <div className="max-w-[1920px] mx-auto sm:px-6 lg:px-8">
-                    <DraggableWidgetGrid
+                    <DraggableProjectGrid
                         user={auth.user}
-                        dashboardData={dashboardData}
+                        projects={proyectos}
                         settingsKey="global_dashboard"
-                        defaultLayout={['projects_list']}
-                        onSettingsClick={() => setShowSettingsModal(true)}
                     />
                 </div>
             </div>

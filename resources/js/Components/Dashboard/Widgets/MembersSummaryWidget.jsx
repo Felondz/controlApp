@@ -19,12 +19,14 @@ export default function MembersSummaryWidget({ project, widget, onHide, isDraggi
             isDragging={isDragging}
             dragHandleProps={dragHandleProps}
             action={
-                <Link
-                    href={route('project.members.index', { proyecto: project.id })}
-                    className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
-                >
-                    {t('common.view_all', 'Ver todos')}
-                </Link>
+                project ? (
+                    <Link
+                        href={route('project.members.index', { proyecto: project.id })}
+                        className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                    >
+                        {t('common.view_all', 'Ver todos')}
+                    </Link>
+                ) : null
             }
         >
             <div className="flex items-center justify-between">

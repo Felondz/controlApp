@@ -1,0 +1,141 @@
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for mysql failed: Name or service not known (Connection: mysql, SQL: select exists (select 1 from information_schema.tables where table_schema = schema() and table_name = 'migrations' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`)
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:824
+    820▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821▕                 );
+    822▕             }
+    823▕ 
+  ➜ 824▕             throw new QueryException(
+    825▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕             );
+    827▕         }
+    828▕     }
+
+  1   vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:67
+      PDOException::("PDO::connect(): php_network_getaddresses: getaddrinfo for mysql failed: Name or service not known")
+
+  2   vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:67
+      PDO::connect()
+
+  3   vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:85
+      Illuminate\Database\Connectors\Connector::createPdoConnection()
+
+  4   vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:48
+      Illuminate\Database\Connectors\Connector::tryAgainIfCausedByLostConnection()
+
+  5   vendor/laravel/framework/src/Illuminate/Database/Connectors/MySqlConnector.php:24
+      Illuminate\Database\Connectors\Connector::createConnection()
+
+  6   vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php:184
+      Illuminate\Database\Connectors\MySqlConnector::connect()
+
+  7   vendor/laravel/framework/src/Illuminate/Database/Connection.php:1234
+      Illuminate\Database\Connectors\ConnectionFactory::{closure:Illuminate\Database\Connectors\ConnectionFactory::createPdoResolverWithHosts():179}()
+  8   vendor/laravel/framework/src/Illuminate/Database/Connection.php:1234
+
+  9   vendor/laravel/framework/src/Illuminate/Database/Connection.php:1270
+      Illuminate\Database\Connection::getPdo()
+
+  10  vendor/laravel/framework/src/Illuminate/Database/Connection.php:511
+      Illuminate\Database\Connection::getReadPdo()
+
+  11  vendor/laravel/framework/src/Illuminate/Database/Connection.php:406
+      Illuminate\Database\Connection::getPdoForSelect()
+
+  12  vendor/laravel/framework/src/Illuminate/Database/Connection.php:811
+      Illuminate\Database\Connection::{closure:Illuminate\Database\Connection::select():397}()
+
+  13  vendor/laravel/framework/src/Illuminate/Database/Connection.php:978
+      Illuminate\Database\Connection::runQueryCallback()
+
+  14  vendor/laravel/framework/src/Illuminate/Database/Connection.php:957
+      Illuminate\Database\Connection::tryAgainIfCausedByLostConnection()
+
+  15  vendor/laravel/framework/src/Illuminate/Database/Connection.php:780
+      Illuminate\Database\Connection::handleQueryException()
+
+  16  vendor/laravel/framework/src/Illuminate/Database/Connection.php:397
+      Illuminate\Database\Connection::run()
+
+  17  vendor/laravel/framework/src/Illuminate/Database/Connection.php:343
+      Illuminate\Database\Connection::select()
+
+  18  vendor/laravel/framework/src/Illuminate/Database/Connection.php:360
+      Illuminate\Database\Connection::selectOne()
+
+  19  vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php:174
+      Illuminate\Database\Connection::scalar()
+
+  20  vendor/laravel/framework/src/Illuminate/Database/Migrations/DatabaseMigrationRepository.php:185
+      Illuminate\Database\Schema\Builder::hasTable()
+
+  21  vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php:753
+      Illuminate\Database\Migrations\DatabaseMigrationRepository::repositoryExists()
+
+  22  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:164
+      Illuminate\Database\Migrations\Migrator::repositoryExists()
+
+  23  vendor/laravel/framework/src/Illuminate/Support/helpers.php:329
+      Illuminate\Database\Console\Migrations\MigrateCommand::{closure:Illuminate\Database\Console\Migrations\MigrateCommand::repositoryExists():164}()
+  24  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:164
+
+  25  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:140
+      Illuminate\Database\Console\Migrations\MigrateCommand::repositoryExists()
+
+  26  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:110
+      Illuminate\Database\Console\Migrations\MigrateCommand::prepareDatabase()
+
+  27  vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php:666
+      Illuminate\Database\Console\Migrations\MigrateCommand::{closure:Illuminate\Database\Console\Migrations\MigrateCommand::runMigrations():109}()
+
+  28  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:109
+      Illuminate\Database\Migrations\Migrator::usingConnection()
+
+  29  vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php:88
+      Illuminate\Database\Console\Migrations\MigrateCommand::runMigrations()
+
+  30  vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:36
+      Illuminate\Database\Console\Migrations\MigrateCommand::handle()
+
+  31  vendor/laravel/framework/src/Illuminate/Container/Util.php:43
+      Illuminate\Container\BoundMethod::{closure:Illuminate\Container\BoundMethod::call():35}()
+
+  32  vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:96
+      Illuminate\Container\Util::unwrapIfClosure()
+
+  33  vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php:35
+      Illuminate\Container\BoundMethod::callBoundMethod()
+
+  34  vendor/laravel/framework/src/Illuminate/Container/Container.php:836
+      Illuminate\Container\BoundMethod::call()
+
+  35  vendor/laravel/framework/src/Illuminate/Console/Command.php:211
+      Illuminate\Container\Container::call()
+
+  36  vendor/symfony/console/Command/Command.php:335
+      Illuminate\Console\Command::execute()
+
+  37  vendor/laravel/framework/src/Illuminate/Console/Command.php:180
+      Symfony\Component\Console\Command\Command::run()
+
+  38  vendor/symfony/console/Application.php:1103
+      Illuminate\Console\Command::run()
+
+  39  vendor/symfony/console/Application.php:356
+      Symfony\Component\Console\Application::doRunCommand()
+
+  40  vendor/symfony/console/Application.php:195
+      Symfony\Component\Console\Application::doRun()
+
+  41  vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:197
+      Symfony\Component\Console\Application::run()
+
+  42  vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1235
+      Illuminate\Foundation\Console\Kernel::handle()
+
+  43  artisan:16
+      Illuminate\Foundation\Application::handleCommand()
+

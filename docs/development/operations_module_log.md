@@ -102,6 +102,9 @@ Se ha desplegado el esquema completo de base de datos:
 | `ENOENT: SelectInput` | Componente inexistente. | Creación de `resources/js/Components/SelectInput.jsx`. |
 | `404 Inventory Index` | Falta de ruta y método controller. | Implementación de `InventoryItemController@index` y ruta `GET /items`. |
 | `TypeError: null (reading 'id')` (Initial) | Acceso a `proyecto.id` nulo en widgets de inventario. | Corrección de pase de props y lógica de controlador. |
+| ReferenceError | Falta de `ziggy-js` | Instalación y configuración de `ziggy` global en `app.jsx`. |
+| Pangea DnD Error | StrictMode + DOM | Fix de hidratación en `DraggableWidgetGrid` (useEffect). |
+| N+1 Queries | Dashboard Counts | **Migración a EventBus Asíncrono** (Ver Fase 6). |
 
 ### B. Error Persistente Crítico: WidgetSettingsModal Crash
 *   **Síntoma**: `TypeError: Cannot read properties of null (reading 'id')` al abrir `WidgetSettingsModal`.
@@ -113,6 +116,68 @@ Se ha desplegado el esquema completo de base de datos:
     4.  Adición de logs de depuración (`console.log`) en el modal.
 
 ### C. Próximos Pasos (Troubleshooting)
-1.  **Revisar Consola del Navegador**: El usuario debe verificar el output de `WidgetSettingsModal: availableWidgets` para identificar si algún objeto widget está corrupto o mal formado.
-2.  **Verificar Cache**: Asegurar que el navegador no esté sirviendo un bundle JS antiguo (Hard Reload recomendado).
 3.  **Aislamiento**: Si el error continúa, deshabilitar temporalmente el renderizado de la lista de widgets para confirmar si el crash es interno del modal o de la lista.
+
+### D. Soluciones Aplicadas (Agente Antigravity - Dec 11)
+*   **Fix WidgetSettingsModal**: Se agregaron chequeos de seguridad (`filter(w => w)`) en `WidgetSettingsModal.jsx` (líneas 36 y 95) para prevenir el crash `TypeError: null (reading 'id')` incluso si el `WidgetRegistry` retorna valores nulos.
+*   **Fix Widgets (Global Dashboard)**: Se detectó que `MembersSummaryWidget`, `TasksSummaryWidget` y `ChatRecentWidget` intentaban generar links usando `project.id` incluso cuando `project` era nulo (contexto Global Dashboard). Se envolvieron estos links en una condicional `project ? (...) : null`.
+*   **Fix Infinite Loop**: Se solucionó un error de `Maximum update depth exceeded` en `DraggableWidgetGrid`. La causa era pasar arrays como dependencias del `useEffect` (ej: `defaultLayout`), lo que causaba re-renderizados infinitos al cambiar la referencia del array en cada render. Se solucionó usando `.join(',')` para comparar por valor.
+
+---
+
+## 7. Fase 6: Arquitectura Orientada a Eventos (Piloto)
+**Fecha**: Diciembre 11, 2025
+**Objetivo**: Migración a Event-Driven Architecture para optimización de rendimiento (Solución N+1).
+
+### Problema Detectado
+*   **Síntoma**: Múltiples consultas repetitivas (`select count(*) ... messages`) en cada carga del Dashboard.
+*   **Causa**: Cálculo "on-the-fly" de mensajes no leídos para cada proyecto en `ProyectoUiWebController`.
+*   **Impacto**: Saturación de logs de depuración y tiempos de respuesta dependientes de la cantidad de mensajes.
+
+### Solución Arquitectónica
+Se implementa una arquitectura de **"Read Model"** asíncrona:
+1.  **Columna Caché**: Se añade `unread_messages_count` a la tabla pivote `proyecto_user`.
+2.  **Workers & Eventos**: `ModuleEventBus` se configura en modo ASYNC (`MODULE_EVENT_ASYNC=true`).
+3.  **Listener Reactivo**: Nuevo listener `UpdateUnreadCount` que incrementa el contador en segundo plano al ocurrir `chat.message.sent`.
+4.  **Logging Dedicado**: Nuevo canal de log `modules` en `storage/logs/modules.log` controlado por `MODULE_EVENT_LOG=true`.
+
+### Plan de Ejecución
+1.  [x] Migración de base de datos (`proyecto_user`).
+2.  [x] Configuración de Logging en `config/logging.php`.
+3.  [x] Implementación de `UpdateUnreadCountListener`.
+4.  [x] Refactorización de Controladores para leer/escribir en la nueva columna.
+
+### Infraestructura y Despliegue (Docker)
+Para soportar la carga asíncrona en producción, se ajustó la arquitectura de contenedores:
+*   **Servicio Worker**: Se agregó un contenedor dedicado `worker` en `docker-compose.prod.yml`.
+*   **Escalabilidad**: Se configuró `replicas: 3` para garantizar alta disponibilidad y concurrencia.
+*   **Queue Driver**: Se estableció `Redis` como motor de colas por defecto para máximo rendimiento.
+
+---
+
+## 8. Dashboard Refactor & Stabilization (Dec 11)
+**Objetivo**: Simplificar la interfaz principal y corregir errores críticos de navegación.
+
+### A. Refactorización del Dashboard (User Request)
+*   **Decisión**: El Dashboard Global deja de ser un contenedor de widgets genéricos y pasa a ser una **Grilla de Proyectos** pura.
+*   **Implementación**:
+    *   Se eliminó `DraggableWidgetGrid` de la vista principal.
+    *   Se creó `DraggableProjectGrid` especializado en renderizar y reordenar `ProjectCards`.
+    *   **Drag & Drop**: Se implementó reordenamiento persistente de proyectos usando `@hello-pangea/dnd` con un *handle* dedicado en la tarjeta.
+    *   **Persistencia**: Fix de anidación JSON para guardar correctamente el orden en `user.settings.global_dashboard.project_order`.
+
+### B. Módulo de Operaciones (Skeleton)
+*   **Incidencia**: Crash de aplicación por ruta faltante `operations.lotes.index` (Ziggy Error).
+*   **Acción**:
+    *   Se creó la estructura base del módulo: `app/Modules/Operations/Controllers/LoteController.php`.
+    *   Se definió la ruta en `routes/web.php` apuntando al controlador real.
+    *   Se creó la vista placeholder `Operations/Lotes/Index.jsx` para permitir navegación sin errores 404.
+
+### C. Estado de Migración a EventBus (Workers)
+**Status**: ✅ **Piloto Exitoso**
+*   **Arquitectura**: Confirmada y estable en entorno local.
+*   **Componentes**:
+    *   `ModuleEventBus` (Async) -> Correcto.
+    *   `Redis Queue` -> Procesando eventos sin lag.
+    *   `UpdateUnreadCount` -> Actualiza la columna caché en tiempo real.
+*   **Próximos Pasos**: Desplegar a Staging y monitorear `modules.log` bajo carga.

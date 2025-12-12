@@ -1,5 +1,8 @@
 import '../css/app.css';
 import './bootstrap';
+import { Ziggy } from './ziggy';
+import { route } from 'ziggy-js';
+window.route = (name, params, absolute, config = Ziggy) => route(name, params, absolute, config);
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';

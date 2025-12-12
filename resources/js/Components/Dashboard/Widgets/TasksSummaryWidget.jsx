@@ -58,12 +58,14 @@ export default function TasksSummaryWidget({ project, widget, onHide, isDragging
             isDragging={isDragging}
             dragHandleProps={dragHandleProps}
             action={
-                <Link
-                    href={route('mis-proyectos.tasks.index', { proyecto: project.id })}
-                    className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
-                >
-                    {t('common.view_all', 'Ver todas')}
-                </Link>
+                project ? (
+                    <Link
+                        href={route('mis-proyectos.tasks.index', { proyecto: project.id })}
+                        className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                    >
+                        {t('common.view_all', 'Ver todas')}
+                    </Link>
+                ) : null
             }
         >
             <div className="grid grid-cols-3 gap-2 mb-3">

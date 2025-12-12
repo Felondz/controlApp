@@ -16,11 +16,25 @@ export default function FinanceWidget({ project }) {
     }, [project?.id]);
 
     const fetchBalance = async () => {
+        if (!project?.id) {
+            console.warn('FinanceWidget: project.id is missing');
+            setLoading(false);
+            return;
+        }
+
+        // Defensive check: Ensure route exists before calling
+        if (!route().has('api.finance.balance')) {
+            console.warn('Route api.finance.balance not found');
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await axios.get(route('api.finance.balance', project.id));
             setBalance(response.data.balance);
         } catch (error) {
             console.error('Error fetching balance:', error);
+            // Optional: Set error state if needed, or just leave balance as null
         } finally {
             setLoading(false);
         }
