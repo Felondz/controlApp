@@ -6,8 +6,12 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Mail\VerificacionEmailMail;
 
-class VerificacionEmailNotification extends VerifyEmail
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class VerificacionEmailNotification extends VerifyEmail implements ShouldQueue
 {
+    use Queueable;
     /**
      * Get the verification URL for the given notifiable.
      * 
