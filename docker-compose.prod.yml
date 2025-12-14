@@ -50,7 +50,6 @@ services:
   # --- WORKER (PROCESAMIENTO ASÍNCRONO) ---
   worker:
     image: ghcr.io/felondz/controlapp:latest
-    container_name: controlapp_worker_${APP_ENV}
     restart: unless-stopped
     env_file: ./.env
     # Comando para procesar la cola Redis
