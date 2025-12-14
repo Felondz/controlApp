@@ -8,17 +8,17 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 // Process automatic bill payments daily at 6:00 AM
-Schedule::job(new \App\Jobs\ProcessAutoBills)->daily()->at('06:00');
+Schedule::job(new \App\Modules\Finance\Jobs\ProcessAutoBills)->daily()->at('06:00');
 
 use Illuminate\Support\Facades\Schedule;
 
 // Process automatic bill payments daily at 6:00 AM
-Schedule::job(new \App\Jobs\ProcessAutoBills)->daily()->at('06:00');
+Schedule::job(new \App\Modules\Finance\Jobs\ProcessAutoBills)->daily()->at('06:00');
 
 // Generate monthly recurring bills daily at 6:30 AM
-Schedule::job(new \App\Jobs\ProcessRecurringBills)->daily()->at('06:30');
+Schedule::job(new \App\Modules\Finance\Jobs\ProcessRecurringBills)->daily()->at('06:30');
 
 Schedule::command('finance:check-obligations')->dailyAt('09:00');
 
 // Process financial interest accrual daily (job checks internally if it's 1st of month)
-Schedule::job(new \App\Jobs\ProcessInterestAccrual)->dailyAt('00:01');
+Schedule::job(new \App\Modules\Finance\Jobs\ProcessInterestAccrual)->dailyAt('00:01');

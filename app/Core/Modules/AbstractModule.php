@@ -129,6 +129,16 @@ abstract class AbstractModule implements ModuleInterface
     }
 
     /**
+     * Get console commands defined by the module.
+     *
+     * @return array
+     */
+    public function getConsoleCommands(): array
+    {
+        return [];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isEnabledFor(Proyecto $project): bool
@@ -181,5 +191,13 @@ abstract class AbstractModule implements ModuleInterface
         $settings = $project->settings ?? [];
         $settings['modules'][$this->getName()] = $config;
         $project->update(['settings' => $settings]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot(): void
+    {
+        // construction logic in subclasses
     }
 }

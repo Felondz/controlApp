@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Modules\Finance;
 
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Categoria;
 use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -153,7 +153,7 @@ class CategoryApiTest extends TestCase
         $categoria = Categoria::factory()->create(['proyecto_id' => $proyecto->id]);
 
         // Crear transacción asociada
-        \App\Models\Transaccion::factory()->create([
+        \App\Modules\Finance\Models\Transaccion::factory()->create([
             'proyecto_id' => $proyecto->id,
             'categoria_id' => $categoria->id,
         ]);

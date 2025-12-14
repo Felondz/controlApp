@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import TasksWidget from '@/Components/Widgets/TasksWidget';
+import TasksWidget from '@/Modules/Tasks/Widgets/TasksWidget';
 
 describe('TasksWidget', () => {
     const mockProject = {};

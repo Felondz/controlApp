@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Proyecto;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

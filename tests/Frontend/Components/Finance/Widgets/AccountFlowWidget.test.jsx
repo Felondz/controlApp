@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import AccountFlowWidget from '@/Components/Finance/Widgets/AccountFlowWidget';
+import AccountFlowWidget from '@/Modules/Finance/Widgets/AccountFlowWidget';
 import { useTranslate } from '@/Hooks/useTranslate';
 
 // Mock dependencies

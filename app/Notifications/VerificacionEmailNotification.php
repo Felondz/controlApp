@@ -16,7 +16,7 @@ class VerificacionEmailNotification extends VerifyEmail
      */
     protected function verificationUrl($notifiable)
     {
-        return route('api.verification.verify', [
+        return route('verification.verify', [
             'id' => $notifiable->getKey(),
             'hash' => sha1($notifiable->getEmailForVerification()),
         ]);

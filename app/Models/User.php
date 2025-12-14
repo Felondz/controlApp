@@ -8,8 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Proyecto;
-use App\Models\Cuenta;
-use App\Models\Task;
+use App\Modules\Finance\Models\Cuenta;
+use App\Modules\Tasks\Models\Task;
 use App\Notifications\VerificacionEmailNotification;
 
 /**
@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_path',
         'global_theme',
         'enabled_tools',
+        'settings',
     ];
 
     /**
@@ -84,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
             'enabled_tools' => 'array',
+            'settings' => 'array',
         ];
     }
 
@@ -163,15 +165,11 @@ class User extends Authenticatable implements MustVerifyEmail
         // Busca el rol en la tabla pivote
         $proyectoPivot = $this->proyectos()->find($proyecto->id);
 
-        file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Project ID: {$proyecto->id}, User ID: {$this->id}\n", FILE_APPEND);
-
         if (!$proyectoPivot) {
-            file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Project NOT FOUND in pivot\n", FILE_APPEND);
             return false;
         }
 
         $rol = $proyectoPivot->pivot->rol;
-        file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Role: {$rol}\n", FILE_APPEND);
 
         return $rol === 'admin';
     }

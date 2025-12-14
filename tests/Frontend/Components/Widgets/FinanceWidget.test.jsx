@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import FinanceWidget from '@/Components/Widgets/FinanceWidget';
+import FinanceWidget from '@/Modules/Finance/Widgets/FinanceWidget';
 import axios from 'axios';
 import { vi } from 'vitest';
 

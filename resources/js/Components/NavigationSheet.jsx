@@ -10,7 +10,8 @@ import {
     UserCircleIcon,
     EllipsisVerticalIcon,
     PuzzleIcon,
-    ChatIcon
+    ChatIcon,
+    FactoryIcon
 } from '@/Components/Icons';
 
 export default function NavigationSheet({ isOpen, onClose, user, project = null }) {
@@ -56,6 +57,13 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             route: 'mis-proyectos.edit',
             routeParams: project.id,
             show: !project.es_personal,
+        },
+        {
+            name: 'Operaciones',
+            icon: FactoryIcon, // Ensure FactoryIcon is imported
+            route: 'operations.lotes.index',
+            routeParams: project.id,
+            show: modules.includes('operations'),
         },
     ] : [];
 

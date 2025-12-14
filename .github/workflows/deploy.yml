@@ -121,7 +121,7 @@ jobs:
           # Esto ayuda si cambiaste nombres en el docker-compose
           docker compose down --remove-orphans || true
           
-          echo "🚀 Desplegando en entorno: ${{ env.APP_ENV }}"
+          echo "🚀 Desplegando en entorno: $APP_ENV"
           docker compose pull
           docker compose up -d --force-recreate || ( echo "❌ Error al levantar contenedores. Mostrando logs: " && docker compose logs meilisearch && docker compose logs db && exit 1 )
           
@@ -141,7 +141,7 @@ jobs:
           
           docker compose exec -T app php artisan migrate --force
           
-          if [[ "${{ env.APP_ENV }}" != "production" ]]; then
+          if [[ "$APP_ENV" != "production" ]]; then
              echo "🌱 Seeders de prueba..."
              docker compose exec -T app php artisan db:seed --force
           fi

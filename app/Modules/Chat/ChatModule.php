@@ -82,7 +82,9 @@ class ChatModule extends AbstractModule
     public function getEventListeners(): array
     {
         return [
-            // Future: Listen to project events for notifications
+            'chat.message.sent' => [
+                \App\Modules\Chat\Listeners\UpdateUnreadCount::class,
+            ],
         ];
     }
 

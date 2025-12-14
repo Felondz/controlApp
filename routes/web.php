@@ -6,7 +6,7 @@ use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
 use App\Http\Controllers\ToolController;
-use App\Features\Finanzas\Controllers\TransaccionController;
+use App\Modules\Finance\Controllers\TransaccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -102,9 +102,9 @@ Route::middleware('auth')->group(function () {
         ->name('finance.projects.update-settings');
 
     // Tasks Module
-    Route::resource('mis-proyectos.tasks', \App\Http\Controllers\TaskController::class)
+    Route::resource('mis-proyectos.tasks', \App\Modules\Tasks\Controllers\TaskController::class)
         ->parameters(['mis-proyectos' => 'proyecto'])
-        ->only(['index', 'store', 'update', 'destroy']);
+        ->except(['create', 'edit', 'show']);
 
     // Accept Invitation
     Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])
@@ -124,6 +124,8 @@ Route::middleware('auth')->group(function () {
     // User Preferences
     Route::post('/preferences/theme', [\App\Http\Controllers\UserPreferencesController::class, 'updateTheme'])
         ->name('preferences.theme.update');
+    Route::post('/preferences/dashboard', [\App\Http\Controllers\UserPreferencesController::class, 'updateDashboardSettings'])
+        ->name('preferences.dashboard.update');
 
     // Tools Market
     Route::prefix('tools')->name('tools.')->group(function () {
@@ -141,6 +143,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/calculator/calculate', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
         Route::get('/calculator/export/csv', [CalculatorController::class, 'exportCsv'])->name('calculator.export.csv');
         Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
+    });
+
+    // Inventory Items Routes (Global prefix by project)
+    Route::prefix('mis-proyectos/{proyecto}/inventory')->group(function () {
+        Route::get('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'index'])->name('inventory.items.index');
+        Route::post('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'store'])->name('inventory.items.store');
+        Route::post('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'update'])->name('inventory.items.update'); // Using POST for file upload spoofing if needed, or _method PUT
+        Route::delete('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
+    });
+
+    // Operations Module Routes
+    Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
+        Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
+        Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
+        Route::post('/processes', [\App\Modules\Operations\Controllers\LoteController::class, 'storeProcess'])->name('operations.processes.store');
+        Route::put('/lotes/{lote}/stage', [\App\Modules\Operations\Controllers\LoteController::class, 'updateStage'])->name('operations.lotes.update-stage');
+        Route::get('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'show'])->name('operations.lotes.show');
     });
 });
 

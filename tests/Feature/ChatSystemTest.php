@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 use App\Models\Proyecto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

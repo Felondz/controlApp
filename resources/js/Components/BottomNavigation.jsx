@@ -8,7 +8,8 @@ import {
     ChatIcon,
     EllipsisHorizontalIcon,
     EnvelopeIcon,
-    CheckListIcon
+    CheckListIcon,
+    FactoryIcon
 } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
 import NavigationSheet from '@/Components/NavigationSheet';
@@ -65,6 +66,14 @@ export default function BottomNavigation({ user, project = null }) {
                     routeParams: project.id,
                     icon: CurrencyDollarIcon,
                     matchRoutes: ['mis-proyectos.finance'],
+                });
+            } else if (modules.includes('operations')) {
+                items.push({
+                    name: 'Operaciones',
+                    route: 'operations.lotes.index',
+                    routeParams: project.id,
+                    icon: FactoryIcon,
+                    matchRoutes: ['operations.lotes.*'],
                 });
             }
 

@@ -15,15 +15,15 @@ import BottomNavigation from '@/Components/BottomNavigation';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
-export default function AuthenticatedLayout({ header, children, projectTheme = null, project = null }) {
+export default function AuthenticatedLayout({ header, children, projectTheme = null, project = null, showBackButton = true }) {
     const user = usePage().props.auth.user;
 
     return (
-        <LayoutContent user={user} header={header} projectTheme={projectTheme} project={project}>{children}</LayoutContent>
+        <LayoutContent user={user} header={header} projectTheme={projectTheme} project={project} showBackButton={showBackButton}>{children}</LayoutContent>
     );
 }
 
-function LayoutContent({ user, header, children, projectTheme, project }) {
+function LayoutContent({ user, header, children, projectTheme, project, showBackButton }) {
     const { t } = useTranslate();
     const { theme, isDark, setThemeLocal } = useGlobalTheme();
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -78,13 +78,15 @@ function LayoutContent({ user, header, children, projectTheme, project }) {
                                 <MenuUnfoldIcon className={`h-6 w-6 ${iconClasses}`} />
                             )}
                         </button>
-                        <button
-                            onClick={() => window.history.back()}
-                            className="focus:outline-none transition-all duration-200"
-                            title="Go Back"
-                        >
-                            <ArrowLeftIcon className={`h-5 w-5 ${iconClasses}`} />
-                        </button>
+                        {showBackButton && (
+                            <button
+                                onClick={() => window.history.back()}
+                                className="focus:outline-none transition-all duration-200"
+                                title="Go Back"
+                            >
+                                <ArrowLeftIcon className={`h-5 w-5 ${iconClasses}`} />
+                            </button>
+                        )}
                         {header}
                     </div>
                     <div className="flex items-center gap-4">

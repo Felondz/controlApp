@@ -5,7 +5,7 @@ namespace Tests\Feature\Modules\Tasks;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Proyecto;
-use App\Models\Task;
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 

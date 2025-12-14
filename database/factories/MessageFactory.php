@@ -5,10 +5,11 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Message>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\Chat\Models\Message>
  */
 class MessageFactory extends Factory
 {
+    protected $model = \App\Modules\Chat\Models\Message::class;
     /**
      * Define the model's default state.
      *

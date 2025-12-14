@@ -5,9 +5,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { Cog6ToothIcon } from '@/Components/Icons';
-import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
+import { DraggableWidgetGrid } from '@/Modules/Core/Widgets';
 
-import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widgetRegistry';
 
 /**
@@ -19,7 +19,7 @@ import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widge
  * - Widget gallery for management
  * - Responsive design
  */
-export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [] }) {
+export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [], inventoryStats = null }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -73,21 +73,13 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         </div>
 
                         {/* Settings Button */}
+                        {/* Settings Button */}
                         <button
                             onClick={() => setShowSettingsModal(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 
-                                       bg-white dark:bg-gray-800 
-                                       border border-gray-300 dark:border-gray-600 
-                                       rounded-lg shadow-sm
-                                       text-gray-700 dark:text-gray-300
-                                       hover:bg-gray-50 dark:hover:bg-gray-700
-                                       transition-colors"
-                            title={t('dashboard.customize', 'Personalizar Dashboard')}
+                            className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                            title={t('dashboard.customize', 'Personalizar Panel')}
                         >
-                            <Cog6ToothIcon className="w-5 h-5" />
-                            <span className="hidden sm:inline">
-                                {t('dashboard.customize', 'Personalizar')}
-                            </span>
+                            <Cog6ToothIcon className="w-6 h-6" />
                         </button>
                     </div>
                 </div>
@@ -102,10 +94,7 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         pendingBills: pendingBills,
                         categories: proyecto.categorias || [],
                         currency: proyecto.moneda_default,
-                        // Overview is read-only for finance mostly, but we pass data.
-                        // Handlers can be null or simple redirects if widgets support it?
-                        // For now we just pass data so they RENDER.
-                        // Actions usually require specific handlers which might not be present here.
+                        inventoryStats: inventoryStats, // Pass precalculated stats for widgets
                     }}
                     defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
                     defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}

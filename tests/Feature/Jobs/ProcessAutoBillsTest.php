@@ -4,9 +4,9 @@ namespace Tests\Feature\Jobs;
 
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use App\Jobs\ProcessAutoBills;
-use App\Models\Transaccion;
-use App\Models\Cuenta;
+use App\Modules\Finance\Jobs\ProcessAutoBills;
+use App\Modules\Finance\Models\Transaccion;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
 use App\Models\User;
 use Carbon\Carbon;

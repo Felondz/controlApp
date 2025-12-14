@@ -264,6 +264,8 @@
         "today": "Today",
         "yesterday": "Yesterday",
         "tomorrow": "Tomorrow",
+        "saving": "Saving...",
+        "general_info": "General Information",
         "overdue": "Overdue"
     },
     "dashboard": {
@@ -678,6 +680,7 @@
         "status": "Status",
         "priority_label": "Priority",
         "due_date": "Due Date",
+        "assign_hint": "Click on a member to assign them to this task",
         "assignee": "Assignee",
         "assignees": "Assignees",
         "unassigned": "Unassigned",
@@ -859,6 +862,65 @@
             "raleway": "Raleway (Elegant)",
             "playfair": "Playfair Display (Serif)",
             "merriweather": "Merriweather (Serif)"
+        }
+    },
+    "inventory": {
+        "title": "Inventory",
+        "summary": "Inventory Summary",
+        "items": "Items",
+        "new_item": "New Item",
+        "edit_item": "Edit Item",
+        "name": "Name",
+        "sku": "SKU",
+        "type_label": "Type",
+        "unit_label": "Unit",
+        "current_stock": "Current Stock",
+        "min_stock": "Minimum Stock",
+        "sale_price": "Sale Price",
+        "cost_price": "Cost Price",
+        "est_cost": "Est. Cost",
+        "image": "Image",
+        "click_to_upload": "Click to upload image",
+        "search_placeholder": "Search by name or SKU...",
+        "empty_state": "No items in inventory. Create your first one!",
+        "low_stock": "Low Stock",
+        "low_stock_alert": "Low Stock Alerts",
+        "low_stock_count": "Low Stock",
+        "no_low_stock": "All inventory is at acceptable levels",
+        "no_items": "No items found.",
+        "min_label": "Min",
+        "total_items": "Total Items",
+        "total_value": "Total Value",
+        "active_items": "Active",
+        "actions": "Actions",
+        "view": "View",
+        "showing_results": "Showing :from - :to of :total results",
+        "new_item_desc": "Add a new item to the inventory",
+        "edit_item_desc": "Modify item details",
+        "name_placeholder": "Ex: Wheat Flour",
+        "sku_placeholder": "Ex: WR-001",
+        "stock_pricing": "Stock & Pricing",
+        "type_help": "Select 'Finished Good' or 'Service' to enable Sale Price.",
+        "min_stock_help": "Minimum stock triggers alerts when inventory runs low.",
+        "types": {
+            "raw_material": "Raw Material",
+            "finished_good": "Finished Good",
+            "service": "Service",
+            "asset": "Asset"
+        },
+        "type": {
+            "raw_material": "Raw Material",
+            "finished_good": "Finished Good",
+            "service": "Service",
+            "asset": "Asset"
+        },
+        "unit_types": {
+            "unit": "Unit",
+            "kg": "Kilogram",
+            "g": "Gram",
+            "l": "Liter",
+            "ml": "Milliliter",
+            "m": "Meter"
         }
     },
     "modules": {

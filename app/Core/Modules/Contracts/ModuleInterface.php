@@ -87,6 +87,13 @@ interface ModuleInterface
     public function getEventListeners(): array;
 
     /**
+     * Get console commands defined by the module.
+     *
+     * @return array
+     */
+    public function getConsoleCommands(): array;
+
+    /**
      * Check if the module is enabled for a specific project.
      *
      * @param Proyecto $project
@@ -100,5 +107,19 @@ interface ModuleInterface
      * @param Proyecto $project
      * @return array
      */
+    /**
+     * Get the module's configuration for a specific project.
+     *
+     * @param Proyecto $project
+     * @return array
+     */
     public function getConfig(Proyecto $project): array;
+
+    /**
+     * Boot the module.
+     * Use this to register observers, specific bindings etc.
+     *
+     * @return void
+     */
+    public function boot(): void;
 }

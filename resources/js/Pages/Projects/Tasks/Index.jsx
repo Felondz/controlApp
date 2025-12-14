@@ -153,7 +153,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">{t('modules.tasks')}</h2>}
+            header={<h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">{t('modules.tasks')}</h2>}
             project={proyecto}
         >
             <Head title={`${t('modules.tasks')} | ${proyecto.nombre}`} />
@@ -161,21 +161,21 @@ export default function Index({ auth, proyecto, tasks, categories }) {
             <div className="py-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 w-full flex-1 flex flex-col">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 md:mb-6">
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+                        <h3 className="text-xl md:text-2xl font-bold text-primary-600 dark:text-primary-400">
                             {t('tasks.board', 'Tablero de Tareas')}
                         </h3>
 
                         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
                             {/* Filters */}
-                            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center bg-white dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center bg-white dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500 transition-all group">
                                 <div className="relative flex-1 sm:flex-none">
-                                    <SearchIcon className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                    <SearchIcon className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                                     <input
                                         type="text"
                                         placeholder={t('common.search', 'Buscar...')}
                                         value={filters.search}
                                         onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                                        className="pl-8 pr-2 py-1.5 text-sm border-none focus:ring-0 bg-transparent w-full sm:w-32 md:w-48 dark:text-white"
+                                        className="pl-8 pr-2 py-1.5 text-sm border-none focus:ring-0 bg-transparent w-full sm:w-32 md:w-48 dark:text-white placeholder-gray-400"
                                     />
                                 </div>
 
@@ -186,7 +186,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                     <select
                                         value={filters.priority}
                                         onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                                        className="flex-1 text-sm border-none focus:ring-0 bg-transparent py-1.5 pr-8 dark:text-gray-300 cursor-pointer"
+                                        className="flex-1 text-sm border-none focus:ring-0 bg-transparent py-1.5 pr-8 dark:text-gray-300 cursor-pointer hover:text-primary-600 transition-colors"
                                     >
                                         <option value="all">{t('tasks.all_priorities', 'Todas')}</option>
                                         <option value="high">{t('tasks.priority.high', 'Alta')}</option>
@@ -199,7 +199,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                     <select
                                         value={filters.assignee}
                                         onChange={(e) => setFilters({ ...filters, assignee: e.target.value })}
-                                        className="flex-1 text-sm border-none focus:ring-0 bg-transparent py-1.5 pr-8 dark:text-gray-300 cursor-pointer"
+                                        className="flex-1 text-sm border-none focus:ring-0 bg-transparent py-1.5 pr-8 dark:text-gray-300 cursor-pointer hover:text-primary-600 transition-colors"
                                     >
                                         <option value="all">{t('tasks.all_assignees', 'Todos')}</option>
                                         {proyecto.miembros.map(member => (
@@ -209,10 +209,13 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                 </div>
                             </div>
 
-                            <PrimaryButton onClick={handleCreateTask} className="flex items-center justify-center gap-2 whitespace-nowrap w-full md:w-auto">
+                            <button
+                                onClick={handleCreateTask}
+                                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all text-sm font-medium whitespace-nowrap w-full md:w-auto"
+                            >
                                 <PlusIcon className="w-5 h-5" />
                                 <span className="inline">{t('tasks.create', 'Nueva Tarea')}</span>
-                            </PrimaryButton>
+                            </button>
                         </div>
                     </div>
 
