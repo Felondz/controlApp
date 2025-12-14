@@ -165,15 +165,11 @@ class User extends Authenticatable implements MustVerifyEmail
         // Busca el rol en la tabla pivote
         $proyectoPivot = $this->proyectos()->find($proyecto->id);
 
-        file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Project ID: {$proyecto->id}, User ID: {$this->id}\n", FILE_APPEND);
-
         if (!$proyectoPivot) {
-            file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Project NOT FOUND in pivot\n", FILE_APPEND);
             return false;
         }
 
         $rol = $proyectoPivot->pivot->rol;
-        file_put_contents(storage_path('logs/custom_debug.log'), "User::esAdminDe - Role: {$rol}\n", FILE_APPEND);
 
         return $rol === 'admin';
     }

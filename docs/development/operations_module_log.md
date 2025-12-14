@@ -68,7 +68,7 @@ Se ha desplegado el esquema completo de base de datos:
 ### Fase 4: Lógica y Eventos (Pendiente)
 *   [ ] Listeners para movimiento de stock automático.
 *   [ ] Jobs para Cron de Contratos.
-*   [ ] Listeners para generación automática de Tareas.
+*   [x] Listeners para generación automática de Tareas.
 
 ### Fase 5: API y UI (En Progreso)
 *   [x] Rutas API/Web controladas por módulo (`routes/web.php` refactorizado).
@@ -117,6 +117,13 @@ Se ha desplegado el esquema completo de base de datos:
 
 ### C. Próximos Pasos (Troubleshooting)
 3.  **Aislamiento**: Si el error continúa, deshabilitar temporalmente el renderizado de la lista de widgets para confirmar si el crash es interno del modal o de la lista.
+
+### E. Soluciones Aplicadas (Agente Antigravity - Dec 12)
+*   **Fix Operations Module**: Se corrigió error SQL crítico `table lotes_produccion has no column named current_stage_id`.
+    *   **Causa**: Discrepancia entre nombre de columna en migración (`stage_id`) y en modelo (`current_stage_id`).
+    *   **Solución**: Renombrado de propiedad mass-assignable en Modelo, Factory y Tests a `stage_id`.
+*   **Stage Tasks Automation**: Se completó la implementación del listener `GenerateStageTasks` que clona templates al cambiar etapa.
+    *   **Testing**: Se implementaron Unit Tests con Mockery para aislar lógica de negocio. Integration Tests presentan inestabilidad con SQLite/Scout en entorno local.
 
 ### D. Soluciones Aplicadas (Agente Antigravity - Dec 11)
 *   **Fix WidgetSettingsModal**: Se agregaron chequeos de seguridad (`filter(w => w)`) en `WidgetSettingsModal.jsx` (líneas 36 y 95) para prevenir el crash `TypeError: null (reading 'id')` incluso si el `WidgetRegistry` retorna valores nulos.
@@ -218,3 +225,40 @@ Usar strings en `getEventListeners()`:
     *   `Redis Queue` -> Procesando eventos sin lag.
     *   `UpdateUnreadCount` -> Actualiza la columna caché en tiempo real.
 *   **Próximos Pasos**: Desplegar a Staging y monitorear `modules.log` bajo carga.
+
+---
+
+## 9. Actualización Inventario y UI (Diciembre 12)
+**Contexto**: Polishing de UI, estandarización de botones y widgets de Inventario.
+
+### A. Mejoras Implementadas
+*   [x] **Estandarización UI**: Botones "Personalizar" y "Nuevo Item/Tarea" unificados con estilo Finanzas.
+*   [x] **Inventory Widgets**: Implementación final de `InventorySummary`, `LowStock` y `InventoryItems` con diseño responsive.
+*   [x] **Fix Redefinición**: Solucionado error de variable `t` en `AuthenticatedLayout`.
+*   [x] **Tasks UI**: Aplicación de tema de proyecto a módulo de Tareas y búsqueda reactiva.
+*   [x] **Draggable Fix**: Restricción de widgets globales que causaban error en Project Overview.
+
+### B. Pendientes Críticos
+*   [ ] **Frontend Tests**: Faltan pruebas automatizadas para los componentes y widgets de Inventario.
+
+
+
+## 10. Gestión de Operaciones e Inventario Avanzado (Diciembre 13)
+**Objetivo**: Flexibilizar la creación de Procesos Productivos y corregir integración de inventario.
+
+### A. Gestión de Procesos (Etapas Dinámicas)
+*   **Problema**: El sistema solo permitía 3 etapas fijas ("Inicio", "Proceso", "Finalizado").
+*   **Solución**:
+    *   **Frontend**: Se actualizó `CreateProcessModal.jsx` para permitir agregar, editar y eliminar etapas dinámicamente durante la creación del proceso.
+    *   **Backend**: `LoteController::storeProcess` ahora acepta un array de `stages`, las valida y las crea transaccionalmente.
+
+### B. Correcciones Técnicas (Bug Fixes)
+1.  **Ziggy Route Error**: Corregido error persistente donde `operations.processes.store` no era encontrada. Solución implicó limpieza de inputs en `app.jsx` y corrección de sintaxis de parámetros de ruta en modals.
+2.  **SQL Error (1364)**: Solucionado error de campo default `proyecto_id` faltante al crear `EtapaProceso` por defecto.
+3.  **Method Call Error**: Agregada relación faltante `inventoryItems()` en modelo `Proyecto` para permitir carga de estadísticas en el Dashboard.
+4.  **Frontend Build**: Reparado crash de compilación Vite por importación errónea de `Link` en `CreateProcessModal`.
+5.  **Linting**: Limpieza de tipos indefinidos (`Inertia`) y llamadas inseguras a `Auth` en `InventoryItemController`.
+
+### C. Próximos Pasos
+*   [ ] Implementar **Edición de Procesos** existentes (Rename/Reorder etapas).
+*   [ ] Validar integración completa de **Consumo de Inventario** en transacciones de lotes.

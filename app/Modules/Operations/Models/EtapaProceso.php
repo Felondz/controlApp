@@ -10,6 +10,11 @@ class EtapaProceso extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\EtapaProcesoFactory::new();
+    }
+
     protected $table = 'etapas_proceso';
 
     protected $fillable = [

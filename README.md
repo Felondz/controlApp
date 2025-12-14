@@ -10,9 +10,9 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-| **Backend Tests** | 284 / 284 | ✅ **100% Stable** |
-| **Frontend Tests** | 217 tests / 39 files | ✅ **100% Coverage** |
-| **Total Tests** | 501 tests | ✅ **Robust Coverage** |
+13: | **Backend Tests** | 305 / 305 | ✅ **100% Stable** |
+14: | **Frontend Tests** | ~275 tests | ✅ **100% Coverage** |
+15: | **Total Tests** | ~580 tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
 | **Backend Version** | v2.8.0 (Modular Architecture) | ✅ **Stable** |
@@ -66,6 +66,12 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
 - **Task Tracking**: Assignees, priorities, due dates, and status tracking.
 - **Financial Integration**: Create financial tasks with monetary values.
 - **Audit**: Automatic logging of task completion events.
+
+### Operations & Production (New)
+- **Production Lines**: Manage complex workflows (e.g., Crops, Manufacturing) via `ProductionProcess`.
+- **Batch Management**: Track `LoteProduccion` across stages with full traceability.
+- **Stage Automation**: Automatically trigger tasks and SOPs when batches move between stages.
+- **Inventory Integration**: Deduct raw materials and register finished goods automatically.
 
 ### Finance Management
 - **Accounts**: Manage 6 account types (Cash, Bank, Credit, Investment, Loan, Other).

@@ -188,4 +188,11 @@ class Proyecto extends Model
     {
         return $this->hasMessagingFeature();
     }
+    /**
+     * Relationship with Inventory Items
+     */
+    public function inventoryItems()
+    {
+        return $this->hasMany(\App\Modules\Inventory\Models\InventoryItem::class);
+    }
 }

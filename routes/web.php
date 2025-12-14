@@ -156,8 +156,10 @@ Route::middleware('auth')->group(function () {
     // Operations Module Routes
     Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
         Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
-        Route::get('/lotes/create', [\App\Modules\Operations\Controllers\LoteController::class, 'create'])->name('operations.lotes.create');
         Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
+        Route::post('/processes', [\App\Modules\Operations\Controllers\LoteController::class, 'storeProcess'])->name('operations.processes.store');
+        Route::put('/lotes/{lote}/stage', [\App\Modules\Operations\Controllers\LoteController::class, 'updateStage'])->name('operations.lotes.update-stage');
+        Route::get('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'show'])->name('operations.lotes.show');
     });
 });
 

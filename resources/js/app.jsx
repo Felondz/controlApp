@@ -2,6 +2,8 @@ import '../css/app.css';
 import './bootstrap';
 import { Ziggy } from './ziggy';
 import { route } from 'ziggy-js';
+
+// Use static Ziggy configuration as primary source to ensure all routes are present
 window.route = (name, params, absolute, config = Ziggy) => route(name, params, absolute, config);
 
 import { createInertiaApp } from '@inertiajs/react';

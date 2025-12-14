@@ -5,45 +5,58 @@ import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 export default function InventorySummaryWidget({
     project,
     items = { data: [] },
+    stats: providedStats, // Accept precalculated stats
     widget,
     isDragging,
     dragHandleProps,
     onHide
 }) {
     const { t } = useTranslate();
-    const itemsData = items?.data || [];
 
-    // Calculate stats
-    const totalItems = itemsData.length;
-    const totalValue = itemsData.reduce((sum, item) => sum + (item.current_stock * (item.cost_price || 0)), 0);
-    const lowStockCount = itemsData.filter(item => item.current_stock <= item.min_stock_level).length;
-    const activeItems = itemsData.filter(item => item.is_active).length;
+    // Use provided stats or calculate from items data (fallback)
+    let statsData = {};
+    if (providedStats) {
+        statsData = {
+            totalItems: providedStats.totalItems,
+            totalValue: providedStats.totalValue,
+            lowStockCount: providedStats.lowStockCount,
+            activeItems: providedStats.activeItems
+        };
+    } else {
+        const itemsData = items?.data || [];
+        statsData = {
+            totalItems: itemsData.length,
+            totalValue: itemsData.reduce((sum, item) => sum + (item.current_stock * (item.cost_price || 0)), 0),
+            lowStockCount: itemsData.filter(item => item.current_stock <= item.min_stock_level).length,
+            activeItems: itemsData.filter(item => item.is_active).length
+        };
+    }
 
     const stats = [
         {
             label: t('inventory.total_items', 'Items Totales'),
-            value: totalItems,
+            value: statsData.totalItems,
             icon: PackageIcon,
             color: 'text-primary-600 dark:text-primary-400',
             bgColor: 'bg-primary-100 dark:bg-primary-900/30',
         },
         {
             label: t('inventory.total_value', 'Valor Total'),
-            value: `$${totalValue.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+            value: `$${parseFloat(statsData.totalValue).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, // Ensure float parsing
             icon: CurrencyDollarIcon,
             color: 'text-green-600 dark:text-green-400',
             bgColor: 'bg-green-100 dark:bg-green-900/30',
         },
         {
             label: t('inventory.low_stock_count', 'Bajo Stock'),
-            value: lowStockCount,
+            value: statsData.lowStockCount,
             icon: ExclamationTriangleIcon,
-            color: lowStockCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500',
-            bgColor: lowStockCount > 0 ? 'bg-red-100 dark:bg-red-900/30' : 'bg-gray-100 dark:bg-gray-800',
+            color: statsData.lowStockCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500',
+            bgColor: statsData.lowStockCount > 0 ? 'bg-red-100 dark:bg-red-900/30' : 'bg-gray-100 dark:bg-gray-800',
         },
         {
             label: t('inventory.active_items', 'Activos'),
-            value: activeItems,
+            value: statsData.activeItems,
             icon: CheckCircleIcon,
             color: 'text-blue-600 dark:text-blue-400',
             bgColor: 'bg-blue-100 dark:bg-blue-900/30',

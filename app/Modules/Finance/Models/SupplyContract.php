@@ -13,6 +13,11 @@ class SupplyContract extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\SupplyContractFactory::new();
+    }
+
     protected $fillable = [
         'proyecto_id',
         'provider_id',

@@ -97,9 +97,10 @@ global.route = vi.fn((name, params) => {
         ? `/${name}/${typeof params === 'object' ? Object.values(params).join('/') : params}`
         : `/${name}`;
 
-    // Add current() method to check if route matches
+    // Add current() and has() methods
     return Object.assign(url, {
         current: vi.fn((routeName) => routeName === name),
+        has: vi.fn(() => true), // Mock has to always return true or customizable
     });
 });
 

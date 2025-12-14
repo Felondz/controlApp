@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\User; // 💡 Importar el modelo User
-use App\Models\Proyecto; // 💡 Importar el modelo Proyecto
-use App\Observers\UserObserver; // 💡 Importar el UserObserver
-use App\Observers\ProyectoObserver; // 💡 Importar el ProyectoObserver
-use Illuminate\Database\Eloquent\Relations\Relation; // 💡 Importar para MorphMap
-use Illuminate\Support\Facades\Gate; // 💡 Importar Gate
+use App\Models\User; 
+use App\Models\Proyecto; 
+use App\Observers\UserObserver; 
+use App\Observers\ProyectoObserver; 
+use Illuminate\Database\Eloquent\Relations\Relation; 
+use Illuminate\Support\Facades\Gate; 
 use Illuminate\Support\Facades\Vite;
-use Illuminate\Support\Facades\URL; // 💡 Importar URL Facade
+use Illuminate\Support\Facades\URL; 
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

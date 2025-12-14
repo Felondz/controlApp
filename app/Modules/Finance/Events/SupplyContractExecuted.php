@@ -5,14 +5,17 @@ namespace App\Modules\Finance\Events;
 use App\Core\Events\BaseModuleEvent;
 use App\Modules\Finance\Models\SupplyContract;
 use App\Modules\Finance\Models\Transaccion;
-
+use Illuminate\Foundation\Events\Dispatchable;
 /**
  * SupplyContractExecuted Event
  * 
  * Dispatched when a supply contract is executed and generates an invoice.
  */
+
+
 class SupplyContractExecuted extends BaseModuleEvent
 {
+    use Dispatchable;
     /**
      * The executed contract.
      */

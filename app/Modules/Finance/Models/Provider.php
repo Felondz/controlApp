@@ -12,6 +12,11 @@ class Provider extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\ProviderFactory::new();
+    }
+
     protected $fillable = [
         'proyecto_id',
         'name',

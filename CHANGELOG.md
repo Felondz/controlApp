@@ -5,7 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### 11 de Diciembre de 2025 (Late)
+### 12 de Diciembre de 2025 (Operations)
+
+#### ✨ FEATURE: Stage-Based Task Automation (Operations)
+
+**Type**: Feature & Critical Backend Fix
+**Impact**: HIGH - Enables SOP automation for production lines
+**Tests Affected**: 1 new test suite (partially passing due to env)
+
+**Description**:
+Implemented the core automation logic for the Operations module. Now, when a Production Batch (`Lote`) advances to a new `Stage`, the system automatically generates specific tasks based on pre-defined `StageTaskTemplates`.
+
+**Features**:
+- 🤖 **Auto-Task Generation**: Listener `GenerateStageTasks` clones templates into actionable tasks.
+- 📅 **Smart Due Dates**: Tasks calculate due dates based on `days_due_offset` relative to stage start.
+- 👤 **Auto-Assignment**: Tasks are automatically assigned to the batch owner.
+
+**Bug Fixes**:
+- 🐛 **Database Schema**: Fixed `QueryException` ("column current_stage_id not found"). Renamed model/factory attributes to `stage_id` to match migration.
+- 🔧 **User Model**: Restored missing `Searchable` trait import that caused a Fatal Error during tests.
+
+**Technical Details**:
+- Created `EtapaProcesoFactory` and `StageTaskTemplateFactory`.
+- Implemented `GenerateStageTasksTest` (Feature) and `GenerateStageTasksUnitTest` (Unit with Mocks).
+
+**Files Modified**:
+- `app/Modules/Tasks/Listeners/GenerateStageTasks.php`
+- `app/Modules/Operations/Models/LoteProduccion.php`
+- `database/factories/LoteProduccionFactory.php`
+- `tests/Feature/Modules/Tasks/GenerateStageTasksTest.php`
+
+**Documentation Updated**:
+- `docs/development/operations_module_log.md`
+- `walkthrough.md`
+
+**Commit Simulado**: `feat(ops): implement stage task automation and fix column name bug`
+
+---
+
+8: ### 12 de Diciembre de 2025
+9: 
+10: #### 🧪 CRITICAL FIX: Frontend Test Suite Stability & Coverage
+11: 
+12: **Type**: Quality Assurance & Bug Fix
+13: **Impact**: HIGH - Restored CI/CD reliability
+14: **Tests Affected**: 275/275 ✅ (all passing)
+15: 
+16: **Description**:
+17: Implemented comprehensive unit tests for the Inventory module widgets and fixed critical regression failures in existing tests caused by the recent modular refactoring. The entire frontend test suite is now passing locally and in CI environments.
+18: 
+19: **New Tests Implemented (Inventory)**:
+20: - `InventorySummaryWidget.test.jsx`: Validates totals, inventory value, and low stock alerts.
+21: - `LowStockWidget.test.jsx`: Checks rendering of low stock items and empty states.
+22: - `InventoryItemsWidget.test.jsx`: Covers item listing, filtering, and badge display.
+23: 
+24: **Regression Fixes**:
+25: - 🐛 **Import Paths**: Fixed broken imports in `ChatWidget`, `FinanceWidget`, `TasksWidget` tests pointing to old locations.
+26: - 🐛 **Ziggy Mock**: Enhanced `test-setup.js` to mock `route().has()` method, resolving "Unhandled Rejection" errors.
+27: - 🐛 **ProjectCard**: Fixed selector logic to correctly find the accent color line in the component structure.
+28: 
+29: **Documentation Updated**:
+30: - `docs/private/es/04-testing/TESTING_ARCHITECTURE.md`
+31: - `docs/private/en/04-testing/TESTING_ARCHITECTURE.md`
+32: 
+33: **Commit Simulado**: `test(frontend): add inventory widgets tests and fix regression failures`
+34: 
+35: ---
+36: 
+37: ### 11 de Diciembre de 2025 (Late)
 
 #### ⚡ EventBus Async Migration: Operations & Inventory Modules
 

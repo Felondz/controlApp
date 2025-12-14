@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Listeners;
 use App\Core\Events\Contracts\ModuleEvent;
 use App\Modules\Operations\Events\LoteFinished;
 use App\Modules\Operations\Models\LoteProduccion;
+use App\Modules\Inventory\Services\InventoryService;
 use App\Modules\Inventory\Models\InventoryTransaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -26,6 +27,16 @@ class CreateFinishedGoodsEntry implements ShouldQueue
      * @var string|null
      */
     public $connection = 'redis';
+
+    protected $inventoryService;
+
+    /**
+     * Create the event listener.
+     */
+    public function __construct(InventoryService $inventoryService)
+    {
+        $this->inventoryService = $inventoryService;
+    }
 
     /**
      * Handle the event.
@@ -78,24 +89,23 @@ class CreateFinishedGoodsEntry implements ShouldQueue
             $unitPrice = $lote->product->cost_price;
         }
 
-        InventoryTransaction::create([
-            'proyecto_id' => $lote->proyecto_id,
-            'inventory_item_id' => $lote->inventory_item_id,
-            'user_id' => $lote->assigned_to, // Or auth id if available, but event usually asynchronous
-            'type' => 'production_in',
-            'quantity' => $qty,
-            'unit_price' => $unitPrice,
-            'total_amount' => $qty * $unitPrice,
-
-            // Reference the Lote
-            'reference_type' => get_class($lote),
-            'reference_id' => $lote->id,
-
-            'status' => 'confirmed', // Production is done, stock is real
-            'notes' => "Finished Goods from Lote: {$lote->code}",
-            'transaction_date' => now(),
-        ]);
-
-        Log::channel('modules')->info("CreateFinishedGoodsEntry: Stock entry created for Lote {$lote->code}");
+        try {
+            $this->inventoryService->registerTransaction(
+                $lote->proyecto_id,
+                $lote->inventory_item_id,
+                'production_in',
+                $qty,
+                $unitPrice,
+                get_class($lote),
+                $lote->id,
+                "Finished Goods from Lote: {$lote->code}",
+                $lote->assigned_to // User who finished it? Or system? Using assigned_to as proxy.
+            );
+    
+            Log::channel('modules')->info("CreateFinishedGoodsEntry: Stock entry created for Lote {$lote->code}");
+        } catch (\Exception $e) {
+            Log::channel('modules')->error("CreateFinishedGoodsEntry: Failed to register transaction: " . $e->getMessage());
+            $this->fail($e);
+        }
     }
 }

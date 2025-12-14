@@ -19,7 +19,7 @@ import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widge
  * - Widget gallery for management
  * - Responsive design
  */
-export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [] }) {
+export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [], inventoryStats = null }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -94,10 +94,7 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         pendingBills: pendingBills,
                         categories: proyecto.categorias || [],
                         currency: proyecto.moneda_default,
-                        // Overview is read-only for finance mostly, but we pass data.
-                        // Handlers can be null or simple redirects if widgets support it?
-                        // For now we just pass data so they RENDER.
-                        // Actions usually require specific handlers which might not be present here.
+                        inventoryStats: inventoryStats, // Pass precalculated stats for widgets
                     }}
                     defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
                     defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}

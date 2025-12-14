@@ -14,12 +14,17 @@ class LoteProduccion extends Model
 {
     use HasFactory, SoftDeletes, Searchable;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\LoteProduccionFactory::new();
+    }
+
     protected $table = 'lotes_produccion';
 
     protected $fillable = [
         'proyecto_id',
         'production_process_id',
-        'current_stage_id',
+        'stage_id',
         'inventory_item_id', // Linked product (optional at start)
         'code', // e.g., LOTE-2023-001
         'initial_quantity',

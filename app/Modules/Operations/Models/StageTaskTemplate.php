@@ -10,6 +10,11 @@ class StageTaskTemplate extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\StageTaskTemplateFactory::new();
+    }
+
     protected $table = 'stage_task_templates';
 
     protected $fillable = [

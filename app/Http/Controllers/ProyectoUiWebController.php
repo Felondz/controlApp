@@ -109,12 +109,24 @@ class ProyectoUiWebController extends Controller
         // 4. Renderizar vista apropiada según tipo de proyecto
 
 
+        // 5. Cargar estadísticas de Inventario para el Widget de Resumen
+        $inventoryStats = null;
+        if ($isAdmin) { // O verificar si tiene módulo de inventario activado
+             $inventoryStats = [
+                'totalItems' => $mis_proyecto->inventoryItems()->count(),
+                'totalValue' => $mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
+                'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
+                'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
+             ];
+        }
+
         // Regular projects use Projects/Show
         return Inertia::render('Projects/Show', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones, // Passed for widgets
             'pendingBills' => $pendingBills,   // Passed for widgets
+            'inventoryStats' => $inventoryStats, // Passed for InventorySummaryWidget
         ]);
     }
 

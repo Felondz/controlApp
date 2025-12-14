@@ -72,7 +72,7 @@ class InventoryItemController extends Controller
             $items = $query->paginate(10)->withQueryString();
         }
 
-        return \Inertia\Inertia::render('Inventory/Items/Index', [
+        return Inertia::render('Inventory/Items/Index', [
             'proyecto' => $proyecto,
             'items' => $items,
             'filters' => $request->only(['search', 'type', 'stock_status']),
@@ -90,6 +90,8 @@ class InventoryItemController extends Controller
             'type' => 'required|in:raw_material,finished_good,service,asset',
             'unit' => 'required|string|max:20',
             'min_stock_level' => 'nullable|numeric|min:0',
+            'initial_quantity' => 'nullable|numeric|min:0',
+            'initial_cost' => 'nullable|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'image' => [
                 'nullable',
@@ -104,12 +106,14 @@ class InventoryItemController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $extension = $file->getClientOriginalExtension();
-            // Secure hashing of filename
             $filename = Str::random(40) . '.' . $extension;
             $imagePath = $file->storeAs('inventory/' . $proyecto->id, $filename, 'public');
         }
 
-        InventoryItem::create([
+        // Determine initial cost for the item master
+        $costPrice = $validated['initial_cost'] ?? 0;
+
+        $item = InventoryItem::create([
             'proyecto_id' => $proyecto->id,
             'name' => $validated['name'],
             'sku' => $validated['sku'],
@@ -117,9 +121,33 @@ class InventoryItemController extends Controller
             'unit' => $validated['unit'],
             'min_stock_level' => $validated['min_stock_level'] ?? 0,
             'sale_price' => $validated['sale_price'] ?? 0,
+            'cost_price' => $costPrice, // Set initial average cost
             'image_path' => $imagePath,
             'is_active' => true,
         ]);
+
+        // Handle Initial Stock Transaction
+        if (!empty($validated['initial_quantity']) && $validated['initial_quantity'] > 0) {
+            \App\Modules\Inventory\Models\InventoryTransaction::create([
+                'proyecto_id' => $proyecto->id,
+                'inventory_item_id' => $item->id,
+                'user_id' => auth()->id(), // Assuming auth context
+                'type' => 'adjustment', // or 'initial_stock' if added to enum
+                'quantity' => $validated['initial_quantity'],
+                'unit_price' => $costPrice,
+                'total_amount' => $validated['initial_quantity'] * $costPrice,
+                'transaction_date' => now(),
+                'status' => 'confirmed',
+                'notes' => 'Stock Inicial al crear Item',
+                'reference_type' => null, // No external reference for initial manual stock
+                'reference_id' => null,
+            ]);
+            
+            // Note: The Observer or Listener should update the Item's current_stock cache.
+            // If not implemented, we might need to manually update it here.
+            // Assuming for now the system handles it or we force update:
+            $item->increment('current_stock', $validated['initial_quantity']);
+        }
 
         return redirect()->back()->with('success', 'Item creado correctamente.');
     }
@@ -168,6 +196,32 @@ class InventoryItemController extends Controller
         }
 
         $item->update($dataToUpdate);
+
+        // Handle Manual Stock Adjustment
+        if ($request->filled('stock_adjustment') && $request->stock_adjustment != 0) {
+            $adjustment = (float) $request->stock_adjustment;
+            \App\Modules\Inventory\Models\InventoryTransaction::create([
+                'proyecto_id' => $proyecto->id,
+                'inventory_item_id' => $item->id,
+                'user_id' => auth()->id(),
+                'type' => 'adjustment',
+                'quantity' => $adjustment,
+                'unit_price' => $item->cost_price, // Use current average cost
+                'total_amount' => $adjustment * $item->cost_price,
+                'transaction_date' => now(),
+                'status' => 'confirmed',
+                'notes' => 'Ajuste manual desde edición de item',
+                'reference_type' => null,
+                'reference_id' => null,
+            ]);
+            
+            // Update stock cache
+            if ($adjustment > 0) {
+                $item->increment('current_stock', $adjustment);
+            } else {
+                $item->decrement('current_stock', abs($adjustment));
+            }
+        }
 
         return redirect()->back()->with('success', 'Item actualizado correctamente.');
     }
