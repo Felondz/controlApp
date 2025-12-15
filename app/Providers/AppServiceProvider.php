@@ -27,12 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // --- FIX: FORCE HTTPS (Error Mixed Content) ---
-        // --- FIX: FORCE HTTPS (Error Mixed Content) ---
-        // Si la URL configurada es HTTPS (en .env), forzamos esquemas HTTPS en todo el sitio.
-        // Esto arregla el problema en PTR (donde APP_ENV=local pero usamos HTTPS por Cloudflare).
-        if (str_starts_with(config('app.url'), 'https://')) {
-            URL::forceScheme('https');
+        // Support for nested JSON translation files (e.g., lang/es/es.json)
+        app('translator')->addJsonPath(resource_path('lang/es'));
+        app('translator')->addJsonPath(resource_path('lang/en'));
+
+        // Force HTTPS in production/PTR environment
+        if (config('app.env') !== 'local') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
         Vite::prefetch(concurrency: 3);

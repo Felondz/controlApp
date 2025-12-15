@@ -36,13 +36,8 @@ Route::middleware('guest')->group(function () {
 });
 
 // Email verification route - NO requiere autenticación
-// Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-//     ->middleware(['signed', 'throttle:6,1'])
-//     ->name('verification.verify');
-
-// TEMPORARY PROXY DEBUG: Removed 'signed' middleware to debug HTTP/HTTPS mismatch
 Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-    ->middleware(['throttle:6,1'])
+    ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
 
 Route::middleware('auth')->group(function () {
