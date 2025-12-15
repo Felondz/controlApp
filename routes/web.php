@@ -191,3 +191,16 @@ Route::get('/fix-migrations-table', function () {
         return 'Error: ' . $e->getMessage();
     }
 });
+Route::get('/debug-email', function () {
+    try {
+        Illuminate\Support\Facades\Log::info('Debug Email: Start');
+        Illuminate\Support\Facades\Mail::raw('This is a test email from ControlApp debug route.', function ($message) {
+            $message->to('test@example.com')->subject('Debug Email Test');
+        });
+        Illuminate\Support\Facades\Log::info('Debug Email: Dispatched');
+        return 'Email dispatched via ' . config('mail.default') . '. Check logs and inbox.';
+    } catch (\Exception $e) {
+        Illuminate\Support\Facades\Log::error('Debug Email Error: ' . $e->getMessage());
+        return 'Error: ' . $e->getMessage();
+    }
+});

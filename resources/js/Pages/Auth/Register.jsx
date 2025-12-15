@@ -31,7 +31,13 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('register'));
+        console.log('Frontend: Registration form submitted', data);
+        post(route('register'), {
+            onStart: () => console.log('Frontend: Request started to', route('register')),
+            onFinish: () => console.log('Frontend: Request finished'),
+            onSuccess: () => console.log('Frontend: Request successful'),
+            onError: (errors) => console.error('Frontend: Request failed with errors', errors),
+        });
     };
 
     const closeModal = () => {
