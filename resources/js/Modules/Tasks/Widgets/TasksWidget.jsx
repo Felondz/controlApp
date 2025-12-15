@@ -4,21 +4,18 @@ import { CheckListIcon, WarningIcon } from '@/Components/Icons';
 export default function TasksWidget({ project }) {
     const { t } = useTranslate();
 
-    // Mock data
-    const pendingTasks = 4;
-    const dueToday = 2;
+    // Real data from project object (injected by Dashboard controller)
+    const pendingTasks = project.pending_tasks_count || 0;
+    const dueToday = project.due_today_count || 0;
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{pendingTasks}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingTasks}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                         {t('tasks.pending', 'Tareas Pendientes')}
                     </p>
-                </div>
-                <div className="h-10 w-10 rounded-full bg-info-100 dark:bg-info-900/30 flex items-center justify-center text-info-600 dark:text-info-400">
-                    <CheckListIcon className="h-6 w-6" />
                 </div>
             </div>
 

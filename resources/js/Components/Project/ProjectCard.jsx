@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon, ChartBarIcon, BellIcon } from '@/Components/Icons';
+import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon, ChartBarIcon, BellIcon, FactoryIcon, PackageIcon, UsersIcon } from '@/Components/Icons';
 import { FinanceWidget } from '@/Modules/Finance/Widgets';
 import { TasksWidget } from '@/Modules/Tasks/Widgets';
 import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
@@ -35,6 +35,10 @@ export default function ProjectCard(props) {
             case 'tasks': return <CheckListIcon className="h-4 w-4" />;
             case 'chat': return <ChatIcon className="h-4 w-4" />;
             case 'marketplace': return <PuzzleIcon className="h-4 w-4" />;
+            case 'inventory': return <PackageIcon className="h-4 w-4" />;
+            case 'operations': return <FactoryIcon className="h-4 w-4" />;
+            case 'crm': return <UsersIcon className="h-4 w-4" />;
+            case 'analytics': return <ChartBarIcon className="h-4 w-4" />;
             default: return null;
         }
     };

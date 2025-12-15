@@ -51,7 +51,11 @@ class ProyectoUiWebController extends Controller
 
     public function create()
     {
-        $availableModules = \App\Models\Module::where('is_active', true)->get();
+        $availableModules = \App\Models\Module::where('is_active', true)
+            ->where('coming_soon', false)
+            ->get();
+        
+        \Illuminate\Support\Facades\Log::info('Available modules in CreateProject:', $availableModules->toArray());
 
         // Renderiza el componente de React en resources/js/Pages/Projects/CreateProject.jsx
         return Inertia::render('Projects/CreateProject', [
@@ -441,6 +445,16 @@ class ProyectoUiWebController extends Controller
             ->whereIn('proyecto_id', $proyectos->pluck('id'))
             ->pluck('unread_messages_count', 'proyecto_id');
 
+        // Batch load Task Stats (Pending & Due Today)
+        $taskStats = \App\Modules\Tasks\Models\Task::whereIn('project_id', $proyectos->pluck('id'))
+            ->selectRaw('project_id, 
+                sum(case when status != "completed" then 1 else 0 end) as pending, 
+                sum(case when date(due_date) = ? then 1 else 0 end) as due_today', 
+                [now()->toDateString()])
+            ->groupBy('project_id')
+            ->get()
+            ->keyBy('project_id');
+
         // Procesamos para agregar flag de admin y conteo de mensajes no leídos
         $proyectos->transform(function ($proyecto) use ($user, $unreadCounts) {
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
@@ -451,6 +465,11 @@ class ProyectoUiWebController extends Controller
             } else {
                 $proyecto->unread_messages_count = 0;
             }
+
+            // Task Stats
+            $stats = $taskStats[$proyecto->id] ?? null;
+            $proyecto->pending_tasks_count = $stats ? $stats->pending : 0;
+            $proyecto->due_today_count = $stats ? $stats->due_today : 0;
 
             return $proyecto;
         });

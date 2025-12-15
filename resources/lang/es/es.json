@@ -843,18 +843,22 @@
             },
             "education": {
                 "title": "Educación",
-                "desc": "Gestiona tus estudios, tareas y gastos universitarios."
+                "desc": "Gestiona tus estudios, tareas y grupos de estudio."
+            },
+            "enterprise": {
+                "title": "Empresa",
+                "desc": "Gestión completa con CRM y módulos avanzados."
             }
         },
-        "setup_project": "Configurar Proyecto",
-        "setup_desc": "Define la identidad básica de tu nuevo espacio de trabajo.",
-        "customize_appearance": "Personalizar Apariencia",
-        "help_contact_support": "¿Necesitas ayuda? Contacta a soporte.",
-        "upload_image": "Click para subir imagen",
+        "setup_project": "Configura tu Proyecto",
+        "setup_desc": "Activa o desactiva funcionalidades para adaptar el proyecto a tus necesidades.",
+        "customize_appearance": "Personaliza la Apariencia",
+        "help_contact_support": "¿Necesitas ayuda para elegir?",
+        "upload_image": "Subir Imagen",
         "change_image": "Cambiar",
         "placeholders": {
-            "name": "Ej: Presupuesto 2025",
-            "description": "Descripción breve del proyecto..."
+            "name": "Ej: Mi Nueva Startup",
+            "description": "Describe brevemente tu proyecto..."
         },
         "themes": {
             "purple-modern": "Púrpura Moderno",
@@ -864,22 +868,22 @@
             "rose-romantic": "Rosa Romántico",
             "cyan-tech": "Cian Tecnológico",
             "modern": "Moderno",
-            "nature": "Natural",
+            "nature": "Naturaleza",
             "ocean": "Océano",
             "warm": "Cálido",
             "romantic": "Romántico",
-            "tech": "Tecnológico"
+            "tech": "Tecnología"
         },
         "typographies": {
-            "sans": "Sans Serif (Por defecto)",
+            "sans": "Sans Serif (Estándar)",
             "roboto": "Roboto (Moderno)",
-            "opensans": "Open Sans (Limpio)",
-            "lato": "Lato (Amigable)",
+            "opensans": "Open Sans (Legible)",
+            "lato": "Lato (Equilibrado)",
             "montserrat": "Montserrat (Geométrico)",
-            "nunito": "Nunito (Redondeado)",
+            "nunito": "Nunito (Amigable)",
             "raleway": "Raleway (Elegante)",
             "playfair": "Playfair Display (Serif)",
-            "merriweather": "Merriweather (Serif)"
+            "merriweather": "Merriweather (Serif Clásico)"
         }
     },
     "inventory": {
