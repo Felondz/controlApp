@@ -16,7 +16,7 @@ class ModuleSeeder extends Seeder
             [
                 'key' => 'finance',
                 'name' => 'Finanzas',
-                'description' => 'Gestión de ingresos, gastos, presupuestos y cuentas.',
+                'description' => 'Control de presupuestos, facturas, gastos e ingresos.',
                 'price' => 0.00,
                 'is_free' => true,
                 'is_active' => true,
@@ -24,8 +24,8 @@ class ModuleSeeder extends Seeder
             ],
             [
                 'key' => 'tasks',
-                'name' => 'Tareas',
-                'description' => 'Gestión de tareas, kanban y seguimiento de progreso.',
+                'name' => 'Tareas y Proyectos',
+                'description' => 'Kanban, listas y gestión de colaboradores.',
                 'price' => 0.00,
                 'is_free' => true,
                 'is_active' => true,
@@ -33,8 +33,8 @@ class ModuleSeeder extends Seeder
             ],
             [
                 'key' => 'chat',
-                'name' => 'Chat',
-                'description' => 'Comunicación en tiempo real.',
+                'name' => 'Chat de Equipo',
+                'description' => 'Comunicación en tiempo real integrada.',
                 'price' => 0.00,
                 'is_free' => true,
                 'is_active' => true,
@@ -42,11 +42,38 @@ class ModuleSeeder extends Seeder
             ],
             [
                 'key' => 'analytics',
-                'name' => 'Analíticas',
-                'description' => 'Reportes detallados y proyecciones (Próximamente).',
+                'name' => 'Analítica Avanzada',
+                'description' => 'Reportes detallados y proyecciones IA.',
                 'price' => 0.00,
                 'is_free' => true,
                 'is_active' => true,
+                'coming_soon' => true, // Coming Soon
+            ],
+            [
+                'key' => 'inventory',
+                'name' => 'Inventario',
+                'description' => 'Control de stock, productos y almacenes.',
+                'price' => 0.00,
+                'is_free' => true,
+                'is_active' => true,
+                'coming_soon' => false,
+            ],
+            [
+                'key' => 'operations',
+                'name' => 'Operaciones',
+                'description' => 'Gestión de procesos operativos y manufactura.',
+                'price' => 0.00,
+                'is_free' => true,
+                'is_active' => true,
+                'coming_soon' => false,
+            ],
+            [
+                'key' => 'crm',
+                'name' => 'Ventas (CRM)',
+                'description' => 'Gestión de clientes y oportunidades de venta.',
+                'price' => 0.00,
+                'is_free' => true,
+                'is_active' => true, // Active in DB but coming_soon flag true
                 'coming_soon' => true,
             ],
         ];

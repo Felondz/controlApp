@@ -159,9 +159,16 @@ jobs:
           
           docker compose exec -T app php artisan migrate --force
           
+          docker compose exec -T app php artisan migrate --force
+          
+          # 3. Seeders (Esenciales para configuración)
+          echo "🌱 Ejecutando Seeders Esenciales (ModuleSeeder)..."
+          docker compose exec -T app php artisan db:seed --class=ModuleSeeder --force
+          
           if [[ "$APP_ENV" != "production" ]]; then
-             echo "🌱 Seeders de prueba..."
-             docker compose exec -T app php artisan db:seed --force
+             echo "🧪 Seeders de prueba adicionales..."
+             # Si tienes otros seeders solo para dev, colócalos aquí o usa un seeder específico
+             # docker compose exec -T app php artisan db:seed --class=TestSeeder --force
           fi
           
           # 3. Optimización y Enlaces

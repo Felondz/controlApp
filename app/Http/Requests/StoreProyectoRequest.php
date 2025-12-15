@@ -54,7 +54,7 @@ class StoreProyectoRequest extends FormRequest
             ],
             'modules.*' => [
                 'string',
-                'in:finance,tasks,chat,analytics,notifications',
+                'in:finance,tasks,chat,analytics,notifications,inventory,operations,crm',
             ],
             'image' => [
                 'nullable',
