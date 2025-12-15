@@ -106,6 +106,9 @@ jobs:
           echo "DB_USERNAME=$DB_USERNAME" >> .env
           echo "APP_KEY=$APP_KEY" >> .env
           echo "MEILISEARCH_KEY=$MEILISEARCH_KEY" >> .env
+          echo "QUEUE_CONNECTION=redis" >> .env
+          echo "REDIS_HOST=redis" >> .env
+          echo "REDIS_PORT=6379" >> .env
           echo "SUPER_ADMIN_EMAIL=${{ secrets.SUPER_ADMIN_EMAIL }}" >> .env
           echo "SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}" >> .env
 
