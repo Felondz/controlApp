@@ -56,12 +56,14 @@ jobs:
             echo "APP_ENV=production" >> $GITHUB_ENV
             echo "IMAGE_TAG=latest" >> $GITHUB_ENV
             echo "DB_DATABASE=control_prod" >> $GITHUB_ENV
+            echo "LOG_CHANNEL=stderr" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp-ptr" >> $GITHUB_ENV
             echo "APP_DOMAIN=ptr.controlapp.site" >> $GITHUB_ENV
             echo "APP_ENV=local" >> $GITHUB_ENV
             echo "IMAGE_TAG=testing" >> $GITHUB_ENV
             echo "DB_DATABASE=control_ptr" >> $GITHUB_ENV
+            echo "LOG_CHANNEL=stderr" >> $GITHUB_ENV
           fi
 
       - name: Login to GitHub Container Registry (Local)
