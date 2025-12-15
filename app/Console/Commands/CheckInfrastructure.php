@@ -66,6 +66,40 @@ class CheckInfrastructure extends Command
             $hasErrors = true;
         }
 
+        // 4. MEILISEARCH CHECK
+        try {
+            $this->comment('Checking Meilisearch...');
+            $host = config('scout.meilisearch.host') ?? 'http://localhost:7700';
+            $key = config('scout.meilisearch.key');
+            
+            // Parsed host
+            if (!str_starts_with($host, 'http')) {
+                 $host = 'http://' . $host;
+            }
+
+            $ch = curl_init("$host/health");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+            if ($key) {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $key"]);
+            }
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode >= 200 && $httpCode < 300) {
+                 $this->info("✅ Meilisearch Connected: $host");
+            } else {
+                 throw new \Exception("HTTP $httpCode - $error");
+            }
+
+        } catch (\Exception $e) {
+            $this->error("❌ Meilisearch Error: " . $e->getMessage());
+            $hasErrors = true;
+        }
+
         if ($hasErrors) {
             $this->error('⚠️  Infrastructure check completed with errors.');
             return 1;
