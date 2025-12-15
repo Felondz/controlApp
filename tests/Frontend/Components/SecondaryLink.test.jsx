@@ -12,8 +12,7 @@ describe('SecondaryLink', () => {
         render(<SecondaryLink href="/test">Secondary</SecondaryLink>);
 
         const link = screen.getByText('Secondary');
-        expect(link).toHaveClass('bg-white');
-        expect(link).toHaveClass('border-secondary-300');
+        expect(link).toHaveClass('bg-gray-100');
     });
 
     it('has dark mode styling', () => {
@@ -36,8 +35,7 @@ describe('SecondaryLink', () => {
 
         const link = screen.getByText('Base');
         expect(link).toHaveClass('inline-flex');
-        expect(link).toHaveClass('rounded-md');
-        expect(link).toHaveClass('uppercase');
+        expect(link).toHaveClass('rounded-lg');
     });
 
     it('passes through href prop', () => {

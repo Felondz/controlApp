@@ -843,6 +843,10 @@
             "education": {
                 "title": "Education",
                 "desc": "Manage your studies, assignments, and university expenses."
+            },
+            "enterprise": {
+                "title": "Enterprise",
+                "desc": "Complete management with CRM and advanced modules."
             }
         },
         "setup_project": "Setup Project",
@@ -1038,16 +1042,26 @@
             "description": "Explore and activate modules to power up your projects.",
             "confirm_uninstall": "Are you sure you want to uninstall this module? Associated data will be lost.",
             "dependency_warning": "This module requires :modules to work."
-        },
-        "validation": {
-            "checkbox_required": "Please check this box to continue"
         }
     },
-    "invitations": {
-        "title": "Invitations",
-        "pending": "Pending Invitations",
-        "invited_by": "Invited by",
-        "empty_title": "No invitations",
-        "empty_desc": "When you are invited to a project, it will appear here."
+    "operations": {
+        "title": "Operations: Production Batches",
+        "search_placeholder": "Search batches...",
+        "filter_process": "Filter Process",
+        "all_processes": "All Processes",
+        "new_lote": "New Batch",
+        "status": "Status",
+        "active": "Active",
+        "process_general": "General Process",
+        "current_stage": "Current Stage",
+        "quantity": "Quantity",
+        "start_date": "Start Date",
+        "no_active_lotes": "No active batches",
+        "create_first_lote": "Start by creating a new production batch.",
+        "units": "units",
+        "no_results": "No active production batches match your search."
+    },
+    "validation": {
+        "checkbox_required": "Please check this box to continue"
     }
 }

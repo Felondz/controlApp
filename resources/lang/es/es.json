@@ -843,14 +843,13 @@
             },
             "education": {
                 "title": "Educación",
-                "desc": "Gestiona tus estudios, tareas y gastos universitarios.""desc": "Seguimiento de tareas y grupos de estudio."
+                "desc": "Gestiona tus estudios, tareas y grupos de estudio."
             },
             "enterprise": {
                 "title": "Empresa",
                 "desc": "Gestión completa con CRM y módulos avanzados."
             }
         },
-        "setup_project": "Configurar Proyecto",
         "setup_project": "Configura tu Proyecto",
         "setup_desc": "Activa o desactiva funcionalidades para adaptar el proyecto a tus necesidades.",
         "customize_appearance": "Personaliza la Apariencia",
