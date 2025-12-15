@@ -58,9 +58,6 @@ class CheckInfrastructure extends Command
             $this->comment('Checking Mail Transport...');
             $mailer = Mail::getSymfonyTransport();
             $this->info("✅ Mail Transport Ready: " . (string) $mailer);
-            
-            // Optional: send a raw test email? user might not want spam.
-            // keeping it to transport check for now.
         } catch (\Exception $e) {
             $this->error("❌ Mail Error: " . $e->getMessage());
             $hasErrors = true;
@@ -98,6 +95,35 @@ class CheckInfrastructure extends Command
         } catch (\Exception $e) {
             $this->error("❌ Meilisearch Error: " . $e->getMessage());
             $hasErrors = true;
+        }
+
+        // 5. SIGNED URL & TRANSLATION CHECK
+        try {
+             $this->comment('Checking Signed URLs & Translations...');
+             
+             // Check Translation
+             $testKey = 'error_pages.500.message';
+             $trans = __($testKey);
+             if ($trans === $testKey) {
+                 $this->warn("⚠️  Translation key '$testKey' failed to resolve. Current locale: " . app()->getLocale());
+                 $this->line("   - Expected path: resources/lang/" . app()->getLocale() . ".json");
+                 $this->line("   - Actual path check: " . (file_exists(resource_path("lang/".app()->getLocale()."/".app()->getLocale().".json")) ? "Found inside subfolder (Wrong)" : "Not found in subfolder"));
+             } else {
+                 $this->info("✅ Translation Works: '$trans'");
+             }
+
+             // Check Signed URL
+             $url = \Illuminate\Support\Facades\URL::signedRoute('login', ['test' => 1]);
+             $request = \Illuminate\Http\Request::create($url);
+             if (\Illuminate\Support\Facades\URL::hasValidSignature($request)) {
+                  $this->info("✅ Signed URL Validates correctly. App URL: " . config('app.url'));
+             } else {
+                  $this->error("❌ Signed URL Validation FAILED. App URL: " . config('app.url'));
+                  $this->line("   - Generated: $url");
+             }
+
+        } catch (\Exception $e) {
+             $this->error("❌ Logic Check Error: " . $e->getMessage());
         }
 
         if ($hasErrors) {
