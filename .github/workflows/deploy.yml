@@ -109,6 +109,9 @@ jobs:
           echo "APP_KEY=$APP_KEY" >> .env
           echo "MEILISEARCH_KEY=$MEILISEARCH_KEY" >> .env
           echo "QUEUE_CONNECTION=redis" >> .env
+          echo "SCOUT_DRIVER=meilisearch" >> .env
+          echo "MEILISEARCH_HOST=http://meilisearch:7700" >> .env
+          echo "REDIS_HOST=redis" >> .env
           echo "REDIS_HOST=redis" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "SUPER_ADMIN_EMAIL=${{ secrets.SUPER_ADMIN_EMAIL }}" >> .env
