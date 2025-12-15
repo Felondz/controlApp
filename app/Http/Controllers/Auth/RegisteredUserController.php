@@ -49,14 +49,24 @@ class RegisteredUserController extends Controller
             Log::info('User created in DB', ['id' => $user->id]);
 
             Log::info('Dispatching Registered event...');
-            event(new Registered($user));
-            Log::info('Registered event dispatched successfully');
+            try {
+                event(new Registered($user));
+                Log::info('Registered event dispatched successfully');
+            } catch (\Exception $e) {
+                Log::error('FAILED to dispatch Registered event (Email/Redis issue)', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // We don't throw here to allow user creation even if email fails
+            }
 
             // NO hacer login automático
             // Auth::login($user);
 
             Log::info('Redirecting to login with status message');
-            return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. Por favor, verifica tu correo electrónico antes de iniciar sesión.');
+            return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. ' . 
+                (app()->environment('local', 'testing') ? '[DEV] ' : '') . 
+                'Por favor, verifica tu correo electrónico antes de iniciar sesión.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Validation failed during registration', ['errors' => $e->errors()]);
