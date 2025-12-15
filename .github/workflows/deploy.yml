@@ -113,6 +113,16 @@ jobs:
           echo "REDIS_PORT=6379" >> .env
           echo "SUPER_ADMIN_EMAIL=${{ secrets.SUPER_ADMIN_EMAIL }}" >> .env
           echo "SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}" >> .env
+          
+          # --- EMAIL CONFIGURATION ---
+          echo "MAIL_MAILER=smtp" >> .env
+          echo "MAIL_HOST=smtp-relay.brevo.com" >> .env
+          echo "MAIL_PORT=587" >> .env
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+          echo "MAIL_ENCRYPTION=tls" >> .env
+          echo "MAIL_FROM_ADDRESS=no-reply@controlapp.site" >> .env
+          echo "MAIL_FROM_NAME=${{ env.APP_NAME }} (${{ env.IMAGE_TAG }})" >> .env
 
       - name: Deploy and Optimize
         env:
