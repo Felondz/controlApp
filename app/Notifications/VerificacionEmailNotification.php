@@ -20,10 +20,14 @@ class VerificacionEmailNotification extends VerifyEmail implements ShouldQueue
      */
     protected function verificationUrl($notifiable)
     {
-        return route('verification.verify', [
-            'id' => $notifiable->getKey(),
-            'hash' => sha1($notifiable->getEmailForVerification()),
-        ]);
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            \Illuminate\Support\Carbon::now()->addMinutes(\Illuminate\Support\Facades\Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
     }
 
     /**
