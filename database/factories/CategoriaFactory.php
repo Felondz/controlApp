@@ -6,10 +6,11 @@ use App\Models\Proyecto;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Categoria>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\Finance\Models\Categoria>
  */
 class CategoriaFactory extends Factory
 {
+    protected $model = \App\Modules\Finance\Models\Categoria::class;
     /**
      * Define the model's default state.
      *

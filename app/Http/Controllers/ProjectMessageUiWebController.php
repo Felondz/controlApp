@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Proyecto;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 use Illuminate\Http\JsonResponse;
 
 class ProjectMessageUiWebController extends Controller
@@ -112,10 +112,17 @@ class ProjectMessageUiWebController extends Controller
         } else {
             // Mark General messages as read
             if ($mis_proyecto->miembros->contains('id', auth()->id())) {
-                $mis_proyecto->miembros()->updateExistingPivot(auth()->id(), ['last_read_at' => now()]);
+                $mis_proyecto->miembros()->updateExistingPivot(auth()->id(), [
+                    'last_read_at' => now(),
+                    'unread_messages_count' => 0 // Reset counter
+                ]);
             } else if ($mis_proyecto->user_id === auth()->id()) {
                 // If owner is not in pivot, attach them to track read status
-                $mis_proyecto->miembros()->attach(auth()->id(), ['rol' => 'admin', 'last_read_at' => now()]);
+                $mis_proyecto->miembros()->attach(auth()->id(), [
+                    'rol' => 'admin',
+                    'last_read_at' => now(),
+                    'unread_messages_count' => 0 // Reset counter
+                ]);
             }
 
             // Also update individual message read status for consistency

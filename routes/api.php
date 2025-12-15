@@ -8,8 +8,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectAccountController;
 use App\Http\Controllers\Api\ProyectoController;
 use App\Http\Controllers\Api\CategoriaController;
-use App\Http\Controllers\Api\CuentaController;
-use App\Features\Finanzas\Controllers\TransaccionController;
+use App\Modules\Finance\Controllers\Api\CuentaController;
+use App\Modules\Finance\Controllers\TransaccionController;
+
 use App\Http\Controllers\Api\ProyectoInvitacionController;
 use App\Http\Controllers\Api\InvitacionController;
 use App\Http\Controllers\Api\ProyectoMiembroController;
@@ -19,7 +20,7 @@ use App\Http\Controllers\Api\FinanzasPersonalesController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CalculatorController;
-use App\Http\Controllers\TaskController;
+use App\Modules\Tasks\Controllers\TaskController;
 use App\Http\Controllers\Api\MarketplaceController;
 
 /*

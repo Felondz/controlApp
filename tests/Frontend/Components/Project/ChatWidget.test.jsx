@@ -1,6 +1,6 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import ChatWidget from '@/Components/Project/ChatWidget';
+import ChatWidget from '@/Modules/Chat/Widgets/ChatWidget';
 import axios from 'axios';
 import { router } from '@inertiajs/react';
 

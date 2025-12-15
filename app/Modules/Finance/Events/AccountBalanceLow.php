@@ -3,7 +3,7 @@
 namespace App\Modules\Finance\Events;
 
 use App\Core\Events\BaseModuleEvent;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 
 /**
  * AccountBalanceLow Event

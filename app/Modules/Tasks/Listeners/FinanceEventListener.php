@@ -3,7 +3,7 @@
 namespace App\Modules\Tasks\Listeners;
 
 use App\Core\Events\Contracts\ModuleEvent;
-use App\Models\Task;
+use App\Modules\Tasks\Models\Task;
 use Illuminate\Support\Facades\Log;
 
 /**

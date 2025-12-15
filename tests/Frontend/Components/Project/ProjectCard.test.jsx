@@ -138,7 +138,8 @@ describe('ProjectCard', () => {
     it('applies custom color accent', () => {
         render(<ProjectCard proyecto={mockProject} />);
 
-        const card = screen.getByText('Test Project').closest('a');
+        const link = screen.getByText('Test Project').closest('a');
+        const card = link.parentElement;
         const accentLine = card.querySelector('div[style*="background-color"]');
 
         expect(accentLine).toBeInTheDocument();

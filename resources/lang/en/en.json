@@ -264,6 +264,8 @@
         "today": "Today",
         "yesterday": "Yesterday",
         "tomorrow": "Tomorrow",
+        "saving": "Saving...",
+        "general_info": "General Information",
         "overdue": "Overdue"
     },
     "dashboard": {
@@ -370,6 +372,24 @@
         "forbidden": "Forbidden",
         "validation_error": "Validation Error",
         "something_went_wrong": "Something went wrong"
+    },
+    "error_pages": {
+        "btn_home": "Back to Home",
+        "500": {
+            "title": "Server Error",
+            "message": "Oops! Something went wrong.",
+            "description": "Our servers are having a momentary issue. We have been notified and are working to fix it. Please try again in a few minutes."
+        },
+        "404": {
+            "title": "Page Not Found",
+            "message": "Page not found",
+            "description": "Sorry, the page you are looking for does not exist, has been moved, or the link is incorrect. Please check the URL or go back to home."
+        },
+        "403": {
+            "title": "Access Denied",
+            "message": "Restricted Access",
+            "description": "Sorry, you do not have sufficient permissions to access this page. Contact the administrator if you believe this is an error."
+        }
     },
     "finance": {
         "accounts": "Account Management",
@@ -678,6 +698,7 @@
         "status": "Status",
         "priority_label": "Priority",
         "due_date": "Due Date",
+        "assign_hint": "Click on a member to assign them to this task",
         "assignee": "Assignee",
         "assignees": "Assignees",
         "unassigned": "Unassigned",
@@ -822,6 +843,10 @@
             "education": {
                 "title": "Education",
                 "desc": "Manage your studies, assignments, and university expenses."
+            },
+            "enterprise": {
+                "title": "Enterprise",
+                "desc": "Complete management with CRM and advanced modules."
             }
         },
         "setup_project": "Setup Project",
@@ -859,6 +884,65 @@
             "raleway": "Raleway (Elegant)",
             "playfair": "Playfair Display (Serif)",
             "merriweather": "Merriweather (Serif)"
+        }
+    },
+    "inventory": {
+        "title": "Inventory",
+        "summary": "Inventory Summary",
+        "items": "Items",
+        "new_item": "New Item",
+        "edit_item": "Edit Item",
+        "name": "Name",
+        "sku": "SKU",
+        "type_label": "Type",
+        "unit_label": "Unit",
+        "current_stock": "Current Stock",
+        "min_stock": "Minimum Stock",
+        "sale_price": "Sale Price",
+        "cost_price": "Cost Price",
+        "est_cost": "Est. Cost",
+        "image": "Image",
+        "click_to_upload": "Click to upload image",
+        "search_placeholder": "Search by name or SKU...",
+        "empty_state": "No items in inventory. Create your first one!",
+        "low_stock": "Low Stock",
+        "low_stock_alert": "Low Stock Alerts",
+        "low_stock_count": "Low Stock",
+        "no_low_stock": "All inventory is at acceptable levels",
+        "no_items": "No items found.",
+        "min_label": "Min",
+        "total_items": "Total Items",
+        "total_value": "Total Value",
+        "active_items": "Active",
+        "actions": "Actions",
+        "view": "View",
+        "showing_results": "Showing :from - :to of :total results",
+        "new_item_desc": "Add a new item to the inventory",
+        "edit_item_desc": "Modify item details",
+        "name_placeholder": "Ex: Wheat Flour",
+        "sku_placeholder": "Ex: WR-001",
+        "stock_pricing": "Stock & Pricing",
+        "type_help": "Select 'Finished Good' or 'Service' to enable Sale Price.",
+        "min_stock_help": "Minimum stock triggers alerts when inventory runs low.",
+        "types": {
+            "raw_material": "Raw Material",
+            "finished_good": "Finished Good",
+            "service": "Service",
+            "asset": "Asset"
+        },
+        "type": {
+            "raw_material": "Raw Material",
+            "finished_good": "Finished Good",
+            "service": "Service",
+            "asset": "Asset"
+        },
+        "unit_types": {
+            "unit": "Unit",
+            "kg": "Kilogram",
+            "g": "Gram",
+            "l": "Liter",
+            "ml": "Milliliter",
+            "m": "Meter"
         }
     },
     "modules": {
@@ -958,16 +1042,26 @@
             "description": "Explore and activate modules to power up your projects.",
             "confirm_uninstall": "Are you sure you want to uninstall this module? Associated data will be lost.",
             "dependency_warning": "This module requires :modules to work."
-        },
-        "validation": {
-            "checkbox_required": "Please check this box to continue"
         }
     },
-    "invitations": {
-        "title": "Invitations",
-        "pending": "Pending Invitations",
-        "invited_by": "Invited by",
-        "empty_title": "No invitations",
-        "empty_desc": "When you are invited to a project, it will appear here."
+    "operations": {
+        "title": "Operations: Production Batches",
+        "search_placeholder": "Search batches...",
+        "filter_process": "Filter Process",
+        "all_processes": "All Processes",
+        "new_lote": "New Batch",
+        "status": "Status",
+        "active": "Active",
+        "process_general": "General Process",
+        "current_stage": "Current Stage",
+        "quantity": "Quantity",
+        "start_date": "Start Date",
+        "no_active_lotes": "No active batches",
+        "create_first_lote": "Start by creating a new production batch.",
+        "units": "units",
+        "no_results": "No active production batches match your search."
+    },
+    "validation": {
+        "checkbox_required": "Please check this box to continue"
     }
 }

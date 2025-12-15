@@ -51,7 +51,11 @@ class ProyectoUiWebController extends Controller
 
     public function create()
     {
-        $availableModules = \App\Models\Module::where('is_active', true)->get();
+        $availableModules = \App\Models\Module::where('is_active', true)
+            ->where('coming_soon', false)
+            ->get();
+        
+        \Illuminate\Support\Facades\Log::info('Available modules in CreateProject:', $availableModules->toArray());
 
         // Renderiza el componente de React en resources/js/Pages/Projects/CreateProject.jsx
         return Inertia::render('Projects/CreateProject', [
@@ -109,12 +113,24 @@ class ProyectoUiWebController extends Controller
         // 4. Renderizar vista apropiada según tipo de proyecto
 
 
+        // 5. Cargar estadísticas de Inventario para el Widget de Resumen
+        $inventoryStats = null;
+        if ($isAdmin) { // O verificar si tiene módulo de inventario activado
+             $inventoryStats = [
+                'totalItems' => $mis_proyecto->inventoryItems()->count(),
+                'totalValue' => $mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
+                'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
+                'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
+             ];
+        }
+
         // Regular projects use Projects/Show
         return Inertia::render('Projects/Show', [
             'proyecto' => $mis_proyecto,
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones, // Passed for widgets
             'pendingBills' => $pendingBills,   // Passed for widgets
+            'inventoryStats' => $inventoryStats, // Passed for InventorySummaryWidget
         ]);
     }
 
@@ -263,7 +279,7 @@ class ProyectoUiWebController extends Controller
                 ->get();
 
             // Calculate credit card bills from active CC accounts
-            $billingService = new \App\Services\CreditCardBillingService();
+            $billingService = new \App\Modules\Finance\Services\CreditCardBillingService();
             $allCCs = $mis_proyecto->cuentas
                 ->where('tipo', 'credito')
                 ->where('estado', 'activa')
@@ -378,26 +394,11 @@ class ProyectoUiWebController extends Controller
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
-            $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
+            // New logic: Read from cached column (Read Model)
+            $unreadCount = \Illuminate\Support\Facades\DB::table('proyecto_user')
                 ->where('proyecto_id', $proyecto->id)
                 ->where('user_id', $user->id)
-                ->first();
-            $lastReadAt = $pivot ? $pivot->last_read_at : null;
-
-            $generalUnread = $proyecto->messages()
-                ->whereNull('recipient_id')
-                ->where('user_id', '!=', $user->id)
-                ->when($lastReadAt, function ($q) use ($lastReadAt) {
-                    $q->where('created_at', '>', $lastReadAt);
-                })
-                ->count();
-
-            $privateUnread = $proyecto->messages()
-                ->where('recipient_id', $user->id)
-                ->whereNull('read_at')
-                ->count();
-
-            $unreadCount = $generalUnread + $privateUnread;
+                ->value('unread_messages_count') ?? 0;
         }
         $proyecto->unread_messages_count = $unreadCount;
     }
@@ -438,10 +439,38 @@ class ProyectoUiWebController extends Controller
         // Obtenemos los proyectos (personales + membresías)
         $proyectos = $user->proyectosPersonales->merge($user->proyectos);
 
+        // Optimization: Batch load unread counts (N+1 Solution)
+        $unreadCounts = \Illuminate\Support\Facades\DB::table('proyecto_user')
+            ->where('user_id', $user->id)
+            ->whereIn('proyecto_id', $proyectos->pluck('id'))
+            ->pluck('unread_messages_count', 'proyecto_id');
+
+        // Batch load Task Stats (Pending & Due Today)
+        $taskStats = \App\Modules\Tasks\Models\Task::whereIn('project_id', $proyectos->pluck('id'))
+            ->selectRaw('project_id, 
+                sum(case when status != "completed" then 1 else 0 end) as pending, 
+                sum(case when date(due_date) = ? then 1 else 0 end) as due_today', 
+                [now()->toDateString()])
+            ->groupBy('project_id')
+            ->get()
+            ->keyBy('project_id');
+
         // Procesamos para agregar flag de admin y conteo de mensajes no leídos
-        $proyectos->transform(function ($proyecto) use ($user) {
+        $proyectos->transform(function ($proyecto) use ($user, $unreadCounts) {
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
-            $this->appendUnreadCount($proyecto, $user);
+
+            // Use batched cache if messaging is enabled
+            if ($proyecto->hasMessagingFeature()) {
+                $proyecto->unread_messages_count = $unreadCounts[$proyecto->id] ?? 0;
+            } else {
+                $proyecto->unread_messages_count = 0;
+            }
+
+            // Task Stats
+            $stats = $taskStats[$proyecto->id] ?? null;
+            $proyecto->pending_tasks_count = $stats ? $stats->pending : 0;
+            $proyecto->due_today_count = $stats ? $stats->due_today : 0;
+
             return $proyecto;
         });
 

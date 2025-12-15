@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Proyecto;
-use App\Models\Message;
+use App\Modules\Chat\Models\Message;
 
 class MessageApiTest extends TestCase
 {

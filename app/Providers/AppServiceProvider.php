@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\User; // 💡 Importar el modelo User
-use App\Models\Proyecto; // 💡 Importar el modelo Proyecto
-use App\Observers\UserObserver; // 💡 Importar el UserObserver
-use App\Observers\ProyectoObserver; // 💡 Importar el ProyectoObserver
-use Illuminate\Database\Eloquent\Relations\Relation; // 💡 Importar para MorphMap
-use Illuminate\Support\Facades\Gate; // 💡 Importar Gate
+use App\Models\User; 
+use App\Models\Proyecto; 
+use App\Observers\UserObserver; 
+use App\Observers\ProyectoObserver; 
+use Illuminate\Database\Eloquent\Relations\Relation; 
+use Illuminate\Support\Facades\Gate; 
 use Illuminate\Support\Facades\Vite;
-use Illuminate\Support\Facades\URL; // 💡 Importar URL Facade
+use Illuminate\Support\Facades\URL; 
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,12 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // --- FIX: FORCE HTTPS (Error Mixed Content) ---
-        // --- FIX: FORCE HTTPS (Error Mixed Content) ---
-        // Si la URL configurada es HTTPS (en .env), forzamos esquemas HTTPS en todo el sitio.
-        // Esto arregla el problema en PTR (donde APP_ENV=local pero usamos HTTPS por Cloudflare).
-        if (str_starts_with(config('app.url'), 'https://')) {
-            URL::forceScheme('https');
+        // Support for nested JSON translation files (e.g., lang/es/es.json)
+        app('translator')->addJsonPath(resource_path('lang/es'));
+        app('translator')->addJsonPath(resource_path('lang/en'));
+
+        // Force HTTPS in production/PTR environment
+        if (config('app.env') !== 'local') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
         Vite::prefetch(concurrency: 3);
@@ -49,8 +50,8 @@ class AppServiceProvider extends ServiceProvider
         // 2. REGISTRO DE MORPH MAP (ADR-002: Alias para Polimórficas)
         // Esto garantiza que la BD guarde 'proyecto' en lugar de 'App\Models\Proyecto'
         Relation::morphMap([
-            'proyecto' => \App\Models\Proyecto::class,
-            'usuario' => \App\Models\User::class, // Aunque User ya está importado, lo definimos aquí
+            'proyecto' => Proyecto::class,
+            'usuario' => User::class,
         ]);
 
         // 3. SUPER ADMIN GOD MODE (Issue #15)

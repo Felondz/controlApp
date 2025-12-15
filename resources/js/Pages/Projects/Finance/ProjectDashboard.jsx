@@ -13,9 +13,8 @@ import BillModal from '@/Components/Finance/Modals/BillModal';
 import PaymentConfirmationModal from '@/Components/Finance/Modals/PaymentConfirmationModal';
 import CreditCardPaymentModal from '@/Components/Finance/Modals/CreditCardPaymentModal';
 import AccountChart from '@/Components/Finance/AccountChart';
-import WidgetSettingsModal from '@/Components/Dashboard/WidgetSettingsModal';
+import { WidgetSettingsModal, DraggableWidgetGrid } from '@/Modules/Core/Widgets';
 import DeleteAccountModal from '@/Components/Finance/Modals/DeleteAccountModal';
-import DraggableWidgetGrid from '@/Components/Dashboard/DraggableWidgetGrid';
 import { FINANCE_DEFAULT_LAYOUT } from '@/Utils/widgetRegistry';
 
 import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6ToothIcon, BoltIcon } from '@/Components/Icons';

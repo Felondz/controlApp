@@ -5,6 +5,171 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### 12 de Diciembre de 2025 (Operations)
+
+#### ✨ FEATURE: Stage-Based Task Automation (Operations)
+
+**Type**: Feature & Critical Backend Fix
+**Impact**: HIGH - Enables SOP automation for production lines
+**Tests Affected**: 1 new test suite (partially passing due to env)
+
+**Description**:
+Implemented the core automation logic for the Operations module. Now, when a Production Batch (`Lote`) advances to a new `Stage`, the system automatically generates specific tasks based on pre-defined `StageTaskTemplates`.
+
+**Features**:
+- 🤖 **Auto-Task Generation**: Listener `GenerateStageTasks` clones templates into actionable tasks.
+- 📅 **Smart Due Dates**: Tasks calculate due dates based on `days_due_offset` relative to stage start.
+- 👤 **Auto-Assignment**: Tasks are automatically assigned to the batch owner.
+
+**Bug Fixes**:
+- 🐛 **Database Schema**: Fixed `QueryException` ("column current_stage_id not found"). Renamed model/factory attributes to `stage_id` to match migration.
+- 🔧 **User Model**: Restored missing `Searchable` trait import that caused a Fatal Error during tests.
+
+**Technical Details**:
+- Created `EtapaProcesoFactory` and `StageTaskTemplateFactory`.
+- Implemented `GenerateStageTasksTest` (Feature) and `GenerateStageTasksUnitTest` (Unit with Mocks).
+
+**Files Modified**:
+- `app/Modules/Tasks/Listeners/GenerateStageTasks.php`
+- `app/Modules/Operations/Models/LoteProduccion.php`
+- `database/factories/LoteProduccionFactory.php`
+- `tests/Feature/Modules/Tasks/GenerateStageTasksTest.php`
+
+**Documentation Updated**:
+- `docs/development/operations_module_log.md`
+- `walkthrough.md`
+
+**Commit Simulado**: `feat(ops): implement stage task automation and fix column name bug`
+
+---
+
+8: ### 12 de Diciembre de 2025
+9: 
+10: #### 🧪 CRITICAL FIX: Frontend Test Suite Stability & Coverage
+11: 
+12: **Type**: Quality Assurance & Bug Fix
+13: **Impact**: HIGH - Restored CI/CD reliability
+14: **Tests Affected**: 275/275 ✅ (all passing)
+15: 
+16: **Description**:
+17: Implemented comprehensive unit tests for the Inventory module widgets and fixed critical regression failures in existing tests caused by the recent modular refactoring. The entire frontend test suite is now passing locally and in CI environments.
+18: 
+19: **New Tests Implemented (Inventory)**:
+20: - `InventorySummaryWidget.test.jsx`: Validates totals, inventory value, and low stock alerts.
+21: - `LowStockWidget.test.jsx`: Checks rendering of low stock items and empty states.
+22: - `InventoryItemsWidget.test.jsx`: Covers item listing, filtering, and badge display.
+23: 
+24: **Regression Fixes**:
+25: - 🐛 **Import Paths**: Fixed broken imports in `ChatWidget`, `FinanceWidget`, `TasksWidget` tests pointing to old locations.
+26: - 🐛 **Ziggy Mock**: Enhanced `test-setup.js` to mock `route().has()` method, resolving "Unhandled Rejection" errors.
+27: - 🐛 **ProjectCard**: Fixed selector logic to correctly find the accent color line in the component structure.
+28: 
+29: **Documentation Updated**:
+30: - `docs/private/es/04-testing/TESTING_ARCHITECTURE.md`
+31: - `docs/private/en/04-testing/TESTING_ARCHITECTURE.md`
+32: 
+33: **Commit Simulado**: `test(frontend): add inventory widgets tests and fix regression failures`
+34: 
+35: ---
+36: 
+37: ### 11 de Diciembre de 2025 (Late)
+
+#### ⚡ EventBus Async Migration: Operations & Inventory Modules
+
+**Type**: Architecture Enhancement
+**Impact**: MEDIUM - Event-driven async processing for all modules
+**Tests Affected**: 62/62 ✅ (all passing)
+
+**Description**:
+Migrated Operations and Inventory modules to the async EventBus architecture, following the pattern established by Chat module. All inter-module communication now uses string-based events and async listeners via Redis queue.
+
+**Events Migrated to `BaseModuleEvent`**:
+- `operations.lote.stage_changed` (StageChanged.php)
+- `operations.lote.finished` (LoteFinished.php)
+- `inventory.stock.low` (InventoryLowStock.php)
+- `finance.contract.executed` (SupplyContractExecuted.php)
+
+**Listeners Converted to `ShouldQueue + Redis`**:
+- `GenerateStageTasks` - Creates tasks from stage templates when batch moves to new stage
+- `CreateFinishedGoodsEntry` - Adds finished goods to inventory when production batch completes
+- `CreateInventoryDraftEntry` - Creates draft inventory entries when supply contract executes
+- `CreateReplenishmentTask` - Creates replenishment task when item falls below minimum stock
+
+**Module Updates**:
+- `OperationsModule.php` - `getEventListeners()` now uses strings instead of class FQCN
+- `InventoryModule.php` - `getEventListeners()` now uses strings instead of class FQCN
+
+**Documentation Updated**:
+- `docs/private/en/01-core/MODULES_ARCHITECTURE.md`
+- `docs/private/es/01-core/MODULES_ARCHITECTURE.md`
+- `docs/development/operations_module_log.md`
+
+**Commit Simulado**: `feat(events): migrate operations and inventory to async eventbus`
+
+---
+
+### 11 de Diciembre de 2025
+
+#### 🏗️ REFACTOR: Complete Backend Modular Architecture Migration (v2.8.0)
+
+**Type**: Architecture Refactoring
+**Impact**: HIGH - Major structural change to backend codebase
+**Tests Affected**: 305/305 ✅ (all passing)
+
+**Description**:
+Completed the migration of all feature-specific code from `app/Models/`, `app/Http/Controllers/`, and `app/Features/` into their respective module directories under `app/Modules/`. This enforces strict modular architecture boundaries and improves codebase scalability.
+
+**Files Moved**:
+
+1. **Finance Module** (`app/Modules/Finance/`):
+   - **Models**: `Cuenta.php`, `Transaccion.php`, `Categoria.php`
+   - **Controllers**: `TransaccionController.php`, `CuentaController.php`
+   - **Requests**: `StoreTransaccionRequest.php`, `UpdateTransaccionRequest.php`
+   - **Jobs**: `ProcessAutoBills.php`, `ProcessRecurringBills.php`, `ProcessInterestAccrual.php`
+   - **Services**: `CreditCardBillingService.php`, `FinancialCalculatorService.php`, `InvestmentInterestService.php`, `LoanDisbursementService.php`
+   - **Policies**: `CuentaPolicy.php`, `CategoriaPolicy.php`, `TransaccionPolicy.php`
+   - **Observers**: `TransaccionObserver.php`
+   - **Commands**: `CheckUpcomingObligations.php`
+
+2. **Tasks Module** (`app/Modules/Tasks/`):
+   - **Models**: `Task.php`
+   - **Controllers**: `TaskController.php`
+
+3. **Chat Module** (`app/Modules/Chat/`):
+   - **Models**: `Message.php`
+
+**Namespace Updates**:
+- All moved files updated to new namespaces (e.g., `App\Modules\Finance\Models\Cuenta`)
+- Global search and replace across `app/`, `tests/`, `database/`, `routes/`
+- Updated route files (`api.php`, `web.php`) with new controller imports
+- Updated `Proyecto.php` model with new relationship imports
+
+**Factory Resolution Fixes**:
+- Added `newFactory()` method to all moved models
+- Added `$model` property to corresponding factories
+- Created new `TaskFactory.php`
+
+**Documentation Updated**:
+- `docs/private/ARCHITECTURE_MODULES.md`
+- `docs/private/en/01-core/MODULES_ARCHITECTURE.md`
+- `docs/private/es/01-core/MODULES_ARCHITECTURE.md`
+
+**Validation**:
+- ✅ 305 backend tests passing
+- ✅ All namespaces correctly resolved
+- ✅ Factory resolution working for all moved models
+
+**Commit Simulado**: `refactor(arch): complete backend modular architecture migration v2.8.0`
+
+---
+
+## [2.7.1] - 2025-12-10
+
+### Changed - Code Cleanup & Architecture Refactoring
+- ♻️ **Finance Module**: Removed dead code (`TaskEventListener`) related to obsolete `tasks.financial_task.created` integration.
+- ♻️ **Architecture Verification**: Confirmed modular boundaries and event-driven patterns in `architecture_analysis.md`.
+- 📚 **Documentation**: Updated README to reflect v2.7.0 status.
+
 ## [Unreleased]
 ### Added
 - [Frontend] Indicador de "Tasa E.A." en tarjetas de cuentas de ahorro.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -30,23 +31,53 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        Log::info('Registration initiated', ['email' => $request->email]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
+            Log::info('Validation passed');
 
-        event(new Registered($user));
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            Log::info('User created in DB', ['id' => $user->id]);
 
-        // NO hacer login automático
-        // Auth::login($user);
+            Log::info('Dispatching Registered event...');
+            try {
+                event(new Registered($user));
+                Log::info('Registered event dispatched successfully');
+            } catch (\Exception $e) {
+                Log::error('FAILED to dispatch Registered event (Email/Redis issue)', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // We don't throw here to allow user creation even if email fails
+            }
 
-        return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. Por favor, verifica tu correo electrónico antes de iniciar sesión.');
+            // NO hacer login automático
+            // Auth::login($user);
+
+            Log::info('Redirecting to login with status message');
+            return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. ' . 
+                (app()->environment('local', 'testing') ? '[DEV] ' : '') . 
+                'Por favor, verifica tu correo electrónico antes de iniciar sesión.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Validation failed during registration', ['errors' => $e->errors()]);
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('CRITICAL ERROR during registration', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Return back with error to see it in UI if possible, or let standard error handler catch it
+            throw $e;
+        }
     }
 }

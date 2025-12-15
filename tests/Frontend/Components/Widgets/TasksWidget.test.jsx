@@ -1,24 +1,30 @@
 import { render, screen } from '@testing-library/react';
-import TasksWidget from '@/Components/Widgets/TasksWidget';
+import TasksWidget from '@/Modules/Tasks/Widgets/TasksWidget';
 
 describe('TasksWidget', () => {
     const mockProject = {};
 
     it('renders pending tasks count', () => {
-        render(<TasksWidget project={mockProject} />);
+        const projectWithPending = { pending_tasks_count: 4 };
+        render(<TasksWidget project={projectWithPending} />);
 
         // Mock data is 4 pending tasks
-        expect(screen.getByText('4')).toBeInTheDocument();
-        expect(screen.getByText('tasks.pending')).toBeInTheDocument();
+        // Use a function matcher because text might be split across elements or have extra whitespace
+        expect(screen.getByText((content, element) => {
+            return element.tagName.toLowerCase() === 'p' && content === '4';
+        })).toBeInTheDocument();
+        expect(screen.getByText((content) => content.includes('tasks.pending'))).toBeInTheDocument();
     });
 
     it('renders due today warning if tasks due', () => {
-        render(<TasksWidget project={mockProject} />);
+        // Mock project with tasks due today
+        const projectWithDueTasks = { pending_tasks_count: 5, due_today_count: 2 };
+        render(<TasksWidget project={projectWithDueTasks} />);
 
-        // Mock data has 2 due today
-        // Component renders: {dueToday} {t('tasks.due_today', 'vencen hoy')}
-        // With mock, t returns the key, so we look for the key
-        expect(screen.getByText(/tasks\.due_today/)).toBeInTheDocument();
+        // Helper to match text across elements if needed, or just look for the key part
+        const warningElement = screen.getByText((content) => content.includes('tasks.due_today'));
+        expect(warningElement).toBeInTheDocument();
+        expect(warningElement).toHaveTextContent('2'); // Check if the count '2' is present in the text content
     });
 
     // Note: Since the component uses hardcoded mock data for now, we can't test different states easily 

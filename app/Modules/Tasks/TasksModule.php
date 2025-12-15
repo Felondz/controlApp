@@ -89,6 +89,9 @@ class TasksModule extends AbstractModule
             'finance.transaction.created' => [
                 [\App\Modules\Tasks\Listeners\FinanceEventListener::class, 'handleTransactionCreated'],
             ],
+            'operations.lote.stage_changed' => [
+                \App\Modules\Tasks\Listeners\GenerateStageTasks::class,
+            ],
         ];
     }
 

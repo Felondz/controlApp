@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\FinancialCalculatorService;
+use App\Modules\Finance\Services\FinancialCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

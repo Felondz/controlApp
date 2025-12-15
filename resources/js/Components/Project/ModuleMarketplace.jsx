@@ -8,7 +8,11 @@ import {
     BellIcon,
     PuzzleIcon,
     CheckCircleIcon,
-    WarningIcon
+    WarningIcon,
+    FactoryIcon,
+    PackageIcon,
+    BriefcaseIcon,
+    AcademicCapIcon
 } from '@/Components/Icons';
 import axios from 'axios';
 
@@ -24,6 +28,9 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
         tasks: CheckListIcon,
         chat: ChatIcon,
         marketplace: PuzzleIcon,
+        inventory: PackageIcon,
+        operations: FactoryIcon,
+        analytics: ChartBarIcon,
     };
 
     useEffect(() => {

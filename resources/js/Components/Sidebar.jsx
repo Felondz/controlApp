@@ -4,10 +4,12 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import {
-    DashboardIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon,
-    CurrencyDollarIcon, CheckListIcon, UserCircleIcon, EllipsisVerticalIcon, PersonalFinanceIcon, ChatIcon, EnvelopeIcon,
-    MenuFoldIcon, MenuUnfoldIcon
+    MenuFoldIcon, MenuUnfoldIcon, FactoryIcon, PackageIcon,
+    DashboardIcon, PuzzleIcon, EnvelopeIcon, CalendarIcon, CalculatorIcon,
+    PersonalFinanceIcon, FolderIcon, CurrencyDollarIcon, CheckListIcon,
+    ChatIcon, UserCircleIcon, EllipsisVerticalIcon, ChevronDownIcon, ChevronUpIcon
 } from '@/Components/Icons';
+import { useState } from 'react';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
 export default function Sidebar({ user, className = '', collapsed = false, project = null, onToggle }) {
@@ -15,6 +17,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
     const { t } = useTranslate();
     const { theme, isDark } = useGlobalTheme();
     const enabledTools = user?.enabled_tools || [];
+    const [isOperationsOpen, setIsOperationsOpen] = useState(true); // Default open for visibility
 
     const renderGlobalMenu = () => (
         <>
@@ -135,6 +138,30 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     >
                         <CheckListIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                         {!collapsed && t('modules.tasks', 'Tareas')}
+                    </ResponsiveNavLink>
+                )}
+
+                {/* Operations Module Link with Submenu */}
+                {modules.includes('operations') && (
+                    <ResponsiveNavLink
+                        href={route('operations.lotes.index', project.id)}
+                        active={route().current('operations.lotes.*', project.id)}
+                        collapsed={collapsed}
+                    >
+                        <FactoryIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && <span className="truncate">Operaciones</span>}
+                    </ResponsiveNavLink>
+                )}
+
+                {/* Inventory Module Link */}
+                {modules.includes('inventory') && (
+                    <ResponsiveNavLink
+                        href={route('inventory.items.index', project.id)}
+                        active={route().current('inventory.items.*', project.id)}
+                        collapsed={collapsed}
+                    >
+                        <PackageIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
+                        {!collapsed && 'Inventario'}
                     </ResponsiveNavLink>
                 )}
 

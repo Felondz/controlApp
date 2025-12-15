@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
-import { TrashIcon } from '@/Components/Icons';
+import { TrashIcon, InformationCircleIcon } from '@/Components/Icons';
 import { useEffect } from 'react';
 
 export default function TaskModal({ show, onClose, task, project, categories = [], onSuccess }) {
@@ -158,6 +158,10 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                         {/* Assignees (Multi-Select) */}
                         <div className="col-span-2">
                             <InputLabel value={t('tasks.assignees', 'Asignados')} />
+                            <div className="flex items-center gap-2 mb-2 mt-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-xs border border-blue-100 dark:border-blue-800">
+                                <InformationCircleIcon className="w-4 h-4 flex-shrink-0" />
+                                <span>{t('tasks.assign_hint')}</span>
+                            </div>
                             <div className="mt-1 flex flex-wrap gap-2 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 max-h-32 overflow-y-auto">
                                 {project.miembros?.map((member) => {
                                     const isSelected = data.assignees.includes(member.id);

@@ -23,6 +23,9 @@ vi.mock('@/Components/Icons', () => ({
     PuzzleIcon: () => <div data-testid="icon-default" />,
     CheckCircleIcon: () => <div data-testid="icon-check" />,
     WarningIcon: () => <div data-testid="icon-warning" />,
+    FactoryIcon: () => <div data-testid="icon-operations" />,
+    PackageIcon: () => <div data-testid="icon-inventory" />,
+    UsersIcon: () => <div data-testid="icon-crm" />,
 }));
 
 describe('ModuleMarketplace', () => {

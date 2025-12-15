@@ -3,13 +3,9 @@
 namespace App\Modules\Tasks\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Tasks\Models\Task;
 use App\Models\Proyecto;
-use App\Models\Task;
 use Illuminate\Http\Request;
-use App\Core\Events\ModuleEventBus;
-use App\Modules\Tasks\Events\TaskCreated;
-use App\Modules\Tasks\Events\TaskCompleted;
-use App\Modules\Tasks\Events\FinancialTaskCreated;
 use Inertia\Inertia;
 
 class TaskController extends Controller
@@ -20,14 +16,79 @@ class TaskController extends Controller
 
         return Inertia::render('Projects/Tasks/Index', [
             'proyecto' => $proyecto->load('miembros'),
-            'tasks' => $proyecto->tasks()->with(['assignee', 'category'])->get(),
+            'tasks' => $proyecto->tasks()->with(['users', 'category'])->get(),
             'categories' => $proyecto->categorias()->where('tipo', 'gasto')->get(),
         ]);
     }
 
+    public function summary(Proyecto $proyecto)
+    {
+        $this->authorize('view', $proyecto);
+
+        $tasks = $proyecto->tasks;
+
+        return response()->json([
+            'pending' => $tasks->where('status', 'todo')->count(),
+            'in_progress' => $tasks->where('status', 'in_progress')->count(),
+            'done' => $tasks->where('status', 'done')->count(),
+            'overdue' => $tasks->where('due_date', '<', now())->where('status', '!=', 'done')->count(),
+        ]);
+    }
+
+    public function usersLoad(Proyecto $proyecto)
+    {
+        $this->authorize('view', $proyecto);
+
+        // Get all project members
+        $members = $proyecto->miembros;
+
+        // Get all tasks for this project
+        $tasks = $proyecto->tasks;
+        try {
+            \Illuminate\Support\Facades\Log::info("UsersLoad called for project: " . $proyecto->id);
+
+            $this->authorize('view', $proyecto);
+
+            $users = $proyecto->miembros()->with([
+                'tasks' => function ($query) use ($proyecto) {
+                    $query->where('project_id', $proyecto->id);
+                }
+            ])->get();
+
+            \Illuminate\Support\Facades\Log::info("Users fetched: " . $users->count());
+
+            $data = $users->map(function ($user) {
+                // Calculate stats
+                $stats = new \stdClass();
+                $stats->total = $user->tasks->count();
+                $stats->todo = $user->tasks->where('status', 'todo')->count();
+                $stats->in_progress = $user->tasks->where('status', 'in_progress')->count();
+                $stats->done = $user->tasks->where('status', 'done')->count();
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'profile_photo_url' => $user->profile_photo_url,
+                    'stats' => [
+                        'total' => $stats->total ?? 0,
+                        'todo' => $stats->todo ?? 0,
+                        'in_progress' => $stats->in_progress ?? 0,
+                        'done' => $stats->done ?? 0,
+                    ]
+                ];
+            });
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error in UsersLoad: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function store(Request $request, Proyecto $proyecto)
     {
-        $this->authorize('update', $proyecto);
+        $this->authorize('addTask', $proyecto);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -35,24 +96,20 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
             'priority' => 'required|in:low,medium,high',
             'due_date' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-            'is_financial' => 'boolean',
-            'amount' => 'required_if:is_financial,true|numeric|min:0',
-            'category_id' => 'required_if:is_financial,true|exists:categorias,id',
+            'assignees' => 'nullable|array',
+            'assignees.*' => 'exists:users,id',
+            'related_type' => 'nullable|string|max:255',
+            'related_id' => 'nullable|string|max:255',
         ]);
 
         $task = $proyecto->tasks()->create($validated);
 
-        // Dispatch TaskCreated event
-        app(ModuleEventBus::class)->dispatch(
-            new TaskCreated($task)
-        );
+        if (!empty($validated['assignees'])) {
+            $task->users()->sync($validated['assignees']);
+        }
 
-        // If it's a financial task, dispatch FinancialTaskCreated event
-        if ($task->is_financial) {
-            app(ModuleEventBus::class)->dispatch(
-                new FinancialTaskCreated($task)
-            );
+        if ($request->wantsJson()) {
+            return response()->json($task, 201);
         }
 
         return redirect()->back()->with('success', 'Task created successfully.');
@@ -60,7 +117,7 @@ class TaskController extends Controller
 
     public function update(Request $request, Proyecto $proyecto, Task $task)
     {
-        $this->authorize('update', $proyecto);
+        $this->authorize('updateTask', $proyecto);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -68,30 +125,34 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,done',
             'priority' => 'required|in:low,medium,high',
             'due_date' => 'nullable|date',
-            'assigned_to' => 'nullable|exists:users,id',
-            'is_financial' => 'boolean',
-            'amount' => 'required_if:is_financial,true|numeric|min:0',
-            'category_id' => 'required_if:is_financial,true|exists:categorias,id',
+            'assignees' => 'nullable|array',
+            'assignees.*' => 'exists:users,id',
+            'related_type' => 'nullable|string|max:255',
+            'related_id' => 'nullable|string|max:255',
         ]);
 
-        $oldStatus = $task->status;
         $task->update($validated);
 
-        // If task was just marked as done, dispatch TaskCompleted event
-        if ($oldStatus !== 'done' && $task->status === 'done') {
-            app(ModuleEventBus::class)->dispatch(
-                new TaskCompleted($task)
-            );
+        if (isset($validated['assignees'])) {
+            $task->users()->sync($validated['assignees']);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($task, 200);
         }
 
         return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
-    public function destroy(Proyecto $proyecto, Task $task)
+    public function destroy(Request $request, Proyecto $proyecto, Task $task)
     {
-        $this->authorize('update', $proyecto);
+        $this->authorize('deleteTask', $proyecto);
 
         $task->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(null, 204);
+        }
 
         return redirect()->back()->with('success', 'Task deleted successfully.');
     }

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import TransactionsWidget from '@/Components/Finance/Widgets/TransactionsWidget';
+import TransactionsWidget from '@/Modules/Finance/Widgets/TransactionsWidget';
 
 // Mock dependencies
 vi.mock('@/Hooks/useTranslate', () => ({

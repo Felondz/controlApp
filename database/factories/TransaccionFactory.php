@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Categoria;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Categoria;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Transaccion>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\Finance\Models\Transaccion>
  */
 class TransaccionFactory extends Factory
 {

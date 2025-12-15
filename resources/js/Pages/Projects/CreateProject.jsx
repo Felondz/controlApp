@@ -16,10 +16,11 @@ import {
     ChatIcon,
     FreelancerIcon,
     StartupIcon,
-    ShoppingIcon,
-    SalesIcon,
+    FactoryIcon,
+    PackageIcon,
     BriefcaseIcon,
-    AcademicCapIcon
+    AcademicCapIcon,
+    UsersIcon
 } from '@/Components/Icons';
 import { getThemeStyle } from '@/Utils/themeStyles';
 import { useState, useRef, useMemo } from 'react';
@@ -30,7 +31,18 @@ const MODULE_ICONS = {
     tasks: CheckListIcon,
     chat: ChatIcon,
     analytics: ChartBarIcon,
+    inventory: PackageIcon,
+    operations: FactoryIcon,
+    crm: UsersIcon,
     notes: CheckListIcon, // Fallback
+};
+
+// Dependency Map: Key depends on [Values]
+// If dependencies are inactive, Key is locked.
+// If Key is active, Dependencies cannot be deactivated.
+const MODULE_DEPENDENCIES = {
+    inventory: ['finance'],
+    operations: ['finance', 'tasks'],
 };
 
 const PROJECT_THEMES = [
@@ -59,6 +71,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
     const fileInputRef = useRef(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [creationMode, setCreationMode] = useState('template'); // 'template' or 'custom'
+    const [feedbackMessage, setFeedbackMessage] = useState(null); // For dependency errors
 
     // Define Templates Dynamically
     const PROJECT_TEMPLATES = [
@@ -73,10 +86,9 @@ export default function CreateProject({ auth, availableModules = [] }) {
             id: 'startup',
             title: t('projects.templates.startup.title', 'Startup'),
             desc: t('projects.templates.startup.desc', 'Colaboración y finanzas para equipos ágiles.'),
-            modules: ['finance', 'tasks', 'chat', 'analytics'],
+            modules: ['finance', 'tasks', 'chat', 'inventory', 'operations'],
             icon: StartupIcon
         },
-
         {
             id: 'event_planning',
             title: t('projects.templates.event_planning.title', 'Planificación de Eventos'),
@@ -90,6 +102,15 @@ export default function CreateProject({ auth, availableModules = [] }) {
             desc: t('projects.templates.education.desc', 'Seguimiento de tareas y grupos de estudio.'),
             modules: ['tasks', 'chat'],
             icon: AcademicCapIcon,
+        },
+        {
+            id: 'enterprise',
+            title: t('projects.templates.enterprise.title', 'Empresa'),
+            desc: t('projects.templates.enterprise.desc', 'Gestión completa con CRM y módulos avanzados.'),
+            modules: ['finance', 'tasks', 'inventory', 'operations', 'crm'],
+            icon: FactoryIcon,
+            disabled: true,
+            coming_soon: true,
         }
     ];
 
@@ -109,17 +130,55 @@ export default function CreateProject({ auth, availableModules = [] }) {
     };
 
     const toggleModule = (moduleKey) => {
-        const newModules = data.modules.includes(moduleKey)
-            ? data.modules.filter(m => m !== moduleKey)
-            : [...data.modules, moduleKey];
-        setData('modules', newModules);
+        const isActive = data.modules.includes(moduleKey);
+
+        if (isActive) {
+            // Deactivation Logic: Check if other active modules depend on this one
+            const dependents = Object.keys(MODULE_DEPENDENCIES).filter(key =>
+                MODULE_DEPENDENCIES[key].includes(moduleKey) && data.modules.includes(key)
+            );
+
+            if (dependents.length > 0) {
+                // Prevent deactivation
+                const depNames = dependents.map(d => t(`modules.${d}_label`, d)).join(', ');
+                const thisName = t(`modules.${moduleKey}_label`, moduleKey);
+                setFeedbackMessage({
+                    type: 'error',
+                    text: `No puedes desactivar ${thisName} porque ${depNames} depende(n) de él.`
+                });
+                setTimeout(() => setFeedbackMessage(null), 4000);
+                return;
+            }
+
+            // Safe to deactivate
+            setData('modules', data.modules.filter(m => m !== moduleKey));
+
+        } else {
+            // Activation Logic
+            const dependencies = MODULE_DEPENDENCIES[moduleKey] || [];
+            const missingDeps = dependencies.filter(d => !data.modules.includes(d));
+
+            if (missingDeps.length > 0) {
+                const missingNames = missingDeps.map(d => t(`modules.${d}_label`, d)).join(', ');
+                setFeedbackMessage({
+                    type: 'error',
+                    text: `Para activar este módulo, primero debes activar: ${missingNames}.`
+                });
+                setTimeout(() => setFeedbackMessage(null), 4000);
+                return;
+            }
+
+            setData('modules', [...data.modules, moduleKey]);
+        }
     };
 
     const applyTemplate = (template) => {
-        // Filter out modules that don't exist in availability (unless we want to allow selecting them but they show coming soon?)
-        // Better to select them so if they become available, they work? Or simply select active ones.
-        // Logic: Select all defined in template. Visual feedback will show if they are active.
-        setData('modules', template.modules);
+        if (template.disabled) return;
+        // Filter out modules that are not available in availableModules (backend source of truth)
+        const validModules = template.modules.filter(mKey =>
+            availableModules.some(am => am.key === mKey)
+        );
+        setData('modules', validModules);
     };
 
     const handleImageChange = (e) => {
@@ -140,6 +199,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
         data.modules.forEach(modKey => {
             const mod = availableModules.find(m => m.key === modKey);
             if (mod) {
+                // Use price from DB. If Seeder set to 0, this is 0.
                 total += parseFloat(mod.price || 0);
             }
         });
@@ -147,7 +207,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
     }, [data.modules, availableModules]);
 
     const formatPrice = (price) => {
-        if (price === 0) return t('common.free', 'Gratis');
+        if (price === 0 || price === "0.00") return t('common.free', 'Gratis');
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
     };
 
@@ -157,6 +217,14 @@ export default function CreateProject({ auth, availableModules = [] }) {
             header={<h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight">{t('projects.create')}</h2>}
         >
             <Head title={t('projects.create')} />
+
+            {/* Global Toast for Errors */}
+            {feedbackMessage && (
+                <div className="fixed top-24 right-6 z-50 bg-red-100 dark:bg-red-900 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in-down">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <span className="text-sm font-medium">{feedbackMessage.text}</span>
+                </div>
+            )}
 
             <div className="py-6 lg:py-12">
                 <div className="max-w-5xl mx-auto sm:px-6 lg:px-8">
@@ -256,7 +324,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                             {t('projects.setup_project', 'Configura tu Proyecto')}
-                                            {/* Pricing Badge */}
+                                            {/* Pricing Badge - Will show Free if 0 */}
                                             <span className="text-sm px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium border border-green-200 dark:border-green-800">
                                                 {formatPrice(totalPrice)}
                                             </span>
@@ -299,33 +367,42 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                             <div className="flex overflow-x-auto pb-6 gap-6 snap-x snap-mandatory sm:overflow-visible sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent px-1">
                                                 {PROJECT_TEMPLATES.map((template) => {
                                                     const isSelected = JSON.stringify(data.modules.sort()) === JSON.stringify(template.modules.sort());
+                                                    const isDisabled = template.disabled;
+
                                                     return (
                                                         <div
                                                             key={template.id}
-                                                            onClick={() => applyTemplate(template)}
+                                                            onClick={() => !isDisabled && applyTemplate(template)}
                                                             className={`
                                                                 flex-shrink-0 w-72 sm:w-auto snap-center relative
-                                                                border-2 rounded-2xl p-6 cursor-pointer transition-all duration-300
+                                                                border-2 rounded-2xl p-6 transition-all duration-300
                                                                 flex flex-col gap-4 group
-                                                                ${isSelected
+                                                                ${isDisabled
+                                                                    ? 'opacity-60 cursor-not-allowed border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 grayscale-[0.8]'
+                                                                    : 'cursor-pointer'
+                                                                }
+                                                                ${isSelected && !isDisabled
                                                                     ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/10 ring-4 ring-primary-100 dark:ring-primary-900/20 transform scale-[1.02]'
-                                                                    : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg bg-white dark:bg-gray-800'
+                                                                    : (!isDisabled ? 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-lg bg-white dark:bg-gray-800' : '')
                                                                 }
                                                             `}
                                                         >
                                                             <div className={`
                                                                 w-12 h-12 rounded-xl flex items-center justify-center transition-colors
-                                                                ${isSelected
+                                                                ${isSelected && !isDisabled
                                                                     ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
-                                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/40 group-hover:text-primary-600 dark:group-hover:text-primary-400'
+                                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 ' + (!isDisabled ? 'group-hover:bg-primary-100 dark:group-hover:bg-primary-900/40 group-hover:text-primary-600 dark:group-hover:text-primary-400' : '')
                                                                 }
                                                             `}>
                                                                 <template.icon className="w-6 h-6" />
                                                             </div>
 
                                                             <div>
-                                                                <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1">
+                                                                <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1 flex items-center gap-2">
                                                                     {template.title}
+                                                                    {template.coming_soon && (
+                                                                        <span className="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full uppercase font-bold">Soon</span>
+                                                                    )}
                                                                 </h4>
                                                                 <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                                                     {template.desc}
@@ -335,7 +412,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                             <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700/50 flex flex-wrap gap-2">
                                                                 {template.modules.slice(0, 3).map(mod => {
                                                                     const modDef = availableModules.find(m => m.key === mod);
-                                                                    if (!modDef) return null; // Coming soon case if not in DB?
+                                                                    if (!modDef) return null;
                                                                     return (
                                                                         <span key={mod} className="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-gray-600 dark:text-gray-300 font-medium uppercase tracking-wide">
                                                                             {t(`modules.${mod}_label`, modDef.name)}
@@ -349,7 +426,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                                 )}
                                                             </div>
 
-                                                            {isSelected && (
+                                                            {isSelected && !isDisabled && (
                                                                 <div className="absolute top-4 right-4">
                                                                     <div className="w-3 h-3 bg-green-500 rounded-full ring-2 ring-white dark:ring-gray-800"></div>
                                                                 </div>
@@ -367,22 +444,36 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                 const isSelected = data.modules.includes(module.key);
                                                 const isActive = module.is_active && !module.coming_soon;
 
+                                                // Dependency Check for Locking
+                                                const requiredDeps = MODULE_DEPENDENCIES[module.key] || [];
+                                                const hasDeps = requiredDeps.every(dep => data.modules.includes(dep));
+
+                                                // Should be visible but restricted
+                                                const isLocked = !hasDeps;
+
                                                 return (
                                                     <div
                                                         key={module.id}
-                                                        onClick={() => isActive && toggleModule(module.key)}
+                                                        onClick={() => {
+                                                            if (!isActive || isLocked) return; // Prevent interaction if inactive or locked
+                                                            toggleModule(module.key);
+                                                        }}
                                                         className={`
                                                             relative border-2 rounded-xl p-5 flex flex-col gap-3 transition-all duration-200
-                                                            ${!isActive ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : 'cursor-pointer'}
-                                                            ${isSelected && isActive
+                                                            ${!isActive || isLocked ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' : 'cursor-pointer'}
+                                                            ${isSelected && isActive && !isLocked
                                                                 ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/10 ring-1 ring-primary-500'
-                                                                : (isActive ? 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-md bg-white dark:bg-gray-800' : '')
+                                                                : (isActive && !isLocked ? 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-md bg-white dark:bg-gray-800' : '')
                                                             }
                                                         `}
                                                     >
                                                         <div className="flex justify-between items-start">
                                                             <div className={`p-2.5 rounded-lg ${isSelected ? 'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
-                                                                <Icon className="w-6 h-6" />
+                                                                {isLocked && !isSelected ? (
+                                                                    <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                                                ) : (
+                                                                    <Icon className="w-6 h-6" />
+                                                                )}
                                                             </div>
                                                             <div className="flex flex-col items-end">
                                                                 {module.coming_soon ? (
@@ -391,7 +482,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                                     </span>
                                                                 ) : (
                                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${module.is_free ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}`}>
-                                                                        {module.is_free ? t('common.free', 'Gratis') : formatPrice(module.price)}
+                                                                        {formatPrice(module.price)}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -404,9 +495,14 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                                                                 {t(`modules.${module.key}_desc`, module.description)}
                                                             </p>
+                                                            {isLocked && !isSelected && (
+                                                                <p className="text-[10px] text-red-500 font-semibold mt-1">
+                                                                    {t('modules.requires', 'Requiere')}: {requiredDeps.map(d => t(`modules.${d}_label`, d)).join(', ')}
+                                                                </p>
+                                                            )}
                                                         </div>
 
-                                                        {isActive && (
+                                                        {isActive && !isLocked && (
                                                             <div className="mt-auto pt-2 flex justify-end">
                                                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'bg-primary-500 border-primary-500' : 'border-gray-300 dark:border-gray-600'}`}>
                                                                     {isSelected && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
@@ -430,11 +526,11 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                     {t('projects.customize_appearance', 'Personaliza la Apariencia')}
                                 </h3>
 
-                                <div style={getThemeStyle(data.theme)} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div style={getThemeStyle(data.theme)} className="grid grid-cols-1 gap-8">
                                     {/* Theme Selector */}
                                     <div>
                                         <InputLabel value={t('projects.theme')} />
-                                        <div className="mt-4 grid grid-cols-3 gap-3">
+                                        <div className="mt-4 grid grid-cols-2 md:grid-cols-6 gap-3">
                                             {PROJECT_THEMES.map((theme) => (
                                                 <button
                                                     key={theme.id}
@@ -459,7 +555,8 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                         </div>
                                     </div>
 
-                                    {/* Typography Selector */}
+                                    {/* Typography Selector - HIDDEN AS REQUESTED */}
+                                    {/*
                                     <div>
                                         <InputLabel value={t('projects.typography')} />
                                         <div className="mt-4">
@@ -472,7 +569,8 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                                 }))}
                                             />
                                         </div>
-                                    </div>
+                                    </div> 
+                                    */}
                                 </div>
                             </div>
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Categoria;
+use App\Modules\Finance\Models\Categoria;
 use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

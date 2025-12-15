@@ -31,6 +31,18 @@ return [
             'version' => '1.0.0',
             'description' => 'Real-time messaging and collaboration',
         ],
+        'inventory' => [
+            'class' => \App\Modules\Inventory\InventoryModule::class,
+            'enabled' => true,
+            'version' => '1.0.0',
+            'description' => 'Centralized inventory and stock management',
+        ],
+        'operations' => [
+            'class' => \App\Modules\Operations\OperationsModule::class,
+            'enabled' => true,
+            'version' => '1.0.0',
+            'description' => 'Production control, inventory, and IoT integration',
+        ],
         // NOTE: 'analytics' and 'notifications' modules are legacy and have been removed.
         // These modules are no longer supported and should not be enabled for new projects.
     ],

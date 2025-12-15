@@ -6,8 +6,12 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Mail\VerificacionEmailMail;
 
-class VerificacionEmailNotification extends VerifyEmail
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class VerificacionEmailNotification extends VerifyEmail implements ShouldQueue
 {
+    use Queueable;
     /**
      * Get the verification URL for the given notifiable.
      * 
@@ -16,10 +20,14 @@ class VerificacionEmailNotification extends VerifyEmail
      */
     protected function verificationUrl($notifiable)
     {
-        return route('api.verification.verify', [
-            'id' => $notifiable->getKey(),
-            'hash' => sha1($notifiable->getEmailForVerification()),
-        ]);
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            \Illuminate\Support\Carbon::now()->addMinutes(\Illuminate\Support\Facades\Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
     }
 
     /**

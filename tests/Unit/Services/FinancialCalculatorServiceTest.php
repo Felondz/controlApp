@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services;
 
-use App\Services\FinancialCalculatorService;
+use App\Modules\Finance\Services\FinancialCalculatorService;
 use PHPUnit\Framework\TestCase;
 
 class FinancialCalculatorServiceTest extends TestCase

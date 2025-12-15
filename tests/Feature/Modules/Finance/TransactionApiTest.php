@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Modules\Finance;
 
-use App\Models\Categoria;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Categoria;
+use App\Modules\Finance\Models\Cuenta;
 use App\Models\Proyecto;
-use App\Models\Transaccion;
+use App\Modules\Finance\Models\Transaccion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

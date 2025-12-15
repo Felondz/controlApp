@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Proyecto;
-use App\Models\Cuenta;
+use App\Modules\Finance\Models\Cuenta;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectAccountController extends Controller
