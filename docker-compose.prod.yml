@@ -1,7 +1,7 @@
 services:
   # --- APLICACIÓN PRINCIPAL ---
   app:
-    image: ghcr.io/felondz/controlapp:latest
+    image: ghcr.io/felondz/controlapp:${IMAGE_TAG:-latest}
     container_name: controlapp_app_${APP_ENV}
     restart: unless-stopped
     env_file: ./.env
@@ -49,7 +49,7 @@ services:
 
   # --- WORKER (PROCESAMIENTO ASÍNCRONO) ---
   worker:
-    image: ghcr.io/felondz/controlapp:latest
+    image: ghcr.io/felondz/controlapp:${IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file: ./.env
     # Comando para procesar la cola Redis
