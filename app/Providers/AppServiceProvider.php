@@ -61,6 +61,19 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
         });
+
+        // 4. ACCESO A DOCUMENTACIÓN API (Scramble)
+        // Define quién puede ver /docs/api en producción.
+        // Solo Super Admins (ADR-004: Mantenedores)
+        Gate::define('viewApiDocs', function (User $user) {
+            return $user->is_super_admin;
+        });
+
+        // 5. ACCESO A LARAVEL PULSE (Métricas)
+        // Dashboard de monitoreo en /pulse
+        Gate::define('viewPulse', function (User $user) {
+            return $user->is_super_admin;
+        });
         // --- FIN DE CONFIGURACIÓN DE CONTROLAPP ---
     }
 }

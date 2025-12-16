@@ -352,7 +352,12 @@
         "unauthorized": "No autorizado",
         "forbidden": "Prohibido",
         "validation_error": "Error de validación",
-        "something_went_wrong": "Algo salió mal"
+        "something_went_wrong": "Algo salió mal",
+        "maintenance": {
+            "title": "Actualizando el Sistema",
+            "message": "Estamos implementando mejoras en la plataforma. Volveremos a estar operativos en unos instantes.",
+            "auto_refresh": "Comprobando estado automáticamente..."
+        }
     },
     "error_pages": {
         "btn_home": "Volver al Inicio",

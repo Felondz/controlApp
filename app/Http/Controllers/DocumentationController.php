@@ -20,9 +20,35 @@ class DocumentationController extends Controller
     /**
      * Show the User Guide.
      */
-    public function user()
+    /**
+     * Show the User Guide.
+     */
+    public function user($page = 'user-guide')
     {
-        return Inertia::render('Docs/UserGuide');
+        // 1. Determine user locale
+        $locale = app()->getLocale();
+        
+        // 2. Resolve Path (Default to English if Spanish missing)
+        $path = base_path("docs/public/{$locale}/{$page}.md");
+        if (!File::exists($path)) {
+            $path = base_path("docs/public/en/{$page}.md");
+        }
+
+        // 3. 404 if still missing
+        if (!File::exists($path)) {
+            abort(404, 'Documentation page not found.');
+        }
+
+        // 4. Read and Parse
+        $content = File::get($path);
+        
+        // Use Laravel's built-in Markdown helper (Github Flavored)
+        $htmlContent = Str::markdown($content);
+
+        return Inertia::render('Docs/UserGuide', [
+            'content' => $htmlContent,
+            'title' => 'Guía de Usuario' // You might parse this from the H1 in the markdown later
+        ]);
     }
 
     /**
@@ -31,17 +57,42 @@ class DocumentationController extends Controller
     public function dev($path = null)
     {
         // Security: Prevent directory traversal
-        if (Str::contains($path, '..')) {
+        if ($path && Str::contains($path, '..')) {
             abort(403, 'Invalid path');
         }
 
-        // Serve only PUBLIC documentation based on locale
         $locale = app()->getLocale();
         $publicPath = "docs/public/{$locale}";
 
-        // Fallback to English if locale folder doesn't exist
+        // Default to English if locale folder missing
         if (!File::exists(base_path($publicPath))) {
             $publicPath = "docs/public/en";
+        }
+
+        // --- LANDING PAGE LOGIC ---
+        // If no path is provided, show 'dev-overview.md' as the landing page
+        if (!$path) {
+            $overviewPath = base_path("{$publicPath}/dev-overview.md");
+            
+            // Fallback to English generic overview if localized one missing
+            if (!File::exists($overviewPath)) {
+                $overviewPath = base_path("docs/public/en/dev-overview.md");
+            }
+
+            if (File::exists($overviewPath)) {
+                $content = File::get($overviewPath);
+                $htmlContent = Str::markdown($content);
+
+                return Inertia::render('Docs/DevDocs', [
+                    'content' => $htmlContent,
+                    'currentPath' => null, // Root
+                    'isDir' => false, // Treat as file view
+                    'fileName' => 'dev-overview.md',
+                    'breadcrumbs' => [],
+                    // Optional: You might want to pass list of other files for sidebar navigation
+                    'items' => $this->getDirectoryItems(base_path($publicPath)) 
+                ]);
+            }
         }
 
         $basePath = base_path($publicPath);
@@ -52,43 +103,32 @@ class DocumentationController extends Controller
         }
 
         if (File::isDirectory($fullPath)) {
-            $files = [];
-            $directories = [];
-
-            foreach (File::directories($fullPath) as $dir) {
-                $dirname = basename($dir);
-                $directories[] = [
-                    'name' => $dirname,
-                    'type' => 'directory',
-                    'path' => $path ? $path . '/' . $dirname : $dirname,
-                ];
+            // Check if there's a readme/overview in this directory to show as content
+            $readmePath = $fullPath . '/README.md';
+            $content = null;
+            if (File::exists($readmePath)) {
+                $content = Str::markdown(File::get($readmePath));
             }
-
-            foreach (File::files($fullPath) as $file) {
-                $filename = $file->getFilename();
-                $files[] = [
-                    'name' => $filename,
-                    'type' => 'file',
-                    'path' => $path ? $path . '/' . $filename : $filename,
-                    'size' => $this->formatBytes($file->getSize()),
-                ];
-            }
-
-            // Merge directories first, then files
-            $items = array_merge($directories, $files);
 
             return Inertia::render('Docs/DevDocs', [
-                'items' => $items,
+                'items' => $this->getDirectoryItems($fullPath, $path),
+                'content' => $content, // Pass content if README exists
                 'currentPath' => $path,
                 'isDir' => true,
                 'breadcrumbs' => $this->getBreadcrumbs($path),
             ]);
         } else {
-            // It's a file
+            // It's a file. We need to fetch the siblings (items in the parent dir) for the sidebar.
+            $parentPath = dirname($fullPath);
+            // Calculate relative parent path for getDirectoryItems
+            $relativeParentChange = $path ? dirname($path) : null;
+            $relativeParent = ($relativeParentChange === '.') ? null : $relativeParentChange;
+
             $content = File::get($fullPath);
             $htmlContent = Str::markdown($content);
 
             return Inertia::render('Docs/DevDocs', [
+                'items' => $this->getDirectoryItems($parentPath, $relativeParent), // Fetch siblings
                 'content' => $htmlContent,
                 'currentPath' => $path,
                 'isDir' => false,
@@ -96,6 +136,36 @@ class DocumentationController extends Controller
                 'breadcrumbs' => $this->getBreadcrumbs($path),
             ]);
         }
+    }
+
+    private function getDirectoryItems($fullPath, $relativePath = null)
+    {
+        $files = [];
+        $directories = [];
+
+        foreach (File::directories($fullPath) as $dir) {
+            $dirname = basename($dir);
+            $directories[] = [
+                'name' => $dirname,
+                'type' => 'directory',
+                'path' => $relativePath ? $relativePath . '/' . $dirname : $dirname,
+            ];
+        }
+
+        foreach (File::files($fullPath) as $file) {
+            $filename = $file->getFilename();
+            // Skip the overview file from list if you want, or keep it
+            if ($filename === 'dev-overview.md') continue;
+
+            $files[] = [
+                'name' => $filename,
+                'type' => 'file',
+                'path' => $relativePath ? $relativePath . '/' . $filename : $filename,
+                'size' => $this->formatBytes($file->getSize()),
+            ];
+        }
+
+        return array_merge($directories, $files);
     }
 
     private function getBreadcrumbs($path)

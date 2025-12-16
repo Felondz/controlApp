@@ -371,7 +371,12 @@
         "unauthorized": "Unauthorized",
         "forbidden": "Forbidden",
         "validation_error": "Validation Error",
-        "something_went_wrong": "Something went wrong"
+        "something_went_wrong": "Something went wrong",
+        "maintenance": {
+            "title": "System Update",
+            "message": "We are implementing improvements to the platform. We will be back online shortly.",
+            "auto_refresh": "Checking status automatically..."
+        }
     },
     "error_pages": {
         "btn_home": "Back to Home",
