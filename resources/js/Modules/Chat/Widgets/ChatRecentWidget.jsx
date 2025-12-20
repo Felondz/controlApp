@@ -92,7 +92,7 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
                     ))
                 ) : (
                     <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
-                        {t('chat.empty', 'No hay mensajes recientes')}
+                        {t('chat.no_recent_messages', 'No hay mensajes recientes')}
                     </p>
                 )}
 

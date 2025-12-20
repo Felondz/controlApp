@@ -230,6 +230,12 @@ export default function DraggableWidgetGrid({
             onAdd: dashboardData.onAdd,
             onPay: dashboardData.onPay,
             onLinks: dashboardData.onLinks, // e.g., onMarkAsPaid
+
+            // Operations & Inventory specific
+            lotes: dashboardData.lotes || { data: [] }, // For LotesListWidget
+            stats: dashboardData.stats || dashboardData.inventoryStats, // For InventorySummaryWidget
+            items: dashboardData.items || dashboardData.inventoryItems || { data: [] }, // For InventoryItemsWidget & LowStockWidget
+            lowStockItems: dashboardData.lowStockItems, // Explicit prop for LowStockWidget
         };
 
         if (WIDGET_COMPONENTS[widget.id]) {

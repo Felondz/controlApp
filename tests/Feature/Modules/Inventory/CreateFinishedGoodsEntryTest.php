@@ -47,7 +47,7 @@ class CreateFinishedGoodsEntryTest extends TestCase
         $listener = new CreateFinishedGoodsEntry($service);
 
         // Act
-        $event = new LoteFinished($lote);
+        $event = new LoteFinished($lote, ['quantity' => 50]);
         $listener->handle($event);
 
         // Assert

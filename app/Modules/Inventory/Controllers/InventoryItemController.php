@@ -8,6 +8,7 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class InventoryItemController extends Controller
@@ -72,10 +73,31 @@ class InventoryItemController extends Controller
             $items = $query->paginate(10)->withQueryString();
         }
 
+        // Calculate Inventory Stats for Widgets
+        $inventoryStats = [
+            'totalItems' => $proyecto->inventoryItems()->count(),
+            'totalValue' => $proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
+            'lowStockCount' => $proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
+            'activeItems' => $proyecto->inventoryItems()->where('is_active', true)->count(),
+        ];
+
+        // Fetch Low Stock Items for Widget
+        $lowStockItems = $proyecto->inventoryItems()
+            ->whereColumn('current_stock', '<=', 'min_stock_level')
+            ->orderBy('current_stock', 'asc')
+            ->limit(10)
+            ->get();
+
+        if ($request->wantsJson()) {
+            return response()->json($items);
+        }
+
         return Inertia::render('Inventory/Items/Index', [
             'proyecto' => $proyecto,
             'items' => $items,
             'filters' => $request->only(['search', 'type', 'stock_status']),
+            'inventoryStats' => $inventoryStats,
+            'lowStockItems' => ['data' => $lowStockItems], // Wrap in data to match expected structure if needed, or just array
         ]);
     }
 
@@ -86,7 +108,12 @@ class InventoryItemController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:50',
+            'sku' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('inventory_items')->where(fn ($query) => $query->where('proyecto_id', $proyecto->id))
+            ],
             'type' => 'required|in:raw_material,finished_good,service,asset',
             'unit' => 'required|string|max:20',
             'min_stock_level' => 'nullable|numeric|min:0',
@@ -146,7 +173,11 @@ class InventoryItemController extends Controller
             // Note: The Observer or Listener should update the Item's current_stock cache.
             // If not implemented, we might need to manually update it here.
             // Assuming for now the system handles it or we force update:
-            $item->increment('current_stock', $validated['initial_quantity']);
+            // $item->increment('current_stock', $validated['initial_quantity']);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($item, 201);
         }
 
         return redirect()->back()->with('success', 'Item creado correctamente.');
@@ -159,7 +190,12 @@ class InventoryItemController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:50',
+            'sku' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('inventory_items')->where(fn ($query) => $query->where('proyecto_id', $proyecto->id))->ignore($item->id)
+            ],
             'type' => 'required|in:raw_material,finished_good,service,asset',
             'unit' => 'required|string|max:20',
             'min_stock_level' => 'nullable|numeric|min:0',
@@ -215,12 +251,20 @@ class InventoryItemController extends Controller
                 'reference_id' => null,
             ]);
             
+            
             // Update stock cache
+            // Handled by Observer
+            /*
             if ($adjustment > 0) {
                 $item->increment('current_stock', $adjustment);
             } else {
                 $item->decrement('current_stock', abs($adjustment));
             }
+            */
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($item, 200);
         }
 
         return redirect()->back()->with('success', 'Item actualizado correctamente.');

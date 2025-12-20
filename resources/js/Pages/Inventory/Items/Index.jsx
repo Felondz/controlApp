@@ -9,7 +9,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { DraggableWidgetGrid, WidgetSettingsModal } from '@/Modules/Core/Widgets';
 import ItemModal from './ItemModal';
 
-export default function InventoryIndex({ auth, proyecto, items, filters }) {
+export default function InventoryIndex({ auth, proyecto, items, filters, inventoryStats, lowStockItems }) {
     const { t } = useTranslate();
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
@@ -32,6 +32,8 @@ export default function InventoryIndex({ auth, proyecto, items, filters }) {
     const dashboardData = {
         items,
         filters,
+        stats: inventoryStats, // Map to 'stats' prop expected by InventorySummaryWidget
+        lowStockItems,         // Pass specific collection for LowStockWidget
         onAdd: handleAddItem,
         onEdit: handleEditItem,
     };

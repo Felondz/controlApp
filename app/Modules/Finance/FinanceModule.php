@@ -80,9 +80,10 @@ class FinanceModule extends AbstractModule
      */
     public function getRoutes(): array
     {
-        // Routes are still managed in routes/api.php for now
-        // Future: Can be moved here for full module encapsulation
-        return [];
+        return [
+            'web' => __DIR__ . '/routes/web.php',
+            'api' => __DIR__ . '/routes/api.php',
+        ];
     }
 
     /**
@@ -91,7 +92,7 @@ class FinanceModule extends AbstractModule
     public function getEventListeners(): array
     {
         return [
-            \App\Modules\Inventory\Events\InventoryTransactionConfirmed::class => [
+            'inventory.transaction.confirmed' => [
                 \App\Modules\Finance\Listeners\CreateFinanceTransaction::class,
             ],
         ];

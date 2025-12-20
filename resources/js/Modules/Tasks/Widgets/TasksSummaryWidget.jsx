@@ -85,7 +85,26 @@ export default function TasksSummaryWidget({ project, widget, onHide, isDragging
                 <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md text-xs">
                     <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                     <span className="font-medium">
-                        {t('tasks.overdue_count', { count: data.overdue }, `${data.overdue} tareas vencidas`)}
+                        {(() => {
+                            const params = { count: data.overdue };
+                            // Correct usage: t(key, defaultText, replacements)
+                            const defaultText = `${data.overdue} tareas vencidas`;
+                            let text = t('tasks.overdue_count_fixed', defaultText, params);
+
+                            // Fallback if it returns the key itself (which means translation missing AND default text usage might be tricky if useTranslate logic is strict)
+                            if (text === 'tasks.overdue_count_fixed') {
+                                text = defaultText;
+                            }
+
+                            // If the result still contains the placeholder (translation failed to replace), force replace it
+                            if (text.includes('{count}')) {
+                                text = text.replace('{count}', data.overdue);
+                            }
+                            if (text.includes(':count')) {
+                                text = text.replace(':count', data.overdue);
+                            }
+                            return text;
+                        })()}
                     </span>
                 </div>
             )}

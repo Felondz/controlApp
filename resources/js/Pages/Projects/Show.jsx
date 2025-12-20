@@ -19,7 +19,7 @@ import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widge
  * - Widget gallery for management
  * - Responsive design
  */
-export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [], inventoryStats = null }) {
+export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [], inventoryStats = null, lotes = null, inventoryItems = null }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
@@ -94,7 +94,9 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         pendingBills: pendingBills,
                         categories: proyecto.categorias || [],
                         currency: proyecto.moneda_default,
-                        inventoryStats: inventoryStats, // Pass precalculated stats for widgets
+                        stats: inventoryStats, // Map to 'stats' expected by InventorySummary
+                        lotes: lotes,
+                        items: inventoryItems, // Map to 'items' expected by LowStockWidget
                     }}
                     defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
                     defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}

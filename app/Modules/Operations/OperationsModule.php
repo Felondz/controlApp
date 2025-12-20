@@ -81,6 +81,7 @@ class OperationsModule extends AbstractModule
     {
         return [
             'web' => __DIR__ . '/routes/web.php',
+            'api' => __DIR__ . '/routes/api.php',
         ];
     }
 
@@ -90,9 +91,21 @@ class OperationsModule extends AbstractModule
     public function getEventListeners(): array
     {
         return [
+            'operations.lote.created' => [
+                \App\Modules\Operations\Listeners\HandleLoteCreated::class,
+                \App\Modules\Operations\Listeners\HydrateLoteInputs::class,
+            ],
+            'operations.lote.input_added' => [
+                \App\Modules\Operations\Listeners\HandleLoteInput::class,
+            ],
             'operations.lote.stage_changed' => [
                 \App\Modules\Operations\Listeners\GenerateStageTasks::class,
             ],
+            // 'operations.lote.finished' => [ ... ] Handled by Inventory Module (CreateFinishedGoodsEntry)
+            'operations.lote.discarded' => [
+                \App\Modules\Operations\Listeners\HandleLoteDiscard::class,
+            ],
+
         ];
     }
 

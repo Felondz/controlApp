@@ -2,7 +2,7 @@ import React from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import LoteCard from './LoteCard';
 
-export default function KanbanColumn({ stage, lotes }) {
+export default function KanbanColumn({ stage, lotes, onLoteClick }) {
     return (
         <div className="flex flex-col w-80 bg-gray-100 dark:bg-gray-900 rounded-lg h-full max-h-[calc(100vh-280px)]">
             {/* Header */}
@@ -25,7 +25,12 @@ export default function KanbanColumn({ stage, lotes }) {
                             }`}
                     >
                         {lotes.map((lote, index) => (
-                            <LoteCard key={lote.id} lote={lote} index={index} />
+                            <LoteCard
+                                key={lote.id}
+                                lote={lote}
+                                index={index}
+                                onClick={onLoteClick}
+                            />
                         ))}
                         {provided.placeholder}
                     </div>

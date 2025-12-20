@@ -41,6 +41,7 @@ Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Routes moved to project scope below
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
@@ -77,11 +78,11 @@ Route::middleware('auth')->group(function () {
         ->name('project.users.search');
 
     // Project Accounts
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'unlink'])
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [ProjectAccountUiWebController::class, 'unlink'])
         ->name('finance.accounts.unlink')
         ->withoutScopedBindings();
 
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'destroy'])
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [ProjectAccountUiWebController::class, 'destroy'])
         ->name('finance.accounts.destroy')
         ->withoutScopedBindings();
 
@@ -158,7 +159,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
         Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
         Route::post('/processes', [\App\Modules\Operations\Controllers\LoteController::class, 'storeProcess'])->name('operations.processes.store');
+        Route::put('/processes/{process}', [\App\Modules\Operations\Controllers\LoteController::class, 'updateProcess'])->name('operations.processes.update');
+        Route::delete('/processes/{process}', [\App\Modules\Operations\Controllers\LoteController::class, 'destroyProcess'])->name('operations.processes.destroy');
+
+        // Stage Templates (Recipe Management)
+        Route::post('/stages/{stage}/templates', [\App\Modules\Operations\Controllers\StageTemplateController::class, 'store'])->name('operations.stage-templates.store');
+        Route::delete('/templates/{template}', [\App\Modules\Operations\Controllers\StageTemplateController::class, 'destroy'])->name('operations.stage-templates.destroy');
+
         Route::put('/lotes/{lote}/stage', [\App\Modules\Operations\Controllers\LoteController::class, 'updateStage'])->name('operations.lotes.update-stage');
+        
+        // Input Management
+        Route::post('/lotes/{lote}/inputs', [\App\Modules\Operations\Controllers\LoteController::class, 'addInput'])->name('operations.lotes.add-input');
+        Route::put('/lotes/{lote}/inputs/{input}/consume', [\App\Modules\Operations\Controllers\LoteController::class, 'consumeInput'])->name('operations.lotes.consume-input');
+        
+        // LCM Actions
+        Route::post('/lotes/{lote}/finish', [\App\Modules\Operations\Controllers\LoteController::class, 'finish'])->name('operations.lotes.finish');
+        Route::put('/lotes/{lote}/discard', [\App\Modules\Operations\Controllers\LoteController::class, 'discard'])->name('operations.lotes.discard');
+        
+        Route::put('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'update'])->name('operations.lotes.update');
         Route::get('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'show'])->name('operations.lotes.show');
     });
 });

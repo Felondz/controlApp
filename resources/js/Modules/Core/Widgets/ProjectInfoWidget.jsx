@@ -24,6 +24,10 @@ export default function ProjectInfoWidget({ project, widget, onHide, isDragging,
         finance: { label: t('modules.finance_label', 'Finanzas'), color: 'success' },
         tasks: { label: t('modules.tasks_label', 'Tareas'), color: 'info' },
         chat: { label: t('modules.chat_title', 'Chat'), color: 'primary' },
+        inventory: { label: t('modules.inventory', 'Inventario'), color: 'warning' },
+        operations: { label: t('modules.operations', 'Operaciones'), color: 'danger' },
+        crm: { label: t('modules.crm', 'CRM'), color: 'primary' },
+        marketplace: { label: t('modules.marketplace', 'Marketplace'), color: 'info' },
 
     };
 

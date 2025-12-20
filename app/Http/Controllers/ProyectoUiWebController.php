@@ -115,13 +115,38 @@ class ProyectoUiWebController extends Controller
 
         // 5. Cargar estadísticas de Inventario para el Widget de Resumen
         $inventoryStats = null;
-        if ($isAdmin) { // O verificar si tiene módulo de inventario activado
+        // Verify if module inventory is active for this project
+        // Assuming modules array check or relying on isAdmin which implies full access context for now,
+        // but explicit module check is better practice.
+        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) { 
              $inventoryStats = [
                 'totalItems' => $mis_proyecto->inventoryItems()->count(),
                 'totalValue' => $mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
                 'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
                 'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
              ];
+        }
+        
+        // 6. Cargar Lotes de Operaciones para el Widget de Operaciones
+        $lotes = null;
+        if ($isAdmin && in_array('operations', $mis_proyecto->modules ?? [])) {
+             // Eager load process and stage for display
+             $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $mis_proyecto->id)
+                ->where('status', 'active')
+                ->with(['productionProcess', 'currentStage'])
+                ->orderBy('created_at', 'desc')
+                ->limit(6) // Limit for widget display
+                ->get();
+        }
+
+        // 7. Cargar items de inventario (limited) para widgets de Items y Low Stock
+        $inventoryItems = null;
+        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+             $items = $mis_proyecto->inventoryItems()
+                ->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get();
+             $inventoryItems = ['data' => $items];
         }
 
         // Regular projects use Projects/Show
@@ -131,6 +156,8 @@ class ProyectoUiWebController extends Controller
             'transacciones' => $transacciones, // Passed for widgets
             'pendingBills' => $pendingBills,   // Passed for widgets
             'inventoryStats' => $inventoryStats, // Passed for InventorySummaryWidget
+            'lotes' => $lotes, // Passed for LotesListWidget
+            'inventoryItems' => $inventoryItems, // Passed for InventoryItemsWidget & LowStockWidget
         ]);
     }
 

@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
 use App\Models\User;
 use App\Modules\Inventory\Models\InventoryItem;
-use Laravel\Scout\Searchable;
 
 class LoteProduccion extends Model
 {
-    use HasFactory, SoftDeletes, Searchable;
+    use HasFactory, SoftDeletes;
 
     protected static function newFactory()
     {
@@ -29,9 +28,12 @@ class LoteProduccion extends Model
         'code', // e.g., LOTE-2023-001
         'initial_quantity',
         'current_quantity', // Can decrease due to waste/samples
+        'final_quantity',
         'start_date',
         'end_date',
         'status', // 'active', 'finished', 'discarded'
+        'discarded_at',
+        'discard_reason',
         'notes',
         'assigned_to', // User ID
     ];
@@ -40,8 +42,10 @@ class LoteProduccion extends Model
         'start_date' => 'date',
         'estimated_end_date' => 'date',
         'actual_end_date' => 'date',
+        'discarded_at' => 'datetime',
         'initial_quantity' => 'decimal:2',
         'current_quantity' => 'decimal:2',
+        'final_quantity' => 'decimal:2',
     ];
 
     public function proyecto()
@@ -68,5 +72,25 @@ class LoteProduccion extends Model
     public function tasks()
     {
         return $this->morphMany(\App\Modules\Tasks\Models\Task::class, 'related');
+    }
+
+    public function inputs()
+    {
+        return $this->hasMany(LoteInsumo::class, 'lote_produccion_id');
+    }
+
+    public function productionProcess()
+    {
+        return $this->belongsTo(ProductionProcess::class, 'production_process_id');
+    }
+
+    public function currentStage()
+    {
+        return $this->belongsTo(EtapaProceso::class, 'stage_id');
+    }
+
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 }

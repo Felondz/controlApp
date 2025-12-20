@@ -42,6 +42,7 @@ class Transaccion extends Model
         'categoria_id',
         'user_id',
         'monto',
+        'titulo',
         'descripcion',
         'fecha',
         'notas',

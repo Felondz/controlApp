@@ -17,9 +17,13 @@ use Illuminate\Http\JsonResponse;
  */
 class TaskController extends Controller
 {
-    public function index(Proyecto $proyecto)
+    public function index(Request $request, Proyecto $proyecto)
     {
         $this->authorize('view', $proyecto);
+
+        if ($request->wantsJson()) {
+            return response()->json($proyecto->tasks()->with(['users', 'category'])->get());
+        }
 
         return Inertia::render('Projects/Tasks/Index', [
             'proyecto' => $proyecto->load('miembros'),

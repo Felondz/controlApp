@@ -3,6 +3,7 @@
 namespace App\Core\Events;
 
 use App\Core\Events\Contracts\ModuleEvent;
+use App\Core\Events\ModuleEventBus;
 
 /**
  * BaseModuleEvent
@@ -12,6 +13,19 @@ use App\Core\Events\Contracts\ModuleEvent;
  */
 abstract class BaseModuleEvent implements ModuleEvent
 {
+    /**
+     * Dispatch this event via the ModuleEventBus.
+     * 
+     * @param mixed ...$arguments Arguments for the event constructor
+     * @return static
+     */
+    public static function dispatch(...$arguments)
+    {
+        $event = new static(...$arguments);
+        app(ModuleEventBus::class)->dispatch($event);
+        return $event;
+    }
+
     /**
      * Module that originated this event.
      *
