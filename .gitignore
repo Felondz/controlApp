@@ -30,10 +30,10 @@ Homestead.yaml
 Thumbs.db
 
 # Personal session documentation (work-in-progress notes)
-!/docs/sessions/
+/docs/sessions/
 
 # Incident reports (local only)
 /docs/incidents/
-/docs/
+/docs/private/
 _ide_helper.php
 .phpstorm.meta.php

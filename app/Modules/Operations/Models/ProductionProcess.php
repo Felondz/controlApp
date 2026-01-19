@@ -11,6 +11,11 @@ class ProductionProcess extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\ProductionProcessFactory::new();
+    }
+
     protected $table = 'production_processes';
 
     protected $fillable = [
@@ -18,6 +23,7 @@ class ProductionProcess extends Model
         'name', // e.g., "Proceso Café Lavado", "Proceso Cacao Fermentado"
         'description',
         'is_active',
+        'inventory_item_id', // Default Output Product
     ];
 
     protected $casts = [
@@ -27,6 +33,11 @@ class ProductionProcess extends Model
     public function proyecto()
     {
         return $this->belongsTo(Proyecto::class);
+    }
+
+    public function outputProduct()
+    {
+        return $this->belongsTo(\App\Modules\Inventory\Models\InventoryItem::class, 'inventory_item_id');
     }
 
     public function etapas()

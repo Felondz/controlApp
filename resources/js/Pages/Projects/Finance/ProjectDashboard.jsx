@@ -21,7 +21,7 @@ import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6Toot
 
 // ... (existing imports)
 
-export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [], pendingBills = [], creditCardBills = [], upcomingIncomes = [], loanInstallments = [] }) {
+export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [], pendingBills = [], creditCardBills = [], upcomingIncomes = [], loanInstallments = [], inventoryStats = null }) {
     const { t } = useTranslate();
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [showAccountAdminModal, setShowAccountAdminModal] = useState(false);
@@ -521,7 +521,8 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             projectId: proyecto.id,
                             projects: [],
                             isCollaborative: !proyecto.es_personal,
-                            currentUserId: auth.user.id
+                            currentUserId: auth.user.id,
+                            inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
                         }}
                         onSettingsClick={() => setShowSettingsModal(true)}
                         settingsKey="finance_dashboard"

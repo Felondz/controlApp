@@ -17,14 +17,11 @@ export default function LotesListWidget({
     // Handling case where lotes might not be available yet or format is different
     const lotesData = lotes.data || [];
 
-    // Safely try to get the create route
-    let createUrl = null;
-    try {
-        createUrl = route('operations.lotes.create', project.id);
-    } catch (e) {
-        // Route not available, use fallback URL
-        createUrl = `/mis-proyectos/${project.id}/operations/lotes/create`;
-    }
+    // Use the index route with a query param to open the modal
+    const createUrl = route('operations.lotes.index', {
+        proyecto: project.id,
+        action: 'create'
+    });
 
     const actionButton = (
         <Link href={createUrl}>

@@ -52,16 +52,25 @@ class ModuleEventBus
 
         $listeners = $this->getListeners($eventName);
 
+        // Also check for listeners registered using the Event Class Name
+        $className = get_class($event);
+        if ($className !== $eventName) {
+            $listeners = array_merge($listeners, $this->getListeners($className));
+        }
+
+        // Deduplicate listeners to ensure single execution
+        $listeners = array_unique($listeners, SORT_REGULAR);
+
         foreach ($listeners as $listener) {
             try {
                 if ($this->shouldRunAsync()) {
                     // Queue the listener for async execution
                     dispatch(function () use ($listener, $event) {
-                        call_user_func($listener, $event);
+                        $this->executeListener($listener, $event);
                     });
                 } else {
                     // Execute synchronously
-                    call_user_func($listener, $event);
+                    $this->executeListener($listener, $event);
                 }
             } catch (\Exception $e) {
                 Log::error("Error in event listener for '{$eventName}': {$e->getMessage()}", [
@@ -80,10 +89,14 @@ class ModuleEventBus
      * @param callable $handler
      * @return void
      */
-    public function subscribe(string $eventName, callable $handler): void
+    public function subscribe(string $eventName, mixed $handler): void
     {
         if (!isset($this->listeners[$eventName])) {
             $this->listeners[$eventName] = [];
+        }
+
+        if (in_array($handler, $this->listeners[$eventName])) {
+            return;
         }
 
         $this->listeners[$eventName][] = $handler;
@@ -96,7 +109,7 @@ class ModuleEventBus
      * @param callable $handler
      * @return void
      */
-    public function unsubscribe(string $eventName, callable $handler): void
+    public function unsubscribe(string $eventName, mixed $handler): void
     {
         if (!isset($this->listeners[$eventName])) {
             return;
@@ -121,6 +134,11 @@ class ModuleEventBus
 
         // Get wildcard listeners (e.g., 'tasks.*' matches 'tasks.task.completed')
         foreach ($this->listeners as $pattern => $patternListeners) {
+            // Skip the exact match key because we already grabbed it above
+            if ($pattern === $eventName) {
+                continue;
+            }
+
             if ($this->matchesPattern($eventName, $pattern)) {
                 $listeners = array_merge($listeners, $patternListeners);
             }
@@ -191,6 +209,40 @@ class ModuleEventBus
         }
 
         return false;
+    }
+
+    /**
+     * Execute a specific listener for an event.
+     *
+     * @param mixed $listener
+     * @param ModuleEvent $event
+     * @return void
+     */
+    protected function executeListener(mixed $listener, ModuleEvent $event): void
+    {
+        // Handle class strings (e.g., 'App\Listeners\MyListener')
+        if (is_string($listener) && class_exists($listener)) {
+            $instance = app($listener);
+            
+            if (method_exists($instance, 'handle')) {
+                $instance->handle($event);
+                return;
+            }
+            
+            // If it's an invokable class
+            if (is_callable($instance)) {
+                $instance($event);
+                return;
+            }
+        }
+
+        // Handle regular callables (closures, array callbacks)
+        if (is_callable($listener)) {
+            call_user_func($listener, $event);
+            return;
+        }
+
+        throw new \Exception("Listener is not callable or does not have a handle() method.");
     }
 
     /**

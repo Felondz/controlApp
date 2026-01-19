@@ -2,44 +2,29 @@
 
 namespace App\Modules\Operations\Events;
 
-use App\Core\Events\BaseModuleEvent;
 use App\Modules\Operations\Models\LoteProduccion;
-use Carbon\Carbon;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
-/**
- * LoteFinished Event
- * 
- * Dispatched when a production batch is completed.
- */
-class LoteFinished extends BaseModuleEvent
+use Illuminate\Queue\SerializesModels;
+
+class LoteFinished extends \App\Core\Events\BaseModuleEvent
 {
-    /**
-     * The finished batch.
-     */
-    public LoteProduccion $lote;
+    use InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param LoteProduccion $lote
-     */
-    public function __construct(LoteProduccion $lote)
+    public $lote;
+    public $finishData;
+
+    public function __construct(LoteProduccion $lote, array $finishData)
     {
         $this->lote = $lote;
-
-        parent::__construct('operations', [
-            'lote_id' => $lote->id,
-            'lote_code' => $lote->code,
-            'inventory_item_id' => $lote->inventory_item_id,
-            'current_quantity' => $lote->current_quantity,
-            'assigned_to' => $lote->assigned_to,
-            'finished_at' => Carbon::now()->toIso8601String(),
-        ], $lote->proyecto_id);
+        $this->finishData = $finishData;
+        parent::__construct(
+            'operations',
+            array_merge(['lote_id' => $lote->id], $finishData),
+            $lote->proyecto_id
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return 'operations.lote.finished';

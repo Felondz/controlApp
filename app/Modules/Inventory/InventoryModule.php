@@ -75,6 +75,7 @@ class InventoryModule extends AbstractModule
     {
         return [
             'web' => __DIR__ . '/routes/web.php',
+            'api' => __DIR__ . '/routes/api.php',
         ];
     }
 
@@ -95,6 +96,10 @@ class InventoryModule extends AbstractModule
             // Production Finished -> Add Stock
             'operations.lote.finished' => [
                 \App\Modules\Inventory\Listeners\CreateFinishedGoodsEntry::class,
+            ],
+            // Input Consumed -> Deduct Stock
+            'operations.input.consumed' => [
+                \App\Modules\Inventory\Listeners\DeductInventoryUsage::class,
             ],
         ];
     }

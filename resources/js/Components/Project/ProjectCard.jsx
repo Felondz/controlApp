@@ -27,6 +27,8 @@ export default function ProjectCard(props) {
         }
     }
     if (!Array.isArray(modules)) modules = ['finance'];
+    // Filter out deprecated modules like 'analytics'
+    modules = modules.filter(m => m !== 'analytics');
     const primaryModule = modules[0];
 
     const getModuleIcon = (moduleName) => {
@@ -38,7 +40,7 @@ export default function ProjectCard(props) {
             case 'inventory': return <PackageIcon className="h-4 w-4" />;
             case 'operations': return <FactoryIcon className="h-4 w-4" />;
             case 'crm': return <UsersIcon className="h-4 w-4" />;
-            case 'analytics': return <ChartBarIcon className="h-4 w-4" />;
+            // Analytics is deprecated
             default: return null;
         }
     };

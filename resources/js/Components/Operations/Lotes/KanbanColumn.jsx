@@ -1,14 +1,29 @@
 import React from 'react';
 import { Droppable } from '@hello-pangea/dnd';
 import LoteCard from './LoteCard';
+import { useTranslate } from '@/Hooks/useTranslate';
 
-export default function KanbanColumn({ stage, lotes }) {
+export default function KanbanColumn({ stage, lotes, onLoteClick, isLastStage, onFinishLote }) {
+    const { t } = useTranslate();
     return (
-        <div className="flex flex-col w-80 bg-gray-100 dark:bg-gray-900 rounded-lg h-full max-h-[calc(100vh-280px)]">
+        <div className="flex flex-col min-w-[300px] w-[85vw] md:w-auto md:flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-lg h-full max-h-[calc(100vh-220px)] snap-center border border-gray-200 dark:border-gray-800">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-gray-100 dark:bg-gray-900 rounded-t-lg z-10">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900/50 rounded-t-lg z-[1] backdrop-blur-sm">
                 <h3 className="font-semibold text-gray-700 dark:text-gray-200">
-                    {stage.name}
+                    {(() => {
+                        const name = stage.name;
+                        // Map of legacy/default names to translation keys
+                        const map = {
+                            'Start': 'operations.stage_default_start',
+                            'Inicio': 'operations.stage_default_start',
+                            'Process': 'operations.stage_default_process',
+                            'Proceso': 'operations.stage_default_process',
+                            'Finish': 'operations.stage_default_finish',
+                            'Finalizado': 'operations.stage_default_finish',
+                            'Reception': 'operations.stage_default_reception'
+                        };
+                        return map[name] ? t(map[name], name) : name;
+                    })()}
                 </h3>
                 <span className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
                     {lotes.length}
@@ -25,7 +40,14 @@ export default function KanbanColumn({ stage, lotes }) {
                             }`}
                     >
                         {lotes.map((lote, index) => (
-                            <LoteCard key={lote.id} lote={lote} index={index} />
+                            <LoteCard
+                                key={lote.id}
+                                lote={lote}
+                                index={index}
+                                onClick={onLoteClick}
+                                isLastStage={isLastStage}
+                                onFinish={onFinishLote}
+                            />
                         ))}
                         {provided.placeholder}
                     </div>

@@ -9,12 +9,24 @@ use App\Http\Requests\UpdateProyectoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Http\JsonResponse;
+
+/**
+ * @tags Projects
+ * 
+ * APIs for managing Projects (Proyectos).
+ */
 class ProyectoController extends Controller
 {
     /**
      * Muestra los proyectos del usuario autenticado.
      */
-    public function index(Request $request)
+    /**
+     * List Projects
+     * 
+     * Get a list of all projects the authenticated user belongs to.
+     */
+    public function index(Request $request): JsonResponse
     {
         $proyectos = $request->user()->proyectos;
         return response()->json($proyectos);
@@ -23,7 +35,12 @@ class ProyectoController extends Controller
     /**
      * Almacena un nuevo proyecto.
      */
-    public function store(StoreProyectoRequest $request)
+    /**
+     * Create Project
+     * 
+     * Create a new project and assign the authenticated user as Admin.
+     */
+    public function store(StoreProyectoRequest $request): JsonResponse
     {
         $validatedData = $request->validated();
 
@@ -55,7 +72,13 @@ class ProyectoController extends Controller
     /**
      * Muestra un proyecto específico.
      */
-    public function show(Request $request, Proyecto $proyecto)
+    /**
+     * Show Project
+     * 
+     * Get details of a specific project.
+     * Requires the user to be a member.
+     */
+    public function show(Request $request, Proyecto $proyecto): JsonResponse
     {
         // Para 'ver', solo necesita ser miembro
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
@@ -74,7 +97,13 @@ class ProyectoController extends Controller
     /**
      * Actualiza un proyecto específico.
      */
-    public function update(UpdateProyectoRequest $request, Proyecto $proyecto)
+    /**
+     * Update Project
+     * 
+     * Update project details like name, description, and theme.
+     * accessible only by Project Admins.
+     */
+    public function update(UpdateProyectoRequest $request, Proyecto $proyecto): JsonResponse
     {
         // solo un 'admin' puede editar.
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
@@ -105,7 +134,13 @@ class ProyectoController extends Controller
     /**
      * Elimina un proyecto.
      */
-    public function destroy(Request $request, Proyecto $proyecto)
+    /**
+     * Delete Project
+     * 
+     * Permanently delete a project and all its resources.
+     * Accessible only by Project Admins.
+     */
+    public function destroy(Request $request, Proyecto $proyecto): JsonResponse|\Illuminate\Http\Response
     {
 
         // solo un 'admin' puede eliminar.
@@ -119,7 +154,12 @@ class ProyectoController extends Controller
      * Actualiza la configuración del proyecto (ej: widgets).
      * API endpoint for mobile apps.
      */
-    public function updateSettings(Request $request, Proyecto $proyecto)
+    /**
+     * Update Project Settings
+     * 
+     * Update JSON-based settings for the project (e.g. enabled widgets).
+     */
+    public function updateSettings(Request $request, Proyecto $proyecto): JsonResponse
     {
         abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden modificar la configuración.');
 
@@ -145,7 +185,13 @@ class ProyectoController extends Controller
      * Transfer project ownership to another member.
      * API endpoint for mobile apps.
      */
-    public function transferOwnership(Request $request, Proyecto $proyecto)
+    /**
+     * Transfer Ownership
+     * 
+     * Transfer the ownership of the project to another Admin member.
+     * Requires password confirmation.
+     */
+    public function transferOwnership(Request $request, Proyecto $proyecto): JsonResponse
     {
         // Only the current Owner can transfer ownership
         if ($request->user()->id !== $proyecto->user_id) {

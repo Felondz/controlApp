@@ -48,8 +48,8 @@ class InventoryService
                 'transaction_date' => now(),
             ]);
 
-            // Dispatch event to update stock levels (handled by another listener via Observer mostly, but let's dispatch explicit event too)
-            InventoryTransactionConfirmed::dispatch($transaction);
+            // Dispatch event confirmed via Observer
+            // InventoryTransactionConfirmed::dispatch($transaction);
 
             return $transaction;
         });

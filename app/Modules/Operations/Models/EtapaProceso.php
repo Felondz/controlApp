@@ -19,6 +19,7 @@ class EtapaProceso extends Model
 
     protected $fillable = [
         'proyecto_id',
+        'production_process_id',
         'name', // e.g., "Germinación", "Fermentación"
         'order', // Sequence number
         'description',
@@ -43,5 +44,10 @@ class EtapaProceso extends Model
     public function taskTemplates()
     {
         return $this->hasMany(StageTaskTemplate::class, 'etapa_proceso_id');
+    }
+
+    public function inputTemplates()
+    {
+        return $this->hasMany(StageInputTemplate::class, 'etapa_proceso_id');
     }
 }

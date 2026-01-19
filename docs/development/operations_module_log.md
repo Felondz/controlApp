@@ -261,4 +261,136 @@ Usar strings en `getEventListeners()`:
 
 ### C. Próximos Pasos
 *   [ ] Implementar **Edición de Procesos** existentes (Rename/Reorder etapas).
-*   [ ] Validar integración completa de **Consumo de Inventario** en transacciones de lotes.
+## 11. Workflow de Recetas y Arquitectura Orientada a Eventos (Diciembre 17)
+**Objetivo**: Implementar flujo "Receta -> Lote" y desacoplar Operaciones de Inventario.
+
+### A. Lógica de Recetas (Recipe Workflow)
+*   **Modelo de Datos**:
+    *   `ProductionProcess` (Receta): Define el *Output Product* y el flujo general.
+    *   `StageInputTemplate` (Ingredientes): Vincula `InventoryItem` y `Quantity` a una Etapa específica.
+    *   **Flujo**: Al crear un Lote, el sistema clona los `StageInputTemplates` hacia `LoteInsumo` con estado `pending`.
+*   **Validación de UX**:
+    *   **Proceso**: Se agregó selector de *Output Product* en `CreateProcessModal`.
+    *   **Ingredientes**: Se implementó `ManageProcessModal` con pestañas ("Receta" y "Configuración") para gestionar ingredientes y metadatos del proceso.
+
+### B. Arquitectura: Event-Driven Inventory Sync
+Para cumplir con el principio de desacoplamiento modular, se refactorizó la lógica de consumo de insumos:
+*   **Antes (Anti-patrón)**: `LoteController` decrementaba directamente `inventory_items.current_stock`.
+*   **Ahora (Event-Driven)**:
+    1.  `LoteController` marca el insumo como consumido y despacha evento `InputConsumed`.
+    2.  `InventoryModule` escucha este evento.
+    3.  Listener `DeductInventoryUsage` (Queued) ejecuta la transacción de inventario de forma asíncrona.
+*   **Beneficio**: El módulo de Operaciones no conoce la implementación interna de Inventario.
+
+### C. Refactorización de UI/UX
+1.  **Kanban Interactivo**: Solucionado bug donde el Kanban no refrescaba al cambiar de proceso o crear uno nuevo (Sincronización de estado en `Index.jsx`).
+2.  **Layout Móvil**: Ajuste de `CreateProcessModal` y layout principal para apilar controles verticalmente en pantallas pequeñas.
+3.  **Gestión de Procesos**: Implementado Endpoint `PUT /processes/{process}` y formulario de edición completa.
+
+### D. Pendientes Identificados
+
+### E. Soluciones Aplicadas (Dec 17 - Navigation Fix)
+*   **Fix Operations Navigation Crash**: Se solucionó un error crítico donde navegar al módulo de Operaciones causaba un crash o pantalla blanca.
+    *   **Causas**:
+        1.  **Prop Mismatch**: `Index.jsx` definía `onDragEnd` pero no lo pasaba a `KanbanBoard`. `KanbanBoard` usaba `undefined` en `DragDropContext`.
+        2.  **Hydration Error**: `KanbanBoard` no tenía protección contra hidratación (`Strict Mode`), lo que causa fallos con `@hello-pangea/dnd`.
+        3.  **Events Detached**: El handler `onLoteClick` no se pasaba a los componentes hijos, rompiendo la apertura de modales.
+    *   **Solución**:
+        *   Se conectó correctamente `onDragEnd` en `Index.jsx`.
+        *   Se implementó el patrón `requestAnimationFrame` en `KanbanBoard` para asegurar renderizado correcto.
+        *   Se hizo *prop drilling* correcto de `onLoteClick` hasta `LoteCard`.
+*   **Fix Missing Kanban Stages**: Se corrigió el error donde las etapas no aparecían tras crear un proceso.
+    *   **Causa**: El modelo `EtapaProceso` no incluía `production_process_id` en `$fillable`, descartando la relación al crear.
+    *   **Solución**: Se agregó el campo en `EtapaProceso.php`.
+*   **Fix RelationNotFoundException**: Se solucionó un crash (Error 500) en `LoteController`.
+    *   **Causa**: El controlador intentaba cargar `assignedUser` pero la relación real es `assignee`.
+    *   **Solución**: Se actualizó `LoteController.php` y `LoteCard.jsx` para usar `assignee`.
+*   **Improvement**: Fix UI Noise & Broken Modals.
+    *   **Date Format**: Removed time from Lote Card date.
+    *   **Product Saving**: Fixed `LoteController` filtering out 0-stock items, allowing new products to be selected.
+    *   **Event Driven Hydration**: Moved recipe input creation to `LoteCreated` event + `HydrateLoteInputs` listener.
+### F. Deep Debugging & Stabilization (Dec 17 - DnD/Inputs)
+*   **Fix DnD Crash (Silent Failure)**: persiste error crítico donde mover lotes entre etapas no consume insumos y fallaba silenciosamente.
+    *   **Posible Causa**: El controlador llamaba a `$lote->insumos()` (método inexistente) en lugar de `$lote->inputs()`, generando una excepción interna.
+    *   **Solución**: Corrección implementada del nombre del método en `LoteController` se tiene que hacer mas debigging hasta encontrar la causa real.
+*   **Fix Input Assignment Failure**: Se solucionó la creación incorrecta de insumos con costo cero.
+    *   **Causa**: El listener `HandleLoteInput` intentaba leer `unit_cost` de `InventoryItem`, pero la columna real es `cost_price`.
+    *   **Solución**: Actualización de propiedad en listener.
+*   **Fix Modal Flickering/Closing**: Se estabilizó el "Manage Process Modal".
+    *   **Causa**: El uso de `redirect()->route(...)` en backend forzaba un recarga completa de la página, perdiendo el estado del modal (Flash/Flicker).
+    *   **Solución**: Se revirtió a `return back()` con optimización frontend (`preserveState: true`, `only: ['stages']`) para actualizaciones fluidas, pero sigue parpadeando al hacer cualquier cambio en los insumos.
+*   **Fix Missing Initial Consumption**: Se implementó consumo automático al crear Lote, pero no se refleja visualmente en el modal de Lote, donde debe ir el registro visual de que se ha consumido en este lote.
+    *   **Acción**: Se creó listener `HandleLoteCreated` para clonar los insumos de la Etapa 1 inmediatamente al crear el lote.
+*   **Fix Navigation Loop**: Se corrigió el problema donde "Agregar Insumo" redirigía incorrectamente al modal de Receta, pero sigue sin funcionar en el modal de Lote, pero persiste el bug de no poder agregar insumos desde el modal de Lote ni tener visualizacion de todos los insumos consumidos por ese lote.
+### G. Pendientes Críticos y Requerimientos de Lógica (Reportado Dec 17)
+*   **DnD Confirmation & Feedback**:
+    *   **Problema**: El cambio de etapa no informa al usuario qué insumos se consumirán automáticamente.
+    *   **Requerimiento**: Implementar modal de confirmación al soltar (drop) el lote en una nueva etapa, listando los insumos a descontar.
+*   **Lógica de Consumo Seguro (Idempotencia)**:
+    *   **Problema**: Mover lotes entre etapas (atrás/adelante) podría duplicar consumos o dejar de consumir si se saltan etapas.
+    *   **Requerimiento**:
+        *   Si se devuelve a una etapa anterior: No consumir nuevamente (el usuario debe usar consumo manual para reprocesos).
+        *   Si se salta etapas: Advertir o impedir, asegurar que el consumo secuencial se respete o se gestione.
+        *   Evitar "doble consumo" si el lote ya pasó por esa etapa previamente.
+*   **Finalización y Descarte Visual**:
+    *   **Problema**: Lotes marcados como `finished` o `discarded` cambian de estado en DB pero siguen visibles en el Kanban "Activo".
+    *   **Requerimiento**: Filtrar el Kanban para mostrar solo lotes `active`. Los finalizados/descartados deben salir del flujo productivo y pasar a histórico/reportes.
+*   **Visualización de Insumos en Lote**:
+    *   **Problema**: El modal de Detalles del Lote no muestra correctamente el historial de insumos consumidos ni permite agregar nuevos sin fallos de redirección.
+    *   **Requerimiento**: Reparar la carga de `lote.inputs` y la UX de agregación manual dentro del mismo modal.
+*   **Mejoras Visuales (Tarjeta de Lote)**:
+    *   **Requerimiento**: Mostrar en la tarjeta del Kanban el **Total Invertido** (Suma de costo de insumos consumidos hasta el momento).
+*   **Automatización de Flujo (Triggers)**:
+    *   **Requerimiento**: El cambio de etapa debe disparar eventos consistentes (`stage_changed`).
+    *   **Finalización Automática**: Al mover un lote a la **Etapa Final**, el sistema debe disparar automáticamente la lógica de `finish` (Finalizar Proceso Exitoso), cambiando el estado a `finished` y solicitando la cantidad final producida (si aplica) o cerrando el ciclo.
+*   **Reportes e Histórico**:
+    *   **Problema**: No hay forma fácil de ver lotes terminados.
+    *   **Requerimiento**: Implementar una vista dedicada o modal "Historial de Producción" con buscador/filtros para listar todos los lotes (activos, finalizados, descartados) por proceso, fecha y estado. Útil para informes.
+
+### H. Resurrección del Sistema de Módulos y Correcciones Críticas de Integridad (19 Dic)
+**Severidad**: CRÍTICA
+**Contexto**: Fallo completo de comunicación entre módulos y valores de inventario caóticos (contabilidad doble/triple).
+
+1.  **Fallo de Arranque del Sistema (Bootstrap)**:
+    *   **Síntoma**: Múltiples "Fallos Silenciosos". Modales no cerraban, stock no actualizaba, eventos no se disparaban.
+    *   **Causa Raíz**: Se eliminó accidentalmente `App\Providers\ModuleServiceProvider` de `bootstrap/providers.php`.
+    *   **Solución**: Se volvió a registrar el proveedor. Esto reinició todo el sistema de módulos (Operaciones, Inventario, etc.).
+
+2.  **TypeError en EventBus**:
+    *   **Síntoma**: `TypeError: Argument #2 must be callable, string given` durante el arranque.
+    *   **Solución**: Se relajó el tipado de `ModuleEventBus::subscribe` a `mixed` para aceptar nombres de Clases como listeners (Estándar Laravel).
+
+3.  **Error Lógico en Module Event Bus (Doble Ejecución)**:
+    *   **Síntoma**: Cada evento se disparaba exactamente dos veces.
+    *   **Causa Raíz**: La lógica de `getListeners()` obtenía los listeners de "coincidencia exacta" y luego los volvía a capturar durante el bucle de "comodines".
+    *   **Solución**: Se agregó lógica de exclusión: `if ($pattern === $eventName) continue;`. Se añadió deduplicación rígida `array_unique` antes de la ejecución.
+
+4.  **Conflicto Arquitectónico (Inventario vs Operaciones)**:
+    *   **Síntoma**: El inventario se descontaba dos veces por cada evento de consumo.
+    *   **Causa Raíz**: Tanto `OperationsModule` (Listener: `HandleInputConsumed`) COMO `InventoryModule` (Listener: `DeductInventoryUsage`) escuchaban `operations.input.consumed` y descontaban stock independientemente.
+    *   **Solución**: Se **Deshabilitó** la lógica en el listener de Operaciones. El Módulo de Inventario es ahora la *Única Autoridad* para actualizaciones de stock.
+
+5.  **Condición de Carrera en Actualizaciones Manuales**:
+    *   **Síntoma**: Los ajustes manuales en "Editar Item" calculaban totales incorrectos.
+    *   **Causa Raíz**: El Controlador incrementaba manualmente `$item->increment` *Y* creaba una transacción (lo que incorrectamente disparaba al `InventoryTransactionObserver` a actualizar también).
+    *   **Solución**: Se eliminaron los incrementos manuales en el Controlador. El sistema ahora confía 100% en el `Observer` para recalcular `current_stock` usando una estrategia de `sum(transactions)` (Fuente de Verdad Idempotente).
+
+## 12. Consolidación de Calidad y Ciclo de Vida del Lote (Diciembre 19)
+**Objetivo**: Implementar flujos finales de producción (Finish/Discard), historial visual y cobertura de pruebas completa.
+
+### A. Mejoras Implementadas
+*   [x] **Ciclo de Vida Completo**:
+    *   **Finalizar Lote**: Implementada lógica `finish()` que valida inventario, marca estado como `finished` y dispara evento `LoteFinished`.
+    *   **Descartar Lote**: Implementada lógica `discard()` para lotes cancelados.
+    *   **Historial**: Nueva vista `History.jsx` con tabla server-side, filtros por estado y buscador.
+*   [x] **Frontend Tests (Vitest)**:
+    *   Creado `tests/Frontend/Pages/Operations/Lotes/History.test.jsx`.
+    *   Verificación de renderizado, filtrado y navegación via router mock.
+*   [x] **Correcciones de Estabilidad**:
+    *   **Finance**: Fix `BalanceTest` (random account validation).
+    *   **Inventory**: Fix `CreateFinishedGoodsEntryTest` (event payload mismatch).
+    *   **Operations**: Fix `LoteStageChangeTest` usando aserciones de BD directas para eventos del `ModuleEventBus`.
+
+### B. Decisiones de Diseño
+*   **Separación de Tests Frontend**: Se movieron los tests de componentes fuera de `resources/js` hacia `tests/Frontend/` para mantener una estructura espejo más limpia.
+*   **Mocking Extensivo**: Para `History.test.jsx` se mockearon dependencias pesadas (`AuthenticatedLayout`, `usePage`, `router`) enfocando el test en la lógica del componente.

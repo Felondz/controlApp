@@ -76,7 +76,7 @@ class CreateReplenishmentTask implements ShouldQueue
 
         // 2. Create Task
         Task::create([
-            'proyecto_id' => $item->proyecto_id,
+            'project_id' => $item->proyecto_id,
             'title' => "Reponer Stock: {$item->name} ({$item->sku})",
             'description' => "El stock actual es {$currentStock} {$item->unit}. El nivel mínimo es {$item->min_stock_level}.\n\nPor favor iniciar compra o producción.",
             'status' => 'pending',
