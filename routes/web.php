@@ -145,35 +145,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/calculator/export/csv', [CalculatorController::class, 'exportCsv'])->name('calculator.export.csv');
         Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
     });
-
-
-    // Operations Module Routes
-    Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
-        Route::get('/lotes/history', [\App\Modules\Operations\Controllers\LoteController::class, 'history'])->name('operations.lotes.history');
-        Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
-        Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
-        Route::post('/processes', [\App\Modules\Operations\Controllers\LoteController::class, 'storeProcess'])->name('operations.processes.store');
-        Route::put('/processes/{process}', [\App\Modules\Operations\Controllers\LoteController::class, 'updateProcess'])->name('operations.processes.update');
-        Route::delete('/processes/{process}', [\App\Modules\Operations\Controllers\LoteController::class, 'destroyProcess'])->name('operations.processes.destroy');
-
-        // Stage Templates (Recipe Management)
-        Route::post('/stages/{stage}/templates', [\App\Modules\Operations\Controllers\StageTemplateController::class, 'store'])->name('operations.stage-templates.store');
-        Route::delete('/templates/{template}', [\App\Modules\Operations\Controllers\StageTemplateController::class, 'destroy'])->name('operations.stage-templates.destroy');
-
-        Route::put('/lotes/{lote}/stage', [\App\Modules\Operations\Controllers\LoteController::class, 'updateStage'])->name('operations.lotes.update-stage');
-        
-        // Input Management
-        Route::post('/lotes/{lote}/inputs', [\App\Modules\Operations\Controllers\LoteController::class, 'addInput'])->name('operations.lotes.add-input');
-        Route::put('/lotes/{lote}/inputs/{input}/consume', [\App\Modules\Operations\Controllers\LoteController::class, 'consumeInput'])->name('operations.lotes.consume-input');
-        
-        // LCM Actions
-        Route::post('/lotes/{lote}/finish', [\App\Modules\Operations\Controllers\LoteController::class, 'finish'])->name('operations.lotes.finish');
-        Route::put('/lotes/{lote}/discard', [\App\Modules\Operations\Controllers\LoteController::class, 'discard'])->name('operations.lotes.discard');
-        
-        Route::put('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'update'])->name('operations.lotes.update');
-        Route::get('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'show'])->name('operations.lotes.show');
-    });
 });
+
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
 
