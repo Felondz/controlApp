@@ -174,9 +174,21 @@ class CuentaController extends Controller
     public function balance(Request $request, Proyecto $proyecto)
     {
         abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
-
-        $ownedBalance = $proyecto->cuentas()->sum('saldo_actual');
-        $linkedBalance = $proyecto->cuentasAsociadas()->sum('saldo_actual');
+        
+        // Use logic matching BalanceSummaryWidget:
+        // Assets (banco, efectivo, savings, etc) = Add signed value (usually positive)
+        // Liabilities (credito, prestamo) = Subtract absolute value (always subtract debt)
+        
+        // We can do this with SQL for efficiency
+        $balanceSql = "SUM(CASE WHEN tipo IN ('credito', 'prestamo') THEN -ABS(saldo_actual) ELSE saldo_actual END) as net_worth";
+        
+        $ownedBalance = $proyecto->cuentas()
+            ->selectRaw($balanceSql)
+            ->value('net_worth') ?? 0;
+            
+        $linkedBalance = $proyecto->cuentasAsociadas()
+            ->selectRaw($balanceSql)
+            ->value('net_worth') ?? 0;
 
         // Count pending bills (transactions with status 'pending')
         $pendingBills = $proyecto->transacciones()
@@ -190,9 +202,28 @@ class CuentaController extends Controller
             ->whereMonth('fecha', now()->month)
             ->whereYear('fecha', now()->year)
             ->count();
+        
+        // Calculate Inventory Value if module is active and user is admin
+        $inventoryValue = 0;
+        $modules = $proyecto->modules ?? [];
+        // Ensure modules is array
+        if (is_string($modules)) {
+            $modules = json_decode($modules, true) ?? [];
+        }
+        
+        if ($request->user()->esAdminDe($proyecto) && in_array('inventory', $modules)) {
+             $inventoryValue = $proyecto->inventoryItems()
+                ->selectRaw('SUM(current_stock * cost_price) as total')
+                ->value('total') ?? 0;
+             
+             // Inventory Value is in UNITS (e.g. 50.00)
+             // Balance is in CENTS (e.g. 5000)
+             // We must convert Inventory Value to CENTS to match
+             $inventoryValue = $inventoryValue * 100;
+        }
 
         return response()->json([
-            'balance' => $ownedBalance + $linkedBalance,
+            'balance' => $ownedBalance + $linkedBalance + $inventoryValue,
             'pending_bills' => $pendingBills,
             'transaction_count' => $transactionCount
         ]);

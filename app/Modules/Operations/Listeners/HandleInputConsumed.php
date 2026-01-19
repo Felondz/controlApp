@@ -39,5 +39,6 @@ class HandleInputConsumed
             
             \Illuminate\Support\Facades\Log::info("HandleInputConsumed: Deducting {$input->quantity} from item {$item->id}. OldStock: {$oldStock}, NewStock: {$item->fresh()->current_stock}");
         }
+        */
     }
 }

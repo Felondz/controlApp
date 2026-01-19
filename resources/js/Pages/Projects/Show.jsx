@@ -95,6 +95,7 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                         categories: proyecto.categorias || [],
                         currency: proyecto.moneda_default,
                         stats: inventoryStats, // Map to 'stats' expected by InventorySummary
+                        inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
                         lotes: lotes,
                         items: inventoryItems, // Map to 'items' expected by LowStockWidget
                     }}

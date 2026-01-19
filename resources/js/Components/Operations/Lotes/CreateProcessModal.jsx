@@ -68,24 +68,7 @@ export default function CreateProcessModal({ show, onClose, proyecto, inventoryI
                     <InputError message={errors.name} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="inventory_item_id" value={t('operations.output_product', 'Producto Final (Output)')} />
-                    <p className="text-xs text-gray-500 mb-1">{t('operations.output_product_help', 'El producto que se añadirá al inventario al finalizar un lote.')}</p>
-                    <select
-                        id="inventory_item_id"
-                        value={data.inventory_item_id}
-                        onChange={(e) => setData('inventory_item_id', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                    >
-                        <option value="">{t('common.select_option', 'Seleccione una opción')}</option>
-                        {inventoryItems?.map((item) => (
-                            <option key={item.id} value={item.id}>
-                                {item.name} ({item.unit})
-                            </option>
-                        ))}
-                    </select>
-                    <InputError message={errors.inventory_item_id} className="mt-2" />
-                </div>
+
 
                 <div className="mt-4">
                     <InputLabel htmlFor="description" value={t('operations.process_description', 'Descripción (Opcional)')} />

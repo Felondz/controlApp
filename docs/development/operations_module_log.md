@@ -374,3 +374,23 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
     *   **Síntoma**: Los ajustes manuales en "Editar Item" calculaban totales incorrectos.
     *   **Causa Raíz**: El Controlador incrementaba manualmente `$item->increment` *Y* creaba una transacción (lo que incorrectamente disparaba al `InventoryTransactionObserver` a actualizar también).
     *   **Solución**: Se eliminaron los incrementos manuales en el Controlador. El sistema ahora confía 100% en el `Observer` para recalcular `current_stock` usando una estrategia de `sum(transactions)` (Fuente de Verdad Idempotente).
+
+## 12. Consolidación de Calidad y Ciclo de Vida del Lote (Diciembre 19)
+**Objetivo**: Implementar flujos finales de producción (Finish/Discard), historial visual y cobertura de pruebas completa.
+
+### A. Mejoras Implementadas
+*   [x] **Ciclo de Vida Completo**:
+    *   **Finalizar Lote**: Implementada lógica `finish()` que valida inventario, marca estado como `finished` y dispara evento `LoteFinished`.
+    *   **Descartar Lote**: Implementada lógica `discard()` para lotes cancelados.
+    *   **Historial**: Nueva vista `History.jsx` con tabla server-side, filtros por estado y buscador.
+*   [x] **Frontend Tests (Vitest)**:
+    *   Creado `tests/Frontend/Pages/Operations/Lotes/History.test.jsx`.
+    *   Verificación de renderizado, filtrado y navegación via router mock.
+*   [x] **Correcciones de Estabilidad**:
+    *   **Finance**: Fix `BalanceTest` (random account validation).
+    *   **Inventory**: Fix `CreateFinishedGoodsEntryTest` (event payload mismatch).
+    *   **Operations**: Fix `LoteStageChangeTest` usando aserciones de BD directas para eventos del `ModuleEventBus`.
+
+### B. Decisiones de Diseño
+*   **Separación de Tests Frontend**: Se movieron los tests de componentes fuera de `resources/js` hacia `tests/Frontend/` para mantener una estructura espejo más limpia.
+*   **Mocking Extensivo**: Para `History.test.jsx` se mockearon dependencias pesadas (`AuthenticatedLayout`, `usePage`, `router`) enfocando el test en la lógica del componente.

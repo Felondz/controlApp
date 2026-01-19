@@ -26,12 +26,22 @@ class StageTemplateController extends Controller
             'notes' => $validated['notes'],
         ]);
 
-        return back()->with('success', 'Insumo agregado a la receta.');
+        return to_route('operations.lotes.index', [
+            'proyecto' => $proyecto->id,
+            'process_id' => $stage->production_process_id,
+            'open_modal' => 'process_settings'
+        ])->with('success', 'Insumo agregado a la receta.');
     }
 
     public function destroy(Request $request, Proyecto $proyecto, StageInputTemplate $template)
     {
+        $processId = $template->etapaProceso->production_process_id;
         $template->delete();
-        return back()->with('success', 'Insumo eliminado de la receta.');
+        
+        return to_route('operations.lotes.index', [
+            'proyecto' => $proyecto->id,
+            'process_id' => $processId,
+            'open_modal' => 'process_settings'
+        ])->with('success', 'Insumo eliminado de la receta.');
     }
 }

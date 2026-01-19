@@ -21,16 +21,21 @@ Implemented full feature test coverage for `ProductionProcess` (CRUD) and `LoteP
 - ✅ **New Feature Tests**:
     - `ProductionProcessTest`: Validates admin creation, updates, and deletion of processes and stages.
     - `LoteProduccionFlowTest`: Simulates full production flow (Create -> Advance Stage -> Add Inputs -> Discard).
+    - `LoteLifecycleTest`: Covers `finish` (with validation), `discard`, and `history` view (filters/search).
 - 🐛 **Bug Fixes**:
     - Fixed `IntegrityConstraintViolation` in `CreateReplenishmentTask` listener (typo in `project_id`).
     - Fixed `LoteController` error when optional fields (`assigned_to`, `notes`) were missing.
     - Standardized `LoteController` JSON responses (201 Created).
+    - Fixed `BalanceTest` flakiness in Finance module (random account type generation).
 - 🏗️ **Testing Architecture Update**:
-    - Adopted `spy(\App\Core\Events\ModuleEventBus::class)` pattern for testing Module Events, as `Event::fake()` does not capture events dispatched via the `ModuleEventBus`.
+    - Adopted `spy(\App\Core\Events\ModuleEventBus::class)` pattern for testing Module Events.
+    - Implemented Frontend Tests with Vitest for `History.jsx`.
 
 **Files Modified**:
 - `tests/Feature/Modules/Operations/*`
+- `tests/Frontend/Pages/Operations/Lotes/History.test.jsx` (NEW)
 - `app/Modules/Operations/Controllers/LoteController.php`
+- `resources/js/Pages/Operations/Lotes/History.jsx` (NEW)
 - `app/Modules/Operations/Models/ProductionProcess.php`
 - `app/Modules/Inventory/Listeners/CreateReplenishmentTask.php`
 - `docs/private/es/04-testing/TESTING_ARCHITECTURE.md`

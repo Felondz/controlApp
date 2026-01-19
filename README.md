@@ -72,6 +72,7 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
 - **Batch Management**: Track `LoteProduccion` across stages with full traceability.
 - **Stage Automation**: Automatically trigger tasks and SOPs when batches move between stages.
 - **Inventory Integration**: Deduct raw materials and register finished goods automatically.
+- **History & Reports**: Dedicated view for analyzing finished/discarded batches with status filtering.
 
 ### Finance Management
 - **Accounts**: Manage 6 account types (Cash, Bank, Credit, Investment, Loan, Other).

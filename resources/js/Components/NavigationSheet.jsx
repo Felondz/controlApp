@@ -59,7 +59,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             show: !project.es_personal,
         },
         {
-            name: 'Operaciones',
+            name: t('operations.title', 'Operaciones'),
             icon: FactoryIcon, // Ensure FactoryIcon is imported
             route: 'operations.lotes.index',
             routeParams: project.id,

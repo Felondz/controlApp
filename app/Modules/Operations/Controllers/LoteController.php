@@ -14,6 +14,7 @@ use App\Modules\Operations\Models\EtapaProceso;
 use App\Modules\Operations\Models\LoteInsumo;
 use App\Modules\Operations\Events\StageChanged;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class LoteController extends Controller
@@ -68,7 +69,7 @@ class LoteController extends Controller
             ]);
         }
 
-        return \Inertia\Inertia::render('Operations/Lotes/Index', [
+        return Inertia::render('Operations/Lotes/Index', [
             'proyecto' => $proyecto,
             'processes' => $processes,
             'selectedProcessId' => (int) $selectedProcessId,
@@ -213,7 +214,7 @@ class LoteController extends Controller
             return back();
         }
 
-        DB::transaction(function () use ($lote, $newStageId) {
+        DB::transaction(function () use ($lote, $newStageId, $request) {
             // Store old stage for the event before updating the lote
             $oldStageId = $lote->stage_id;
             $oldStage = $oldStageId ? EtapaProceso::find($oldStageId) : null;
@@ -226,35 +227,58 @@ class LoteController extends Controller
             \App\Modules\Operations\Events\StageChanged::dispatch($lote, $oldStage, $newStage);
 
             // Fetch Recipe for this new Stage
-            $templates = \App\Modules\Operations\Models\StageInputTemplate::where('etapa_proceso_id', $newStageId)->get();
+            $templates = \App\Modules\Operations\Models\StageInputTemplate::where('etapa_proceso_id', $newStageId)
+                ->with('item') // Eager load item to access cost_price
+                ->get();
+
+            $forceConsume = $request->boolean('consume_inputs');
 
             foreach ($templates as $template) {
-                // Enhanced Idempotency: Check if input ALREADY EXISTS for this stage in this lote
-                // We check if an input with the same item and same stage exists for this lote.
-                // This allows moving back and forth without re-consuming.
-                $exists = $lote->inputs()
+                // Determine quantity to consume
+                $quantity = (float) ($template->quantity > 0 ? $template->quantity : 0);
+                
+                // Determine if we SHOULD consume (auto or forced)
+                $shouldConsume = $quantity > 0;
+                if ($forceConsume && $quantity > 0) {
+                     $shouldConsume = true;
+                }
+
+                // Check if input exists for this stage
+                $existingInput = $lote->inputs()
                     ->where('inventory_item_id', $template->inventory_item_id)
-                    ->where('stage_id', $newStageId) // Check specifically for this stage
-                    ->exists();
+                    ->where('stage_id', $newStageId)
+                    ->first();
 
-                if (!$exists) {
-                    $quantity = $template->quantity > 0 ? $template->quantity : 0;
-                    $isAutoConsume = $quantity > 0;
-
+                if ($existingInput) {
+                    // IDEMPOTENCY FIX: If it exists but is PENDING, and we SHOULD consume, then consume it now.
+                    if ($existingInput->status !== 'consumed' && $shouldConsume) {
+                        $existingInput->update([
+                            'status' => 'consumed',
+                            'consumed_at' => now(),
+                            'quantity' => $quantity, // Ensure quantity matches template if it changed? Optional.
+                            'unit_cost' => $template->item->cost_price ?? $existingInput->unit_cost, // Update cost if needed
+                            'total_cost' => $quantity * ($template->item->cost_price ?? ($existingInput->unit_cost ?? 0)),
+                        ]);
+                        
+                        \App\Modules\Operations\Events\InputConsumed::dispatch($existingInput);
+                        Log::info("LoteController: Consumed PRE-EXISTING input {$existingInput->id} for Lote {$lote->id}");
+                    }
+                } else {
+                    // Create new input
                      $insumo = LoteInsumo::create([
                           'lote_produccion_id' => $lote->id,
                           'inventory_item_id' => $template->inventory_item_id,
-                          'stage_id' => $newStageId, // Explicitly save stage_id for idempotency tracking
+                          'stage_id' => $newStageId,
                           'quantity' => $quantity,
-                          'unit_cost' => $template->item->cost_price ?? 0, // FIXED: use item relationship
-                          'total_cost' => $quantity * ($template->item->cost_price ?? 0), // FIXED: use item relationship
-                          'status' => $isAutoConsume ? 'consumed' : 'pending',
-                          'consumed_at' => $isAutoConsume ? now() : null,
+                          'unit_cost' => $template->item->cost_price ?? 0,
+                          'total_cost' => $quantity * ($template->item->cost_price ?? 0),
+                          'status' => $shouldConsume ? 'consumed' : 'pending',
+                          'consumed_at' => $shouldConsume ? now() : null,
                      ]);
 
-                    if ($isAutoConsume) {
-                        // Dispatch event to decrement inventory
+                    if ($shouldConsume) {
                         \App\Modules\Operations\Events\InputConsumed::dispatch($insumo);
+                        Log::info("LoteController: Created and Consumed input {$insumo->id} for Lote {$lote->id}");
                     }
                 }
             }
@@ -271,7 +295,7 @@ class LoteController extends Controller
     {
         $lote->load(['assignedUser', 'stage', 'productionProcess', 'tasks.assignedTo', 'inputs.product']);
 
-        return \Inertia\Inertia::render('Operations/Lotes/Show', [
+        return Inertia::render('Operations/Lotes/Show', [
             'proyecto' => $proyecto,
             'lote' => $lote,
         ]);
@@ -301,7 +325,7 @@ class LoteController extends Controller
      * but could be refactored similar to addInput if desired. 
      * Leaving consumeInput as is for this scope unless specific request to change it too.
      */
-    public function consumeInput(Request $request, LoteProduccion $lote, LoteInsumo $input)
+    public function consumeInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, LoteInsumo $input)
     {
         if ($input->lote_produccion_id !== $lote->id)
             abort(403);
@@ -309,7 +333,7 @@ class LoteController extends Controller
             return back()->with('error', 'El insumo ya ha sido consumido.');
 
         $quantity = $request->input('quantity', $input->quantity);
-        $totalCost = $quantity * ($input->inventoryItem->cost_price ?? 0);
+        $totalCost = $quantity * ($input->product->cost_price ?? 0);
 
         // Update the input model first to mark as done/consumed logic
         // But true event-driven would might even defer this. 
@@ -403,4 +427,29 @@ class LoteController extends Controller
 
         return back()->with('success', 'Proceso eliminado correctamente.');
     }
+    public function history(Request $request, Proyecto $proyecto)
+    {
+        $query = LoteProduccion::where('proyecto_id', $proyecto->id)
+            ->with(['productionProcess', 'stage', 'assignee']);
+
+        // Filters
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('code', 'like', "%{$search}%");
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $lotes = $query->orderBy('created_at', 'desc')->paginate(20)
+            ->withQueryString();
+
+        return Inertia::render('Operations/Lotes/History', [
+            'proyecto' => $proyecto,
+            'lotes' => $lotes,
+            'filters' => $request->only(['search', 'status']),
+        ]);
+    }
+
 }

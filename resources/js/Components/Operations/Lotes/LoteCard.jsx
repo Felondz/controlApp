@@ -1,9 +1,13 @@
 import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { Link } from '@inertiajs/react';
-import { UserCircleIcon, CalendarIcon, PackageIcon, ClockIcon } from '@/Components/Icons';
+import { UserCircleIcon, CalendarIcon, ClockIcon, BeakerIcon } from '@/Components/Icons';
+import { formatCurrency } from '@/Utils/currencyHelpers';
 
-export default function LoteCard({ lote, index, onClick }) {
+import { useTranslate } from '@/Hooks/useTranslate';
+
+export default function LoteCard({ lote, index, onClick, isLastStage, onFinish }) {
+    const { t } = useTranslate();
     return (
         <Draggable draggableId={String(lote.id)} index={index}>
             {(provided, snapshot) => (
@@ -27,10 +31,7 @@ export default function LoteCard({ lote, index, onClick }) {
                     </h4>
 
                     <div className="space-y-1 text-sm text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-1.5">
-                            <PackageIcon className="w-4 h-4" />
-                            <span>{lote.current_quantity} / {lote.initial_quantity}</span>
-                        </div>
+
 
                         {lote.assignee && (
                             <div className="flex items-center gap-1.5">
@@ -43,7 +44,39 @@ export default function LoteCard({ lote, index, onClick }) {
                             <ClockIcon className="w-4 h-4 text-gray-400" />
                             <span>{new Date(lote.start_date).toLocaleDateString('es-ES')}</span>
                         </div>
+
+                        {/* Consumed Inputs Count */}
+                        <div className="flex items-center gap-1.5" title="Insumos Consumidos">
+                            <BeakerIcon className="w-4 h-4 text-gray-400" />
+                            <span>{lote.inputs?.filter(i => i.status === 'consumed').length || 0} inputs</span>
+                        </div>
+
+                        {/* Total Consumed Cost */}
+                        <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-gray-100 dark:border-gray-700">
+                            <div className="text-xs font-semibold text-green-600 dark:text-green-400">
+                                {formatCurrency(lote.inputs?.filter(i => i.status === 'consumed').reduce((acc, curr) => {
+                                    // Ensure numeric values for calculation
+                                    const cost = Number(curr.total_cost) || (Number(curr.quantity) * Number(curr.product?.cost_price || 0));
+                                    return acc + cost;
+                                }, 0) || 0, 'COP', false)}
+                            </div>
+                        </div>
                     </div>
+
+                    {isLastStage && lote.status === 'active' && (
+                        <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onFinish(lote);
+                                }}
+                                className="w-full text-center px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium transition shadow-sm flex items-center justify-center gap-1"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                {t('operations.finish_btn', 'Finalizar')}
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </Draggable>

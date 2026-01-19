@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { FactoryIcon, PlusIcon, CogIcon } from '@/Components/Icons';
+import { FactoryIcon, PlusIcon, CogIcon, BeakerIcon, ClockIcon } from '@/Components/Icons';
 import KanbanBoard from '@/Components/Operations/Lotes/KanbanBoard';
 import SelectInput from '@/Components/SelectInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -22,6 +22,14 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
     const [selectedLote, setSelectedLote] = useState(null);
     const [showStageConfirmation, setShowStageConfirmation] = useState(false);
     const [pendingStageUpdate, setPendingStageUpdate] = useState(null);
+    const [initialIsFinishing, setInitialIsFinishing] = useState(false); // To open modal in finish mode directly
+
+    // Calculate last stage ID for the current process
+    // Assuming stages are ordered by 'order' or simply the last one in the list if sorted
+    // Ideally backend sends sorted stages. Let's find the max order.
+    const lastStageId = stages.length > 0
+        ? stages.reduce((prev, current) => (prev.order > current.order) ? prev : current).id
+        : null;
 
     const handleProcessChange = (e) => {
         router.get(route('operations.lotes.index', {
@@ -81,11 +89,10 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
         const targetStage = stages.find(s => s.id == newStageId);
         const lote = lotes.find(l => l.id == loteId);
 
-        // Idempotency UX: Check if we already have inputs for this stage in this lote
-        const alreadyVisited = lote?.inputs?.some(input => input.stage_id == newStageId);
+        // If stage has inputs
+        const hasInputs = (targetStage?.input_templates?.length > 0 || targetStage?.inputTemplates?.length > 0);
 
-        // If stage has inputs and we haven't visited it yet
-        if (targetStage?.input_templates?.length > 0 && !alreadyVisited) {
+        if (hasInputs) {
             setPendingStageUpdate({ loteId, newStageId, targetStage, lote });
             setShowStageConfirmation(true);
         } else {
@@ -93,9 +100,10 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
         }
     };
 
-    const executeStageUpdate = (loteId, newStageId) => {
+    const executeStageUpdate = (loteId, newStageId, options = {}) => {
         router.put(route('operations.lotes.update-stage', { proyecto: proyecto.id, lote: loteId }), {
             stage_id: newStageId,
+            consume_inputs: options.consume_inputs || false,
         }, {
             preserveScroll: true,
             onError: (errors) => {
@@ -106,7 +114,11 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
 
     const handleConfirmStageUpdate = () => {
         if (pendingStageUpdate) {
-            executeStageUpdate(pendingStageUpdate.loteId, pendingStageUpdate.newStageId);
+            executeStageUpdate(
+                pendingStageUpdate.loteId,
+                pendingStageUpdate.newStageId,
+                { consume_inputs: true }
+            );
             setShowStageConfirmation(false);
             setPendingStageUpdate(null);
         }
@@ -114,19 +126,33 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
 
     const currentProcess = processes.find(p => p.id == processIds);
 
+    const handleCloseProcessModal = () => {
+        setShowManageProcessModal(false);
+        // Clean up URL param to avoid reopening on refresh/updates
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('open_modal')) {
+            url.searchParams.delete('open_modal');
+            window.history.replaceState({}, '', url);
+        }
+    };
+
+    const handleFinishLote = (lote) => {
+        setSelectedLote(lote);
+        setInitialIsFinishing(true);
+    };
+
+    const handleCloseLoteModal = () => {
+        setSelectedLote(null);
+        setInitialIsFinishing(false);
+    };
+
     return (
         <AuthenticatedLayout
+            // ... (props remain same)
             user={auth.user}
             project={proyecto}
             header={
-                <div className="flex items-center gap-4">
-                    <Link
-                        href={route('mis-proyectos.show', { mis_proyecto: proyecto.id })}
-                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                    >
-                        {proyecto.nombre}
-                    </Link>
-                    <span className="text-gray-300 dark:text-gray-600">/</span>
+                <div className="flex justify-between items-center bg-white dark:bg-gray-800 shadow-sm rounded-lg p-2 -my-2">
                     <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight flex items-center gap-2">
                         <FactoryIcon className="h-6 w-6" />
                         {t('operations.title', 'Operaciones')}
@@ -136,11 +162,11 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
         >
             <Head title={`Operaciones - ${proyecto.nombre}`} />
 
-            <div className="h-[calc(100vh-65px)] flex flex-col"> {/* Full height minus header */}
-                <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-                    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="flex gap-2 w-full md:w-auto">
-                            <div className="flex-1 md:w-64 flex gap-2">
+            <div className={"h-[calc(100vh-65px)] flex flex-col"}>
+                <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 m-4 rounded-xl shadow-sm shrink-0">
+                    <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex gap-2 w-full md:w-auto items-center">
+                            <div className="flex-1 md:w-96 flex gap-2">
                                 <SelectInput
                                     value={currentProcess?.id || ''}
                                     onChange={handleProcessChange}
@@ -152,20 +178,37 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
                                     {processes.length === 0 && <option value="">{t('operations.no_processes', 'Sin procesos')}</option>}
                                 </SelectInput>
 
-                                <SecondaryButton onClick={() => setShowProcessModal(true)} title={t('operations.create_new_process', 'Nuevo Proceso')}>
-                                    <PlusIcon className="w-5 h-5 text-gray-500" />
+                                <SecondaryButton
+                                    onClick={() => setShowProcessModal(true)}
+                                    title={t('operations.create_new_process', 'Nuevo Proceso')}
+                                    className="hover:text-primary-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                                >
+                                    <PlusIcon className="w-5 h-5" />
                                 </SecondaryButton>
 
                                 {currentProcess && (
-                                    <SecondaryButton onClick={() => setShowManageProcessModal(true)} title={t('operations.manage_recipe', 'Gestionar Receta')}>
-                                        <CogIcon className="w-5 h-5 text-gray-500" />
+                                    <SecondaryButton
+                                        onClick={() => setShowManageProcessModal(true)}
+                                        title={t('operations.manage_recipe', 'Gestionar Receta')}
+                                        className="hover:text-primary-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                                    >
+                                        <BeakerIcon className="w-5 h-5" />
                                     </SecondaryButton>
                                 )}
                             </div>
+                        </div>
 
+                        <div className="w-full md:w-auto flex justify-end gap-2">
+                            <Link
+                                href={route('operations.lotes.history', { proyecto: proyecto.id })}
+                                className="inline-flex items-center rounded-lg border border-transparent bg-primary-50 px-4 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 hover:text-primary-800 focus:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:bg-primary-200 dark:bg-primary-900/20 dark:text-primary-400 dark:hover:bg-primary-900/30 dark:hover:text-primary-300 dark:focus:bg-primary-900/30 dark:active:bg-primary-900/40 transition ease-in-out duration-150"
+                            >
+                                <ClockIcon className="w-5 h-5 md:mr-2" />
+                                <span className="hidden md:inline">{t('operations.history_button', 'Historial')}</span>
+                            </Link>
                             <PrimaryButton onClick={() => setShowCreateLote(true)} disabled={!currentProcess}>
-                                <PlusIcon className="w-5 h-5 mr-2" />
-                                {t('operations.create_lote_btn', 'Crear Lote')}
+                                <PlusIcon className="w-5 h-5 md:mr-2" />
+                                <span className="hidden md:inline">{t('operations.create_lote_btn', 'Crear Lote')}</span>
                             </PrimaryButton>
                         </div>
                     </div>
@@ -173,8 +216,6 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
 
                 {/* Filters & Kanban */}
                 <div className="flex-1 overflow-hidden flex flex-col">
-                    {/* ... (Filters if needed later) ... */}
-
                     <div className="flex-1 overflow-x-auto overflow-y-hidden">
                         {processes.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
@@ -188,8 +229,13 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
                             <KanbanBoard
                                 stages={stages}
                                 lotes={lotes}
-                                onLoteClick={setSelectedLote}
+                                onLoteClick={(lote) => {
+                                    setSelectedLote(lote);
+                                    setInitialIsFinishing(false);
+                                }}
                                 onDragEnd={onDragEnd}
+                                lastStageId={lastStageId}
+                                onFinishLote={handleFinishLote}
                             />
                         ) : (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
@@ -217,26 +263,33 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
                 inventoryItems={inventoryItems}
             />
 
-            {currentProcess && (
-                <ManageProcessModal
-                    show={showManageProcessModal}
-                    onClose={() => setShowManageProcessModal(false)}
-                    process={currentProcess}
-                    stages={stages}
-                    inventoryItems={inventoryItems}
-                    proyecto={proyecto}
-                />
-            )}
+            {
+                currentProcess && (
+                    <ManageProcessModal
+                        show={showManageProcessModal}
+                        onClose={handleCloseProcessModal}
+                        process={currentProcess}
+                        stages={stages}
+                        inventoryItems={inventoryItems}
+                        proyecto={proyecto}
+                    />
+                )
+            }
 
-            {selectedLote && (
-                <LoteDetailsModal
-                    show={!!selectedLote}
-                    onClose={() => setSelectedLote(null)}
-                    lote={selectedLote}
-                    proyecto={proyecto}
-                    inventoryItems={inventoryItems}
-                />
-            )}
+            {
+                selectedLote && (
+                    <LoteDetailsModal
+                        show={!!selectedLote}
+                        onClose={handleCloseLoteModal}
+                        initialIsFinishing={initialIsFinishing}
+                        lote={selectedLote}
+                        proyecto={proyecto}
+                        stages={stages}
+                        inventoryItems={inventoryItems}
+                        members={members}
+                    />
+                )
+            }
 
             <StageConfirmationModal
                 show={showStageConfirmation}
@@ -245,6 +298,6 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
                 stage={pendingStageUpdate?.targetStage}
                 lote={pendingStageUpdate?.lote}
             />
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

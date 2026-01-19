@@ -101,7 +101,9 @@ class OperationsModule extends AbstractModule
             'operations.lote.stage_changed' => [
                 \App\Modules\Operations\Listeners\GenerateStageTasks::class,
             ],
-            // 'operations.lote.finished' => [ ... ] Handled by Inventory Module (CreateFinishedGoodsEntry)
+            'operations.lote.finished' => [
+                \App\Modules\Operations\Listeners\HandleLoteFinish::class,
+            ],
             'operations.lote.discarded' => [
                 \App\Modules\Operations\Listeners\HandleLoteDiscard::class,
             ],

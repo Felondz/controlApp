@@ -54,7 +54,7 @@ class ProyectoUiWebController extends Controller
         $availableModules = \App\Models\Module::where('is_active', true)
             ->where('coming_soon', false)
             ->get();
-        
+
         \Illuminate\Support\Facades\Log::info('Available modules in CreateProject:', $availableModules->toArray());
 
         // Renderiza el componente de React en resources/js/Pages/Projects/CreateProject.jsx
@@ -118,20 +118,20 @@ class ProyectoUiWebController extends Controller
         // Verify if module inventory is active for this project
         // Assuming modules array check or relying on isAdmin which implies full access context for now,
         // but explicit module check is better practice.
-        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) { 
-             $inventoryStats = [
+        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+            $inventoryStats = [
                 'totalItems' => $mis_proyecto->inventoryItems()->count(),
                 'totalValue' => $mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
                 'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
                 'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
-             ];
+            ];
         }
-        
+
         // 6. Cargar Lotes de Operaciones para el Widget de Operaciones
         $lotes = null;
         if ($isAdmin && in_array('operations', $mis_proyecto->modules ?? [])) {
-             // Eager load process and stage for display
-             $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $mis_proyecto->id)
+            // Eager load process and stage for display
+            $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $mis_proyecto->id)
                 ->where('status', 'active')
                 ->with(['productionProcess', 'currentStage'])
                 ->orderBy('created_at', 'desc')
@@ -142,11 +142,11 @@ class ProyectoUiWebController extends Controller
         // 7. Cargar items de inventario (limited) para widgets de Items y Low Stock
         $inventoryItems = null;
         if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
-             $items = $mis_proyecto->inventoryItems()
+            $items = $mis_proyecto->inventoryItems()
                 ->orderBy('created_at', 'desc')
                 ->limit(20)
                 ->get();
-             $inventoryItems = ['data' => $items];
+            $inventoryItems = ['data' => $items];
         }
 
         // Regular projects use Projects/Show
@@ -400,6 +400,20 @@ class ProyectoUiWebController extends Controller
             $loanInstallments = [];
         }
 
+        // Calculate Inventory Value if module is active and user is admin
+        $inventoryStats = null;
+        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+             // Calculate total value: sum(current_stock * cost_price)
+             // We use selectRaw for efficiency
+             $totalValue = $mis_proyecto->inventoryItems()
+                ->selectRaw('SUM(current_stock * cost_price) as total')
+                ->value('total') ?? 0;
+
+             $inventoryStats = [
+                'totalValue' => $totalValue,
+             ];
+        }
+
         $this->appendUnreadCount($mis_proyecto, $request->user());
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
@@ -411,6 +425,7 @@ class ProyectoUiWebController extends Controller
             'creditCardBills' => $creditCardBills,
             'upcomingIncomes' => $upcomingIncomes,
             'loanInstallments' => $loanInstallments,
+            'inventoryStats' => isset($inventoryStats) ? $inventoryStats : null,
         ]);
     }
 
@@ -476,8 +491,9 @@ class ProyectoUiWebController extends Controller
         $taskStats = \App\Modules\Tasks\Models\Task::whereIn('project_id', $proyectos->pluck('id'))
             ->selectRaw('project_id, 
                 sum(case when status != "completed" then 1 else 0 end) as pending, 
-                sum(case when date(due_date) = ? then 1 else 0 end) as due_today', 
-                [now()->toDateString()])
+                sum(case when date(due_date) = ? then 1 else 0 end) as due_today',
+                [now()->toDateString()]
+            )
             ->groupBy('project_id')
             ->get()
             ->keyBy('project_id');

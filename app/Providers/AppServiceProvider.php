@@ -75,19 +75,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->is_super_admin;
         });
         // 6. EVENTOS DE OPERACIONES (v2.7.0)
-        // Hidratación asíncrona de insumos al crear lotes
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Operations\Events\LoteFinished::class,
-            \App\Modules\Operations\Listeners\HandleLoteFinish::class
-        );
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Operations\Events\LoteDiscarded::class,
-            \App\Modules\Operations\Listeners\HandleLoteDiscard::class
-        );
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Modules\Operations\Events\InputConsumed::class,
-            \App\Modules\Operations\Listeners\HandleInputConsumed::class
-        );
+        // Handled via OperationsModule and InventoryModule now
+
 
         // --- FIN DE CONFIGURACIÓN DE CONTROLAPP ---
     }

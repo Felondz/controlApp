@@ -40,7 +40,7 @@ export default function CreateLoteModal({ show, onClose, proyecto, processes = [
         <Modal show={show} onClose={onClose}>
             <form onSubmit={submit} className="p-6">
                 <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-                    Crear Nuevo Lote
+                    {t('operations.create_lote_title', 'Crear Nuevo Lote')}
                 </h2>
 
                 <div className="space-y-6">
