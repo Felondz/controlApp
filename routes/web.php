@@ -146,13 +146,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
     });
 
-    // Inventory Items Routes (Global prefix by project)
-    Route::prefix('mis-proyectos/{proyecto}/inventory')->group(function () {
-        Route::get('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'index'])->name('inventory.items.index');
-        Route::post('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'store'])->name('inventory.items.store');
-        Route::post('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'update'])->name('inventory.items.update'); // Using POST for file upload spoofing if needed, or _method PUT
-        Route::delete('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
-    });
 
     // Operations Module Routes
     Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
