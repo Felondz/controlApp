@@ -76,8 +76,10 @@ class TasksModule extends AbstractModule
      */
     public function getRoutes(): array
     {
-        // Routes are still managed in routes/api.php
-        return [];
+        return [
+            'web' => __DIR__ . '/routes/web.php',
+            'api' => __DIR__ . '/routes/api.php',
+        ];
     }
 
     /**

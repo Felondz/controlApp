@@ -149,7 +149,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                         collapsed={collapsed}
                     >
                         <FactoryIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                        {!collapsed && <span className="truncate">Operaciones</span>}
+                        {!collapsed && <span className="truncate">{t('operations.title', 'Operaciones')}</span>}
                     </ResponsiveNavLink>
                 )}
 
@@ -161,7 +161,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                         collapsed={collapsed}
                     >
                         <PackageIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
-                        {!collapsed && 'Inventario'}
+                        {!collapsed && t('inventory.title', 'Inventario')}
                     </ResponsiveNavLink>
                 )}
 

@@ -41,6 +41,7 @@ Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Routes moved to project scope below
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
@@ -77,11 +78,11 @@ Route::middleware('auth')->group(function () {
         ->name('project.users.search');
 
     // Project Accounts
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'unlink'])
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [ProjectAccountUiWebController::class, 'unlink'])
         ->name('finance.accounts.unlink')
         ->withoutScopedBindings();
 
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [\App\Http\Controllers\ProjectAccountUiWebController::class, 'destroy'])
+    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [ProjectAccountUiWebController::class, 'destroy'])
         ->name('finance.accounts.destroy')
         ->withoutScopedBindings();
 
@@ -144,24 +145,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/calculator/export/csv', [CalculatorController::class, 'exportCsv'])->name('calculator.export.csv');
         Route::post('/calculator/export/pdf', [CalculatorController::class, 'exportPdf'])->name('calculator.export.pdf');
     });
-
-    // Inventory Items Routes (Global prefix by project)
-    Route::prefix('mis-proyectos/{proyecto}/inventory')->group(function () {
-        Route::get('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'index'])->name('inventory.items.index');
-        Route::post('/items', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'store'])->name('inventory.items.store');
-        Route::post('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'update'])->name('inventory.items.update'); // Using POST for file upload spoofing if needed, or _method PUT
-        Route::delete('/items/{item}', [\App\Modules\Inventory\Controllers\InventoryItemController::class, 'destroy'])->name('inventory.items.destroy');
-    });
-
-    // Operations Module Routes
-    Route::prefix('mis-proyectos/{proyecto}/operations')->group(function () {
-        Route::get('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'index'])->name('operations.lotes.index');
-        Route::post('/lotes', [\App\Modules\Operations\Controllers\LoteController::class, 'store'])->name('operations.lotes.store');
-        Route::post('/processes', [\App\Modules\Operations\Controllers\LoteController::class, 'storeProcess'])->name('operations.processes.store');
-        Route::put('/lotes/{lote}/stage', [\App\Modules\Operations\Controllers\LoteController::class, 'updateStage'])->name('operations.lotes.update-stage');
-        Route::get('/lotes/{lote}', [\App\Modules\Operations\Controllers\LoteController::class, 'show'])->name('operations.lotes.show');
-    });
 });
+
 
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
 

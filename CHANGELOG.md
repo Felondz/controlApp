@@ -4,7 +4,45 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### 19 de Diciembre de 2025 (Operations Testing)
+
+#### 🧪 FEATURE: Comprehensive Operations Module Tests
+
+**Type**: Quality Assurance & Bug Fix
+**Impact**: MEDIUM - Ensuring reliability of critical Production flows
+**Tests Affected**: 8 new feature tests added
+
+**Description**:
+Implemented full feature test coverage for `ProductionProcess` (CRUD) and `LoteProduccion` (Lifecycle Flow), validating the core operations logic from recipe creation to batch completion.
+
+**Key Changes**:
+- ✅ **New Feature Tests**:
+    - `ProductionProcessTest`: Validates admin creation, updates, and deletion of processes and stages.
+    - `LoteProduccionFlowTest`: Simulates full production flow (Create -> Advance Stage -> Add Inputs -> Discard).
+    - `LoteLifecycleTest`: Covers `finish` (with validation), `discard`, and `history` view (filters/search).
+- 🐛 **Bug Fixes**:
+    - Fixed `IntegrityConstraintViolation` in `CreateReplenishmentTask` listener (typo in `project_id`).
+    - Fixed `LoteController` error when optional fields (`assigned_to`, `notes`) were missing.
+    - Standardized `LoteController` JSON responses (201 Created).
+    - Fixed `BalanceTest` flakiness in Finance module (random account type generation).
+- 🏗️ **Testing Architecture Update**:
+    - Adopted `spy(\App\Core\Events\ModuleEventBus::class)` pattern for testing Module Events.
+    - Implemented Frontend Tests with Vitest for `History.jsx`.
+
+**Files Modified**:
+- `tests/Feature/Modules/Operations/*`
+- `tests/Frontend/Pages/Operations/Lotes/History.test.jsx` (NEW)
+- `app/Modules/Operations/Controllers/LoteController.php`
+- `resources/js/Pages/Operations/Lotes/History.jsx` (NEW)
+- `app/Modules/Operations/Models/ProductionProcess.php`
+- `app/Modules/Inventory/Listeners/CreateReplenishmentTask.php`
+- `docs/private/es/04-testing/TESTING_ARCHITECTURE.md`
+
+**Commit Simulado**: `test(ops): add feature tests for production process and lote flow`
+
+---
 ### 12 de Diciembre de 2025 (Operations)
 
 #### ✨ FEATURE: Stage-Based Task Automation (Operations)

@@ -69,7 +69,7 @@ export default function BottomNavigation({ user, project = null }) {
                 });
             } else if (modules.includes('operations')) {
                 items.push({
-                    name: 'Operaciones',
+                    name: t('operations.title', 'Operaciones'),
                     route: 'operations.lotes.index',
                     routeParams: project.id,
                     icon: FactoryIcon,

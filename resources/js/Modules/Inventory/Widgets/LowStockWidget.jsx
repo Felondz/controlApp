@@ -5,6 +5,7 @@ import WidgetCard from '@/Modules/Core/Widgets/WidgetCard';
 export default function LowStockWidget({
     project,
     items = { data: [] },
+    lowStockItems: providedLowStockItems,
     onEdit,
     widget,
     isDragging,
@@ -12,10 +13,15 @@ export default function LowStockWidget({
     onHide
 }) {
     const { t } = useTranslate();
-    const itemsData = items?.data || [];
 
-    // Filter items that are below minimum stock level
-    const lowStockItems = itemsData.filter(item => item.current_stock <= item.min_stock_level);
+    // Use provided low stock items (server-side filtered) or fallback to client-side filtering of current page
+    let lowStockItems = [];
+    if (providedLowStockItems?.data) {
+        lowStockItems = providedLowStockItems.data;
+    } else {
+        const itemsData = items?.data || [];
+        lowStockItems = itemsData.filter(item => item.current_stock <= item.min_stock_level);
+    }
 
     return (
         <WidgetCard

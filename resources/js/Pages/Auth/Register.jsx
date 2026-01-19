@@ -1,5 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
 import InputLabel from '@/Components/InputLabel';
@@ -22,21 +22,28 @@ export default function Register() {
         password_confirmation: '',
         terms: false,
     });
-
-    useEffect(() => {
-        return () => {
-            reset('password', 'password_confirmation');
-        };
-    }, []);
+    const submittingRef = useRef(false);
 
     const submit = (e) => {
         e.preventDefault();
+
+        // Prevent double submission (iOS Safari issue)
+        if (submittingRef.current || processing) return;
+        submittingRef.current = true;
+
         console.log('Frontend: Registration form submitted', data);
         post(route('register'), {
+            preserveState: true,
             onStart: () => console.log('Frontend: Request started to', route('register')),
-            onFinish: () => console.log('Frontend: Request finished'),
+            onFinish: () => {
+                console.log('Frontend: Request finished');
+                submittingRef.current = false;
+            },
             onSuccess: () => console.log('Frontend: Request successful'),
-            onError: (errors) => console.error('Frontend: Request failed with errors', errors),
+            onError: (errors) => {
+                console.error('Frontend: Request failed with errors', errors);
+                submittingRef.current = false;
+            },
         });
     };
 
@@ -64,7 +71,7 @@ export default function Register() {
 
     return (
         <AuthLayout title={t('auth.register')}>
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} className="space-y-6" noValidate>
                 <div>
                     <InputLabel htmlFor="name" value={t('auth.name')} />
                     <TextInput
@@ -89,7 +96,8 @@ export default function Register() {
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full"
-                        autoComplete="email"
+                        autoComplete="username"
+                        inputMode="email"
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
@@ -127,32 +135,42 @@ export default function Register() {
                 </div>
 
                 <div className="block mt-4">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="terms"
-                            checked={data.terms}
-                            onChange={(e) => setData('terms', e.target.checked)}
-                            required
-                        />
-                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                            {t('auth.agree_terms_text_1')}
+                    <div className="flex items-start">
+                        <div className="flex items-center h-5">
+                            <Checkbox
+                                name="terms"
+                                id="terms"
+                                checked={data.terms}
+                                onChange={(e) => setData('terms', e.target.checked)}
+                                required
+                            />
+                        </div>
+                        <div className="ml-2 text-sm">
+                            <label htmlFor="terms" className="font-medium text-gray-700 dark:text-gray-300">
+                                {t('auth.agree_terms_text_1')}
+                            </label>
+                            {' '}
                             <button
                                 type="button"
-                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
+                                className="underline text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
                                 onClick={() => setActiveModal('terms')}
                             >
                                 {t('auth.terms_of_service')}
                             </button>
-                            {t('auth.agree_terms_text_2')}
+                            {' '}
+                            <span className="text-gray-600 dark:text-gray-400">
+                                {t('auth.agree_terms_text_2')}
+                            </span>
+                            {' '}
                             <button
                                 type="button"
-                                className="underline text-sm text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
+                                className="underline text-gray-600 dark:text-gray-400 hover:text-primary-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
                                 onClick={() => setActiveModal('privacy')}
                             >
                                 {t('auth.privacy_policy')}
                             </button>
-                        </span>
-                    </label>
+                        </div>
+                    </div>
                     <InputError message={errors.terms} className="mt-1" />
                 </div>
 

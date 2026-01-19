@@ -8,11 +8,22 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use Illuminate\Http\JsonResponse;
+
+/**
+ * @tags Tasks
+ * 
+ * APIs for managing Project Tasks.
+ */
 class TaskController extends Controller
 {
-    public function index(Proyecto $proyecto)
+    public function index(Request $request, Proyecto $proyecto)
     {
         $this->authorize('view', $proyecto);
+
+        if ($request->wantsJson()) {
+            return response()->json($proyecto->tasks()->with(['users', 'category'])->get());
+        }
 
         return Inertia::render('Projects/Tasks/Index', [
             'proyecto' => $proyecto->load('miembros'),
@@ -21,7 +32,12 @@ class TaskController extends Controller
         ]);
     }
 
-    public function summary(Proyecto $proyecto)
+    /**
+     * Get Task Summary
+     * 
+     * Get counters for tasks by status (todo, in_progress, done, overdue).
+     */
+    public function summary(Proyecto $proyecto): JsonResponse
     {
         $this->authorize('view', $proyecto);
 
@@ -35,7 +51,12 @@ class TaskController extends Controller
         ]);
     }
 
-    public function usersLoad(Proyecto $proyecto)
+    /**
+     * Users Workload
+     * 
+     * Get a list of project members with their task statistics.
+     */
+    public function usersLoad(Proyecto $proyecto): JsonResponse
     {
         $this->authorize('view', $proyecto);
 
@@ -86,6 +107,12 @@ class TaskController extends Controller
         }
     }
 
+    /**
+     * Create Task
+     * 
+     * Create a new task in the project.
+     * Supports both JSON and HTML responses.
+     */
     public function store(Request $request, Proyecto $proyecto)
     {
         $this->authorize('addTask', $proyecto);
@@ -115,6 +142,12 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Task created successfully.');
     }
 
+    /**
+     * Update Task
+     * 
+     * Update an existing task.
+     * Supports both JSON and HTML responses.
+     */
     public function update(Request $request, Proyecto $proyecto, Task $task)
     {
         $this->authorize('updateTask', $proyecto);
@@ -144,6 +177,12 @@ class TaskController extends Controller
         return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
+    /**
+     * Delete Task
+     * 
+     * Permanently delete a task.
+     * Supports both JSON and HTML responses.
+     */
     public function destroy(Request $request, Proyecto $proyecto, Task $task)
     {
         $this->authorize('deleteTask', $proyecto);

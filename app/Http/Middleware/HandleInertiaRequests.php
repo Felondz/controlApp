@@ -41,14 +41,27 @@ class HandleInertiaRequests extends Middleware
         // Cargar las traducciones del archivo JSON correspondiente
         $translations = $this->loadTranslations($locale);
 
+        // Optimizar carga de usuario
+        $user = $request->user();
+        $userData = null;
+
+        if ($user) {
+            // Calculate unread data once efficiently
+            $unreadData = $user->getUnreadData();
+            
+            $userData = [
+                ...$user->toArray(),
+                'global_theme' => $user->global_theme ?? 'purple-modern',
+                'enabled_tools' => $user->enabled_tools ?? [],
+                'unread_messages_count' => $unreadData['unread_messages_count'],
+                'unread_projects' => $unreadData['unread_projects'],
+            ];
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user() ? [
-                    ...$request->user()->toArray(),
-                    'global_theme' => $request->user()->global_theme ?? 'purple-modern',
-                    'enabled_tools' => $request->user()->enabled_tools ?? [],
-                ] : null,
+                'user' => $userData,
             ],
             // Compartir las traducciones como prop global
             'locale' => $locale,

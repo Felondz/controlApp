@@ -3,12 +3,12 @@
 namespace App\Modules\Inventory\Events;
 
 use App\Modules\Inventory\Models\InventoryTransaction;
-use Illuminate\Foundation\Events\Dispatchable;
+
 use Illuminate\Queue\SerializesModels;
 
-class InventoryTransactionConfirmed
+class InventoryTransactionConfirmed extends \App\Core\Events\BaseModuleEvent
 {
-    use Dispatchable, SerializesModels;
+    use SerializesModels;
 
     public $transaction;
 
@@ -20,5 +20,15 @@ class InventoryTransactionConfirmed
     public function __construct(InventoryTransaction $transaction)
     {
         $this->transaction = $transaction;
+        parent::__construct(
+            'inventory', 
+            $transaction->toArray(), 
+            $transaction->proyecto_id
+        );
+    }
+
+    public function getName(): string
+    {
+        return 'inventory.transaction.confirmed';
     }
 }

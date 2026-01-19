@@ -1,12 +1,9 @@
 <?php
 
-// 1. ¡Este es el cambio más importante!
 namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-// 2. Los 'use' ahora son más simples porque todos están en App\Models
 use App\Models\Proyecto;
 use App\Modules\Finance\Models\Cuenta;
 use App\Modules\Finance\Models\Categoria;
@@ -45,6 +42,7 @@ class Transaccion extends Model
         'categoria_id',
         'user_id',
         'monto',
+        'titulo',
         'descripcion',
         'fecha',
         'notas',
