@@ -6,6 +6,7 @@ use App\Modules\Operations\Controllers\LoteController;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('proyectos/{proyecto}/operations')->group(function () {
         // Lotes Main
+        Route::get('/lotes/history', [LoteController::class, 'history'])->name('operations.lotes.history');
         Route::get('/lotes', [LoteController::class, 'index'])->name('operations.lotes.index');
         Route::get('/lotes/create', [LoteController::class, 'create'])->name('operations.lotes.create');
         Route::post('/lotes', [LoteController::class, 'store'])->name('operations.lotes.store');
