@@ -63,6 +63,10 @@ class RegisteredUserController extends Controller
             // NO hacer login automático
             // Auth::login($user);
 
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.'], 201);
+            }
+
             Log::info('Redirecting to login with status message');
             return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. ' . 
                 (app()->environment('local', 'testing') ? '[DEV] ' : '') . 

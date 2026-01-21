@@ -24,12 +24,26 @@ class VerificacionEmailMail extends Mailable
     public $user;
 
     /**
+     * La URL de verificación móvil.
+     */
+    public $mobileUrl;
+
+    /**
      * Crea una nueva instancia del mensaje.
      */
     public function __construct($verificationUrl, User $user)
     {
         $this->verificationUrl = $verificationUrl;
         $this->user = $user;
+    }
+
+    /**
+     * Set the mobile verification URL.
+     */
+    public function withMobileUrl($mobileUrl)
+    {
+        $this->mobileUrl = $mobileUrl;
+        return $this;
     }
 
     /**
@@ -51,6 +65,7 @@ class VerificacionEmailMail extends Mailable
             view: 'emails.verificacion-email',
             with: [
                 'verificationUrl' => $this->verificationUrl,
+                'mobileUrl' => $this->mobileUrl,
                 'user' => $this->user,
             ],
         );
