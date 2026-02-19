@@ -23,12 +23,18 @@ class PasswordResetMail extends Mailable
     public $email;
 
     /**
+     * El enlace profundo para móvil (opcional).
+     */
+    public $mobileUrl;
+
+    /**
      * Crea una nueva instancia del mensaje.
      */
-    public function __construct($token, $email)
+    public function __construct($token, $email, $mobileUrl = null)
     {
         $this->token = $token;
         $this->email = $email;
+        $this->mobileUrl = $mobileUrl;
     }
 
     /**
@@ -54,6 +60,7 @@ class PasswordResetMail extends Mailable
             view: 'emails.password-reset',
             with: [
                 'resetUrl' => $resetUrl,
+                'mobileUrl' => $this->mobileUrl,
             ],
         );
     }

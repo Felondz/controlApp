@@ -31,6 +31,11 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Ensure email is lowercased before validation and processing
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->email)]);
+        }
+
         Log::info('Registration initiated', ['email' => $request->email]);
 
         try {
@@ -62,6 +67,10 @@ class RegisteredUserController extends Controller
 
             // NO hacer login automático
             // Auth::login($user);
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.'], 201);
+            }
 
             Log::info('Redirecting to login with status message');
             return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. ' . 
