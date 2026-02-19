@@ -31,6 +31,11 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Ensure email is lowercased before validation and processing
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->email)]);
+        }
+
         Log::info('Registration initiated', ['email' => $request->email]);
 
         try {
