@@ -39,16 +39,21 @@ class TaskController extends Controller
      */
     public function summary(Proyecto $proyecto): JsonResponse
     {
-        $this->authorize('view', $proyecto);
+        try {
+            $this->authorize('view', $proyecto);
 
-        $tasks = $proyecto->tasks;
+            $tasks = $proyecto->tasks;
 
-        return response()->json([
-            'pending' => $tasks->where('status', 'todo')->count(),
-            'in_progress' => $tasks->where('status', 'in_progress')->count(),
-            'done' => $tasks->where('status', 'done')->count(),
-            'overdue' => $tasks->where('due_date', '<', now())->where('status', '!=', 'done')->count(),
-        ]);
+            return response()->json([
+                'pending' => $tasks->where('status', 'todo')->count(),
+                'in_progress' => $tasks->where('status', 'in_progress')->count(),
+                'done' => $tasks->where('status', 'done')->count(),
+                'overdue' => $tasks->where('due_date', '<', now())->where('status', '!=', 'done')->count(),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error in Task Summary: " . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -61,30 +66,28 @@ class TaskController extends Controller
         $this->authorize('view', $proyecto);
 
         // Get all project members
-        $members = $proyecto->miembros;
-
-        // Get all tasks for this project
-        $tasks = $proyecto->tasks;
         try {
             \Illuminate\Support\Facades\Log::info("UsersLoad called for project: " . $proyecto->id);
 
-            $this->authorize('view', $proyecto);
-
             $users = $proyecto->miembros()->with([
                 'tasks' => function ($query) use ($proyecto) {
-                    $query->where('project_id', $proyecto->id);
+                    // Fix: Qualify column to avoid ambiguity if joined
+                    $query->where('tasks.project_id', $proyecto->id);
                 }
             ])->get();
 
-            \Illuminate\Support\Facades\Log::info("Users fetched: " . $users->count());
+            \Illuminate\Support\Facades\Log::info("Users fetched for workload: " . $users->count());
 
             $data = $users->map(function ($user) {
                 // Calculate stats
                 $stats = new \stdClass();
-                $stats->total = $user->tasks->count();
-                $stats->todo = $user->tasks->where('status', 'todo')->count();
-                $stats->in_progress = $user->tasks->where('status', 'in_progress')->count();
-                $stats->done = $user->tasks->where('status', 'done')->count();
+                // Ensure accessed via relation property
+                $userTasks = $user->tasks; 
+                
+                $stats->total = $userTasks->count();
+                $stats->todo = $userTasks->where('status', 'todo')->count();
+                $stats->in_progress = $userTasks->where('status', 'in_progress')->count();
+                $stats->done = $userTasks->where('status', 'done')->count();
 
                 return [
                     'id' => $user->id,

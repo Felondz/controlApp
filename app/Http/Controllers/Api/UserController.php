@@ -30,4 +30,31 @@ class UserController extends Controller
             'locale' => Auth::user()->locale,
         ]);
     }
+
+    /**
+     * Update user dashboard preferences/settings.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateDashboardPreferences(Request $request)
+    {
+        $validated = $request->validate([
+            'settings' => 'required|array',
+        ]);
+
+        $user = Auth::user();
+        
+        // Merge with existing settings
+        $currentSettings = $user->settings ?? [];
+        $newSettings = array_merge($currentSettings, $validated['settings']);
+
+        $user->update(['settings' => $newSettings]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Preferencias actualizadas correctamente',
+            'settings' => $user->settings,
+        ]);
+    }
 }

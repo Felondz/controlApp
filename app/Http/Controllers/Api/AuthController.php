@@ -50,6 +50,8 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
+            'remember_me' => 'boolean',
+            'device_name' => 'nullable|string',
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -74,8 +76,16 @@ class AuthController extends Controller
         }
 
         // 5. Crear el token de acceso
-        // Nota: No necesitamos Auth::attempt() porque usamos tokens, no sesiones
-        $token = $usuario->createToken('auth_token')->plainTextToken;
+        $tokenName = $request->input('device_name', 'auth_token');
+        $newTokenResult = $usuario->createToken($tokenName);
+        $token = $newTokenResult->plainTextToken;
+
+        // 5.1 Gestionar expiración extendida (30 días) si es mobile/remember_me
+        if ($request->boolean('remember_me')) {
+            $personalAccessToken = $newTokenResult->accessToken;
+            $personalAccessToken->expires_at = now()->addDays(30);
+            $personalAccessToken->save();
+        }
 
         // 6. Devolver la respuesta con el token
         return response()->json([

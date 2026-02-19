@@ -31,7 +31,8 @@ class PasswordResetNotification extends Notification
      */
     public function toMail(object $notifiable)
     {
-        return new PasswordResetMail($this->token, $this->email);
+        $mobileUrl = "controlapp://reset-password?token={$this->token}&email=" . urlencode($this->email);
+        return new PasswordResetMail($this->token, $this->email, $mobileUrl);
     }
 
     /**
