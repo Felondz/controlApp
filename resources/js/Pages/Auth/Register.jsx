@@ -15,7 +15,7 @@ import SecondaryLink from '@/Components/SecondaryLink';
 export default function Register() {
     const { t } = useTranslate();
     const [activeModal, setActiveModal] = useState(null); // 'terms' | 'privacy' | null
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, setError, clearErrors } = useForm({
         name: '',
         email: '',
         password: '',
@@ -26,6 +26,11 @@ export default function Register() {
 
     const submit = (e) => {
         e.preventDefault();
+
+        if (!data.terms) {
+            setError('terms', t('auth.accept_terms_required'));
+            return;
+        }
 
         // Prevent double submission (iOS Safari issue)
         if (submittingRef.current || processing) return;
@@ -142,7 +147,6 @@ export default function Register() {
                                 id="terms"
                                 checked={data.terms}
                                 onChange={(e) => setData('terms', e.target.checked)}
-                                required
                             />
                         </div>
                         <div className="ml-2 text-sm">

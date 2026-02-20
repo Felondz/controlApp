@@ -89,6 +89,7 @@
         "login": "Log in",
         "logout": "Log Out",
         "register": "Register",
+        "accept_terms_required": "You must accept the terms and conditions to continue.",
         "email": "Email Address",
         "password": "Password",
         "confirm_password": "Confirm Password",
