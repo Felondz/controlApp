@@ -73,6 +73,7 @@
         "login": "Iniciar sesión",
         "logout": "Cerrar sesión",
         "accept_terms_required": "Debes aceptar los términos y condiciones para continuar.",
+        "account_created_verification_required": "Cuenta creada exitosamente. Por favor, verifica tu correo electrónico antes de iniciar sesión.",
         "register": "Registrarse",
         "email": "Correo electrónico",
         "password": "Contraseña",
@@ -125,7 +126,13 @@
         "already_verified": "Este email ya está verificado",
         "show_password": "Mostrar contraseña",
         "hide_password": "Ocultar contraseña",
-        "verification_email_sent": "Se ha enviado un nuevo email de verificación a tu correo"
+        "verification_email_sent": "Se ha enviado un nuevo email de verificación a tu correo",
+        "password_requirements_title": "La contraseña debe contener:",
+        "password_rule_min": "Mínimo 8 caracteres",
+        "password_rule_letters": "Al menos una letra",
+        "password_rule_numbers": "Al menos un número",
+        "password_rule_mixed": "Mayúsculas y minúsculas",
+        "password_requirements_error": "La contraseña no cumple con los requisitos mínimos."
     },
     "categories": {
         "title": "Categorías",
@@ -1134,9 +1141,6 @@
         "tab_inputs": "Insumos",
         "tab_actions": "Acciones",
         "no_code": "Lote sin código",
-        "status_active": "Activo",
-        "status_finished": "Finalizado",
-        "status_discarded": "Descartado",
         "dates": "Fechas",
         "start": "Inicio",
         "end": "Fin",

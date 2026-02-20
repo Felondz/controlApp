@@ -29,7 +29,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         // Ensure email is lowercased before validation and processing
         if ($request->has('email')) {
@@ -70,13 +70,11 @@ class RegisteredUserController extends Controller
             // Auth::login($user);
 
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.'], 201);
+                return response()->json(['message' => __('auth.account_created_verification_required')], 201);
             }
 
             Log::info('Redirecting to login with status message');
-            return redirect(route('login'))->with('status', 'Cuenta creada exitosamente. ' . 
-                (app()->environment('local', 'testing') ? '[DEV] ' : '') . 
-                'Por favor, verifica tu correo electrónico antes de iniciar sesión.');
+            return redirect(route('login'))->with('status', __('auth.account_created_verification_required'));
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Validation failed during registration', ['errors' => $e->errors()]);
