@@ -72,6 +72,7 @@
         "login_again": "Iniciar Sesión",
         "login": "Iniciar sesión",
         "logout": "Cerrar sesión",
+        "accept_terms_required": "Debes aceptar los términos y condiciones para continuar.",
         "register": "Registrarse",
         "email": "Correo electrónico",
         "password": "Contraseña",
