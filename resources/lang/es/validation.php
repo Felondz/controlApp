@@ -187,6 +187,7 @@ return [
         'current_password' => 'contraseña actual',
         'profile_photo' => 'foto de perfil',
         'password_confirmation' => 'confirmación de contraseña',
+        'terms' => 'términos y condiciones',
     ],
 
 ];

@@ -43,6 +43,7 @@ class RegisteredUserController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'terms' => 'required|accepted',
             ]);
             Log::info('Validation passed');
 
@@ -83,7 +84,11 @@ class RegisteredUserController extends Controller
         } catch (\Exception $e) {
             Log::error('CRITICAL ERROR during registration', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'previous' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null,
             ]);
             // Return back with error to see it in UI if possible, or let standard error handler catch it
             throw $e;
