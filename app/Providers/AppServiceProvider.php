@@ -38,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
 
         Vite::prefetch(concurrency: 3);
 
+        // Define Default Password Rules
+        \Illuminate\Validation\Rules\Password::defaults(function () {
+            return \Illuminate\Validation\Rules\Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers();
+        });
+
         // --- INICIO DE CONFIGURACIÓN DE CONTROLAPP ---
 
         // 1. REGISTRO DE OBSERVERS (ADR-003: Proyectos Personales)
