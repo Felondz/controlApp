@@ -11,6 +11,7 @@ import Checkbox from '@/Components/Checkbox';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import SecondaryLink from '@/Components/SecondaryLink';
+import PasswordRequirements from '@/Components/PasswordRequirements';
 
 export default function Register() {
     const { t } = useTranslate();
@@ -29,6 +30,20 @@ export default function Register() {
 
         if (!data.terms) {
             setError('terms', t('auth.accept_terms_required'));
+            return;
+        }
+
+        // Validate Password Requirements Client-side
+        const password = data.password;
+        const requirements = [
+            { isValid: password.length >= 8 },
+            { isValid: /[a-zA-Z]/.test(password) },
+            { isValid: /[0-9]/.test(password) },
+            { isValid: /[a-z]/.test(password) && /[A-Z]/.test(password) }
+        ];
+
+        if (requirements.some(req => !req.isValid)) {
+            setError('password', t('auth.password_requirements_error'));
             return;
         }
 
@@ -122,6 +137,7 @@ export default function Register() {
                         required
                     />
                     <InputError message={errors.password} className="mt-1" />
+                    <PasswordRequirements password={data.password} />
                 </div>
 
                 <div>

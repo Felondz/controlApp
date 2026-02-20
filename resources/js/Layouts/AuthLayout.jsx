@@ -1,9 +1,11 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import ThemeToggle from '@/Components/ThemeToggle';
+import Alert from '@/Components/Alert';
 
 export default function AuthLayout({ children, title }) {
     const { t } = useTranslate();
+    const { flash } = usePage().props;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-info-50 to-primary-100 dark:from-secondary-900 dark:to-secondary-800 relative">
@@ -25,6 +27,19 @@ export default function AuthLayout({ children, title }) {
                             </span>
                         </div>
                         <h1 className="mt-4 text-xl font-semibold text-primary-900 dark:text-secondary-100">{title}</h1>
+                    </div>
+
+                    {/* Flash Messages */}
+                    <div className="space-y-4 mb-4">
+                        {flash?.success && (
+                            <Alert type="success" message={flash.success} onClose={() => { }} />
+                        )}
+                        {flash?.error && (
+                            <Alert type="error" message={flash.error} onClose={() => { }} />
+                        )}
+                        {flash?.status && (
+                            <Alert type="info" message={flash.status} onClose={() => { }} />
+                        )}
                     </div>
 
                     {children}

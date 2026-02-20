@@ -90,6 +90,7 @@
         "logout": "Log Out",
         "register": "Register",
         "accept_terms_required": "You must accept the terms and conditions to continue.",
+        "account_created_verification_required": "Account created successfully. Please verify your email before logging in.",
         "email": "Email Address",
         "password": "Password",
         "confirm_password": "Confirm Password",
@@ -141,7 +142,13 @@
         "already_verified": "This email is already verified",
         "show_password": "Show password",
         "hide_password": "Hide password",
-        "verification_email_sent": "A new verification email has been sent to your inbox"
+        "verification_email_sent": "A new verification email has been sent to your inbox",
+        "password_requirements_title": "Password must contain:",
+        "password_rule_min": "Minimum 8 characters",
+        "password_rule_letters": "At least one letter",
+        "password_rule_numbers": "At least one number",
+        "password_rule_mixed": "Uppercase and lowercase letters",
+        "password_requirements_error": "Password does not meet minimum requirements."
     },
     "docs": {
         "hub_title": "Learning Center",
@@ -1125,9 +1132,6 @@
         "tab_inputs": "Inputs",
         "tab_actions": "Actions",
         "no_code": "No code",
-        "status_active": "Active",
-        "status_finished": "Finished",
-        "status_discarded": "Discarded",
         "dates": "Dates",
         "start": "Start",
         "end": "End",
