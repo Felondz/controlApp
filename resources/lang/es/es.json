@@ -24,6 +24,15 @@
         "name": "ControlApp",
         "description": "Plataforma de gestión de proyectos colaborativos"
     },
+    "ai": {
+        "assistant": "Asistente IA",
+        "provider": "Proveedor de IA",
+        "model": "Modelo de IA",
+        "configure": "Configurar IA",
+        "connection_error": "Error de conexión con la IA.",
+        "welcome_msg": "¡Hola! ¿En qué puedo ayudarte hoy?",
+        "type_message": "Escribe tu mensaje..."
+    },
     "chat": {
         "title": "Chat de Equipo",
         "channels": "Canales",
@@ -710,7 +719,30 @@
         "delete_account_button": "Eliminar Cuenta",
         "delete_warning": "Una vez que tu cuenta se elimine, todos sus recursos y datos se eliminarán permanentemente. Antes de eliminar tu cuenta, descarga cualquier dato o información que desees conservar.",
         "delete_confirm": "¿Estás seguro de que deseas eliminar tu cuenta?",
-        "delete_confirm_text": "Una vez que tu cuenta se elimine, todos sus recursos y datos se eliminarán permanentemente. Por favor ingresa tu contraseña para confirmar que deseas eliminar permanentemente tu cuenta."
+        "delete_confirm_text": "Una vez que tu cuenta se elimine, todos sus recursos y datos se eliminarán permanentemente. Por favor ingresa tu contraseña para confirmar que deseas eliminar permanentemente tu cuenta.",
+        "llm_settingsTitle": "Configuración de Inteligencia Artificial",
+        "llm_settings_hint": "Proporciona tus propios tokens de API para habilitar asistentes de IA y funciones inteligentes. Si desactivas esta opción, el sistema funcionará sin IA.",
+        "llm_provider": "Proveedor de IA",
+        "llm_configured": "Este proveedor ya está configurado (la clave está oculta por seguridad).",
+        "llm_api_key": "API Key (Token)",
+        "llm_api_key_placeholder_update": "Dejar en blanco para mantener la clave actual",
+        "llm_api_key_optional": "Opcional si la IA está deshabilitada",
+        "llm_default_model": "Modelo por Defecto (Opcional)",
+        "llm_fetch_models": "↓ Cargar Modelos Disponibles",
+        "llm_select_model": "-- Selecciona un modelo --",
+        "llm_model_manual_hint": "Ingresa manualmente o carga la lista desde tu proveedor usando el botón de arriba.",
+        "llm_is_active": "Habilitar asistencia de IA con este proveedor",
+        "llm_fetch_error_missing_key": "Ingresa una API Key primero para obtener la lista de modelos.",
+        "llm_fetch_error_generic": "Error al obtener modelos.",
+        "llm_fetch_error_network": "No se pudieron consultar los modelos en este momento. Revisa la consola para más detalles.",
+        "llm_connected_providers": "Proveedores Conectados",
+        "llm_connected_none": "No tienes proveedores de IA configurados aún.",
+        "llm_active_status": "Activo",
+        "llm_inactive_status": "Inactivo",
+        "ai_master_switch": "Asistente de IA",
+        "ai_master_enabled": "La IA está habilitada globalmente",
+        "ai_master_disabled": "La IA está deshabilitada completamente",
+        "confirm_delete_llm": "¿Estás seguro de que deseas eliminar esta configuración de IA?"
     },
     "search": {
         "title": "Resultados de Búsqueda",

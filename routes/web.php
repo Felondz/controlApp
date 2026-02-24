@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserLlmSettingController;
+use App\Http\Controllers\LlmModelsController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
@@ -44,6 +46,12 @@ Route::middleware('auth')->group(function () {
     // Routes moved to project scope below
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
+
+    // LLM Settings
+    Route::post('/profile/llm-settings', [UserLlmSettingController::class, 'store'])->name('profile.llm-settings.store');
+    Route::delete('/profile/llm-settings/{provider}', [UserLlmSettingController::class, 'destroy'])->name('profile.llm-settings.destroy');
+    Route::post('/profile/llm-settings/fetch-models', [LlmModelsController::class, 'fetchModels'])->name('profile.llm-settings.fetch-models');
+    Route::post('/profile/toggle-ai', [ProfileController::class, 'toggleAi'])->name('profile.toggle-ai');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
 

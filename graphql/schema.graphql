@@ -8,6 +8,9 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 
 "Indicates what fields are available at the top level of a query operation."
 type Query {
+    "Get the currently authenticated user."
+    me: User @auth
+
     "Find a single user by an identifying attribute."
     user(
       "Search by primary key."
@@ -43,4 +46,32 @@ type User {
 
     "When the account was last updated."
     updated_at: DateTime!
+    
+    "User's configured LLM settings"
+    llmSettings: [UserLlmSetting!]! @hasMany
+}
+
+"User's LLM API Configuration"
+type UserLlmSetting {
+    id: ID!
+    provider: String!
+    default_model: String
+    is_active: Boolean!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Mutation {
+    "Create or update an LLM configuration for the user."
+    upsertUserLlmSetting(
+        provider: String!
+        api_key: String
+        default_model: String
+        is_active: Boolean
+    ): UserLlmSetting! @field(resolver: "App\\GraphQL\\Mutations\\UpsertUserLlmSetting")
+    
+    "Delete an LLM configuration for the user."
+    deleteUserLlmSetting(
+        provider: String!
+    ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\DeleteUserLlmSetting")
 }

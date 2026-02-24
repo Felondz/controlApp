@@ -22,6 +22,7 @@ use App\Notifications\VerificacionEmailNotification;
  * @property string|null $global_theme
  * @property array|null $enabled_tools
  * @property array|null $settings
+ * @property bool $is_ai_enabled
  * @property string|null $remember_token
  * @property string $locale
  * @property bool $is_super_admin
@@ -65,6 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'global_theme',
         'enabled_tools',
         'settings',
+        'is_ai_enabled',
     ];
 
     /**
@@ -135,6 +137,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\App\Modules\Chat\Models\Message::class);
+    }
+
+    /**
+     * User's LLM Configuration Settings
+     */
+    public function llmSettings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserLlmSetting::class);
     }
 
     /**

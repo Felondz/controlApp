@@ -56,6 +56,8 @@ class HandleInertiaRequests extends Middleware
                 'enabled_tools' => $user->enabled_tools ?? [],
                 'unread_messages_count' => $unreadData['unread_messages_count'],
                 'unread_projects' => $unreadData['unread_projects'],
+                'is_ai_enabled' => (bool) ($user->is_ai_enabled ?? true),
+                'has_active_ai' => (bool) ($user->is_ai_enabled ?? true) && $user->llmSettings()->where('is_active', true)->whereNotNull('api_key')->exists(),
             ];
         }
 

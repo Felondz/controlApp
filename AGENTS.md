@@ -138,6 +138,10 @@ export default forwardRef(function ComponentName(
 - **Event-Driven**: Use ModuleEventBus for inter-module communication (NO direct module coupling)
 - **Standard Laravel**: Controllers, Models, Policies, Requests, Observers
 
+### API Strategy (GraphQL vs REST)
+- **GraphQL (Primary Mobile Data Layer)**: Use for >95% of standard Mobile operations. Ideal for CRUD, fetching nested relationships (e.g., loading a Project with Members, Tasks, and Transactions in one trip), and reducing mobile payload sizes.
+- **REST API (Specialized/Streaming/Web Parity Layer)**: Use strictly for endpoints requiring HTTP Streaming (like LLM Chat SSE responses), binary file uploads, webhooks, or when identical request/response parity is mandatory between Web (React) and Mobile (React Native) bypassing GraphQL limitations.
+
 ### Frontend Organization
 - **Components**: `resources/js/components/` for reusable UI components
 - **Pages**: `resources/js/Pages/` for Inertia.js page components

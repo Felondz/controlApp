@@ -496,3 +496,87 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
 *   [x] **Modelo `Task`**: Return types + generics PHPDoc en 6 relaciones. Tipado `newFactory()`.
 *   [x] **Modelo `Message`**: Return types + generics PHPDoc en 3 relaciones. Tipado `newFactory()`.
 *   [x] **PHPStan**: `[OK] No errors`. **Tests**: 323 passed, 2 skipped.
+
+### J. Estrategia Global de APIs: GraphQL vs REST (Febrero 24, 2026)
+**Contexto**: Se requería integrar los modelos de LLM (IA) en tiempo real para generar un Widget Global de Chat tanto para la plataforma web (Inertia/React) como para Mobile (React Native).
+**Decisión Arquitectónica**: 
+Se definió formalmente el propósito de cada protocolo en el ecosistema del proyecto:
+*   **GraphQL se mantendrá como la Capa de Datos Móvil Principal**: Se usará para todo el CRUD estándar y cargas pesadas de relaciones anidadas (donde evitar múltiples peticiones y over-fetching es clave).
+*   **REST se designa como la Capa de Streaming y Paridad Web/Móvil**: Para interacciones con LLMs que devuelven resultados tipo "máquina de escribir" (Streaming/Server-Sent Events), GraphQL no es el protocolo adecuado sin añadir complejidad (Websockets). Por ende, funcionalidades como el `POST /api/ai/chat` se aislarán en REST puro (JSON), garantizando que tanto la app Web como Mobile consuman exactamente la misma ruta con el mismo comportamiento nativo de lectura HTTP.
+
+---
+
+## 14. Integración LLM Completa, AI Chat Widget y Global AI Kill Switch (Febrero 24, 2026)
+**Objetivo**: Completar la integración end-to-end de LLM, depurar la visibilidad del Widget de Chat IA, ejecutar tests automatizados de MCP Tools, e implementar un interruptor maestro global para desactivar toda la funcionalidad de IA.
+
+### A. Suite de Tests MCP (Automated)
+**Contexto**: Se necesitaba cobertura automatizada para validar los 25+ MCP Tools distribuidos entre 5 servidores.
+**Cambios**:
+*   [x] **Tests creados** en `tests/Feature/Mcp/`:
+    *   `InventoryMcpTest.php`: 3 tools (ConsultStock, CreateItem, UpdateItem)
+    *   `OperationsMcpTest.php`: 12 tools (Processes CRUD, Lotes lifecycle, Inputs)
+    *   `FinanceMcpTest.php`: 7 tools (Balance, Transactions, Accounts, Bills, Categories)
+    *   `TasksMcpTest.php`: 4 tools (List, Create, Update, Summary)
+    *   `ChatMcpTest.php`: 2 tools (Send, List Messages)
+*   [x] **Patrón de testing**: Cada test instancia el Tool, crea un `Request` mock con JSON body, ejecuta `handle()`, y valida la respuesta con `assertStringContainsString`.
+*   [x] **Depuración**: Se resolvieron múltiples fallos de tests causados por:
+    *   Migraciones faltantes (`user_llm_settings`, esquema `users` incompleto)
+    *   Factories obsoletas (`is_super_admin` vs `role`)
+    *   Discrepancias de schema entre SQLite (testing) y MySQL (production)
+*   [x] **Resultado**: 28 tests, 56+ assertions passed.
+
+### B. Integración LLM End-to-End (AI Chat Widget)
+**Contexto**: Se completó el pipeline completo desde la UI de configuración de API keys hasta el Chat Widget funcional.
+**Fases implementadas (resumen acumulado)**:
+*   **Phase 1**: `UserLlmSetting` model con encriptación, `LlmSettingsService`, `UpdateLlmSettingsForm.jsx`
+*   **Phase 2**: Fetching dinámico de modelos via proxy backend (`LlmModelsController`)
+*   **Phase 3**: `AiChatWidget.jsx` global inyectado en `AuthenticatedLayout.jsx`, `AiChatController`
+*   **Phase 4**: Agent Loop nativo con ejecución recursiva de MCP Tools (hasta 5 niveles de profundidad)
+*   **Phase 5**: Selector dinámico de Provider/Model en el Chat Widget con override en runtime
+*   **Phase 6**: Cache de 7 días en `LlmModelsController` (reduce rate limits)
+*   **Phase 7**: UI refactorizada con lista de proveedores conectados + formulario Add/Update
+
+### C. Depuración: AI Chat Widget No Desaparece
+**Síntoma**: Al desmarcar "Habilitar asistencia IA" en un proveedor, el Chat Widget seguía visible.
+**Investigación**:
+1.  Se verificó `HandleInertiaRequests.php`: la query `where('is_active', true)->whereNotNull('api_key')->exists()` era correcta.
+2.  Se verificó `AiChatWidget.jsx`: guard clause `if (!hasActiveAi) return null` era correcta.
+3.  Se verificó `AuthenticatedLayout.jsx`: rendering condicional `{hasActiveAi && <AiChatWidget />}` era correcto.
+4.  **Causa Raíz**: La query evalúa **TODOS los proveedores del usuario**. Si existían múltiples proveedores (ej. Gemini activo + OpenAI desactivado), desactivar uno no afectaba la query porque el otro seguía activo.
+5.  **Problema secundario**: `useForm.post()` no enviaba correctamente el valor `is_active` al backend por una race condition con el estado reactivo de React. Se migró a `router.post()` para envío determinístico.
+
+**Decisión del Usuario**: Implementar un **interruptor maestro global** (Opción 2) que desactive toda la IA sin necesidad de desactivar proveedores individualmente.
+
+### D. Implementación: Global AI Kill Switch
+**Archivos modificados/creados**:
+
+| Archivo | Tipo | Cambio |
+|---------|------|--------|
+| `database/migrations/2026_02_24_225000_add_is_ai_enabled_to_users_table.php` | [NEW] | Migración: columna `is_ai_enabled` (boolean, default true) en tabla `users` |
+| `app/Models/User.php` | [MODIFY] | Añadido `is_ai_enabled` a `$fillable` y PHPDoc |
+| `app/Http/Middleware/HandleInertiaRequests.php` | [MODIFY] | `has_active_ai` ahora requiere `is_ai_enabled == true` AND al menos un proveedor activo con API key |
+| `app/Http/Controllers/ProfileController.php` | [MODIFY] | Nuevo método `toggleAi()`: invierte `is_ai_enabled` y redirige back |
+| `routes/web.php` | [MODIFY] | Nueva ruta `POST /profile/toggle-ai` → `ProfileController@toggleAi` |
+| `resources/js/Components/Icons.jsx` | [MODIFY] | Nuevos iconos: `SparklesAiIcon` (sparkles animado) y `SparklesAiOffIcon` (sparkles + slash) |
+| `resources/js/Pages/Profile/Partials/UpdateLlmSettingsForm.jsx` | [MODIFY] | Master toggle con UI premium (glassmorphism, gradientes, switch animado, ícono contextual) |
+
+**Flujo del Kill Switch**:
+1.  Usuario hace click en el toggle → `router.post('/profile/toggle-ai')` (sin recargar página)
+2.  Backend invierte `users.is_ai_enabled` → Redirect back
+3.  Inertia recarga props → `HandleInertiaRequests` recalcula `has_active_ai` = `is_ai_enabled && providers_query`
+4.  `AuthenticatedLayout` recibe `has_active_ai: false` → Desmonta `AiChatWidget` del DOM
+
+### E. Bug Fix: Ziggy Route Not Found
+**Síntoma**: `Ziggy error: route 'profile.toggle-ai' is not in the route list` al hacer click en el toggle.
+**Causa**: Ziggy cachea las rutas y necesita regenerarse después de agregar nuevas rutas.
+**Solución**: `sail artisan ziggy:generate && npm run build`.
+
+### F. Cleanup: Migraciones Duplicadas
+**Problema**: Se crearon 3 archivos de migración para `add_is_ai_enabled_to_users_table` (sail, manual, php artisan).
+**Solución**: Se eliminaron las 2 migraciones stub vacías, conservando solo la funcional (`2026_02_24_225000`).
+
+### G. Pendientes
+*   [ ] Remover `console.log("Global AI State Updated:...")` de `AuthenticatedLayout.jsx` (debugging artifact)
+*   [ ] Remover `Log::info("LLM Settings UPSERT:...")` de `UserLlmSettingController.php` (debugging artifact)
+*   [ ] Agregar traducciones `profile.ai_master_switch`, `profile.ai_master_enabled`, `profile.ai_master_disabled` a `es.json` y `en.json`
+

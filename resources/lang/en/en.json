@@ -24,6 +24,15 @@
         "name": "ControlApp",
         "description": "Collaborative Project Management Platform"
     },
+    "ai": {
+        "assistant": "AI Assistant",
+        "provider": "AI Provider",
+        "model": "AI Model",
+        "configure": "Configure AI",
+        "connection_error": "Connection error with AI.",
+        "welcome_msg": "Hi! How can I help you today?",
+        "type_message": "Type your message..."
+    },
     "chat": {
         "title": "Team Chat",
         "channels": "Channels",
@@ -709,7 +718,30 @@
         "delete_account_button": "Delete Account",
         "delete_warning": "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.",
         "delete_confirm": "Are you sure you want to delete your account?",
-        "delete_confirm_text": "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account."
+        "delete_confirm_text": "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.",
+        "llm_settingsTitle": "Artificial Intelligence Settings",
+        "llm_settings_hint": "Provide your own API tokens to enable AI assistants and smart features. If you disable this, the system will operate without AI.",
+        "llm_provider": "AI Provider",
+        "llm_configured": "This provider is already configured (the key is hidden for security).",
+        "llm_api_key": "API Key (Token)",
+        "llm_api_key_placeholder_update": "Leave blank to keep current key",
+        "llm_api_key_optional": "Optional if AI is disabled",
+        "llm_default_model": "Default Model (Optional)",
+        "llm_fetch_models": "↓ Load Available Models",
+        "llm_select_model": "-- Select a model --",
+        "llm_model_manual_hint": "Enter manually or load the list from your provider using the button above.",
+        "llm_is_active": "Enable AI assistance with this provider",
+        "llm_fetch_error_missing_key": "Enter an API Key first to fetch the models list.",
+        "llm_fetch_error_generic": "Error fetching models.",
+        "llm_fetch_error_network": "Could not fetch models at this time. Check the console for details.",
+        "llm_connected_providers": "Connected Providers",
+        "llm_connected_none": "You don't have any AI providers configured yet.",
+        "llm_active_status": "Active",
+        "llm_inactive_status": "Inactive",
+        "ai_master_switch": "AI Assistant",
+        "ai_master_enabled": "AI is globally enabled",
+        "ai_master_disabled": "AI is completely disabled",
+        "confirm_delete_llm": "Are you sure you want to delete this AI configuration?"
     },
     "search": {
         "title": "Search Results",
