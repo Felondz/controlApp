@@ -20,6 +20,10 @@ class FinishLoteTool extends Tool
 
     public function handle(Request $request): Response
     {
+        if ($request->get('confirm_action') !== true) {
+            return Response::text("Error: This is a destructive action. You must explicitly ask the user for confirmation. If they agree, retry this tool call with confirm_action set to true.");
+        }
+
         $proyectoId = (int) $request->get('proyecto_id');
 
         /** @var Proyecto|null $proyecto */
@@ -59,6 +63,7 @@ class FinishLoteTool extends Tool
             'lote_id' => $schema->integer()->description('The ID of the lote to finish.'),
             'final_quantity' => $schema->number()->description('The final quantity produced.'),
             'inventory_item_id' => $schema->integer()->description('Optional: Override the output inventory item ID.'),
+            'confirm_action' => $schema->boolean()->description('REQUIRED: Set to true ONLY if the user has explicitly confirmed they want to finish this lote.'),
         ];
         return $properties;
     }

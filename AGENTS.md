@@ -248,4 +248,14 @@ import LocalComponent from '@/Components/LocalComponent';
 - Meilisearch integration via Laravel Scout
 - Implement `toSearchableArray()` methods for searchable models
 
+## 13. Model Context Protocol (MCP) Tools
+
+ControlApp utilizes a custom MCP Server to provide structured, domain-specific tools in `app/Mcp/Tools/`. These tools give you (the AI) powerful capabilities to query balances, fetch active operations, and modify the database directly.
+
+> **🔒 MCP SECURITY PROTOCOL (CRITICAL)**: Many MCP tools that modify critical financial or inventory states (such as deleting data, discounting stock, paying bills, etc.) are protected. They mandate a boolean `confirm_action` argument in their JSON schema.
+> If a tool requests `confirm_action`, **you MUST NOT AUTO-APPROVE IT**. You must explicitly ask the user for permission in chat, and ONLY if the user says "Yes", execute the tool with `confirm_action: true`.
+
+For a full list of tools and details on this security protocol, you **MUST READ**:
+`docs/private/es/03-ia-collaboration/MCP_TOOLS.md`
+
 This document should be updated as the project evolves. Always refer to the latest version when working on the codebase.

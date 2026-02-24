@@ -21,6 +21,10 @@ class ConsumeLoteInputTool extends Tool
 
     public function handle(Request $request): Response
     {
+        if ($request->get('confirm_action') !== true) {
+            return Response::text("Error: This is a destructive action. You must explicitly ask the user for confirmation. If they agree, retry this tool call with confirm_action set to true.");
+        }
+
         $proyectoId = (int) $request->get('proyecto_id');
 
         /** @var Proyecto|null $proyecto */
@@ -66,6 +70,7 @@ class ConsumeLoteInputTool extends Tool
             'lote_id' => $schema->integer()->description('The ID of the lote.'),
             'input_id' => $schema->integer()->description('The ID of the lote input (lote_insumo) to consume.'),
             'quantity' => $schema->number()->description('Quantity to consume.'),
+            'confirm_action' => $schema->boolean()->description('REQUIRED: Set to true ONLY if the user has explicitly confirmed they want to consume this input.'),
         ];
         return $properties;
     }
