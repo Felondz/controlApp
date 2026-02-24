@@ -14,11 +14,11 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use App\Modules\Operations\Events\LoteCreated;
 use App\Modules\Operations\Events\StageChanged;
-// use App\Modules\Operations\Events\LoteFinished; 
+use Nuwave\Lighthouse\Testing\MakesGraphQLRequests;
 
 class LoteProduccionFlowTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, WithFaker, MakesGraphQLRequests;
 
     protected $user;
     protected $proyecto;
@@ -55,16 +55,22 @@ class LoteProduccionFlowTest extends TestCase
         // Spy on ModuleEventBus
         $busSpy = $this->spy(\App\Core\Events\ModuleEventBus::class);
 
-        $payload = [
-            'codigo' => 'LOT-001',
+        $query = '
+            mutation CreateLote($proyecto_id: ID!, $production_process_id: ID!, $start_date: DateTime!) {
+                createLote(proyecto_id: $proyecto_id, production_process_id: $production_process_id, start_date: $start_date) {
+                    id
+                    stage_id
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'proyecto_id' => $this->proyecto->id,
             'production_process_id' => $this->process->id,
-            'initial_quantity' => 100,
-            'start_date' => now()->toDateString(),
-        ];
+            'start_date' => now()->toDateTimeString(),
+        ]);
 
-        $response = $this->postJson(route('api.operations.lotes.store', $this->proyecto), $payload);
-
-        $response->assertStatus(201);
+        $response->assertJsonStructure(['data' => ['createLote' => ['id', 'stage_id']]]);
         
         $lote = LoteProduccion::where('production_process_id', $this->process->id)->first();
         $this->assertNotNull($lote);
@@ -92,13 +98,22 @@ class LoteProduccionFlowTest extends TestCase
             'status' => 'active',
         ]);
 
-        $payload = [
+        $query = '
+            mutation UpdateLoteStage($id: ID!, $proyecto_id: ID!, $stage_id: ID!) {
+                updateLoteStage(id: $id, proyecto_id: $proyecto_id, stage_id: $stage_id) {
+                    id
+                    stage_id
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'id' => $lote->id,
+            'proyecto_id' => $this->proyecto->id,
             'stage_id' => $this->stage2->id,
-        ];
+        ]);
 
-        $response = $this->putJson(route('api.operations.lotes.update-stage', [$this->proyecto, $lote]), $payload);
-
-        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => ['updateLoteStage' => ['id']]]);
         $this->assertEquals($this->stage2->id, $lote->fresh()->stage_id);
 
         // Verify StageChanged event was dispatched
@@ -118,15 +133,23 @@ class LoteProduccionFlowTest extends TestCase
 
         $item = InventoryItem::factory()->create(['proyecto_id' => $this->proyecto->id]);
 
-        $payload = [
+        $query = '
+            mutation AddLoteInput($id: ID!, $proyecto_id: ID!, $inventory_item_id: ID!, $quantity: Float!, $notes: String) {
+                addLoteInput(id: $id, proyecto_id: $proyecto_id, inventory_item_id: $inventory_item_id, quantity: $quantity, notes: $notes) {
+                    id
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'id' => $lote->id,
+            'proyecto_id' => $this->proyecto->id,
             'inventory_item_id' => $item->id,
             'quantity' => 5,
             'notes' => 'Adding sugar'
-        ];
+        ]);
 
-        $response = $this->postJson(route('api.operations.lotes.add-input', [$this->proyecto, $lote]), $payload);
-
-        $response->assertStatus(201);
+        $response->assertJsonStructure(['data' => ['addLoteInput' => ['id']]]);
         
         $this->assertDatabaseHas('lote_insumos', [
             'lote_produccion_id' => $lote->id,
@@ -144,11 +167,22 @@ class LoteProduccionFlowTest extends TestCase
             'status' => 'active'
         ]);
 
-        $response = $this->putJson(route('api.operations.lotes.discard', [$this->proyecto, $lote]), [
+        $query = '
+            mutation DiscardLote($id: ID!, $proyecto_id: ID!, $reason: String!) {
+                discardLote(id: $id, proyecto_id: $proyecto_id, reason: $reason) {
+                    id
+                    status
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'id' => $lote->id,
+            'proyecto_id' => $this->proyecto->id,
             'reason' => 'Quality fail'
         ]);
 
-        $response->assertStatus(200);
+        $response->assertJsonStructure(['data' => ['discardLote' => ['id']]]);
         $this->assertEquals('discarded', $lote->fresh()->status);
     }
 }
