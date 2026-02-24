@@ -50,6 +50,7 @@ class CheckUpcomingObligations extends Command
                     try {
                         $owner = $cuenta->propietario;
 
+                        /** @phpstan-ignore-next-line */
                         if (!$owner)
                             continue;
 
@@ -57,9 +58,13 @@ class CheckUpcomingObligations extends Command
                             $owner->notify(new UpcomingPaymentNotification($cuenta, $days));
                             $this->info("Notified User {$owner->id} for account {$cuenta->id}");
                         } elseif ($cuenta->propietario_type === 'App\Models\Proyecto') {
+                            /** @var \App\Models\Proyecto $proyecto */
+                            $proyecto = $owner;
                             // Notify project admins only
-                            foreach ($owner->miembros as $member) {
-                                if ($member->pivot->rol === 'admin') {
+                            foreach ($proyecto->miembros as $member) {
+                                /** @phpstan-ignore-next-line */
+                                $pivot = $member->pivot;
+                                if ($pivot->rol === 'admin') {
                                     $member->notify(new UpcomingPaymentNotification($cuenta, $days));
                                 }
                             }

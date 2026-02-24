@@ -68,11 +68,11 @@ class CuentaController extends Controller
 
             $destination = null;
             if (!empty($datos['cuenta_destino_id'])) {
+                /** @var \App\Modules\Finance\Models\Cuenta|null $destination */
                 $destination = \App\Modules\Finance\Models\Cuenta::find($datos['cuenta_destino_id']);
-                // Verify access to destination account?
-                // Assuming if they can see it they can use it, or service handles it.
             }
 
+            /** @var \App\Modules\Finance\Models\Cuenta $cuenta */
             $service->disburse($cuenta, $destination, (int) $datos['monto_desembolsado']);
 
             // Refresh account data
@@ -205,11 +205,8 @@ class CuentaController extends Controller
         
         // Calculate Inventory Value if module is active and user is admin
         $inventoryValue = 0;
+        // modules is already cast to array in Proyecto model
         $modules = $proyecto->modules ?? [];
-        // Ensure modules is array
-        if (is_string($modules)) {
-            $modules = json_decode($modules, true) ?? [];
-        }
         
         if ($request->user()->esAdminDe($proyecto) && in_array('inventory', $modules)) {
              $inventoryValue = $proyecto->inventoryItems()
@@ -255,6 +252,7 @@ class CuentaController extends Controller
 
         $bills = [];
         foreach ($allCCs as $cuenta) {
+            /** @var \App\Modules\Finance\Models\Cuenta $cuenta */
             $billData = $billingService->getUpcomingBill($cuenta);
             // Only include if there's something to pay
             if ($billData['pago_minimo'] > 0 || $billData['pago_total'] > 0) {

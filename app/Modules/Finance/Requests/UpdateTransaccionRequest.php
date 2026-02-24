@@ -13,10 +13,14 @@ class UpdateTransaccionRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
 
         //  obtener $transaccion.
+        /** @var \App\Modules\Finance\Models\Transaccion $transaccion */
         $transaccion = $this->route('transaccion');
 
         // obtenemos el proyecto.
@@ -33,7 +37,7 @@ class UpdateTransaccionRequest extends FormRequest
                 'sometimes',
                 'numeric',
                 Rule::exists('categorias', 'id')
-                    ->where('proyecto_id', $proyecto->id),
+                    ->where('proyecto_id', $proyecto ? $proyecto->id : null),
             ],
             'cuenta_id' => [
                 'nullable',

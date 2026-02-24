@@ -68,7 +68,7 @@ interface ModuleInterface
     /**
      * Get the module's route definitions.
      *
-     * @return array<string, array{method: string, uri: string, action: string}>
+     * @return array<string, string>
      */
     public function getRoutes(): array;
 

@@ -11,9 +11,13 @@ class LoteInputAdded extends \App\Core\Events\BaseModuleEvent
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $lote;
-    public $inputData;
+    public LoteProduccion $lote;
+    /** @var array<string, mixed> */
+    public array $inputData;
 
+    /**
+     * @param array<string, mixed> $inputData
+     */
     public function __construct(LoteProduccion $lote, array $inputData)
     {
         $this->lote = $lote;

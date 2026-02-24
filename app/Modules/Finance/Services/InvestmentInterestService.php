@@ -60,7 +60,7 @@ class InvestmentInterestService
         ]);
 
         // Update account balance
-        $cuenta->saldo_actual += $interestAmount;
+        $cuenta->saldo_actual = (int) ($cuenta->saldo_actual + $interestAmount);
         $cuenta->save();
 
         return $transaccion;
@@ -68,6 +68,8 @@ class InvestmentInterestService
 
     /**
      * Get projected investment interest for upcoming payments widget.
+     *
+     * @return array<string, mixed>
      */
     public function getProjectedInterest(Cuenta $cuenta): array
     {

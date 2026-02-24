@@ -7,6 +7,23 @@ use App\Modules\Inventory\Models\InventoryItem;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $lote_produccion_id
+ * @property int $inventory_item_id
+ * @property int|null $stage_id
+ * @property float $quantity
+ * @property float $unit_cost
+ * @property float $total_cost
+ * @property string $status
+ * @property \Carbon\Carbon|null $consumed_at
+ * @property string|null $notes
+ * @property-read LoteProduccion $lote
+ * @property-read InventoryItem $product
+ * @property-read EtapaProceso|null $stage
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class LoteInsumo extends Model
 {
     protected $table = 'lote_insumos';

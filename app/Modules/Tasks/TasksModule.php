@@ -72,7 +72,7 @@ class TasksModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, string>
      */
     public function getRoutes(): array
     {
@@ -83,15 +83,12 @@ class TasksModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {
         return [
-            'finance.transaction.created' => [
-                [\App\Modules\Tasks\Listeners\FinanceEventListener::class, 'handleTransactionCreated'],
-            ],
-            'operations.lote.stage_changed' => [
+            \App\Modules\Operations\Events\StageChanged::class => [
                 \App\Modules\Tasks\Listeners\GenerateStageTasks::class,
             ],
         ];

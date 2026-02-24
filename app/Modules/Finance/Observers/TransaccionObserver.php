@@ -18,11 +18,14 @@ class TransaccionObserver
 
             // 1. Obtenemos la cuenta Y LE PONEMOS UN "CANDADO"
             // Esto previene que dos transacciones se creen al mismo tiempo y lean un saldo viejo
+            /** @var Cuenta|null $cuenta */
             $cuenta = $transaccion->cuenta()->lockForUpdate()->first();
 
-            // 2. Aplicamos la matemática
-            $cuenta->balance = $cuenta->balance + $transaccion->monto;
-            $cuenta->save();
+            if ($cuenta) {
+                // 2. Aplicamos la matemática
+                $cuenta->balance = (int) ($cuenta->balance + $transaccion->monto);
+                $cuenta->save();
+            }
         });
     }
 
@@ -34,6 +37,7 @@ class TransaccionObserver
         DB::transaction(function () use ($transaccion) {
 
             $montoNuevo = $transaccion->monto;
+            /** @var Cuenta|null $cuentaNueva */
             $cuentaNueva = $transaccion->cuenta()->lockForUpdate()->first();
 
             // CASO 1: ¿Se movió la transacción de una cuenta a otra?
@@ -44,15 +48,18 @@ class TransaccionObserver
                 $montoOriginal = $transaccion->getOriginal('monto'); // El monto que tenía en la cuenta vieja
 
                 // 2. Revertimos el monto en la CUENTA VIEJA
+                /** @var Cuenta|null $cuentaOriginal */
                 $cuentaOriginal = Cuenta::lockForUpdate()->find($idCuentaOriginal);
                 if ($cuentaOriginal) {
-                    $cuentaOriginal->balance = $cuentaOriginal->balance - $montoOriginal;
+                    $cuentaOriginal->balance = (int) ($cuentaOriginal->balance - $montoOriginal);
                     $cuentaOriginal->save();
                 }
 
                 // 3. Aplicamos el monto NUEVO a la CUENTA NUEVA
-                $cuentaNueva->balance = $cuentaNueva->balance + $montoNuevo;
-                $cuentaNueva->save();
+                if ($cuentaNueva) {
+                    $cuentaNueva->balance = (int) ($cuentaNueva->balance + $montoNuevo);
+                    $cuentaNueva->save();
+                }
             }
             // CASO 2: La cuenta es la misma, solo cambió el monto
             else {
@@ -65,8 +72,10 @@ class TransaccionObserver
                 $diferencia = $montoNuevo - $montoOriginal;
 
                 // 3. Aplicamos solo la diferencia al saldo
-                $cuentaNueva->balance = $cuentaNueva->balance + $diferencia;
-                $cuentaNueva->save();
+                if ($cuentaNueva) {
+                    $cuentaNueva->balance = (int) ($cuentaNueva->balance + $diferencia);
+                    $cuentaNueva->save();
+                }
             }
         });
     }
@@ -84,7 +93,7 @@ class TransaccionObserver
             // 2. Revertimos la matemática
             // Si borramos un gasto de -5000, restamos -5000 (o sea, sumamos 5000)
             if ($cuenta) { // (Solo por si acaso la cuenta fue borrada)
-                $cuenta->balance = $cuenta->balance - $transaccion->monto;
+                $cuenta->balance = (int) ($cuenta->balance - $transaccion->monto);
                 $cuenta->save();
             }
         });

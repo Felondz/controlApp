@@ -76,7 +76,7 @@ class FinanceModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, string>
      */
     public function getRoutes(): array
     {
@@ -87,28 +87,19 @@ class FinanceModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {
         return [
-            'inventory.transaction.confirmed' => [
+            \App\Modules\Inventory\Events\InventoryTransactionConfirmed::class => [
                 \App\Modules\Finance\Listeners\CreateFinanceTransaction::class,
             ],
+            \App\Modules\Tasks\Events\TaskCreated::class => [
+                \App\Modules\Tasks\Listeners\FinanceEventListener::class,
+            ],
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConsoleCommands(): array
-    {
-        return [
-            \App\Modules\Finance\Console\Commands\ProcessDueContracts::class,
-        ];
-    }
-
-    /**
+    }/**
      * Hook called when module is installed.
      *
      * @param Proyecto $project

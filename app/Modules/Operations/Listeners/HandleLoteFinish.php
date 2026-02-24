@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class HandleLoteFinish
 {
-    public function handle(LoteFinished $event)
+    public function handle(LoteFinished $event): void
     {
         \Illuminate\Support\Facades\Log::info("HandleLoteFinish: Caught event for Lote {$event->lote->id}");
 

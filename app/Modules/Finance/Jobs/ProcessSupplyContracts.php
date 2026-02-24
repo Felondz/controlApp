@@ -42,7 +42,7 @@ class ProcessSupplyContracts implements ShouldQueue
                      'cuenta_id' => $contract->target_account_id,
                      'fecha' => now(), // Or next_run_at
                      'descripcion' => "Auto-generated from Supply Contract #{$contract->id}",
-                     'user_id' => $contract->proyecto->user_id ?? \App\Models\User::first()?->id ?? 1,
+                     'user_id' => $contract->proyecto->user_id ?? \App\Models\User::first()->id ?? 1,
                      // 'reference_type' => SupplyContract::class, // If supported
                      // 'reference_id' => $contract->id,
                 ]);

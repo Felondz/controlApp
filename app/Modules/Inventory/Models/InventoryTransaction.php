@@ -3,10 +3,31 @@
 namespace App\Modules\Inventory\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
 use App\Models\User;
 
+/**
+ * @property int $id
+ * @property int $proyecto_id
+ * @property int $inventory_item_id
+ * @property int $user_id
+ * @property string $type
+ * @property float $quantity
+ * @property float $unit_price
+ * @property float $total_amount
+ * @property string|null $reference_type
+ * @property int|null $reference_id
+ * @property string|null $notes
+ * @property string $status
+ * @property \Carbon\Carbon $transaction_date
+ * @property-read InventoryItem|null $item
+ * @property-read Proyecto $proyecto
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class InventoryTransaction extends Model
 {
     use HasFactory;
@@ -33,22 +54,34 @@ class InventoryTransaction extends Model
         'transaction_date' => 'datetime',
     ];
 
-    public function proyecto()
+    /**
+     * @return BelongsTo<Proyecto, $this>
+     */
+    public function proyecto(): BelongsTo
     {
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function item()
+    /**
+     * @return BelongsTo<InventoryItem, $this>
+     */
+    public function item(): BelongsTo
     {
         return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
     }
 
-    public function user()
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reference()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function reference(): MorphTo
     {
         return $this->morphTo();
     }

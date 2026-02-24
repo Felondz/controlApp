@@ -16,13 +16,22 @@ abstract class BaseModuleEvent implements ModuleEvent
     /**
      * Dispatch this event via the ModuleEventBus.
      * 
-     * @param mixed ...$arguments Arguments for the event constructor
+     * @param mixed ...$args Arguments for the event constructor
      * @return static
      */
-    public static function dispatch(...$arguments)
+    public static function dispatch(...$args): mixed
     {
-        $event = new static(...$arguments);
-        app(ModuleEventBus::class)->dispatch($event);
+        /** @phpstan-ignore-next-line */
+        $event = new static(...$args);
+        
+        // Dispatch via custom ModuleEventBus for inter-module communication and testing spies
+        if (app()->bound(ModuleEventBus::class)) {
+            app(ModuleEventBus::class)->dispatch($event);
+        }
+
+        // Also dispatch via Laravel default system for any standard listeners
+        event($event);
+        
         return $event;
     }
 

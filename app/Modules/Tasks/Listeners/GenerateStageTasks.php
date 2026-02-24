@@ -30,8 +30,11 @@ class GenerateStageTasks implements ShouldQueue
             }
 
             foreach ($templates as $template) {
-                $dueDate = $template->days_due_offset !== null 
-                    ? Carbon::now()->addDays($template->days_due_offset) 
+                /** @var object{days_due_offset: int|null, name: string, description: string, priority: string|null} $template */
+                $daysOffset = $template->days_due_offset;
+                
+                $dueDate = $daysOffset !== null 
+                    ? Carbon::now()->addDays((int) $daysOffset) 
                     : null;
 
                 Task::create([
@@ -51,8 +54,6 @@ class GenerateStageTasks implements ShouldQueue
 
         } catch (\Exception $e) {
             Log::error("GenerateStageTasks: Failed to generate tasks. Error: " . $e->getMessage());
-            // Don't throw to avoid retrying indefinitely if it's a logic error, or do throw if transient.
-            // For now, log only.
         }
     }
 }

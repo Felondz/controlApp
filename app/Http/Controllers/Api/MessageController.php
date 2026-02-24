@@ -94,7 +94,9 @@ class MessageController extends Controller
         $member = $proyecto->miembros()->where('user_id', auth()->id())->first();
 
         if ($member) {
-            $lastReadAt = $member->pivot->last_read_at;
+            /** @var mixed $pivot */
+            $pivot = $member->pivot;
+            $lastReadAt = $pivot->last_read_at;
 
             if ($lastReadAt) {
                 $generalUnread = Message::where('proyecto_id', $proyecto->id)
@@ -110,7 +112,7 @@ class MessageController extends Controller
                     ->count();
             }
         } else if ($proyecto->user_id === auth()->id()) {
-            // Owner might not be in members pivot? 
+            // Owner might not be in members pivot?
             // Usually owner is also a member, but if not, logic might differ.
             // For now assume owner is member or doesn't track general read status this way.
             // If owner is not in pivot, we can't track last_read_at for general chat unless we store it elsewhere.
@@ -132,7 +134,9 @@ class MessageController extends Controller
 
         // Update pivot for general chat (if user is a member via pivot)
         if ($proyecto->miembros->contains(auth()->user())) {
-            $proyecto->miembros()->updateExistingPivot(auth()->id(), ['last_read_at' => now()]);
+            /** @var int $userId */
+            $userId = auth()->id();
+            $proyecto->miembros()->updateExistingPivot($userId, ['last_read_at' => now()]);
         }
 
         // Update private messages sent TO me in this project

@@ -473,3 +473,26 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
 *   [x] **FinanceServer MCP** con **7 Tools**: `ConsultBalanceTool`, `ListTransaccionesTool`, `CreateTransaccionTool`, `ListCuentasTool`, `CreateCuentaTool`, `PayBillTool`, `ListCategoriasTool`.
 *   [x] **Modelo `Transaccion`**: Se añadieron return types explícitos y generics PHPDoc a las 9 relaciones. Se tipó `newFactory()` y se añadió `@use HasFactory<Factory>`.
 *   [x] **PHPStan**: `[OK] No errors`. **Tests**: 48 passed.
+
+### H. Depuración módulos Analytics y Notifications (deprecados)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Eliminado** `app/Modules/Analytics/` (8 archivos): Controller, Service, Job, Listeners, Model, Module.
+*   [x] **Eliminado** `app/Modules/Notifications/` (9 archivos): Service, Listeners, Notifications, Model, Module.
+*   [x] **Eliminado** `tests/Unit/Modules/Analytics/MetricsCollectorTest.php`.
+*   [x] **Limpiado** `EnterpriseTemplate.php`: removido `analytics` y `notifications` de módulos y configuraciones. Añadidos PHPDoc types.
+*   [x] **Migración** `drop_deprecated_analytics_notifications_tables`: dropea `analytics_metrics`, `notification_preferences`, `notifications`.
+*   [x] **Decisión**: Analíticas se manejarán con query-time analytics desde las tablas transaccionales existentes (opción 1).
+
+### I. Migración módulos Tasks y Chat (Actions/DTOs + MCP)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Tasks DTOs**: `CreateTaskDTO`, `UpdateTaskDTO`.
+*   [x] **Tasks Actions**: `CreateTaskAction`, `UpdateTaskAction`, `DeleteTaskAction`.
+*   [x] **TasksServer MCP** con **4 Tools**: `ListTasksTool`, `CreateTaskTool`, `UpdateTaskTool`, `TaskSummaryTool`.
+*   [x] **Chat DTO**: `SendMessageDTO`.
+*   [x] **Chat Action**: `SendMessageAction`.
+*   [x] **ChatServer MCP** con **2 Tools**: `SendMessageTool`, `ListMessagesTool`.
+*   [x] **Modelo `Task`**: Return types + generics PHPDoc en 6 relaciones. Tipado `newFactory()`.
+*   [x] **Modelo `Message`**: Return types + generics PHPDoc en 3 relaciones. Tipado `newFactory()`.
+*   [x] **PHPStan**: `[OK] No errors`. **Tests**: 323 passed, 2 skipped.

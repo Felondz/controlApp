@@ -12,21 +12,22 @@ class CreateCuentaAction
     {
         $data = $dto->data;
         $data['saldo_actual'] = $data['saldo_inicial'];
-        $data['estado'] = 'activa';
+        $data['estado'] = $data['estado'] ?? 'activa';
 
-        // If personal project, owner is the user
         if ($dto->proyecto->esPersonal()) {
             /** @var \App\Models\User $user */
             $user = \App\Models\User::findOrFail($dto->userId);
+            /** @var Cuenta $cuenta */
             $cuenta = $user->cuentas()->create($data);
             $dto->proyecto->cuentasAsociadas()->attach($cuenta->id);
         } else {
+            /** @var Cuenta $cuenta */
             $cuenta = $dto->proyecto->cuentas()->create($data);
         }
 
         // Handle Loan Disbursement
         if ($cuenta->tipo === 'prestamo' && !empty($data['monto_desembolsado']) && $data['monto_desembolsado'] > 0) {
-            $service = new LoanDisbursementService();
+            $service = new \App\Modules\Finance\Services\LoanDisbursementService();
 
             $destination = null;
             if (!empty($data['cuenta_destino_id'])) {

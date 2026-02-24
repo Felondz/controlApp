@@ -66,10 +66,10 @@ class LoginRequest extends FormRequest
         }
 
         // 2. Usuario ya obtenido arriba
-        \Illuminate\Support\Facades\Log::info('LoginRequest: User retrieved: ' . ($user ? $user->email : 'NONE'));
+        \Illuminate\Support\Facades\Log::info('LoginRequest: User retrieved: ' . $user->email);
 
         // 3. Verificar si el email está verificado (con lógica de reintento para race conditions)
-        if ($user && !$user->hasVerifiedEmail()) {
+        if (!$user->hasVerifiedEmail()) {
             \Illuminate\Support\Facades\Log::info('LoginRequest: User email initially NOT verified. Starting retry loop.');
 
             // Reintentar hasta 3 veces esperando 1 segundo entre intentos

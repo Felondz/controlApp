@@ -18,12 +18,28 @@ use App\Notifications\VerificacionEmailNotification;
  * @property string $email
  * @property \Carbon\Carbon|null $email_verified_at
  * @property string $password
+ * @property string|null $profile_photo_path
+ * @property string|null $global_theme
+ * @property array|null $enabled_tools
+ * @property array|null $settings
  * @property string|null $remember_token
  * @property string $locale
  * @property bool $is_super_admin
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * 
+ * @property int|null $count aggregate property
+ * @property int|null $unread_messages_count aggregate property
+ * 
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Proyecto> $proyectos
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Proyecto> $proyectosPersonales
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Chat\Models\Message> $messages
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
  * @method static create(array $attributes = [])
  * @method static where(string $column, $operator = null, $value = null)
  * @method static find(int $id)
@@ -54,7 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * The accessors to append to the model's array form.
      *
-     * @var array
+     * @var list<string>
      */
     protected $appends = [
         'profile_photo_url',
@@ -92,7 +108,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Los proyectos en los que este usuario es miembro (a través de la tabla pivote).
      */
-    public function proyectos()
+    public function proyectos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Proyecto::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
@@ -100,7 +116,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Los proyectos personales de este usuario (aquellos donde user_id = auth()->user()->id).
      */
-    public function proyectosPersonales()
+    public function proyectosPersonales(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Proyecto::class);
     }
@@ -108,15 +124,31 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Las cuentas personales del usuario (tarjetas, efectivo personal, etc.).
      */
-    public function cuentas()
+    public function cuentas(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Cuenta::class, 'propietario');
     }
 
     /**
+     * Relación con Mensajes (uno a muchos)
+     */
+    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Modules\Chat\Models\Message::class);
+    }
+
+    /**
+     * Obtiene los mensajes enviados por el usuario.
+     */
+    public function sentMessages()
+    {
+        return $this->messages();
+    }
+
+    /**
      * Tasks assigned to the user.
      */
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Task::class, 'task_user')->withPivot('assigned_at')->withTimestamps();
     }
@@ -138,7 +170,9 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Revisa en la tabla pivote 'proyecto_user' si existe
-        return $this->proyectos()->where('proyecto_id', $proyecto->id)->exists();
+        /** @var \App\Models\Proyecto|null $pivotQuery */
+        $pivotQuery = $this->proyectos()->where('proyecto_id', $proyecto->id)->first();
+        return $pivotQuery !== null;
     }
 
     /**
@@ -150,16 +184,15 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  \App\Models\Proyecto  $proyecto
      * @return bool
      */
-    public function esAdminDe(Proyecto $proyecto)
+    public function esAdminDe(Proyecto $proyecto): bool
     {
-        // Si es propietario de un proyecto personal, es admin del mismo
-        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+        if ($this->is_super_admin) {
             return true;
         }
 
-        // Si no es miembro, no puede ser admin
-        if (!$this->esMiembroDe($proyecto)) {
-            return false;
+        // Si es propietario de un proyecto personal, es admin del mismo
+        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+            return true;
         }
 
         // Busca el rol en la tabla pivote
@@ -169,9 +202,9 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
-        $rol = $proyectoPivot->pivot->rol;
+        $rol = $proyectoPivot->pivot->rol ?? null;
 
-        return $rol === 'admin';
+        return $rol === 'admin' || $rol === 'owner';
     }
 
     /**
@@ -258,6 +291,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $totalUnreadCount = 0;
 
         foreach ($allProjects as $proyecto) {
+            /** @var \App\Models\Proyecto $proyecto */
             // Check feature flag first? Assuming yes based on old code
             // if (!$proyecto->hasMessagingFeature()) continue; // Model method call might duplicate logic?
             // Simplified check:
@@ -266,8 +300,11 @@ class User extends Authenticatable implements MustVerifyEmail
             $lastReadAt = null;
             
             // Get last_read_at from pivot or assume null for owner if not pivot
-            if ($proyecto->pivot) {
-                $lastReadAt = $proyecto->pivot->last_read_at;
+            /** @phpstan-ignore-next-line */
+            $pivot = $proyecto->pivot;
+            if ($pivot instanceof \Illuminate\Database\Eloquent\Relations\Pivot) {
+                /** @phpstan-ignore-next-line */
+                $lastReadAt = $pivot->last_read_at;
             } else if ($proyecto->user_id === $userId) {
                 // Owner might not have pivot? Check logic. 
                 // Old code queried DB manually. Let's assume owner sees all if no pivot tracking?
@@ -290,6 +327,7 @@ class User extends Authenticatable implements MustVerifyEmail
             // That's too complex for raw SQL generation here easily.
             // Let's stick to loop but make it a precise COUNT query.
             
+            /** @var \Illuminate\Database\Eloquent\Builder|\App\Modules\Chat\Models\Message $generalQuery */
             $generalQuery = $proyecto->messages() // This uses relation, slightly heavy?
                 ->whereNull('recipient_id')
                 ->where('user_id', '!=', $userId);

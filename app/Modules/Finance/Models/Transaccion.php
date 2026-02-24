@@ -19,14 +19,21 @@ use App\Models\User;
  * @property int $categoria_id
  * @property int $user_id
  * @property float $monto
+ * @property string $tipo
+ * @property string $status
  * @property string $descripcion
+ * @property string $titulo
  * @property string $fecha
+ * @property int|null $task_id
  * @property string|null $notas
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * 
- * @method static create(array<string, mixed> $attributes = [])
- * @method static where(string $column, $operator = null, $value = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaccion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaccion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaccion query()
+ * @method static Transaccion create(array<string, mixed> $attributes = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaccion where(string $column, $operator = null, $value = null)
  */
 class Transaccion extends Model
 {

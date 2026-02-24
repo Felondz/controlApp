@@ -3,6 +3,7 @@
 namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
@@ -11,9 +12,10 @@ use App\Modules\Finance\Models\Categoria;
 
 class SupplyContract extends Model
 {
+    /** @use HasFactory<\Database\Factories\SupplyContractFactory> */
     use HasFactory, SoftDeletes;
 
-    protected static function newFactory()
+    protected static function newFactory(): \Database\Factories\SupplyContractFactory
     {
         return \Database\Factories\SupplyContractFactory::new();
     }
@@ -42,22 +44,34 @@ class SupplyContract extends Model
         'auto_generate_invoice' => 'boolean',
     ];
 
-    public function proyecto()
+    /**
+     * @return BelongsTo<Proyecto, $this>
+     */
+    public function proyecto(): BelongsTo
     {
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function provider()
+    /**
+     * @return BelongsTo<Provider, $this>
+     */
+    public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
     }
 
-    public function billingCategory()
+    /**
+     * @return BelongsTo<Categoria, $this>
+     */
+    public function billingCategory(): BelongsTo
     {
         return $this->belongsTo(Categoria::class, 'billing_category_id');
     }
 
-    public function targetAccount()
+    /**
+     * @return BelongsTo<Cuenta, $this>
+     */
+    public function targetAccount(): BelongsTo
     {
         return $this->belongsTo(Cuenta::class, 'target_account_id');
     }

@@ -80,7 +80,7 @@ class InventoryModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {

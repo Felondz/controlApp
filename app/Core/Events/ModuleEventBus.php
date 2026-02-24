@@ -16,7 +16,7 @@ class ModuleEventBus
     /**
      * Event listeners.
      *
-     * @var array<string, array<callable>>
+     * @var array<string, array<callable|string>>
      */
     protected array $listeners = [];
 
@@ -176,7 +176,7 @@ class ModuleEventBus
     /**
      * Register multiple listeners at once.
      *
-     * @param array<string, array<callable>> $listeners Event name => [handlers]
+     * @param array<string, array<callable|string>> $listeners Event name => [handlers]
      * @return void
      */
     public function registerListeners(array $listeners): void

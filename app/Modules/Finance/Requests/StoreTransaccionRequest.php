@@ -27,6 +27,7 @@ class StoreTransaccionRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \App\Models\Proyecto $proyecto */
         $proyecto = $this->route('proyecto');
 
         return [

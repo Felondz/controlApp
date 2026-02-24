@@ -4,55 +4,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Proyecto;
 
 class InboxController extends Controller
 {
     public function index(Request $request)
     {
         $user = $request->user();
+        $proyectos = $user->proyectos()->get();
 
-        // Fetch projects with unread messages
-        $projects = $user->proyectos()
-            ->get()
-            ->map(function ($proyecto) use ($user) {
-                if (!$proyecto->hasMessagingFeature()) {
-                    $proyecto->unread_count = 0;
-                    return $proyecto;
-                }
+        // Si solo tiene uno, lo seleccionamos por defecto
+        $selectedProyectoId = $request->query('proyecto_id');
+        
+        /** @var Proyecto|null $selectedProyecto */
+        $selectedProyecto = $selectedProyectoId 
+            ? Proyecto::find($selectedProyectoId) 
+            : $proyectos->first();
 
-                $pivot = $proyecto->pivot;
-                $lastReadAt = $pivot ? $pivot->last_read_at : null;
+        if ($selectedProyecto && !$selectedProyecto->hasMessagingFeature()) {
+            return back()->with('error', 'El proyecto seleccionado no tiene habilitada la mensajería.');
+        }
 
-                $generalUnread = $proyecto->messages()
-                    ->whereNull('recipient_id')
-                    ->where('user_id', '!=', $user->id)
-                    ->when($lastReadAt, function ($q) use ($lastReadAt) {
-                        $q->where('created_at', '>', $lastReadAt);
-                    })
-                    ->count();
+        return Inertia::render('Chat/Inbox', [
+            'proyectos' => $proyectos,
+            'selectedProyecto' => $selectedProyecto,
+            'initialMessages' => $selectedProyecto 
+                ? $selectedProyecto->messages()->with('user')->latest()->take(50)->get()->reverse()->values()
+                : [],
+        ]);
+    }
 
-                $privateUnread = $proyecto->messages()
-                    ->where('recipient_id', $user->id)
-                    ->whereNull('read_at')
-                    ->count();
+    /**
+     * @param Proyecto $proyecto
+     * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function show(Proyecto $proyecto)
+    {
+        if (!$proyecto->hasMessagingFeature()) {
+            return back()->with('error', 'Este proyecto no tiene habilitada la mensajería.');
+        }
 
-                $proyecto->unread_count = $generalUnread + $privateUnread;
-                return $proyecto;
-            })
-            ->filter(function ($proyecto) {
-                return $proyecto->unread_count > 0;
-            })
-            ->values();
-
-        // Fetch pending invitations
-        $invitations = \App\Models\Invitacion::where('email', $user->email)
-            ->with(['proyecto', 'invitador'])
-            ->latest()
-            ->get();
-
-        return Inertia::render('Inbox/Index', [
-            'projects' => $projects,
-            'invitations' => $invitations,
+        return Inertia::render('Chat/Inbox', [
+            'selectedProyecto' => $proyecto,
+            'initialMessages' => $proyecto->messages()->with('user')->latest()->take(50)->get()->reverse()->values(),
         ]);
     }
 }

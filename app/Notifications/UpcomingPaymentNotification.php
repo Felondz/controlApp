@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Modules\Finance\Models\Cuenta;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,13 +12,13 @@ class UpcomingPaymentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $account;
-    protected $daysRemaining;
+    protected Cuenta $account;
+    protected int $daysRemaining;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($account, $daysRemaining)
+    public function __construct(Cuenta $account, int $daysRemaining)
     {
         $this->account = $account;
         $this->daysRemaining = $daysRemaining;

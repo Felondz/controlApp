@@ -10,7 +10,7 @@ class InventoryTransactionConfirmed extends \App\Core\Events\BaseModuleEvent
 {
     use SerializesModels;
 
-    public $transaction;
+    public InventoryTransaction $transaction;
 
     /**
      * Create a new event instance.

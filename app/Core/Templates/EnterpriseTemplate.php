@@ -25,7 +25,7 @@ class EnterpriseTemplate implements ProjectTemplate
 
     public function getDescription(): string
     {
-        return 'Full-featured setup for large organizations. Includes all modules and advanced analytics.';
+        return 'Full-featured setup for large organizations. Includes all modules.';
     }
 
     public function getIcon(): string
@@ -35,17 +35,18 @@ class EnterpriseTemplate implements ProjectTemplate
 
     public function getModules(): array
     {
-        return ['finance', 'tasks', 'chat', 'analytics', 'notifications', 'marketplace'];
+        return ['finance', 'tasks', 'chat', 'inventory', 'operations'];
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getModuleConfigurations(): array
     {
         return [
             'finance' => ['enable_budgets' => true, 'enable_audit' => true],
             'tasks' => ['enable_financial_tasks' => true, 'default_view' => 'list'],
             'chat' => ['enable_private_chat' => true, 'enable_group_chat' => true, 'retention' => 365],
-            'analytics' => ['async_processing' => true],
-            'notifications' => ['channels' => ['database', 'mail']],
         ];
     }
 
@@ -60,11 +61,13 @@ class EnterpriseTemplate implements ProjectTemplate
 
     public function apply(Proyecto $project): void
     {
+        $settings = $this->getDefaultSettings();
+
         $project->update([
             'modules' => $this->getModules(),
-            'theme' => $this->getDefaultSettings()['theme'],
-            'typography' => $this->getDefaultSettings()['typography'],
-            'moneda_default' => $this->getDefaultSettings()['moneda_default'],
+            'theme' => $settings['theme'] ?? 'slate-corporate',
+            'typography' => $settings['typography'] ?? 'serif',
+            'moneda_default' => $settings['moneda_default'] ?? 'USD',
             'settings' => [
                 'modules' => $this->getModuleConfigurations(),
             ],
@@ -81,11 +84,17 @@ class EnterpriseTemplate implements ProjectTemplate
         }
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function getWizardSteps(): array
     {
         return [];
     }
 
+    /**
+     * @param array<string, mixed> $requirements
+     */
     public function matches(array $requirements): bool
     {
         $keywords = ['enterprise', 'corp', 'large', 'organization', 'full'];

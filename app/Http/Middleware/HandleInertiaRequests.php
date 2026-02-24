@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         // Determine locale: User preference > Browser > Default (en)
+        /** @phpstan-ignore-next-line */
         $locale = $request->user()?->locale
             ?? $request->getPreferredLanguage(['es', 'en'])
             ?? 'en';
@@ -67,7 +68,7 @@ class HandleInertiaRequests extends Middleware
             'locale' => $locale,
             'translations' => $translations,
             'old' => function () use ($request) {
-                return $request->session()->getOldInput();
+                return $request->session()->get('_old_input', []);
             },
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),

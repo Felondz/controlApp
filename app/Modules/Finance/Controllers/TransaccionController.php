@@ -110,7 +110,7 @@ class TransaccionController extends Controller
         if ($transaccion->cuenta_id && $transaccion->status === 'completed') {
             $cuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
             if ($cuenta) {
-                $cuenta->saldo_actual += $transaccion->monto; // Monto is already signed (+/-)
+                $cuenta->saldo_actual = (int) ($cuenta->saldo_actual + $transaccion->monto); // Monto is already signed (+/-)
                 $cuenta->save();
             }
         }
@@ -168,7 +168,7 @@ class TransaccionController extends Controller
         if ($transaccion->cuenta_id && $transaccion->status === 'completed') {
             $oldCuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
             if ($oldCuenta) {
-                $oldCuenta->saldo_actual -= $transaccion->monto;
+                $oldCuenta->saldo_actual = (int) ($oldCuenta->saldo_actual - $transaccion->getOriginal('monto'));
                 $oldCuenta->save();
             }
         }
@@ -179,7 +179,7 @@ class TransaccionController extends Controller
         if ($transaccion->cuenta_id && $transaccion->status === 'completed') {
             $newCuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
             if ($newCuenta) {
-                $newCuenta->saldo_actual += $transaccion->monto;
+                $newCuenta->saldo_actual = (int) ($newCuenta->saldo_actual + $transaccion->monto);
                 $newCuenta->save();
             }
         }
@@ -211,7 +211,7 @@ class TransaccionController extends Controller
         if ($transaccion->cuenta_id && $transaccion->status === 'completed') {
             $cuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
             if ($cuenta) {
-                $cuenta->saldo_actual -= $transaccion->monto;
+                $cuenta->saldo_actual = (int) ($cuenta->saldo_actual - $transaccion->monto);
                 $cuenta->save();
             }
         }
@@ -258,7 +258,7 @@ class TransaccionController extends Controller
         // Update account balance (monto is already negative for expenses)
         $cuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
         if ($cuenta) {
-            $cuenta->saldo_actual += $transaccion->monto;
+            $cuenta->saldo_actual = (int) ($cuenta->saldo_actual - $transaccion->monto);
             $cuenta->save();
         }
 

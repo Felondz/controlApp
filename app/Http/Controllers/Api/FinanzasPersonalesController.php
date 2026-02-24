@@ -16,6 +16,7 @@ class FinanzasPersonalesController extends Controller
     {
         $usuario = $request->user();
 
+        /** @var \App\Models\Proyecto|null $financierPersonal */
         $financierPersonal = $usuario->proyectosPersonales()
             ->where('es_personal', true)
             ->first();
@@ -36,6 +37,7 @@ class FinanzasPersonalesController extends Controller
     {
         $usuario = $request->user();
 
+        /** @var \App\Models\Proyecto|null $proyectoPersonal */
         $proyectoPersonal = $usuario->proyectosPersonales()
             ->where('es_personal', true)
             ->first();
@@ -57,6 +59,7 @@ class FinanzasPersonalesController extends Controller
     {
         $usuario = $request->user();
 
+        /** @var \App\Models\Proyecto|null $proyectoPersonal */
         $proyectoPersonal = $usuario->proyectosPersonales()
             ->where('es_personal', true)
             ->first();
@@ -81,6 +84,7 @@ class FinanzasPersonalesController extends Controller
     {
         $usuario = $request->user();
 
+        /** @var \App\Models\Proyecto|null $proyectoPersonal */
         $proyectoPersonal = $usuario->proyectosPersonales()
             ->where('es_personal', true)
             ->first();

@@ -75,7 +75,7 @@ class OperationsModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, string>
      */
     public function getRoutes(): array
     {
@@ -86,7 +86,7 @@ class OperationsModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {

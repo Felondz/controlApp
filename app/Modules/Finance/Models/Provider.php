@@ -3,6 +3,8 @@
 namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
@@ -10,9 +12,10 @@ use Laravel\Scout\Searchable;
 
 class Provider extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProviderFactory> */
     use HasFactory, SoftDeletes, Searchable;
 
-    protected static function newFactory()
+    protected static function newFactory(): \Database\Factories\ProviderFactory
     {
         return \Database\Factories\ProviderFactory::new();
     }
@@ -33,9 +36,9 @@ class Provider extends Model
     /**
      * Get the indexable data array for the model.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
         return [
             'id' => $this->id,
@@ -47,12 +50,18 @@ class Provider extends Model
         ];
     }
 
-    public function proyecto()
+    /**
+     * @return BelongsTo<Proyecto, $this>
+     */
+    public function proyecto(): BelongsTo
     {
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function contracts()
+    /**
+     * @return HasMany<SupplyContract, $this>
+     */
+    public function contracts(): HasMany
     {
         return $this->hasMany(SupplyContract::class);
     }

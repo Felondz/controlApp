@@ -52,8 +52,8 @@ class ExportController extends Controller
                         $t->fecha,
                         $t->descripcion,
                         $t->monto / 100, // Convert from cents
-                        $t->categoria?->nombre ?? 'Sin categoría',
-                        $t->cuenta?->nombre ?? 'Sin cuenta',
+                        $t->categoria->nombre ?? 'Sin categoría',
+                        $t->cuenta->nombre ?? 'Sin cuenta',
                         $t->monto > 0 ? 'Ingreso' : 'Gasto',
                     ]);
                 }
