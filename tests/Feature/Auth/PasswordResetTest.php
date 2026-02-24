@@ -50,7 +50,7 @@ class PasswordResetTest extends TestCase
     {
         $user = User::factory()->create();
         $token = Password::createToken($user);
-        $newPassword = 'new-password-123';
+        $newPassword = 'New-password123';
 
         $response = $this->post(route('password.store'), [
             'token' => $token,
@@ -87,7 +87,7 @@ class PasswordResetTest extends TestCase
         $response = $this->post(route('password.store'), [
             'token' => $token,
             'email' => $user->email,
-            'password' => 'new-password',
+            'password' => 'New-password1',
             'password_confirmation' => 'wrong-confirmation',
             '_token' => csrf_token(),
         ]);

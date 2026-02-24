@@ -35,9 +35,13 @@ composer test                   # Alternative
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan serve
 
-# Static analysis (CRITICAL - must pass)
-./vendor/bin/phpstan analyse    # Level 8 - Very strict
+# Static analysis (CRITICAL - must pass after EVERY PHP change)
+./vendor/bin/phpstan analyse    # Full project - Level 8
+./vendor/bin/phpstan analyse app/Modules/ModuleName/  # Targeted module analysis
+./vendor/bin/phpstan analyse app/Mcp/                 # MCP tools analysis
 ```
+
+> **⚠️ MANDATORY**: After ANY PHP file creation or modification, you MUST run `./vendor/bin/phpstan analyse` on the affected files/directories and resolve ALL errors before considering the task complete. Zero errors is the only acceptable result.
 
 ### Frontend Commands
 ```bash
@@ -70,7 +74,9 @@ pnpm test --run --reporter=verbose SpecificTest.test.jsx
 - **Strict Typing**: All files MUST start with `<?php declare(strict_types=1);`
 - **PSR-12 Compliance**: Follow PSR-12 coding standards
 - **Type Hints**: Use type hints everywhere (parameters, return types, properties)
-- **PHPStan Level 8**: Code must pass PHPStan analysis at Level 8
+- **PHPStan Level 8**: Code must pass PHPStan analysis at Level 8. Run after EVERY change.
+- **Eloquent Generics**: All Eloquent relationships MUST include PHPStan generics (e.g., `@return BelongsTo<Model, $this>`)
+- **Factory Generics**: All factories MUST have `@extends Factory<Model>` annotations
 - **DocBlocks**: Use comprehensive PHPDoc for classes, methods, and properties
 
 #### PHP Code Structure
@@ -224,7 +230,7 @@ import LocalComponent from '@/Components/LocalComponent';
 1. **Setup**: Use `composer setup` for new environments
 2. **Development**: Use `composer dev` for full-stack development
 3. **Testing**: Run tests frequently during development
-4. **Quality**: Ensure PHPStan passes before committing
+4. **PHPStan**: Run `./vendor/bin/phpstan analyse` on every modified PHP file — **zero errors required**
 5. **Documentation**: Update docs for significant changes
 
 ## Special Considerations

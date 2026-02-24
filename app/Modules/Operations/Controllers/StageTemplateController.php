@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class StageTemplateController extends Controller
 {
-    public function store(Request $request, Proyecto $proyecto, EtapaProceso $stage)
+    public function store(Request $request, Proyecto $proyecto, EtapaProceso $stage): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'inventory_item_id' => 'required|exists:inventory_items,id',
@@ -33,7 +33,7 @@ class StageTemplateController extends Controller
         ])->with('success', 'Insumo agregado a la receta.');
     }
 
-    public function destroy(Request $request, Proyecto $proyecto, StageInputTemplate $template)
+    public function destroy(Request $request, Proyecto $proyecto, StageInputTemplate $template): \Illuminate\Http\RedirectResponse
     {
         $processId = $template->etapaProceso->production_process_id;
         $template->delete();

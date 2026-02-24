@@ -394,3 +394,71 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
 ### B. Decisiones de Diseño
 *   **Separación de Tests Frontend**: Se movieron los tests de componentes fuera de `resources/js` hacia `tests/Frontend/` para mantener una estructura espejo más limpia.
 *   **Mocking Extensivo**: Para `History.test.jsx` se mockearon dependencias pesadas (`AuthenticatedLayout`, `usePage`, `router`) enfocando el test en la lógica del componente.
+
+---
+
+## 13. Macro-Refactor: Arquitectura Actions, GraphQL y MCP (Fase 1)
+**Fecha de Inicio**: Febrero 2026
+**Objetivo**: Desacoplar la lógica de negocio de los controladores hacia un patrón de Actions puro, introducir DTOs estrictos, preparar el terreno para GraphQL (Mobile) y MCP (IA), e implementar el patrón Services para integraciones externas. Todo previniendo consultas N+1.
+
+### A. Módulo Piloto: Inventory
+*   **Decisión**: Utilizar `InventoryModule` como prueba de concepto para el nuevo estándar arquitectónico.
+*   **Implementación - Paso 1**: Extracción de lógica de `InventoryItemController` hacia DTOs y Actions.
+    *   `CreateInventoryItemDTO` y `UpdateInventoryItemDTO` creados para asegurar tipado estricto independiente del protocolo.
+    *   `CreateInventoryItemAction`, `UpdateInventoryItemAction`, `DeleteInventoryItemAction` creados. Toda creación de modelos y transacciones iniciales se movió aquí.
+    *   Se aseguró el uso de Eager Loading explícito en las consultas donde aplique para prevenir N+1.
+
+
+### B. Módulo Operations: Extracción a Actions/DTOs
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Extracción de Actions**: Se migró toda la lógica de negocio de `LoteController` hacia Actions dedicados:
+    *   `CreateProductionProcessAction`, `UpdateProductionProcessAction`, `DeleteProductionProcessAction`
+    *   `CreateLoteAction`, `UpdateLoteAction`, `UpdateLoteStageAction`, `FinishLoteAction`, `DiscardLoteAction`
+    *   `AddLoteInputAction`, `ConsumeLoteInputAction`
+*   [x] **DTOs Estrictos**: Creados DTOs para cada operación con tipado estricto (`readonly class`):
+    *   `CreateProductionProcessDTO`, `UpdateProductionProcessDTO`, `CreateLoteDTO`, `UpdateLoteDTO`
+    *   `UpdateLoteStageDTO`, `FinishLoteDTO`, `DiscardLoteDTO`, `AddLoteInputDTO`, `ConsumeLoteInputDTO`
+
+### C. GraphQL para Operations
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Schema GraphQL**: Creado `graphql/Operations/operations.graphql` con:
+    *   Tipos: `ProductionProcess`, `LoteProduccion`, `EtapaProceso`, `LoteInsumo`, `StageInputTemplate`
+    *   Queries: `productionProcesses`, `productionProcess`, `lotes`, `lote`
+    *   Mutations: `createProductionProcess`, `updateProductionProcess`, `deleteProductionProcess`, `createLote`, `updateLote`, `updateLoteStage`, `finishLote`, `discardLote`, `addLoteInput`, `consumeLoteInput`
+*   [x] **Resolver Central**: Implementado `OperationsMutations.php` con tipado estricto:
+    *   PHPDoc `@param array<string, mixed>` en todos los métodos
+    *   Inline `@var` en `findOrFail()` para resolver tipos de unión
+    *   Mapeo correcto hacia DTOs y Actions existentes
+*   [x] **Integración en Schema Principal**: `graphql/schema.graphql` importa el schema de Operations.
+
+### D. Conformidad PHPStan (Operations)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Modelos**: Se añadieron genéricos (`BelongsTo<Model, $this>`, `HasMany<Model, $this>`, `MorphMany<Model, $this>`) a todas las relaciones de:
+    *   `EtapaProceso`, `LoteProduccion`, `ProductionProcess`, `LoteInsumo`, `StageInputTemplate`, `StageTaskTemplate`
+*   [x] **Factories**: Se añadieron `@extends Factory<Model>` a las factorias existentes y `@return Factory<self>` a `newFactory()`.
+*   [x] **Limpieza**: Se removió `HasFactory` de `LoteInsumo` y `StageInputTemplate` (no tienen factorias asociadas).
+*   [x] **Resultado**: `[OK] No errors` en PHPStan para Operations GraphQL, Models y Factories.
+
+### E. Refactor Inventario: AI (MCP) y GraphQL API Layer
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+- Se separó la lógica de negocio de los controladores HTTP usando el patrón Action (`app/Modules/Inventory/Actions/`). Se crearon DTOs correspondientes.
+- Se resolvieron vulnerabilidades de seguridad con `composer audit` actualizando `phpunit` y paquetes symfony.
+- Se inició el schema GraphQL configurando `nuwave/lighthouse` con `Sanctum` como guard de autenticación. Se creó `inventory.graphql` con Queries y Mutations resueltas via `InventoryMutations.php`.
+- Se diseñaron modelos de datos para la integración con IA (MCP). Se implementó la migración `UserLLMSetting` con campos `encrypted` para API keys.
+- Se estableció `LLMServiceInterface` y `LLMManager` para inyectar credenciales de IA dinámicamente por usuario.
+- Se exportaron acciones de negocio como Tools de IA via Laravel MCP (`laravel/mcp`): `ConsultStockTool`, `CreateInventoryItemTool`, `UpdateInventoryItemTool` en un `InventoryServer` dedicado.
+
+### F. MCP para Operations (AI Tools)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **OperationsServer**: Nuevo servidor MCP (`app/Mcp/Servers/OperationsServer.php`) con instrucciones contextuales sobre el ciclo de vida de producción.
+*   [x] **12 Tools creados** en `app/Mcp/Tools/`:
+    *   **Procesos**: `ListProductionProcessesTool`, `CreateProductionProcessTool`, `UpdateProductionProcessTool`, `DeleteProductionProcessTool`
+    *   **Lotes**: `ConsultLotesTool`, `CreateLoteTool`, `UpdateLoteTool`, `UpdateLoteStageTool`, `FinishLoteTool`, `DiscardLoteTool`
+    *   **Insumos**: `AddLoteInputTool`, `ConsumeLoteInputTool`
+*   [x] **Patrón consistente**: Cada tool sigue el patrón establecido por Inventory: valida `proyecto_id`, construye el DTO correspondiente, delega al Action, y retorna `Response::text()`.
+*   [x] **PHPStan**: `[OK] No errors` en todo `app/Mcp/`.

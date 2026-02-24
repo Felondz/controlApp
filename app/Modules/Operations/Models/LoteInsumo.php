@@ -3,13 +3,12 @@
 namespace App\Modules\Operations\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\Inventory\Models\InventoryItem;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LoteInsumo extends Model
 {
-    use HasFactory;
-
     protected $table = 'lote_insumos';
 
     protected $fillable = [
@@ -30,17 +29,26 @@ class LoteInsumo extends Model
         'total_cost' => 'decimal:2',
     ];
 
-    public function lote()
+    /**
+     * @return BelongsTo<LoteProduccion, $this>
+     */
+    public function lote(): BelongsTo
     {
         return $this->belongsTo(LoteProduccion::class, 'lote_produccion_id');
     }
 
-    public function product()
+    /**
+     * @return BelongsTo<InventoryItem, $this>
+     */
+    public function product(): BelongsTo
     {
         return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
     }
 
-    public function stage()
+    /**
+     * @return BelongsTo<EtapaProceso, $this>
+     */
+    public function stage(): BelongsTo
     {
         return $this->belongsTo(EtapaProceso::class, 'stage_id');
     }

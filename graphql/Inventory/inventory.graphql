@@ -1,0 +1,64 @@
+type InventoryItem {
+    id: ID!
+    proyecto_id: ID!
+    name: String!
+    sku: String
+    type: String!
+    unit: String!
+    current_stock: Float!
+    min_stock_level: Float!
+    cost_price: Float!
+    sale_price: Float!
+    image_path: String
+    is_active: Boolean!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    "Obtener un item de inventario específico"
+    inventoryItem(
+        id: ID! @eq
+    ): InventoryItem @find
+
+    "Listar items de inventario de un proyecto con filtros"
+    inventoryItems(
+        proyecto_id: ID! @eq
+        name: String @where(operator: "like")
+        type: String @eq
+        is_active: Boolean @eq
+}
+
+extend type Mutation {
+    "Crear un nuevo item de inventario"
+    createInventoryItem(
+        proyecto_id: ID!
+        name: String!
+        type: String!
+        unit: String!
+        sku: String
+        min_stock_level: Float
+        initial_quantity: Float
+        initial_cost: Float
+        sale_price: Float
+    ): InventoryItem! @field(resolver: "App\\Modules\\Inventory\\GraphQL\\Mutations\\InventoryMutations@create") @guard
+
+    "Actualizar un item de inventario existente"
+    updateInventoryItem(
+        id: ID!
+        proyecto_id: ID!
+        name: String!
+        type: String!
+        unit: String!
+        sku: String
+        min_stock_level: Float
+        sale_price: Float
+        stock_adjustment: Float
+    ): InventoryItem! @field(resolver: "App\\Modules\\Inventory\\GraphQL\\Mutations\\InventoryMutations@update") @guard
+
+    "Eliminar un item de inventario"
+    deleteInventoryItem(
+        id: ID!
+        proyecto_id: ID!
+    ): Boolean! @field(resolver: "App\\Modules\\Inventory\\GraphQL\\Mutations\\InventoryMutations@delete") @guard
+}
