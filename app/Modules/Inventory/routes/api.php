@@ -5,10 +5,13 @@ use App\Modules\Inventory\Controllers\InventoryItemController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('proyectos/{proyecto}/inventory')->group(function () {
-        Route::get('/items', [InventoryItemController::class, 'index'])->name('api.inventory.items.index');
-        Route::post('/items', [InventoryItemController::class, 'store'])->name('api.inventory.items.store');
-        Route::get('/items/{item}', [InventoryItemController::class, 'show'])->name('api.inventory.items.show');
-        Route::put('/items/{item}', [InventoryItemController::class, 'update'])->name('api.inventory.items.update');
-        Route::delete('/items/{item}', [InventoryItemController::class, 'destroy'])->name('api.inventory.items.destroy');
+        Route::apiResource('items', InventoryItemController::class)
+            ->except(['show'])
+            ->names([
+                'index' => 'api.inventory.items.index',
+                'store' => 'api.inventory.items.store',
+                'update' => 'api.inventory.items.update',
+                'destroy' => 'api.inventory.items.destroy',
+            ]);
     });
 });

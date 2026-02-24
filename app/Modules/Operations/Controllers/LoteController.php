@@ -19,6 +19,11 @@ use Carbon\Carbon;
 
 class LoteController extends Controller
 {
+    /**
+     * Listar lotes
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     */
     public function index(Request $request, Proyecto $proyecto): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $processes = ProductionProcess::where('proyecto_id', $proyecto->id)
@@ -143,6 +148,11 @@ class LoteController extends Controller
 
 
 
+    /**
+     * Crear un nuevo lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     */
     public function store(Request $request, Proyecto $proyecto, \App\Modules\Operations\Actions\CreateLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
@@ -176,6 +186,12 @@ class LoteController extends Controller
         ])->with('success', 'Lote creado exitosamente.');
     }
 
+    /**
+     * Actualizar etapa del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
     public function updateStage(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\UpdateLoteStageAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
@@ -197,6 +213,12 @@ class LoteController extends Controller
         return back()->with('success', 'Etapa actualizada.');
     }
 
+    /**
+     * Ver detalle del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
     public function show(Request $request, Proyecto $proyecto, LoteProduccion $lote): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $lote->load(['assignedUser', 'stage', 'productionProcess', 'tasks.assignedTo', 'inputs.product']);
@@ -207,6 +229,12 @@ class LoteController extends Controller
         ]);
     }
 
+    /**
+     * Añadir insumo al lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
     public function addInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\AddLoteInputAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
@@ -266,6 +294,12 @@ class LoteController extends Controller
         return back()->with('success', 'Consumo registrado (descontando de inventario en segundo plano).');
     }
 
+    /**
+     * Finalizar producción del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
     public function finish(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\FinishLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
@@ -292,6 +326,12 @@ class LoteController extends Controller
         return back()->with('success', 'Lote finalizado (procesando en segundo plano).');
     }
 
+    /**
+     * Descartar lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
     public function discard(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\DiscardLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([

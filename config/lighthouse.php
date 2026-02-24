@@ -201,7 +201,14 @@ return [
     */
 
     'namespaces' => [
-        'models' => ['App', 'App\\Models'],
+        'models' => [
+            'App',
+            'App\\Models',
+            'App\\Modules\\Inventory\\Models',
+            'App\\Modules\\Finance\\Models',
+            'App\\Modules\\Operations\\Models',
+            'App\\Modules\\Tasks\\Models'
+        ],
         'queries' => 'App\\GraphQL\\Queries',
         'mutations' => 'App\\GraphQL\\Mutations',
         'subscriptions' => 'App\\GraphQL\\Subscriptions',

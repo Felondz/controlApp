@@ -42,3 +42,6 @@ _ide_helper.php
 .phpstan*
 phpstan.neon.cache
 /storage/phpstan
+
+# Generated API Documentation
+/public/docs/graphql/

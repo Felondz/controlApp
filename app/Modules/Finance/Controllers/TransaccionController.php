@@ -31,7 +31,7 @@ class TransaccionController extends Controller
     }
 
     /**
-     * Almacena una transacción 
+     * Almacena una transacción
      */
     public function store(StoreTransaccionRequest $request, Proyecto $proyecto)
     {

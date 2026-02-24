@@ -363,7 +363,12 @@
             "start_title": "¿Listo para tomar el control?",
             "create_account": "Crear Cuenta Gratis",
             "login": "Ingresar a la Plataforma"
-        }
+        },
+        "hub_rest_api_title": "Referencia REST API",
+        "hub_rest_api_desc": "Documentación automática de los endpoints REST del sistema.",
+        "hub_graphql_api_title": "Referencia GraphQL",
+        "hub_graphql_api_desc": "Explora el esquema, tipos y mutaciones de la API GraphQL.",
+        "explore_api": "Explorar API"
     },
     "errors": {
         "404": "Página no encontrada",

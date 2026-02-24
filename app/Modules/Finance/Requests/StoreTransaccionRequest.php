@@ -35,7 +35,7 @@ class StoreTransaccionRequest extends FormRequest
             'categoria_id' => [
                 'required',
                 'numeric',
-                Rule::exists('categorias', 'id')->where('proyecto_id', $proyecto->id),
+                Rule::exists('categorias', 'id')->where('proyecto_id', $proyecto?->id),
             ],
             'monto' => 'required|numeric',
             'descripcion' => 'nullable|string|max:255',
@@ -45,7 +45,7 @@ class StoreTransaccionRequest extends FormRequest
             'task_id' => [
                 'nullable',
                 'numeric',
-                Rule::exists('tasks', 'id')->where('project_id', $proyecto->id),
+                Rule::exists('tasks', 'id')->where('project_id', $proyecto?->id),
             ],
             // Payment automation fields
             'cuenta_predeterminada_id' => 'nullable|exists:cuentas,id',

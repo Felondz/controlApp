@@ -191,7 +191,12 @@
             "start_title": "Ready to take control?",
             "create_account": "Create Free Account",
             "login": "Login to Platform"
-        }
+        },
+        "hub_rest_api_title": "REST API Reference",
+        "hub_rest_api_desc": "Automatic documentation of the system's REST endpoints.",
+        "hub_graphql_api_title": "GraphQL Reference",
+        "hub_graphql_api_desc": "Explore the GraphQL API schema, types, and mutations.",
+        "explore_api": "Explore API"
     },
     "categories": {
         "title": "Categories",

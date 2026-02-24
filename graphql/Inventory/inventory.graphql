@@ -27,6 +27,7 @@ extend type Query {
         name: String @where(operator: "like")
         type: String @eq
         is_active: Boolean @eq
+    ): [InventoryItem!]! @paginate(defaultCount: 15)
 }
 
 extend type Mutation {

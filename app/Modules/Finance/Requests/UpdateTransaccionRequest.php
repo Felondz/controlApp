@@ -24,7 +24,7 @@ class UpdateTransaccionRequest extends FormRequest
         $transaccion = $this->route('transaccion');
 
         // obtenemos el proyecto.
-        $proyecto = $transaccion->proyecto;
+        $proyecto = $transaccion?->proyecto;
 
         return [
             'monto' => 'sometimes|numeric',
@@ -37,7 +37,7 @@ class UpdateTransaccionRequest extends FormRequest
                 'sometimes',
                 'numeric',
                 Rule::exists('categorias', 'id')
-                    ->where('proyecto_id', $proyecto ? $proyecto->id : null),
+                    ->where('proyecto_id', $proyecto?->id),
             ],
             'cuenta_id' => [
                 'nullable',

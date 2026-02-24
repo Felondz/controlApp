@@ -9,10 +9,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Tasks Resource
         // Matches web.php: Route::resource('mis-proyectos.tasks', ...)
         Route::apiResource('tasks', TaskController::class)
+            ->except(['show'])
             ->names([
                 'index' => 'api.tasks.index',
                 'store' => 'api.tasks.store',
-                'show' => 'api.tasks.show',
                 'update' => 'api.tasks.update',
                 'destroy' => 'api.tasks.destroy',
             ]);
