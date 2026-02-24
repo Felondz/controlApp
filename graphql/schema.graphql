@@ -4,6 +4,7 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 # Módulos
 #import Inventory/*.graphql
 #import Operations/*.graphql
+#import Finance/*.graphql
 
 "Indicates what fields are available at the top level of a query operation."
 type Query {

@@ -462,3 +462,14 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
     *   **Insumos**: `AddLoteInputTool`, `ConsumeLoteInputTool`
 *   [x] **Patrón consistente**: Cada tool sigue el patrón establecido por Inventory: valida `proyecto_id`, construye el DTO correspondiente, delega al Action, y retorna `Response::text()`.
 *   [x] **PHPStan**: `[OK] No errors` en todo `app/Mcp/`.
+
+### G. Migración módulo Finance (Actions/DTOs + GraphQL + MCP)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **8 DTOs** en `app/Modules/Finance/DTOs/`: `CreateTransaccionDTO`, `UpdateTransaccionDTO`, `CreateCuentaDTO`, `UpdateCuentaDTO`, `UpdateCuentaEstadoDTO`, `PayCreditCardBillDTO`, `CreateCategoriaDTO`, `UpdateCategoriaDTO`.
+*   [x] **12 Actions** en `app/Modules/Finance/Actions/`: CRUD Transacciones (Create/Update/Delete/PayBillDirectly), CRUD Cuentas (Create/Update/Delete/UpdateEstado/PayCreditCardBill), CRUD Categorías (Create/Update/Delete).
+*   [x] **GraphQL Schema** `graphql/Finance/finance.graphql`: Tipos `Transaccion`, `Cuenta`, `Categoria`, `BalanceResponse`, `PayCreditCardBillResponse`. Queries y 12 Mutations.
+*   [x] **GraphQL Resolver** `FinanceMutations.php`: Delegación completa a Actions vía DTOs.
+*   [x] **FinanceServer MCP** con **7 Tools**: `ConsultBalanceTool`, `ListTransaccionesTool`, `CreateTransaccionTool`, `ListCuentasTool`, `CreateCuentaTool`, `PayBillTool`, `ListCategoriasTool`.
+*   [x] **Modelo `Transaccion`**: Se añadieron return types explícitos y generics PHPDoc a las 9 relaciones. Se tipó `newFactory()` y se añadió `@use HasFactory<Factory>`.
+*   [x] **PHPStan**: `[OK] No errors`. **Tests**: 48 passed.
