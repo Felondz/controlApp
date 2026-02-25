@@ -13,6 +13,7 @@ import { useInactivityTimeout } from '@/Hooks/useInactivityTimeout';
 import SessionExpiredModal from '@/Components/SessionExpiredModal';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AiChatWidget from '@/Components/AiChatWidget';
+import BugReporterWidget from '@/Components/BugReporterWidget';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -408,6 +409,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
             <SessionExpiredModal show={showSessionExpired} />
             {hasActiveAi && <AiChatWidget />}
+            {usePage().props.is_ptr && <BugReporterWidget />}
         </div >
     );
 }

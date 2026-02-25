@@ -67,6 +67,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'enabled_tools',
         'settings',
         'is_ai_enabled',
+        'is_active',
     ];
 
     /**
@@ -102,6 +103,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_super_admin' => 'boolean',
+            'is_active' => 'boolean',
             'enabled_tools' => 'array',
             'settings' => 'array',
         ];

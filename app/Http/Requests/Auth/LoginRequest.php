@@ -55,6 +55,13 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (!$user->is_active) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'Su cuenta ha sido desactivada por un administrador.',
+            ]);
+        }
+
         // 1. Validar credenciales (Password check)
         if (!Auth::validate($credentials)) {
             \Illuminate\Support\Facades\Log::info('LoginRequest: Credentials validation failed');

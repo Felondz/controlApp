@@ -125,11 +125,20 @@ export default forwardRef(function ComponentName(
     
     return (
         <div className="tailwind-classes">
-            {/* JSX content */}
+            {/* Conditional Route Safety Check */}
+            {window.route && window.route().has('optional.route') && (
+                <Link href={route('optional.route')}>Link</Link>
+            )}
         </div>
     );
 });
 ```
+
+#### Conditional Routes (Ziggy Prevention)
+> **⚠️ CRITICAL**: When rendering links or components for routes that are conditionally loaded in the backend (e.g., behind environment checks like `APP_ENV=staging`), you **MUST** verify the route exists in the frontend Ziggy object.
+> Calling `route('missing.route')` will crash the entire React application.
+> **ALWAYS** wrap conditional routes like this:
+> `{window.route && window.route().has('your.route.name') && <Link href={route('your.route.name')}>...`
 
 ## Architecture Guidelines
 

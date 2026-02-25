@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0] - 2026-02-25
 
+### 👑 FEATURE: Admin Panel — User Management & PTR Dashboard (Feb 25, 2026)
+
+**Type**: Feature & Internationalization
+**Impact**: HIGH — Centralized administration for users and bug reports
+**Tests Affected**: Core Admin & PTR routes verified
+
+**Description**:
+Implemented a comprehensive Admin Suite for user management and a dedicated dashboard for the Bug Reporter (PTR). Standardized internationalization across all administration panels and enforced security defaults for AI features.
+
+**Key Changes**:
+
+- ✅ **User Management Dashboard** (`Admin/Users/Index.jsx`): Paginated data table with real-time search, role filtering (Super Admin/User), and status filtering (Active/Inactive).
+- ✅ **User Detail View** (`Admin/Users/Show.jsx`): Deep dive into user statistics (projects, tasks, accounts, messages) and a "Dangerous Zone" for account activation/deactivation and role promotion.
+- ✅ **Bug Reports Dashboard** (`Ptr/BugReportsDashboard.jsx`): Refactored full-page dashboard for PTR module, supporting status updates, developer notes, and category filtering.
+- ✅ **Admin Internationalization**: 100% `i18n` coverage for all admin panels. Replaced 40+ hardcoded strings with `t()` calls and expanded `es.json`/`en.json` dictionaries.
+- ✅ **AI Security Default**: All users (new and existing) now have `is_ai_enabled` set to `false` by default. Existing users had their toggles reset via a one-time data migration to ensure consistency.
+- ✅ **UI Theme Consistency**: Standardized topbar headers in Admin views to follow the primary theme color (`text-primary-600`), resolving "white text" visibility issues.
+- ✅ **Sidebar Administration Section**: New organized sidebar group for Super Admins.
+
+**Files Created/Modified**:
+- `resources/js/Pages/Admin/Users/Index.jsx` (NEW)
+- `resources/js/Pages/Admin/Users/Show.jsx` (NEW)
+- `resources/js/Pages/Ptr/BugReportsDashboard.jsx` (NEW)
+- `database/migrations/2026_02_25_203947_change_is_ai_enabled_default_in_users_table.php` (NEW)
+- `database/migrations/2026_02_25_211500_disable_ai_for_all_existing_users.php` (NEW)
+- `resources/lang/es/es.json`, `resources/lang/en/en.json`
+- `routes/web.php` — New `/admin/users` route group
+- `app/Http/Controllers/Admin/UserController.php` (NEW)
+
+---
+
 ### 🤖 FEATURE: AI Integration — LLM Chat Widget & Global Kill Switch (Feb 24, 2026)
 
 **Type**: Major Feature

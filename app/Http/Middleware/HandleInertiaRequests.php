@@ -58,6 +58,7 @@ class HandleInertiaRequests extends Middleware
                 'unread_projects' => $unreadData['unread_projects'],
                 'is_ai_enabled' => (bool) ($user->is_ai_enabled ?? true),
                 'has_active_ai' => (bool) ($user->is_ai_enabled ?? true) && $user->llmSettings()->where('is_active', true)->whereNotNull('api_key')->exists(),
+                'is_super_admin' => (bool) $user->is_super_admin,
             ];
         }
 
@@ -72,6 +73,7 @@ class HandleInertiaRequests extends Middleware
             'old' => function () use ($request) {
                 return $request->session()->get('_old_input', []);
             },
+            'is_ptr' => config('app.env') === 'staging' || filter_var(env('PTR_MODE', false), FILTER_VALIDATE_BOOLEAN),
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),

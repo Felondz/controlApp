@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import {
     CalendarIcon,
@@ -11,11 +11,14 @@ import {
     EllipsisVerticalIcon,
     PuzzleIcon,
     ChatIcon,
-    FactoryIcon
+    FactoryIcon,
+    BugIcon,
+    UsersIcon
 } from '@/Components/Icons';
 
 export default function NavigationSheet({ isOpen, onClose, user, project = null }) {
     const { t } = useTranslate();
+    const { is_ptr } = usePage().props;
     const enabledTools = user?.enabled_tools || [];
     const modules = project?.modules || [];
 
@@ -86,6 +89,21 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             icon: CalculatorIcon,
             route: 'tools.calculator',
             show: enabledTools.includes('financial-calculator'),
+        },
+    ];
+
+    const adminItems = [
+        {
+            name: t('bug_reporter.dashboard_title', 'Reportes de Bugs'),
+            icon: BugIcon,
+            route: 'ptr.bug-reports.index',
+            show: user?.is_super_admin && is_ptr && window.route && window.route().has('ptr.bug-reports.index'),
+        },
+        {
+            name: t('admin.users_title', 'Gestión de Usuarios'),
+            icon: UsersIcon,
+            route: 'admin.users.index',
+            show: user?.is_super_admin && window.route && window.route().has('admin.users.index'),
         },
     ];
 
@@ -178,6 +196,17 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
                                     {globalItems.map(renderItem)}
                                 </div>
                             </div>
+
+                            {user?.is_super_admin && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-danger-600 dark:text-danger-400 uppercase tracking-wider mb-4">
+                                        {t('admin.title', 'Administración')}
+                                    </h3>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {adminItems.map(renderItem)}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </Dialog.Panel>
                 </Transition.Child>

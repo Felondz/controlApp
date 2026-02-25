@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon, Cog6ToothIcon } from '@/Components/Icons';
+import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon, Cog6ToothIcon, SparklesAiIcon } from '@/Components/Icons';
 import axios from 'axios';
 import { Link, usePage } from '@inertiajs/react';
 import SelectInput from '@/Components/SelectInput';
@@ -221,7 +221,7 @@ export default function AiChatWidget() {
                     onClick={() => setIsOpen(true)}
                     className="p-4 rounded-full shadow-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                    <ChatBubbleLeftRightIcon className="w-6 h-6" />
+                    <SparklesAiIcon className="w-6 h-6" />
                 </button>
             )}
         </div>
