@@ -10,12 +10,12 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 | Metric | Value | Status |
 | :--- | :--- | :--- |
-13: | **Backend Tests** | 313 / 313 | ✅ **100% Stable** |
-14: | **Frontend Tests** | ~275 tests | ✅ **100% Coverage** |
-15: | **Total Tests** | ~580 tests | ✅ **Robust Coverage** |
+| **Backend Tests** | 350+ | ✅ **100% Stable** |
+| **Frontend Tests** | ~275 tests | ✅ **100% Coverage** |
+| **Total Tests** | ~625+ tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v2.8.0 (Modular Architecture) | ✅ **Stable** |
+| **Backend Version** | v3.0.0 (Actions/DTOs + GraphQL + MCP) | ✅ **Stable** |
 | **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -24,24 +24,35 @@ This status reflects the stability achieved through **Continuous Integration (CI
 
 ## Technology Stack (Demonstrated Skills)
 
-ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict separation of concerns and scalability.
+ControlApp employs a **Modular Event-Driven Architecture** with an **Actions/DTOs** pattern, ensuring strict separation of concerns and scalability.
 
 ### Modular Architecture (Core)
-- **Modules**: Independent units (Finance, Tasks, Chat) located in `app/Modules/`.
+- **Modules**: Independent units (Finance, Tasks, Chat, Inventory, Operations) located in `app/Modules/`.
 - **Communication**: Strictly via **Event Bus** (`ModuleEventBus`). **Zero direct coupling** between modules.
+- **Actions/DTOs Pattern**: All business logic lives in dedicated Action classes with strict DTO inputs, decoupled from HTTP/GraphQL/MCP protocols.
 - **Registry**: Automatic module discovery and dependency resolution via `ModuleRegistry`.
 - **Scalability**: New features are added as isolated modules without modifying the core system.
 
-### Backend (API REST)
+### Backend (API-First: REST + GraphQL + MCP)
 | Component | Technology | Description |
 | :--- | :--- | :--- |
 | **Framework** | Laravel 12 (PHP 8.2+) | Expertise in MVC, Eloquent ORM, and modern PHP development. |
+| **GraphQL** | Lighthouse (nuwave/lighthouse) | Primary mobile data layer for CRUD and nested relationship fetching. |
+| **MCP (AI Tools)** | Laravel MCP (laravel/mcp) | 25+ domain-specific tools for AI-powered project management. |
 | **Authentication** | Laravel Sanctum | Implementation of **stateless JWT-style API tokens** and session management. |
 | **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
-| **Input Security** | Form Requests | Strict input validation, data sanitization, and **Rate Limiting** (5 req/min on Auth). |
+| **Static Analysis** | PHPStan Level 8 | Mandatory zero-error policy on every PHP change. |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
 | **Search** | Meilisearch + Scout | Fast, relevant, and secure full-text search implementation. |
 | **PDF Export** | DomPDF + HTML2Canvas | High-quality PDF generation for financial reports and amortization schedules. |
+
+### AI Integration
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **LLM Providers** | OpenAI, Google Gemini, Anthropic | Multi-provider support with encrypted per-user API keys. |
+| **AI Chat Widget** | Global React Widget + SSE Streaming | Context-aware AI assistant with recursive MCP Tool execution (up to 5 levels). |
+| **MCP Servers** | 5 servers (Inventory, Operations, Finance, Tasks, Chat) | 25+ tools exposing business logic to AI agents. |
+| **Kill Switch** | Global `is_ai_enabled` toggle | Instantly disable all AI features per user. |
 
 ### Frontend (Web/Mobile Readiness)
 | Component | Technology | Status |
@@ -57,7 +68,7 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
 
 ### Project Management
 - **Creation & Admin**: Manage projects with custom settings.
-- **Customization (NEW)**: Per-project themes (colors, typography) and cover images.
+- **Customization**: Per-project themes (colors, typography) and cover images.
 - **Team Management**: Invite members via email, manage roles/permissions.
 - **Dashboard**: Centralized view with active module indicators and quick stats.
 
@@ -67,11 +78,12 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
 - **Financial Integration**: Create financial tasks with monetary values.
 - **Audit**: Automatic logging of task completion events.
 
-### Operations & Production (New)
+### Operations & Production
 - **Production Lines**: Manage complex workflows (e.g., Crops, Manufacturing) via `ProductionProcess`.
 - **Batch Management**: Track `LoteProduccion` across stages with full traceability.
-- **Stage Automation**: Automatically trigger tasks and SOPs when batches move between stages.
-- **Inventory Integration**: Deduct raw materials and register finished goods automatically.
+- **Recipe System**: Define input templates (ingredients/quantities) per stage, auto-cloned to batches.
+- **Stage Automation**: Automatically trigger tasks, SOPs, and inventory consumption when batches advance.
+- **Event-Driven Inventory Sync**: Consumption dispatches events; Inventory module deducts stock asynchronously.
 - **History & Reports**: Dedicated view for analyzing finished/discarded batches with status filtering.
 
 ### Finance Management
@@ -87,6 +99,13 @@ ControlApp employs a **Modular Event-Driven Architecture**, ensuring strict sepa
     - **Cash Flow**: Income/Expense analysis.
     - **AccountFlow Widget**: 3D Pie charts for visual distribution.
     - **Upcoming Obligations**: Predictive view of expenses, loan installments, and yields.
+
+### AI-Powered Assistance
+- **Global AI Chat Widget**: Context-aware assistant integrated into the main layout.
+- **Multi-Provider LLM Support**: Configure OpenAI, Google Gemini, or Anthropic with encrypted per-user API keys.
+- **Recursive Tool Execution**: AI can invoke MCP Tools (query balances, create tasks, manage inventory) up to 5 levels deep.
+- **Dynamic Model Selection**: Switch provider and model at runtime from the chat widget.
+- **Global Kill Switch**: Instantly disable all AI features with a single toggle.
 
 ### Communication & Inbox
 - **Real-time Chat**: Private and project-based messaging.
