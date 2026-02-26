@@ -61,6 +61,7 @@ class ProjectMemberUiWebController extends Controller
             return back()->withErrors(['email' => 'Este usuario ya tiene una invitación pendiente.']);
         }
 
+        /** @var Invitacion $invitacion */
         $invitacion = $proyecto->invitaciones()->create([
             'user_id' => $request->user()->id,
             'email' => $emailInvitado,
@@ -233,9 +234,9 @@ class ProjectMemberUiWebController extends Controller
         $invitedEmails = $proyecto->invitaciones()->pluck('email');
 
         $users = User::where(function ($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%");
-        })
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('email', 'like', "%{$query}%");
+            })
             ->whereNotIn('id', $memberIds)
             ->whereNotIn('email', $invitedEmails)
             ->take(10)

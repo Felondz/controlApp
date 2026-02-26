@@ -11,7 +11,7 @@ class InputConsumed extends \App\Core\Events\BaseModuleEvent
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $input;
+    public LoteInsumo $input;
 
     public function __construct(LoteInsumo $input)
     {

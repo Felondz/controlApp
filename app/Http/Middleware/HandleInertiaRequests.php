@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         // Determine locale: User preference > Browser > Default (en)
+        /** @phpstan-ignore-next-line */
         $locale = $request->user()?->locale
             ?? $request->getPreferredLanguage(['es', 'en'])
             ?? 'en';
@@ -55,6 +56,9 @@ class HandleInertiaRequests extends Middleware
                 'enabled_tools' => $user->enabled_tools ?? [],
                 'unread_messages_count' => $unreadData['unread_messages_count'],
                 'unread_projects' => $unreadData['unread_projects'],
+                'is_ai_enabled' => (bool) ($user->is_ai_enabled ?? true),
+                'has_active_ai' => (bool) ($user->is_ai_enabled ?? true) && $user->llmSettings()->where('is_active', true)->whereNotNull('api_key')->exists(),
+                'is_super_admin' => (bool) $user->is_super_admin,
             ];
         }
 
@@ -67,8 +71,9 @@ class HandleInertiaRequests extends Middleware
             'locale' => $locale,
             'translations' => $translations,
             'old' => function () use ($request) {
-                return $request->session()->getOldInput();
+                return $request->session()->get('_old_input', []);
             },
+            'is_ptr' => config('app.env') === 'staging' || filter_var(env('PTR_MODE', false), FILTER_VALIDATE_BOOLEAN),
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),

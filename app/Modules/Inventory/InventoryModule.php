@@ -75,12 +75,11 @@ class InventoryModule extends AbstractModule
     {
         return [
             'web' => __DIR__ . '/routes/web.php',
-            'api' => __DIR__ . '/routes/api.php',
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {

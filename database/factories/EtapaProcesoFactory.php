@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Modules\Operations\Models\EtapaProceso;
 use App\Models\Proyecto;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\Operations\Models\EtapaProceso>
+ */
 class EtapaProcesoFactory extends Factory
 {
     protected $model = EtapaProceso::class;

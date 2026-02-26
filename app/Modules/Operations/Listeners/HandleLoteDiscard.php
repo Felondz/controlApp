@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class HandleLoteDiscard
 {
-    public function handle(LoteDiscarded $event)
+    public function handle(LoteDiscarded $event): void
     {
         $lote = $event->lote;
         

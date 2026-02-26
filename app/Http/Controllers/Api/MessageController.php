@@ -18,8 +18,9 @@ class MessageController extends Controller
      */
     public function index(Proyecto $proyecto): JsonResponse
     {
-        // Authorization: Check if user is a member of the project
-        if (!$proyecto->miembros->contains(auth()->user()) && $proyecto->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = request()->user();
+        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -28,10 +29,10 @@ class MessageController extends Controller
         }
 
         $messages = Message::where('proyecto_id', $proyecto->id)
-            ->where(function ($query) {
+            ->where(function ($query) use ($user) {
                 $query->whereNull('recipient_id') // General messages
-                    ->orWhere('recipient_id', auth()->id()) // Private to me
-                    ->orWhere('user_id', auth()->id()); // Private from me
+                    ->orWhere('recipient_id', $user->id) // Private to me
+                    ->orWhere('user_id', $user->id); // Private from me
             })
             ->with('user:id,name,profile_photo_path', 'recipient:id,name')
             ->latest()
@@ -45,7 +46,9 @@ class MessageController extends Controller
      */
     public function store(Request $request, Proyecto $proyecto): JsonResponse
     {
-        if (!$proyecto->miembros->contains(auth()->user()) && $proyecto->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = request()->user();
+        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -60,7 +63,7 @@ class MessageController extends Controller
         ]);
 
         $message = $proyecto->messages()->create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'content' => $validated['content'],
             'type' => $validated['type'] ?? 'text',
             'recipient_id' => $validated['recipient_id'] ?? null,
@@ -76,13 +79,15 @@ class MessageController extends Controller
      */
     public function unread(Proyecto $proyecto): JsonResponse
     {
-        if (!$proyecto->miembros->contains(auth()->user()) && $proyecto->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = request()->user();
+        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         // Private messages unread
         $privateUnread = Message::where('proyecto_id', $proyecto->id)
-            ->where('recipient_id', auth()->id())
+            ->where('recipient_id', $user->id)
             ->whereNull('read_at')
             ->count();
 
@@ -91,26 +96,28 @@ class MessageController extends Controller
         $lastReadAt = null;
 
         // Check if user is a member (to get last_read_at from pivot)
-        $member = $proyecto->miembros()->where('user_id', auth()->id())->first();
+        $member = $proyecto->miembros()->where('user_id', $user->id)->first();
 
         if ($member) {
-            $lastReadAt = $member->pivot->last_read_at;
+            /** @var mixed $pivot */
+            $pivot = $member->pivot;
+            $lastReadAt = $pivot->last_read_at;
 
             if ($lastReadAt) {
                 $generalUnread = Message::where('proyecto_id', $proyecto->id)
                     ->whereNull('recipient_id')
                     ->where('created_at', '>', $lastReadAt)
-                    ->where('user_id', '!=', auth()->id()) // Don't count own messages
+                    ->where('user_id', '!=', $user->id) // Don't count own messages
                     ->count();
             } else {
                 // If never read, count all general messages not from self
                 $generalUnread = Message::where('proyecto_id', $proyecto->id)
                     ->whereNull('recipient_id')
-                    ->where('user_id', '!=', auth()->id())
+                    ->where('user_id', '!=', $user->id)
                     ->count();
             }
-        } else if ($proyecto->user_id === auth()->id()) {
-            // Owner might not be in members pivot? 
+        } else if ($proyecto->user_id === $user->id) {
+            // Owner might not be in members pivot?
             // Usually owner is also a member, but if not, logic might differ.
             // For now assume owner is member or doesn't track general read status this way.
             // If owner is not in pivot, we can't track last_read_at for general chat unless we store it elsewhere.
@@ -126,18 +133,22 @@ class MessageController extends Controller
      */
     public function markAsRead(Proyecto $proyecto): JsonResponse
     {
-        if (!$proyecto->miembros->contains(auth()->user()) && $proyecto->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = request()->user();
+        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         // Update pivot for general chat (if user is a member via pivot)
-        if ($proyecto->miembros->contains(auth()->user())) {
-            $proyecto->miembros()->updateExistingPivot(auth()->id(), ['last_read_at' => now()]);
+        if ($proyecto->miembros->contains($user)) {
+            /** @var int $userId */
+            $userId = $user->id;
+            $proyecto->miembros()->updateExistingPivot($userId, ['last_read_at' => now()]);
         }
 
         // Update private messages sent TO me in this project
         Message::where('proyecto_id', $proyecto->id)
-            ->where('recipient_id', auth()->id())
+            ->where('recipient_id', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 

@@ -65,7 +65,7 @@ class PayDirectlyApiTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function cannot_pay_bill_without_default_account(): void
     {
         // Create a pending bill WITHOUT default account
@@ -82,7 +82,7 @@ class PayDirectlyApiTest extends TestCase
         $response->assertJson(['error' => 'Esta factura no tiene cuenta predeterminada']);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_pay_already_completed_bill(): void
     {
         // Create a completed bill
@@ -99,7 +99,7 @@ class PayDirectlyApiTest extends TestCase
         $response->assertJson(['error' => 'Esta factura ya fue pagada']);
     }
 
-    /** @test */
+    #[Test]
     public function bill_from_other_project_returns_404(): void
     {
         // Create another project with a bill
@@ -115,7 +115,7 @@ class PayDirectlyApiTest extends TestCase
         $response->assertNotFound();
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_pay_bill(): void
     {
         $bill = Transaccion::factory()->create([
@@ -130,7 +130,7 @@ class PayDirectlyApiTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /** @test */
+    #[Test]
     public function successful_payment_returns_correct_response(): void
     {
         // Create a pending bill with default account

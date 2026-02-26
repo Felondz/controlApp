@@ -1,0 +1,173 @@
+# Finance Module Types
+
+type Transaccion {
+    id: ID!
+    proyecto_id: Int!
+    cuenta_id: Int
+    categoria_id: Int!
+    user_id: Int!
+    monto: Float!
+    titulo: String
+    descripcion: String
+    fecha: DateTime!
+    notas: String
+    status: String!
+    is_recurring: Boolean
+    recurrence_interval: String
+    recurrence_day: Int
+    next_occurrence: String
+    cuenta: Cuenta @belongsTo
+    categoria: Categoria @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Cuenta {
+    id: ID!
+    nombre: String!
+    banco: String
+    tipo: String!
+    saldo_inicial: Int!
+    saldo_actual: Int!
+    estado: String!
+    moneda: String
+    descripcion: String
+    color: String
+    icono: String
+    tasa_interes_anual: Float
+    limite_credito: Int
+    transacciones: [Transaccion!] @hasMany
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Categoria {
+    id: ID!
+    proyecto_id: Int!
+    nombre: String!
+    tipo: String!
+    transacciones: [Transaccion!] @hasMany
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type BalanceResponse {
+    balance: Int!
+    pending_bills: Int!
+    transaction_count: Int!
+}
+
+type PayCreditCardBillResponse {
+    transaccion: Transaccion!
+    nuevo_saldo_origen: Int!
+    nuevo_saldo_tc: Int!
+}
+
+# Queries
+extend type Query {
+    transacciones(proyecto_id: Int! @eq, status: String @eq): [Transaccion!]!
+        @guard(with: ["sanctum"])
+        @all
+
+    cuentas(proyecto_id: Int! @eq): [Cuenta!]!
+        @guard(with: ["sanctum"])
+        @all
+
+    categorias(proyecto_id: Int! @eq): [Categoria!]!
+        @guard(with: ["sanctum"])
+        @all
+}
+
+# Mutations
+extend type Mutation {
+    createTransaccion(
+        proyecto_id: Int!
+        cuenta_id: Int!
+        categoria_id: Int!
+        monto: Float!
+        fecha: String!
+        titulo: String
+        descripcion: String
+        notas: String
+        status: String
+        cuenta_predeterminada_id: Int
+        debito_automatico: Boolean
+        is_recurring: Boolean
+        recurrence_day: Int
+        cuotas: Int
+        task_id: Int
+    ): Transaccion! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@createTransaccion") @guard(with: ["sanctum"])
+
+    updateTransaccion(
+        id: ID!
+        cuenta_id: Int
+        categoria_id: Int
+        monto: Float
+        fecha: String
+        titulo: String
+        descripcion: String
+        notas: String
+        status: String
+    ): Transaccion! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@updateTransaccion") @guard(with: ["sanctum"])
+
+    deleteTransaccion(id: ID!): Boolean! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@deleteTransaccion") @guard(with: ["sanctum"])
+
+    payBillDirectly(id: ID!): Transaccion! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@payBillDirectly") @guard(with: ["sanctum"])
+
+    createCuenta(
+        proyecto_id: Int!
+        nombre: String!
+        tipo: String!
+        saldo_inicial: Int!
+        banco: String
+        moneda: String
+        descripcion: String
+        color: String
+        icono: String
+        tasa_interes_anual: Float
+        limite_credito: Int
+        monto_desembolsado: Int
+        cuenta_destino_id: Int
+    ): Cuenta! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@createCuenta") @guard(with: ["sanctum"])
+
+    updateCuenta(
+        id: ID!
+        proyecto_id: Int!
+        nombre: String
+        banco: String
+        descripcion: String
+        saldo_inicial: Int
+        color: String
+        icono: String
+    ): Cuenta! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@updateCuenta") @guard(with: ["sanctum"])
+
+    deleteCuenta(id: ID!, proyecto_id: Int!): Boolean! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@deleteCuenta") @guard(with: ["sanctum"])
+
+    updateCuentaEstado(
+        id: ID!
+        proyecto_id: Int!
+        estado: String!
+    ): Cuenta! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@updateCuentaEstado") @guard(with: ["sanctum"])
+
+    payCreditCardBill(
+        proyecto_id: Int!
+        cuenta_id: Int!
+        cuenta_origen_id: Int!
+        monto: Int!
+        tipo_pago: String!
+    ): PayCreditCardBillResponse! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@payCreditCardBill") @guard(with: ["sanctum"])
+
+    createCategoria(
+        proyecto_id: Int!
+        nombre: String!
+        tipo: String!
+    ): Categoria! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@createCategoria") @guard(with: ["sanctum"])
+
+    updateCategoria(
+        id: ID!
+        nombre: String!
+        tipo: String!
+    ): Categoria! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@updateCategoria") @guard(with: ["sanctum"])
+
+    deleteCategoria(id: ID!): Boolean! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@deleteCategoria") @guard(with: ["sanctum"])
+}

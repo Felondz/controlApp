@@ -51,7 +51,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertInstanceOf(ProcessAutoBills::class, $job);
     }
 
-    /** @test */
+    #[Test]
     public function job_processes_pending_bills_with_autopay_due_today(): void
     {
         // Create a bill scheduled for autopay today
@@ -72,7 +72,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertEquals('completed', $bill->status);
     }
 
-    /** @test */
+    #[Test]
     public function job_does_not_process_future_autopay_bills(): void
     {
         // Create a bill scheduled for future autopay
@@ -93,7 +93,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertEquals('pending', $bill->status);
     }
 
-    /** @test */
+    #[Test]
     public function job_skips_bills_without_default_account(): void
     {
         // Create a bill with autopay but no default account
@@ -114,7 +114,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertEquals('pending', $bill->status);
     }
 
-    /** @test */
+    #[Test]
     public function job_does_not_process_completed_bills(): void
     {
         // Create an already completed bill
@@ -135,7 +135,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertEquals('completed', $bill->status);
     }
 
-    /** @test */
+    #[Test]
     public function job_updates_account_balance(): void
     {
         $initialBalance = $this->cuenta->saldo_actual;
@@ -158,7 +158,7 @@ class ProcessAutoBillsTest extends TestCase
         $this->assertEquals($initialBalance - 5000, $this->cuenta->saldo_actual);
     }
 
-    /** @test */
+    #[Test]
     public function job_uses_correct_queue(): void
     {
         $job = new ProcessAutoBills();

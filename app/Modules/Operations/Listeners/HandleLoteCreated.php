@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log; // Useful for verify if it runs
 
 class HandleLoteCreated
 {
-    public function handle(LoteCreated $event)
+    public function handle(LoteCreated $event): void
     {
         $lote = $event->lote;
         

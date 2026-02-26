@@ -75,18 +75,17 @@ class OperationsModule extends AbstractModule
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, string>
      */
     public function getRoutes(): array
     {
         return [
             'web' => __DIR__ . '/routes/web.php',
-            'api' => __DIR__ . '/routes/api.php',
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * @return array<string, array<int, string>>
      */
     public function getEventListeners(): array
     {

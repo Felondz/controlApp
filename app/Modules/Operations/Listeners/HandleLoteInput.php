@@ -9,7 +9,7 @@ use App\Modules\Inventory\Models\InventoryItem;
 
 class HandleLoteInput
 {
-    public function handle(LoteInputAdded $event)
+    public function handle(LoteInputAdded $event): void
     {
         $lote = $event->lote;
         $data = $event->inputData;

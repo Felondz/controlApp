@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import ThemeToggle from '@/Components/ThemeToggle';
-import { BookOpenIcon, CodeIcon } from '@/Components/Icons';
+import { BookOpenIcon, CodeIcon, ServerStackIcon, GlobeAltIcon } from '@/Components/Icons';
 
 export default function Hub() {
     const { t } = useTranslate();
@@ -13,7 +13,6 @@ export default function Hub() {
             href: route('docs.user'),
             icon: BookOpenIcon,
             cta: t('docs.view_user_guide'),
-            // Define full classes to ensure Tailwind purge detection
             gradientClass: 'from-primary-500/10',
             bgClass: 'bg-primary-100 dark:bg-primary-900/30',
             iconClass: 'text-primary-600 dark:text-primary-400',
@@ -25,11 +24,32 @@ export default function Hub() {
             href: route('docs.dev'),
             icon: CodeIcon,
             cta: t('docs.explore_code'),
-            // Define full classes to ensure Tailwind purge detection
             gradientClass: 'from-info-500/10',
             bgClass: 'bg-info-100 dark:bg-info-900/30',
             iconClass: 'text-info-600 dark:text-info-400',
             ctaClass: 'text-info-600 dark:text-info-400'
+        },
+        {
+            title: t('docs.hub_rest_api_title'),
+            description: t('docs.hub_rest_api_desc'),
+            href: '/docs/api',
+            icon: ServerStackIcon,
+            cta: t('docs.explore_api'),
+            gradientClass: 'from-success-500/10',
+            bgClass: 'bg-success-100 dark:bg-success-900/30',
+            iconClass: 'text-success-600 dark:text-success-400',
+            ctaClass: 'text-success-600 dark:text-success-400'
+        },
+        {
+            title: t('docs.hub_graphql_api_title'),
+            description: t('docs.hub_graphql_api_desc'),
+            href: '/docs/graphql',
+            icon: GlobeAltIcon,
+            cta: t('docs.explore_api'),
+            gradientClass: 'from-warning-500/10',
+            bgClass: 'bg-warning-100 dark:bg-warning-900/30',
+            iconClass: 'text-warning-600 dark:text-warning-400',
+            ctaClass: 'text-warning-600 dark:text-warning-400'
         }
     ];
 

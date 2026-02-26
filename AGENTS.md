@@ -35,9 +35,13 @@ composer test                   # Alternative
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan serve
 
-# Static analysis (CRITICAL - must pass)
-./vendor/bin/phpstan analyse    # Level 8 - Very strict
+# Static analysis (CRITICAL - must pass after EVERY PHP change)
+./vendor/bin/phpstan analyse    # Full project - Level 8
+./vendor/bin/phpstan analyse app/Modules/ModuleName/  # Targeted module analysis
+./vendor/bin/phpstan analyse app/Mcp/                 # MCP tools analysis
 ```
+
+> **⚠️ MANDATORY**: After ANY PHP file creation or modification, you MUST run `./vendor/bin/phpstan analyse` on the affected files/directories and resolve ALL errors before considering the task complete. Zero errors is the only acceptable result.
 
 ### Frontend Commands
 ```bash
@@ -70,7 +74,9 @@ pnpm test --run --reporter=verbose SpecificTest.test.jsx
 - **Strict Typing**: All files MUST start with `<?php declare(strict_types=1);`
 - **PSR-12 Compliance**: Follow PSR-12 coding standards
 - **Type Hints**: Use type hints everywhere (parameters, return types, properties)
-- **PHPStan Level 8**: Code must pass PHPStan analysis at Level 8
+- **PHPStan Level 8**: Code must pass PHPStan analysis at Level 8. Run after EVERY change.
+- **Eloquent Generics**: All Eloquent relationships MUST include PHPStan generics (e.g., `@return BelongsTo<Model, $this>`)
+- **Factory Generics**: All factories MUST have `@extends Factory<Model>` annotations
 - **DocBlocks**: Use comprehensive PHPDoc for classes, methods, and properties
 
 #### PHP Code Structure
@@ -119,11 +125,20 @@ export default forwardRef(function ComponentName(
     
     return (
         <div className="tailwind-classes">
-            {/* JSX content */}
+            {/* Conditional Route Safety Check */}
+            {window.route && window.route().has('optional.route') && (
+                <Link href={route('optional.route')}>Link</Link>
+            )}
         </div>
     );
 });
 ```
+
+#### Conditional Routes (Ziggy Prevention)
+> **⚠️ CRITICAL**: When rendering links or components for routes that are conditionally loaded in the backend (e.g., behind environment checks like `APP_ENV=staging`), you **MUST** verify the route exists in the frontend Ziggy object.
+> Calling `route('missing.route')` will crash the entire React application.
+> **ALWAYS** wrap conditional routes like this:
+> `{window.route && window.route().has('your.route.name') && <Link href={route('your.route.name')}>...`
 
 ## Architecture Guidelines
 
@@ -131,6 +146,10 @@ export default forwardRef(function ComponentName(
 - **Modules**: `app/Modules/{ModuleName}/` (Finance, Tasks, Chat, Inventory, Operations, Analytics, Notifications)
 - **Event-Driven**: Use ModuleEventBus for inter-module communication (NO direct module coupling)
 - **Standard Laravel**: Controllers, Models, Policies, Requests, Observers
+
+### API Strategy (GraphQL vs REST)
+- **GraphQL (Primary Mobile Data Layer)**: Use for >95% of standard Mobile operations. Ideal for CRUD, fetching nested relationships (e.g., loading a Project with Members, Tasks, and Transactions in one trip), and reducing mobile payload sizes.
+- **REST API (Specialized/Streaming/Web Parity Layer)**: Use strictly for endpoints requiring HTTP Streaming (like LLM Chat SSE responses), binary file uploads, webhooks, or when identical request/response parity is mandatory between Web (React) and Mobile (React Native) bypassing GraphQL limitations.
 
 ### Frontend Organization
 - **Components**: `resources/js/components/` for reusable UI components
@@ -224,7 +243,7 @@ import LocalComponent from '@/Components/LocalComponent';
 1. **Setup**: Use `composer setup` for new environments
 2. **Development**: Use `composer dev` for full-stack development
 3. **Testing**: Run tests frequently during development
-4. **Quality**: Ensure PHPStan passes before committing
+4. **PHPStan**: Run `./vendor/bin/phpstan analyse` on every modified PHP file — **zero errors required**
 5. **Documentation**: Update docs for significant changes
 
 ## Special Considerations
@@ -241,5 +260,15 @@ import LocalComponent from '@/Components/LocalComponent';
 ### Search Integration
 - Meilisearch integration via Laravel Scout
 - Implement `toSearchableArray()` methods for searchable models
+
+## 13. Model Context Protocol (MCP) Tools
+
+ControlApp utilizes a custom MCP Server to provide structured, domain-specific tools in `app/Mcp/Tools/`. These tools give you (the AI) powerful capabilities to query balances, fetch active operations, and modify the database directly.
+
+> **🔒 MCP SECURITY PROTOCOL (CRITICAL)**: Many MCP tools that modify critical financial or inventory states (such as deleting data, discounting stock, paying bills, etc.) are protected. They mandate a boolean `confirm_action` argument in their JSON schema.
+> If a tool requests `confirm_action`, **you MUST NOT AUTO-APPROVE IT**. You must explicitly ask the user for permission in chat, and ONLY if the user says "Yes", execute the tool with `confirm_action: true`.
+
+For a full list of tools and details on this security protocol, you **MUST READ**:
+`docs/private/es/03-ia-collaboration/MCP_TOOLS.md`
 
 This document should be updated as the project evolves. Always refer to the latest version when working on the codebase.

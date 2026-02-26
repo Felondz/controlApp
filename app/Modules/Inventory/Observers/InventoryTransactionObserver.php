@@ -41,7 +41,7 @@ class InventoryTransactionObserver
         }
     }
 
-    protected function updateStock(InventoryTransaction $transaction)
+    protected function updateStock(InventoryTransaction $transaction): void
     {
         $item = $transaction->item;
         if (!$item)

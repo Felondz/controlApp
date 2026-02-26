@@ -13,7 +13,7 @@ class FinancialCalculatorService
      * @param string $termType 'months' or 'years'
      * @param string $rateType 'EA', 'NAMV', 'PM'
      * @param float $insurance Monthly insurance cost
-     * @return array
+     * @return array<string, mixed>
      */
     public function calculateLoan(
         float $amount,

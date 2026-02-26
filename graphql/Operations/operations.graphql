@@ -1,0 +1,171 @@
+type ProductionProcess {
+    id: ID!
+    proyecto_id: ID!
+    name: String!
+    description: String
+    inventory_item_id: ID
+    outputProduct: InventoryItem
+    etapas: [EtapaProceso!]!
+    lotes: [LoteProduccion!]!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type EtapaProceso {
+    id: ID!
+    production_process_id: ID!
+    name: String!
+    description: String
+    order: Int!
+    inputTemplates: [StageInputTemplate!]!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type StageInputTemplate {
+    id: ID!
+    etapa_proceso_id: ID!
+    inventory_item_id: ID!
+    item: InventoryItem
+    quantity: Float!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type LoteProduccion {
+    id: ID!
+    proyecto_id: ID!
+    production_process_id: ID!
+    stage_id: ID!
+    inventory_item_id: ID
+    code: String!
+    initial_quantity: Float
+    current_quantity: Float!
+    start_date: DateTime!
+    end_date: DateTime
+    assigned_to: ID
+    notes: String
+    status: String!
+    stage: EtapaProceso
+    productionProcess: ProductionProcess
+    inputs: [LoteInsumo!]!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type LoteInsumo {
+    id: ID!
+    lote_produccion_id: ID!
+    inventory_item_id: ID!
+    product: InventoryItem
+    quantity: Float!
+    cost: Float!
+    notes: String
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    "Obtener un proceso de producción por ID"
+    productionProcess(
+        id: ID! @eq
+    ): ProductionProcess @find
+
+    "Listar procesos de producción de un proyecto"
+    productionProcesses(
+        proyecto_id: ID! @eq
+    ): [ProductionProcess!]! @paginate(defaultCount: 15)
+
+    "Obtener un lote de producción por ID"
+    loteProduccion(
+        id: ID! @eq
+    ): LoteProduccion @find
+
+    "Listar lotes de producción de un proyecto"
+    loteProducciones(
+        proyecto_id: ID! @eq
+        status: String @eq
+    ): [LoteProduccion!]! @paginate(defaultCount: 15)
+}
+
+extend type Mutation {
+    "Crear un nuevo proceso de producción"
+    createProductionProcess(
+        proyecto_id: ID!
+        name: String!
+        description: String
+        inventory_item_id: ID
+    ): ProductionProcess! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@createProductionProcess") @guard
+
+    "Actualizar un proceso de producción"
+    updateProductionProcess(
+        id: ID!
+        proyecto_id: ID!
+        name: String!
+        description: String
+        inventory_item_id: ID
+    ): ProductionProcess! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@updateProductionProcess") @guard
+
+    "Eliminar un proceso de producción"
+    deleteProductionProcess(
+        id: ID!
+        proyecto_id: ID!
+    ): Boolean! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@deleteProductionProcess") @guard
+
+    "Crear un nuevo lote de producción"
+    createLote(
+        proyecto_id: ID!
+        production_process_id: ID!
+        start_date: DateTime!
+        assigned_to: ID
+        notes: String
+    ): LoteProduccion! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@createLote") @guard
+
+    "Actualizar información básica de un lote"
+    updateLote(
+        id: ID!
+        proyecto_id: ID!
+        start_date: DateTime!
+        assigned_to: ID
+        notes: String
+    ): LoteProduccion! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@updateLote") @guard
+
+    "Avanzar el lote a la siguiente etapa o indicar merma"
+    updateLoteStage(
+        id: ID!
+        proyecto_id: ID!
+        stage_id: ID!
+        waste_quantity: Float
+        notes: String
+    ): LoteProduccion! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@updateLoteStage") @guard
+
+    "Finalizar un lote (producir output)"
+    finishLote(
+        id: ID!
+        proyecto_id: ID!
+        final_quantity: Float!
+    ): LoteProduccion! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@finishLote") @guard
+
+    "Descartar (cancelar) un lote"
+    discardLote(
+        id: ID!
+        proyecto_id: ID!
+        reason: String!
+    ): LoteProduccion! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@discardLote") @guard
+
+    "Añadir un insumo manual al lote"
+    addLoteInput(
+        id: ID!
+        proyecto_id: ID!
+        inventory_item_id: ID!
+        quantity: Float!
+        notes: String
+    ): LoteInsumo! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@addLoteInput") @guard
+
+    "Consumir material de un insumo asignado al lote"
+    consumeLoteInput(
+        input_id: ID!
+        proyecto_id: ID!
+        quantity: Float!
+    ): LoteInsumo! @field(resolver: "App\\Modules\\Operations\\GraphQL\\Mutations\\OperationsMutations@consumeLoteInput") @guard
+}

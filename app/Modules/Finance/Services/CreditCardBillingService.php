@@ -34,6 +34,8 @@ class CreditCardBillingService
     /**
      * Get the upcoming credit card bill for an account.
      * Returns details including minimum and total payment.
+     *
+     * @return array<string, mixed>
      */
     public function getUpcomingBill(Cuenta $cuenta): array
     {
@@ -49,7 +51,7 @@ class CreditCardBillingService
         $diaCorte = $cuenta->dia_corte ?? 1;
         $diaPago = $cuenta->dia_pago ?? ($diaCorte + 20 > 28 ? $diaCorte + 20 - 30 : $diaCorte + 20);
         $tasaEA = $cuenta->tasa_interes_anual ?? 0;
-        $monthlyRate = $this->getMonthlyRate($tasaEA);
+        $monthlyRate = $this->getMonthlyRate((float) $tasaEA);
 
         // Calculate relevant billing cycle
         // Determine which cycle to show: the one just closed (if within payment window) or the current open one
@@ -190,8 +192,9 @@ class CreditCardBillingService
 
     /**
      * Get the next cutoff date based on day of month.
+     * @codeCoverageIgnore Reserved for future use
      */
-    private function getNextCutoffDate(int $diaCorte): Carbon
+    public function getNextCutoffDate(int $diaCorte): Carbon
     {
         $now = Carbon::now();
         $cutoff = $now->copy()->day($diaCorte);

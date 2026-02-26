@@ -50,6 +50,7 @@ class CreateReplenishmentTask implements ShouldQueue
             $itemId = $event->get('item_id');
             $currentStock = $event->get('current_stock', 0);
             
+            /** @var InventoryItem|null $item */
             $item = InventoryItem::find($itemId);
             
             if (!$item) {

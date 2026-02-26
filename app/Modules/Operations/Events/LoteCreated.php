@@ -11,7 +11,7 @@ class LoteCreated extends \App\Core\Events\BaseModuleEvent
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $lote;
+    public LoteProduccion $lote;
 
     /**
      * Create a new event instance.

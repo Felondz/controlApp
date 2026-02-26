@@ -3,13 +3,20 @@
 namespace App\Modules\Operations\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\Inventory\Models\InventoryItem;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $etapa_proceso_id
+ * @property int $inventory_item_id
+ * @property float $quantity
+ * @property string|null $notes
+ * @property \App\Modules\Inventory\Models\InventoryItem $item
+ * @property \App\Modules\Operations\Models\EtapaProceso $etapaProceso
+ */
 class StageInputTemplate extends Model
 {
-    use HasFactory;
-
     protected $table = 'stage_input_templates';
 
     protected $fillable = [
@@ -23,12 +30,18 @@ class StageInputTemplate extends Model
         'quantity' => 'decimal:2',
     ];
 
-    public function etapaProceso()
+    /**
+     * @return BelongsTo<EtapaProceso, $this>
+     */
+    public function etapaProceso(): BelongsTo
     {
         return $this->belongsTo(EtapaProceso::class, 'etapa_proceso_id');
     }
 
-    public function item()
+    /**
+     * @return BelongsTo<InventoryItem, $this>
+     */
+    public function item(): BelongsTo
     {
         return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
     }

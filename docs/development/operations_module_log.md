@@ -394,3 +394,189 @@ Para cumplir con el principio de desacoplamiento modular, se refactorizó la ló
 ### B. Decisiones de Diseño
 *   **Separación de Tests Frontend**: Se movieron los tests de componentes fuera de `resources/js` hacia `tests/Frontend/` para mantener una estructura espejo más limpia.
 *   **Mocking Extensivo**: Para `History.test.jsx` se mockearon dependencias pesadas (`AuthenticatedLayout`, `usePage`, `router`) enfocando el test en la lógica del componente.
+
+---
+
+## 13. Macro-Refactor: Arquitectura Actions, GraphQL y MCP (Fase 1)
+**Fecha de Inicio**: Febrero 2026
+**Objetivo**: Desacoplar la lógica de negocio de los controladores hacia un patrón de Actions puro, introducir DTOs estrictos, preparar el terreno para GraphQL (Mobile) y MCP (IA), e implementar el patrón Services para integraciones externas. Todo previniendo consultas N+1.
+
+### A. Módulo Piloto: Inventory
+*   **Decisión**: Utilizar `InventoryModule` como prueba de concepto para el nuevo estándar arquitectónico.
+*   **Implementación - Paso 1**: Extracción de lógica de `InventoryItemController` hacia DTOs y Actions.
+    *   `CreateInventoryItemDTO` y `UpdateInventoryItemDTO` creados para asegurar tipado estricto independiente del protocolo.
+    *   `CreateInventoryItemAction`, `UpdateInventoryItemAction`, `DeleteInventoryItemAction` creados. Toda creación de modelos y transacciones iniciales se movió aquí.
+    *   Se aseguró el uso de Eager Loading explícito en las consultas donde aplique para prevenir N+1.
+
+
+### B. Módulo Operations: Extracción a Actions/DTOs
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Extracción de Actions**: Se migró toda la lógica de negocio de `LoteController` hacia Actions dedicados:
+    *   `CreateProductionProcessAction`, `UpdateProductionProcessAction`, `DeleteProductionProcessAction`
+    *   `CreateLoteAction`, `UpdateLoteAction`, `UpdateLoteStageAction`, `FinishLoteAction`, `DiscardLoteAction`
+    *   `AddLoteInputAction`, `ConsumeLoteInputAction`
+*   [x] **DTOs Estrictos**: Creados DTOs para cada operación con tipado estricto (`readonly class`):
+    *   `CreateProductionProcessDTO`, `UpdateProductionProcessDTO`, `CreateLoteDTO`, `UpdateLoteDTO`
+    *   `UpdateLoteStageDTO`, `FinishLoteDTO`, `DiscardLoteDTO`, `AddLoteInputDTO`, `ConsumeLoteInputDTO`
+
+### C. GraphQL para Operations
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Schema GraphQL**: Creado `graphql/Operations/operations.graphql` con:
+    *   Tipos: `ProductionProcess`, `LoteProduccion`, `EtapaProceso`, `LoteInsumo`, `StageInputTemplate`
+    *   Queries: `productionProcesses`, `productionProcess`, `lotes`, `lote`
+    *   Mutations: `createProductionProcess`, `updateProductionProcess`, `deleteProductionProcess`, `createLote`, `updateLote`, `updateLoteStage`, `finishLote`, `discardLote`, `addLoteInput`, `consumeLoteInput`
+*   [x] **Resolver Central**: Implementado `OperationsMutations.php` con tipado estricto:
+    *   PHPDoc `@param array<string, mixed>` en todos los métodos
+    *   Inline `@var` en `findOrFail()` para resolver tipos de unión
+    *   Mapeo correcto hacia DTOs y Actions existentes
+*   [x] **Integración en Schema Principal**: `graphql/schema.graphql` importa el schema de Operations.
+
+### D. Conformidad PHPStan (Operations)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Modelos**: Se añadieron genéricos (`BelongsTo<Model, $this>`, `HasMany<Model, $this>`, `MorphMany<Model, $this>`) a todas las relaciones de:
+    *   `EtapaProceso`, `LoteProduccion`, `ProductionProcess`, `LoteInsumo`, `StageInputTemplate`, `StageTaskTemplate`
+*   [x] **Factories**: Se añadieron `@extends Factory<Model>` a las factorias existentes y `@return Factory<self>` a `newFactory()`.
+*   [x] **Limpieza**: Se removió `HasFactory` de `LoteInsumo` y `StageInputTemplate` (no tienen factorias asociadas).
+*   [x] **Resultado**: `[OK] No errors` en PHPStan para Operations GraphQL, Models y Factories.
+
+### E. Refactor Inventario: AI (MCP) y GraphQL API Layer
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+- Se separó la lógica de negocio de los controladores HTTP usando el patrón Action (`app/Modules/Inventory/Actions/`). Se crearon DTOs correspondientes.
+- Se resolvieron vulnerabilidades de seguridad con `composer audit` actualizando `phpunit` y paquetes symfony.
+- Se inició el schema GraphQL configurando `nuwave/lighthouse` con `Sanctum` como guard de autenticación. Se creó `inventory.graphql` con Queries y Mutations resueltas via `InventoryMutations.php`.
+- Se diseñaron modelos de datos para la integración con IA (MCP). Se implementó la migración `UserLLMSetting` con campos `encrypted` para API keys.
+- Se estableció `LLMServiceInterface` y `LLMManager` para inyectar credenciales de IA dinámicamente por usuario.
+- Se exportaron acciones de negocio como Tools de IA via Laravel MCP (`laravel/mcp`): `ConsultStockTool`, `CreateInventoryItemTool`, `UpdateInventoryItemTool` en un `InventoryServer` dedicado.
+
+### F. MCP para Operations (AI Tools)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **OperationsServer**: Nuevo servidor MCP (`app/Mcp/Servers/OperationsServer.php`) con instrucciones contextuales sobre el ciclo de vida de producción.
+*   [x] **12 Tools creados** en `app/Mcp/Tools/`:
+    *   **Procesos**: `ListProductionProcessesTool`, `CreateProductionProcessTool`, `UpdateProductionProcessTool`, `DeleteProductionProcessTool`
+    *   **Lotes**: `ConsultLotesTool`, `CreateLoteTool`, `UpdateLoteTool`, `UpdateLoteStageTool`, `FinishLoteTool`, `DiscardLoteTool`
+    *   **Insumos**: `AddLoteInputTool`, `ConsumeLoteInputTool`
+*   [x] **Patrón consistente**: Cada tool sigue el patrón establecido por Inventory: valida `proyecto_id`, construye el DTO correspondiente, delega al Action, y retorna `Response::text()`.
+*   [x] **PHPStan**: `[OK] No errors` en todo `app/Mcp/`.
+
+### G. Migración módulo Finance (Actions/DTOs + GraphQL + MCP)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **8 DTOs** en `app/Modules/Finance/DTOs/`: `CreateTransaccionDTO`, `UpdateTransaccionDTO`, `CreateCuentaDTO`, `UpdateCuentaDTO`, `UpdateCuentaEstadoDTO`, `PayCreditCardBillDTO`, `CreateCategoriaDTO`, `UpdateCategoriaDTO`.
+*   [x] **12 Actions** en `app/Modules/Finance/Actions/`: CRUD Transacciones (Create/Update/Delete/PayBillDirectly), CRUD Cuentas (Create/Update/Delete/UpdateEstado/PayCreditCardBill), CRUD Categorías (Create/Update/Delete).
+*   [x] **GraphQL Schema** `graphql/Finance/finance.graphql`: Tipos `Transaccion`, `Cuenta`, `Categoria`, `BalanceResponse`, `PayCreditCardBillResponse`. Queries y 12 Mutations.
+*   [x] **GraphQL Resolver** `FinanceMutations.php`: Delegación completa a Actions vía DTOs.
+*   [x] **FinanceServer MCP** con **7 Tools**: `ConsultBalanceTool`, `ListTransaccionesTool`, `CreateTransaccionTool`, `ListCuentasTool`, `CreateCuentaTool`, `PayBillTool`, `ListCategoriasTool`.
+*   [x] **Modelo `Transaccion`**: Se añadieron return types explícitos y generics PHPDoc a las 9 relaciones. Se tipó `newFactory()` y se añadió `@use HasFactory<Factory>`.
+*   [x] **PHPStan**: `[OK] No errors`. **Tests**: 48 passed.
+
+### H. Depuración módulos Analytics y Notifications (deprecados)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Eliminado** `app/Modules/Analytics/` (8 archivos): Controller, Service, Job, Listeners, Model, Module.
+*   [x] **Eliminado** `app/Modules/Notifications/` (9 archivos): Service, Listeners, Notifications, Model, Module.
+*   [x] **Eliminado** `tests/Unit/Modules/Analytics/MetricsCollectorTest.php`.
+*   [x] **Limpiado** `EnterpriseTemplate.php`: removido `analytics` y `notifications` de módulos y configuraciones. Añadidos PHPDoc types.
+*   [x] **Migración** `drop_deprecated_analytics_notifications_tables`: dropea `analytics_metrics`, `notification_preferences`, `notifications`.
+*   [x] **Decisión**: Analíticas se manejarán con query-time analytics desde las tablas transaccionales existentes (opción 1).
+
+### I. Migración módulos Tasks y Chat (Actions/DTOs + MCP)
+**Fecha**: Febrero 23, 2026
+**Cambios**:
+*   [x] **Tasks DTOs**: `CreateTaskDTO`, `UpdateTaskDTO`.
+*   [x] **Tasks Actions**: `CreateTaskAction`, `UpdateTaskAction`, `DeleteTaskAction`.
+*   [x] **TasksServer MCP** con **4 Tools**: `ListTasksTool`, `CreateTaskTool`, `UpdateTaskTool`, `TaskSummaryTool`.
+*   [x] **Chat DTO**: `SendMessageDTO`.
+*   [x] **Chat Action**: `SendMessageAction`.
+*   [x] **ChatServer MCP** con **2 Tools**: `SendMessageTool`, `ListMessagesTool`.
+*   [x] **Modelo `Task`**: Return types + generics PHPDoc en 6 relaciones. Tipado `newFactory()`.
+*   [x] **Modelo `Message`**: Return types + generics PHPDoc en 3 relaciones. Tipado `newFactory()`.
+*   [x] **PHPStan**: `[OK] No errors`. **Tests**: 323 passed, 2 skipped.
+
+### J. Estrategia Global de APIs: GraphQL vs REST (Febrero 24, 2026)
+**Contexto**: Se requería integrar los modelos de LLM (IA) en tiempo real para generar un Widget Global de Chat tanto para la plataforma web (Inertia/React) como para Mobile (React Native).
+**Decisión Arquitectónica**: 
+Se definió formalmente el propósito de cada protocolo en el ecosistema del proyecto:
+*   **GraphQL se mantendrá como la Capa de Datos Móvil Principal**: Se usará para todo el CRUD estándar y cargas pesadas de relaciones anidadas (donde evitar múltiples peticiones y over-fetching es clave).
+*   **REST se designa como la Capa de Streaming y Paridad Web/Móvil**: Para interacciones con LLMs que devuelven resultados tipo "máquina de escribir" (Streaming/Server-Sent Events), GraphQL no es el protocolo adecuado sin añadir complejidad (Websockets). Por ende, funcionalidades como el `POST /api/ai/chat` se aislarán en REST puro (JSON), garantizando que tanto la app Web como Mobile consuman exactamente la misma ruta con el mismo comportamiento nativo de lectura HTTP.
+
+---
+
+## 14. Integración LLM Completa, AI Chat Widget y Global AI Kill Switch (Febrero 24, 2026)
+**Objetivo**: Completar la integración end-to-end de LLM, depurar la visibilidad del Widget de Chat IA, ejecutar tests automatizados de MCP Tools, e implementar un interruptor maestro global para desactivar toda la funcionalidad de IA.
+
+### A. Suite de Tests MCP (Automated)
+**Contexto**: Se necesitaba cobertura automatizada para validar los 25+ MCP Tools distribuidos entre 5 servidores.
+**Cambios**:
+*   [x] **Tests creados** en `tests/Feature/Mcp/`:
+    *   `InventoryMcpTest.php`: 3 tools (ConsultStock, CreateItem, UpdateItem)
+    *   `OperationsMcpTest.php`: 12 tools (Processes CRUD, Lotes lifecycle, Inputs)
+    *   `FinanceMcpTest.php`: 7 tools (Balance, Transactions, Accounts, Bills, Categories)
+    *   `TasksMcpTest.php`: 4 tools (List, Create, Update, Summary)
+    *   `ChatMcpTest.php`: 2 tools (Send, List Messages)
+*   [x] **Patrón de testing**: Cada test instancia el Tool, crea un `Request` mock con JSON body, ejecuta `handle()`, y valida la respuesta con `assertStringContainsString`.
+*   [x] **Depuración**: Se resolvieron múltiples fallos de tests causados por:
+    *   Migraciones faltantes (`user_llm_settings`, esquema `users` incompleto)
+    *   Factories obsoletas (`is_super_admin` vs `role`)
+    *   Discrepancias de schema entre SQLite (testing) y MySQL (production)
+*   [x] **Resultado**: 28 tests, 56+ assertions passed.
+
+### B. Integración LLM End-to-End (AI Chat Widget)
+**Contexto**: Se completó el pipeline completo desde la UI de configuración de API keys hasta el Chat Widget funcional.
+**Fases implementadas (resumen acumulado)**:
+*   **Phase 1**: `UserLlmSetting` model con encriptación, `LlmSettingsService`, `UpdateLlmSettingsForm.jsx`
+*   **Phase 2**: Fetching dinámico de modelos via proxy backend (`LlmModelsController`)
+*   **Phase 3**: `AiChatWidget.jsx` global inyectado en `AuthenticatedLayout.jsx`, `AiChatController`
+*   **Phase 4**: Agent Loop nativo con ejecución recursiva de MCP Tools (hasta 5 niveles de profundidad)
+*   **Phase 5**: Selector dinámico de Provider/Model en el Chat Widget con override en runtime
+*   **Phase 6**: Cache de 7 días en `LlmModelsController` (reduce rate limits)
+*   **Phase 7**: UI refactorizada con lista de proveedores conectados + formulario Add/Update
+
+### C. Depuración: AI Chat Widget No Desaparece
+**Síntoma**: Al desmarcar "Habilitar asistencia IA" en un proveedor, el Chat Widget seguía visible.
+**Investigación**:
+1.  Se verificó `HandleInertiaRequests.php`: la query `where('is_active', true)->whereNotNull('api_key')->exists()` era correcta.
+2.  Se verificó `AiChatWidget.jsx`: guard clause `if (!hasActiveAi) return null` era correcta.
+3.  Se verificó `AuthenticatedLayout.jsx`: rendering condicional `{hasActiveAi && <AiChatWidget />}` era correcto.
+4.  **Causa Raíz**: La query evalúa **TODOS los proveedores del usuario**. Si existían múltiples proveedores (ej. Gemini activo + OpenAI desactivado), desactivar uno no afectaba la query porque el otro seguía activo.
+5.  **Problema secundario**: `useForm.post()` no enviaba correctamente el valor `is_active` al backend por una race condition con el estado reactivo de React. Se migró a `router.post()` para envío determinístico.
+
+**Decisión del Usuario**: Implementar un **interruptor maestro global** (Opción 2) que desactive toda la IA sin necesidad de desactivar proveedores individualmente.
+
+### D. Implementación: Global AI Kill Switch
+**Archivos modificados/creados**:
+
+| Archivo | Tipo | Cambio |
+|---------|------|--------|
+| `database/migrations/2026_02_24_225000_add_is_ai_enabled_to_users_table.php` | [NEW] | Migración: columna `is_ai_enabled` (boolean, default true) en tabla `users` |
+| `app/Models/User.php` | [MODIFY] | Añadido `is_ai_enabled` a `$fillable` y PHPDoc |
+| `app/Http/Middleware/HandleInertiaRequests.php` | [MODIFY] | `has_active_ai` ahora requiere `is_ai_enabled == true` AND al menos un proveedor activo con API key |
+| `app/Http/Controllers/ProfileController.php` | [MODIFY] | Nuevo método `toggleAi()`: invierte `is_ai_enabled` y redirige back |
+| `routes/web.php` | [MODIFY] | Nueva ruta `POST /profile/toggle-ai` → `ProfileController@toggleAi` |
+| `resources/js/Components/Icons.jsx` | [MODIFY] | Nuevos iconos: `SparklesAiIcon` (sparkles animado) y `SparklesAiOffIcon` (sparkles + slash) |
+| `resources/js/Pages/Profile/Partials/UpdateLlmSettingsForm.jsx` | [MODIFY] | Master toggle con UI premium (glassmorphism, gradientes, switch animado, ícono contextual) |
+
+**Flujo del Kill Switch**:
+1.  Usuario hace click en el toggle → `router.post('/profile/toggle-ai')` (sin recargar página)
+2.  Backend invierte `users.is_ai_enabled` → Redirect back
+3.  Inertia recarga props → `HandleInertiaRequests` recalcula `has_active_ai` = `is_ai_enabled && providers_query`
+4.  `AuthenticatedLayout` recibe `has_active_ai: false` → Desmonta `AiChatWidget` del DOM
+
+### E. Bug Fix: Ziggy Route Not Found
+**Síntoma**: `Ziggy error: route 'profile.toggle-ai' is not in the route list` al hacer click en el toggle.
+**Causa**: Ziggy cachea las rutas y necesita regenerarse después de agregar nuevas rutas.
+**Solución**: `sail artisan ziggy:generate && npm run build`.
+
+### F. Cleanup: Migraciones Duplicadas
+**Problema**: Se crearon 3 archivos de migración para `add_is_ai_enabled_to_users_table` (sail, manual, php artisan).
+**Solución**: Se eliminaron las 2 migraciones stub vacías, conservando solo la funcional (`2026_02_24_225000`).
+
+### G. Pendientes
+*   [ ] Remover `console.log("Global AI State Updated:...")` de `AuthenticatedLayout.jsx` (debugging artifact)
+*   [ ] Remover `Log::info("LLM Settings UPSERT:...")` de `UserLlmSettingController.php` (debugging artifact)
+*   [ ] Agregar traducciones `profile.ai_master_switch`, `profile.ai_master_enabled`, `profile.ai_master_disabled` a `es.json` y `en.json`
+

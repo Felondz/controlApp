@@ -5,12 +5,17 @@ namespace App\Modules\Operations\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StageTaskTemplate extends Model
 {
+    /** @use HasFactory<\Database\Factories\StageTaskTemplateFactory> */
     use HasFactory;
 
-    protected static function newFactory()
+    /**
+     * @return \Illuminate\Database\Eloquent\Factories\Factory<self>
+     */
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
     {
         return \Database\Factories\StageTaskTemplateFactory::new();
     }
@@ -32,12 +37,18 @@ class StageTaskTemplate extends Model
         'is_mandatory' => 'boolean',
     ];
 
-    public function proyecto()
+    /**
+     * @return BelongsTo<Proyecto, $this>
+     */
+    public function proyecto(): BelongsTo
     {
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function etapaProceso()
+    /**
+     * @return BelongsTo<EtapaProceso, $this>
+     */
+    public function etapaProceso(): BelongsTo
     {
         return $this->belongsTo(EtapaProceso::class, 'etapa_proceso_id');
     }

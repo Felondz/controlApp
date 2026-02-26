@@ -30,7 +30,7 @@ class TransaccionPolicy
     {
         // El usuario puede verla si es miembro del proyecto
         $proyecto = $transaccion->proyecto;
-        return $proyecto->miembros()->where('user_id', $user->id)->exists();
+        return $proyecto !== null && $proyecto->miembros()->where('user_id', $user->id)->exists();
     }
 
     /**
@@ -57,7 +57,7 @@ class TransaccionPolicy
     {
         // Solo el creador de la transacción o administradores del proyecto pueden actualizar
         $proyecto = $transaccion->proyecto;
-        return $transaccion->user_id === $user->id || $user->esAdminDe($proyecto);
+        return $proyecto !== null && ($transaccion->user_id === $user->id || $user->esAdminDe($proyecto));
     }
 
     /**
@@ -71,7 +71,7 @@ class TransaccionPolicy
     {
         // Solo el creador de la transacción o administradores del proyecto pueden eliminar
         $proyecto = $transaccion->proyecto;
-        return $transaccion->user_id === $user->id || $user->esAdminDe($proyecto);
+        return $proyecto !== null && ($transaccion->user_id === $user->id || $user->esAdminDe($proyecto));
     }
 
     /**

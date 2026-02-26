@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { useTranslate } from '@/Hooks/useTranslate';
@@ -7,7 +7,8 @@ import {
     MenuFoldIcon, MenuUnfoldIcon, FactoryIcon, PackageIcon,
     DashboardIcon, PuzzleIcon, EnvelopeIcon, CalendarIcon, CalculatorIcon,
     PersonalFinanceIcon, FolderIcon, CurrencyDollarIcon, CheckListIcon,
-    ChatIcon, UserCircleIcon, EllipsisVerticalIcon, ChevronDownIcon, ChevronUpIcon
+    ChatIcon, UserCircleIcon, EllipsisVerticalIcon, ChevronDownIcon, ChevronUpIcon,
+    BugIcon, UsersIcon
 } from '@/Components/Icons';
 import { useState } from 'react';
 import { getThemeStyle } from '@/Utils/themeStyles';
@@ -15,6 +16,7 @@ import { getThemeStyle } from '@/Utils/themeStyles';
 export default function Sidebar({ user, className = '', collapsed = false, project = null, onToggle }) {
     // Force rebuild v2
     const { t } = useTranslate();
+    const { is_ptr } = usePage().props;
     const { theme, isDark } = useGlobalTheme();
     const enabledTools = user?.enabled_tools || [];
     const [isOperationsOpen, setIsOperationsOpen] = useState(true); // Default open for visibility
@@ -57,6 +59,33 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                     <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                     {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
                 </ResponsiveNavLink>
+            )}
+
+            {user?.is_super_admin && (
+                <>
+                    {!collapsed && (
+                        <div className="pt-4 pb-2">
+                            <p className={`px-3 text-xs font-semibold uppercase tracking-wider text-danger-600 dark:text-danger-400`}>
+                                {t('admin.title', 'Administración')}
+                            </p>
+                        </div>
+                    )}
+                    {collapsed && <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>}
+
+                    {is_ptr && window.route && window.route().has('ptr.bug-reports.index') && (
+                        <ResponsiveNavLink href={route('ptr.bug-reports.index')} active={route().current('ptr.bug-reports.*')} collapsed={collapsed}>
+                            <BugIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                            {!collapsed && t('bug_reporter.dashboard_title', 'Reportes de Bugs')}
+                        </ResponsiveNavLink>
+                    )}
+
+                    {window.route && window.route().has('admin.users.index') && (
+                        <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.*')} collapsed={collapsed}>
+                            <UsersIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                            {!collapsed && t('admin.users_title', 'Gestión de Usuarios')}
+                        </ResponsiveNavLink>
+                    )}
+                </>
             )}
         </>
     );
@@ -234,6 +263,33 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                         <CalculatorIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                         {!collapsed && t('dashboard.calculator', 'Calculadora Financiera')}
                     </ResponsiveNavLink>
+                )}
+
+                {user?.is_super_admin && (
+                    <>
+                        {!collapsed && (
+                            <div className="pt-4 pb-2">
+                                <p className={`px-3 text-xs font-semibold uppercase tracking-wider text-danger-600 dark:text-danger-400`}>
+                                    {t('admin.title', 'Administración')}
+                                </p>
+                            </div>
+                        )}
+                        {collapsed && <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>}
+
+                        {is_ptr && window.route && window.route().has('ptr.bug-reports.index') && (
+                            <ResponsiveNavLink href={route('ptr.bug-reports.index')} active={route().current('ptr.bug-reports.*')} collapsed={collapsed}>
+                                <BugIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                                {!collapsed && t('bug_reporter.dashboard_title', 'Reportes de Bugs')}
+                            </ResponsiveNavLink>
+                        )}
+
+                        {window.route && window.route().has('admin.users.index') && (
+                            <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.*')} collapsed={collapsed}>
+                                <UsersIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                                {!collapsed && t('admin.users_title', 'Gestión de Usuarios')}
+                            </ResponsiveNavLink>
+                        )}
+                    </>
                 )}
             </>
         );

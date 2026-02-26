@@ -106,6 +106,7 @@ abstract class AbstractModule implements ModuleInterface
 
     /**
      * {@inheritdoc}
+     * @return array<string, string>
      */
     public function getRoutes(): array
     {

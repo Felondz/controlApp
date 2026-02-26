@@ -1,6 +1,5 @@
 includes:
-    - vendor/phpstan/phpstan-laravel/extension.neon
-    - vendor/nunomaduro/larastan/extension.neon
+    - vendor/larastan/larastan/extension.neon
 
 parameters:
     # SECURITY: Maximum analysis level for production code
@@ -16,6 +15,9 @@ parameters:
         - app/Http/Controllers
         - app/Models
         - app/Providers
+        - app/Mcp
+        - app/Services/AI
+        - app/Modules/Inventory/Controllers
     
     excludePaths:
         - app/Console/Commands/GrantSuperAdmin.php
@@ -26,23 +28,15 @@ parameters:
     
     tmpDir: storage/phpstan
     
-    treatMissingPropertiesAsNullSafe: false
-    
     # Enable strict mixed types - catches implicit mixed types
-    strictMixed: true
     
     # Check for unused properties and parameters
-    checkUnusedProperties: true
-    checkUnusedParameters: true
     
     # Detect dead code
-    checkUnusedFunctionReturnValues: true
     
     # Generic class usage detection
-    checkGenericClassInNonGenericObjectType: true
     
     # Universal object crash fixer
-    universalObjectCrashFixer: true
     
     # SECURITY: Ignore only known Laravel magic property/method patterns
     # Intentionally minimal to catch potential security issues

@@ -8,12 +8,13 @@ use App\Models\Proyecto;
 use App\Modules\Operations\Models\ProductionProcess;
 use App\Modules\Operations\Models\EtapaProceso;
 use App\Modules\Inventory\Models\InventoryItem;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Nuwave\Lighthouse\Testing\MakesGraphQLRequests;
 
 class ProductionProcessTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, WithFaker, MakesGraphQLRequests;
 
     protected $user;
     protected $proyecto;
@@ -33,23 +34,23 @@ class ProductionProcessTest extends TestCase
 
         $outputItem = InventoryItem::factory()->create(['proyecto_id' => $this->proyecto->id]);
 
-        $payload = [
+        $query = '
+            mutation CreateProductionProcess($proyecto_id: ID!, $name: String!, $description: String, $inventory_item_id: ID) {
+                createProductionProcess(proyecto_id: $proyecto_id, name: $name, description: $description, inventory_item_id: $inventory_item_id) {
+                    id
+                    name
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'proyecto_id' => $this->proyecto->id,
             'name' => 'Café Lavado',
             'description' => 'Proceso estándar para café lavado',
-            'inventory_item_id' => $outputItem->id, // Output product
-            'is_active' => true,
-            'stages' => [
-                [
-                    'name' => 'Depulpado',
-                    'description' => 'Remover pulpa',
-                ]
-            ]
-        ];
+            'inventory_item_id' => $outputItem->id,
+        ]);
 
-        $response = $this->postJson(route('api.operations.processes.store', $this->proyecto), $payload);
-
-        $response->assertStatus(201)
-            ->assertJsonFragment(['name' => 'Café Lavado']);
+        $response->assertJsonStructure(['data' => ['createProductionProcess' => ['id', 'name']]]);
 
         $this->assertDatabaseHas('production_processes', [
             'name' => 'Café Lavado',
@@ -92,15 +93,23 @@ class ProductionProcessTest extends TestCase
 
         $process = ProductionProcess::factory()->create(['proyecto_id' => $this->proyecto->id]);
 
-        $payload = [
+        $query = '
+            mutation UpdateProductionProcess($id: ID!, $proyecto_id: ID!, $name: String!) {
+                updateProductionProcess(id: $id, proyecto_id: $proyecto_id, name: $name) {
+                    id
+                    name
+                }
+            }
+        ';
+
+        $response = $this->graphQL($query, [
+            'id' => $process->id,
+            'proyecto_id' => $this->proyecto->id,
             'name' => 'Proceso Actualizado',
-            'is_active' => false
-        ];
+        ]);
 
-        $response = $this->putJson(route('api.operations.processes.update', [$this->proyecto, $process]), $payload);
-
-        $response->assertStatus(200);
-        $this->assertDatabaseHas('production_processes', ['name' => 'Proceso Actualizado', 'is_active' => false]);
+        $response->assertJsonStructure(['data' => ['updateProductionProcess' => ['id']]]);
+        $this->assertDatabaseHas('production_processes', ['name' => 'Proceso Actualizado']);
     }
 
     public function test_can_delete_production_process()
@@ -109,9 +118,18 @@ class ProductionProcessTest extends TestCase
 
         $process = ProductionProcess::factory()->create(['proyecto_id' => $this->proyecto->id]);
 
-        $response = $this->deleteJson(route('api.operations.processes.destroy', [$this->proyecto, $process]));
+        $query = '
+            mutation DeleteProductionProcess($id: ID!, $proyecto_id: ID!) {
+                deleteProductionProcess(id: $id, proyecto_id: $proyecto_id)
+            }
+        ';
 
-        $response->assertStatus(200);
+        $response = $this->graphQL($query, [
+            'id' => $process->id,
+            'proyecto_id' => $this->proyecto->id,
+        ]);
+
+        $response->assertJsonStructure(['data' => ['deleteProductionProcess']]);
         $this->assertSoftDeleted($process);
     }
 }

@@ -11,8 +11,8 @@ class LoteDiscarded extends \App\Core\Events\BaseModuleEvent
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $lote;
-    public $reason;
+    public LoteProduccion $lote;
+    public string $reason;
 
     public function __construct(LoteProduccion $lote, string $reason)
     {

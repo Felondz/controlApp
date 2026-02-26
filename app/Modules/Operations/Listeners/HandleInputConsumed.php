@@ -7,7 +7,7 @@ use App\Modules\Inventory\Models\InventoryTransaction;
 
 class HandleInputConsumed
 {
-    public function handle(InputConsumed $event)
+    public function handle(InputConsumed $event): void
     {
         // DEPRECATED: Logic moved to Inventory Module (DeductInventoryUsage)
         \Illuminate\Support\Facades\Log::warning("HandleInputConsumed (Operations) called but is depreciated. Skipping.");

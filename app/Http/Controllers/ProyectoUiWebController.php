@@ -307,7 +307,7 @@ class ProyectoUiWebController extends Controller
 
             // Calculate credit card bills from active CC accounts
             $billingService = new \App\Modules\Finance\Services\CreditCardBillingService();
-            $allCCs = $mis_proyecto->cuentas
+                $allCCs = $mis_proyecto->cuentas
                 ->where('tipo', 'credito')
                 ->where('estado', 'activa')
                 ->merge(
@@ -317,6 +317,7 @@ class ProyectoUiWebController extends Controller
                 );
 
             foreach ($allCCs as $cuenta) {
+                /** @var \App\Modules\Finance\Models\Cuenta $cuenta */
                 $billData = $billingService->getUpcomingBill($cuenta);
                 if ($billData['pago_minimo'] > 0 || $billData['pago_total'] > 0) {
                     $creditCardBills[] = $billData;
@@ -420,7 +421,7 @@ class ProyectoUiWebController extends Controller
             'proyecto' => $mis_proyecto, // Already has cuentas, cuentasAsociadas, categorias loaded
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones,
-            'financialTasks' => $financialTasks ?? [],
+            'financialTasks' => $financialTasks,
             'pendingBills' => $pendingBills,
             'creditCardBills' => $creditCardBills,
             'upcomingIncomes' => $upcomingIncomes,
@@ -499,7 +500,8 @@ class ProyectoUiWebController extends Controller
             ->keyBy('project_id');
 
         // Procesamos para agregar flag de admin y conteo de mensajes no leídos
-        $proyectos->transform(function ($proyecto) use ($user, $unreadCounts) {
+        $proyectos->transform(function ($proyecto) use ($user, $unreadCounts, $taskStats) {
+            /** @var \App\Models\Proyecto $proyecto */
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
 
             // Use batched cache if messaging is enabled

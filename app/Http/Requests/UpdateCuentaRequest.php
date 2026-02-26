@@ -109,9 +109,7 @@ class UpdateCuentaRequest extends FormRequest
             // Only require these fields if the account is being updated to a credit card
             if ($this->input('tipo') === 'credito') {
                 $creditRules = array_map(function ($rule) {
-                    if (in_array('sometimes', $rule, true)) {
-                        $rule[array_search('sometimes', $rule, true)] = 'required';
-                    }
+                    $rule[array_search('sometimes', $rule, true)] = 'required';
                     return $rule;
                 }, $creditRules);
             }
@@ -190,9 +188,7 @@ class UpdateCuentaRequest extends FormRequest
             // Only require these fields if the account is being updated to an investment account
             if ($this->input('tipo') === 'inversion') {
                 $investmentRules = array_map(function ($rule) {
-                    if (is_array($rule) && in_array('sometimes', $rule, true)) {
-                        $rule[array_search('sometimes', $rule, true)] = 'required';
-                    }
+                    $rule[array_search('sometimes', $rule, true)] = 'required';
                     return $rule;
                 }, $investmentRules);
             }
@@ -240,9 +236,7 @@ class UpdateCuentaRequest extends FormRequest
             // Only require these fields if the account is being updated to a loan account
             if ($this->input('tipo') === 'prestamo') {
                 $loanRules = array_map(function ($rule) {
-                    if (is_array($rule) && in_array('sometimes', $rule, true)) {
-                        $rule[array_search('sometimes', $rule, true)] = 'required';
-                    }
+                    $rule[array_search('sometimes', $rule, true)] = 'required';
                     return $rule;
                 }, $loanRules);
             }

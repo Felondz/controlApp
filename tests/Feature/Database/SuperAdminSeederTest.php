@@ -51,7 +51,7 @@ class SuperAdminSeederTest extends TestCase
         $this->assertTrue(Hash::check('password123', $user->password));
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_existing_super_admin_password()
     {
         putenv('SUPER_ADMIN_EMAIL=admin@test.com');
@@ -73,7 +73,7 @@ class SuperAdminSeederTest extends TestCase
         $this->assertTrue((bool) $user->is_super_admin);
     }
 
-    /** @test */
+    #[Test]
     public function it_skips_creation_if_env_vars_are_missing()
     {
         // Limpiar vars

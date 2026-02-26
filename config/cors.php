@@ -18,8 +18,8 @@ return [
      * Matches the request origin. Configure based on environment for security.
      * SECURITY: Never use '*' in production - always specify explicit origins
      */
-    'allowed_origins' => env('CORS_ALLOWED_ORIGINS')
-        ? explode(',', env('CORS_ALLOWED_ORIGINS'))
+    'allowed_origins' => ($origins = env('CORS_ALLOWED_ORIGINS'))
+        ? explode(',', (string) $origins)
         : ['http://localhost:5173', 'http://controlapp:8000'],
 
     /*

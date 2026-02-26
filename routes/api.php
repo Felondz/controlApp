@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\CalculatorController;
 use App\Modules\Tasks\Controllers\TaskController;
 use App\Http\Controllers\Api\MarketplaceController;
+use App\Http\Controllers\Api\AiChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -176,4 +177,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Exports (Mobile API) ---
     Route::get('/proyectos/{proyecto}/export/csv', [App\Http\Controllers\Api\ExportController::class, 'csv'])->name('api.export.csv');
     Route::post('/proyectos/{proyecto}/export/pdf', [App\Http\Controllers\Api\ExportController::class, 'pdf'])->name('api.export.pdf');
+
+    // --- AI Chat (Global Interface) ---
+    Route::get('/llm/available-models', [\App\Http\Controllers\LlmModelsController::class, 'availableModels'])->name('api.llm.available-models');
+    Route::post('/ai/chat', [AiChatController::class, 'chat'])->name('api.ai.chat');
 });
