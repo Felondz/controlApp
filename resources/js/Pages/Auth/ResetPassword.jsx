@@ -8,6 +8,7 @@ import PasswordInput from '@/Components/PasswordInput';
 import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
 import SecondaryLink from '@/Components/SecondaryLink';
+import PasswordRequirements from '@/Components/PasswordRequirements';
 
 export default function ResetPassword({ token, email, status }) {
     const [validationError, setValidationError] = useState(null);
@@ -88,6 +89,7 @@ export default function ResetPassword({ token, email, status }) {
                         error={errors.password}
                     />
                     <InputError message={errors.password} className="mt-1" />
+                    <PasswordRequirements password={data.password} />
                 </div>
 
                 <div>
