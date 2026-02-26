@@ -26,7 +26,9 @@ RUN apt-get update && apt-get install -y \
     libbrotli-dev \
     libssl-dev \
     libcurl4-openssl-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip sockets
+    libicu-dev \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip sockets intl curl xml dom fileinfo posix
 
 # Install Redis and Swoole extensions
 RUN pecl install redis \
