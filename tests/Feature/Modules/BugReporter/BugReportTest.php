@@ -20,8 +20,11 @@ class BugReportTest extends TestCase
     {
         parent::setUp();
 
-        // Force staging environment for these tests
+        // Enable testing in PTR routes
         app()->detectEnvironment(fn () => 'staging');
+
+        // Disable CSRF for this test class because PTR routes use 'web' group
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
 
         $this->tester = User::factory()->create(['is_super_admin' => false]);
         $this->admin = User::factory()->create(['is_super_admin' => true]);

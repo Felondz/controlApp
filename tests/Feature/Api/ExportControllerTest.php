@@ -52,10 +52,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
     #[Test]
@@ -64,10 +64,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=accounts");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
     #[Test]
@@ -76,10 +76,10 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=categories");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
     #[Test]
@@ -109,7 +109,10 @@ class ExportControllerTest extends TestCase
         ]);
 
         $response->assertSuccessful();
-        $response->assertHeader('Content-Type', 'application/pdf');
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El reporte PDF se está generando en segundo plano. Podrás descargarlo pronto.'
+        ]);
     }
 
     #[Test]

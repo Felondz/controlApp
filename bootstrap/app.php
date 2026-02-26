@@ -13,8 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
-            // PTR routes — only loaded in staging environment
-            if (app()->environment('staging') || env('PTR_MODE', false)) {
+            // PTR routes — only loaded in staging/testing environment
+            if (app()->environment('staging', 'testing') || env('PTR_MODE', false)) {
                 require base_path('routes/ptr.php');
             }
         },
