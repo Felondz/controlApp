@@ -10,7 +10,7 @@ COPY tailwind.config.js postcss.config.js ./
 RUN pnpm run build
 
 # Stage 2: Setup PHP Application
-FROM php:8.3-cli
+FROM php:8.4-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
