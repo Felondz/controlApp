@@ -1,0 +1,416 @@
+"Indicates what fields are available at the top level of a query operation."
+type Query {
+  "Find a single user by an identifying attribute."
+  user(
+    "Search by primary key."
+    id: ID
+
+    "Search by email address."
+    email: String
+  ): User
+
+  "Obtener un item de inventario específico"
+  inventoryItem(id: ID!): InventoryItem
+
+  "Obtener un proceso de producción por ID"
+  productionProcess(id: ID!): ProductionProcess
+
+  "Obtener un lote de producción por ID"
+  loteProduccion(id: ID!): LoteProduccion
+
+  transacciones(proyecto_id: Int!, status: String): [Transaccion!]!
+  cuentas(proyecto_id: Int!): [Cuenta!]!
+  categorias(proyecto_id: Int!): [Categoria!]!
+
+  "List multiple users."
+  users(
+    "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
+    name: String
+
+    "Limits number of fetched items."
+    first: Int! = 10
+
+    "The offset from which items are returned."
+    page: Int
+  ): UserPaginator!
+
+  "Listar items de inventario de un proyecto con filtros"
+  inventoryItems(
+    proyecto_id: ID!
+    name: String
+    type: String
+    is_active: Boolean
+
+    "Limits number of fetched items."
+    first: Int! = 15
+
+    "The offset from which items are returned."
+    page: Int
+  ): InventoryItemPaginator!
+
+  "Listar procesos de producción de un proyecto"
+  productionProcesses(
+    proyecto_id: ID!
+
+    "Limits number of fetched items."
+    first: Int! = 15
+
+    "The offset from which items are returned."
+    page: Int
+  ): ProductionProcessPaginator!
+
+  "Listar lotes de producción de un proyecto"
+  loteProducciones(
+    proyecto_id: ID!
+    status: String
+
+    "Limits number of fetched items."
+    first: Int! = 15
+
+    "The offset from which items are returned."
+    page: Int
+  ): LoteProduccionPaginator!
+}
+
+type Mutation {
+  "Crear un nuevo item de inventario"
+  createInventoryItem(proyecto_id: ID!, name: String!, type: String!, unit: String!, sku: String, min_stock_level: Float, initial_quantity: Float, initial_cost: Float, sale_price: Float): InventoryItem!
+
+  "Actualizar un item de inventario existente"
+  updateInventoryItem(id: ID!, proyecto_id: ID!, name: String!, type: String!, unit: String!, sku: String, min_stock_level: Float, sale_price: Float, stock_adjustment: Float): InventoryItem!
+
+  "Eliminar un item de inventario"
+  deleteInventoryItem(id: ID!, proyecto_id: ID!): Boolean!
+
+  "Crear un nuevo proceso de producción"
+  createProductionProcess(proyecto_id: ID!, name: String!, description: String, inventory_item_id: ID): ProductionProcess!
+
+  "Actualizar un proceso de producción"
+  updateProductionProcess(id: ID!, proyecto_id: ID!, name: String!, description: String, inventory_item_id: ID): ProductionProcess!
+
+  "Eliminar un proceso de producción"
+  deleteProductionProcess(id: ID!, proyecto_id: ID!): Boolean!
+
+  "Crear un nuevo lote de producción"
+  createLote(proyecto_id: ID!, production_process_id: ID!, start_date: DateTime!, assigned_to: ID, notes: String): LoteProduccion!
+
+  "Actualizar información básica de un lote"
+  updateLote(id: ID!, proyecto_id: ID!, start_date: DateTime!, assigned_to: ID, notes: String): LoteProduccion!
+
+  "Avanzar el lote a la siguiente etapa o indicar merma"
+  updateLoteStage(id: ID!, proyecto_id: ID!, stage_id: ID!, waste_quantity: Float, notes: String): LoteProduccion!
+
+  "Finalizar un lote (producir output)"
+  finishLote(id: ID!, proyecto_id: ID!, final_quantity: Float!): LoteProduccion!
+
+  "Descartar (cancelar) un lote"
+  discardLote(id: ID!, proyecto_id: ID!, reason: String!): LoteProduccion!
+
+  "Añadir un insumo manual al lote"
+  addLoteInput(id: ID!, proyecto_id: ID!, inventory_item_id: ID!, quantity: Float!, notes: String): LoteInsumo!
+
+  "Consumir material de un insumo asignado al lote"
+  consumeLoteInput(input_id: ID!, proyecto_id: ID!, quantity: Float!): LoteInsumo!
+
+  createTransaccion(proyecto_id: Int!, cuenta_id: Int!, categoria_id: Int!, monto: Float!, fecha: String!, titulo: String, descripcion: String, notas: String, status: String, cuenta_predeterminada_id: Int, debito_automatico: Boolean, is_recurring: Boolean, recurrence_day: Int, cuotas: Int, task_id: Int): Transaccion!
+  updateTransaccion(id: ID!, cuenta_id: Int, categoria_id: Int, monto: Float, fecha: String, titulo: String, descripcion: String, notas: String, status: String): Transaccion!
+  deleteTransaccion(id: ID!): Boolean!
+  payBillDirectly(id: ID!): Transaccion!
+  createCuenta(proyecto_id: Int!, nombre: String!, tipo: String!, saldo_inicial: Int!, banco: String, moneda: String, descripcion: String, color: String, icono: String, tasa_interes_anual: Float, limite_credito: Int, monto_desembolsado: Int, cuenta_destino_id: Int): Cuenta!
+  updateCuenta(id: ID!, proyecto_id: Int!, nombre: String, banco: String, descripcion: String, saldo_inicial: Int, color: String, icono: String): Cuenta!
+  deleteCuenta(id: ID!, proyecto_id: Int!): Boolean!
+  updateCuentaEstado(id: ID!, proyecto_id: Int!, estado: String!): Cuenta!
+  payCreditCardBill(proyecto_id: Int!, cuenta_id: Int!, cuenta_origen_id: Int!, monto: Int!, tipo_pago: String!): PayCreditCardBillResponse!
+  createCategoria(proyecto_id: Int!, nombre: String!, tipo: String!): Categoria!
+  updateCategoria(id: ID!, nombre: String!, tipo: String!): Categoria!
+  deleteCategoria(id: ID!): Boolean!
+}
+
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime
+
+type InventoryItem {
+  id: ID!
+  proyecto_id: ID!
+  name: String!
+  sku: String
+  type: String!
+  unit: String!
+  current_stock: Float!
+  min_stock_level: Float!
+  cost_price: Float!
+  sale_price: Float!
+  image_path: String
+  is_active: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type ProductionProcess {
+  id: ID!
+  proyecto_id: ID!
+  name: String!
+  description: String
+  inventory_item_id: ID
+  outputProduct: InventoryItem
+  etapas: [EtapaProceso!]!
+  lotes: [LoteProduccion!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type EtapaProceso {
+  id: ID!
+  production_process_id: ID!
+  name: String!
+  description: String
+  order: Int!
+  inputTemplates: [StageInputTemplate!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type StageInputTemplate {
+  id: ID!
+  etapa_proceso_id: ID!
+  inventory_item_id: ID!
+  item: InventoryItem
+  quantity: Float!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type LoteProduccion {
+  id: ID!
+  proyecto_id: ID!
+  production_process_id: ID!
+  stage_id: ID!
+  inventory_item_id: ID
+  code: String!
+  initial_quantity: Float
+  current_quantity: Float!
+  start_date: DateTime!
+  end_date: DateTime
+  assigned_to: ID
+  notes: String
+  status: String!
+  stage: EtapaProceso
+  productionProcess: ProductionProcess
+  inputs: [LoteInsumo!]!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type LoteInsumo {
+  id: ID!
+  lote_produccion_id: ID!
+  inventory_item_id: ID!
+  product: InventoryItem
+  quantity: Float!
+  cost: Float!
+  notes: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type Transaccion {
+  id: ID!
+  proyecto_id: Int!
+  cuenta_id: Int
+  categoria_id: Int!
+  user_id: Int!
+  monto: Float!
+  titulo: String
+  descripcion: String
+  fecha: DateTime!
+  notas: String
+  status: String!
+  is_recurring: Boolean
+  recurrence_interval: String
+  recurrence_day: Int
+  next_occurrence: String
+  cuenta: Cuenta
+  categoria: Categoria
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type Cuenta {
+  id: ID!
+  nombre: String!
+  banco: String
+  tipo: String!
+  saldo_inicial: Int!
+  saldo_actual: Int!
+  estado: String!
+  moneda: String
+  descripcion: String
+  color: String
+  icono: String
+  tasa_interes_anual: Float
+  limite_credito: Int
+  transacciones: [Transaccion!]
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type Categoria {
+  id: ID!
+  proyecto_id: Int!
+  nombre: String!
+  tipo: String!
+  transacciones: [Transaccion!]
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type BalanceResponse {
+  balance: Int!
+  pending_bills: Int!
+  transaction_count: Int!
+}
+
+type PayCreditCardBillResponse {
+  transaccion: Transaccion!
+  nuevo_saldo_origen: Int!
+  nuevo_saldo_tc: Int!
+}
+
+"Account of a person who uses this application."
+type User {
+  "Unique primary key."
+  id: ID!
+
+  "Non-unique name."
+  name: String!
+
+  "Unique email address."
+  email: String!
+
+  "When the email was verified."
+  email_verified_at: DateTime
+
+  "When the account was created."
+  created_at: DateTime!
+
+  "When the account was last updated."
+  updated_at: DateTime!
+}
+
+"Information about pagination using a fully featured paginator."
+type PaginatorInfo {
+  "Number of items in the current page."
+  count: Int!
+
+  "Index of the current page."
+  currentPage: Int!
+
+  "Index of the first item in the current page."
+  firstItem: Int
+
+  "Are there more pages after this one?"
+  hasMorePages: Boolean!
+
+  "Index of the last item in the current page."
+  lastItem: Int
+
+  "Index of the last available page."
+  lastPage: Int!
+
+  "Number of items per page."
+  perPage: Int!
+
+  "Number of total available items."
+  total: Int!
+}
+
+"A paginated list of User items."
+type UserPaginator {
+  "Pagination information about the list of items."
+  paginatorInfo: PaginatorInfo!
+
+  "A list of User items."
+  data: [User!]!
+}
+
+"A paginated list of InventoryItem items."
+type InventoryItemPaginator {
+  "Pagination information about the list of items."
+  paginatorInfo: PaginatorInfo!
+
+  "A list of InventoryItem items."
+  data: [InventoryItem!]!
+}
+
+"A paginated list of ProductionProcess items."
+type ProductionProcessPaginator {
+  "Pagination information about the list of items."
+  paginatorInfo: PaginatorInfo!
+
+  "A list of ProductionProcess items."
+  data: [ProductionProcess!]!
+}
+
+"A paginated list of LoteProduccion items."
+type LoteProduccionPaginator {
+  "Pagination information about the list of items."
+  paginatorInfo: PaginatorInfo!
+
+  "A list of LoteProduccion items."
+  data: [LoteProduccion!]!
+}
+
+"Directions for ordering a list of records."
+enum SortOrder {
+  "Sort records in ascending order."
+  ASC
+
+  "Sort records in descending order."
+  DESC
+}
+
+"Aggregate functions when ordering by a relation without specifying a column."
+enum OrderByRelationAggregateFunction {
+  "Amount of items."
+  COUNT
+}
+
+"Aggregate functions when ordering by a relation that may specify a column."
+enum OrderByRelationWithColumnAggregateFunction {
+  "Average."
+  AVG
+
+  "Minimum."
+  MIN
+
+  "Maximum."
+  MAX
+
+  "Sum."
+  SUM
+
+  "Amount of items."
+  COUNT
+}
+
+"Allows ordering a list of records."
+input OrderByClause {
+  "The column that is used for ordering."
+  column: String!
+
+  "The direction that is used for ordering."
+  order: SortOrder!
+}
+
+"Specify if you want to include or exclude trashed results from a query."
+enum Trashed {
+  "Only return trashed results."
+  ONLY
+
+  "Return both trashed and non-trashed results."
+  WITH
+
+  "Only return non-trashed results."
+  WITHOUT
+}
+

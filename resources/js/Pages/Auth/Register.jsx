@@ -1,4 +1,4 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, usePage, useForm, Link } from '@inertiajs/react';
 import { useEffect, useState, useRef } from 'react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
@@ -13,7 +13,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import SecondaryLink from '@/Components/SecondaryLink';
 import PasswordRequirements from '@/Components/PasswordRequirements';
 
-export default function Register() {
+export default function Register({ status }) {
     const { t } = useTranslate();
     const [activeModal, setActiveModal] = useState(null); // 'terms' | 'privacy' | null
     const { data, setData, post, processing, errors, reset, setError, clearErrors } = useForm({
@@ -23,7 +23,6 @@ export default function Register() {
         password_confirmation: '',
         terms: false,
     });
-    const submittingRef = useRef(false);
 
     const submit = (e) => {
         e.preventDefault();
@@ -33,7 +32,9 @@ export default function Register() {
             return;
         }
 
-        // Validate Password Requirements Client-side
+        if (processing) return;
+
+        // Validate Password Requirements Client-side before actual submission attempt
         const password = data.password;
         const requirements = [
             { isValid: password.length >= 8 },
@@ -47,23 +48,9 @@ export default function Register() {
             return;
         }
 
-        // Prevent double submission (iOS Safari issue)
-        if (submittingRef.current || processing) return;
-        submittingRef.current = true;
-
-        console.log('Frontend: Registration form submitted', data);
         post(route('register'), {
             preserveState: true,
-            onStart: () => console.log('Frontend: Request started to', route('register')),
-            onFinish: () => {
-                console.log('Frontend: Request finished');
-                submittingRef.current = false;
-            },
-            onSuccess: () => console.log('Frontend: Request successful'),
-            onError: (errors) => {
-                console.error('Frontend: Request failed with errors', errors);
-                submittingRef.current = false;
-            },
+            onFinish: () => reset('password', 'password_confirmation'),
         });
     };
 
@@ -91,6 +78,30 @@ export default function Register() {
 
     return (
         <AuthLayout title={t('auth.register')}>
+            {status && (
+                <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
+                    {status}
+                </div>
+            )}
+
+            {(Object.keys(errors).length > 0 || (Object.keys(usePage().props.errors || {}).length > 0)) && (
+                <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md shadow-sm">
+                    <h3 className="text-sm font-bold text-red-800 dark:text-red-200 mb-1 flex items-center">
+                        <svg className="w-4 h-4 mr-1.5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {t('auth.registration_errors_title', 'Errores de registro:')}
+                    </h3>
+                    <ul className="list-disc list-inside text-xs text-red-700 dark:text-red-300 space-y-0.5">
+                        {Object.entries({ ...errors, ...(usePage().props.errors || {}) }).map(([key, value]) => (
+                            <li key={key}>
+                                {Array.isArray(value) ? value[0] : value}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             <form onSubmit={submit} className="space-y-6" noValidate>
                 <div>
                     <InputLabel htmlFor="name" value={t('auth.name')} />
@@ -103,6 +114,7 @@ export default function Register() {
                         autoComplete="name"
                         isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
+                        error={errors.name}
                         required
                     />
                     <InputError message={errors.name} className="mt-1" />
@@ -118,7 +130,11 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="username"
                         inputMode="email"
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => {
+                            setData('email', e.target.value);
+                            if (errors.email) clearErrors('email');
+                        }}
+                        error={errors.email}
                         required
                     />
                     <InputError message={errors.email} className="mt-1" />
@@ -132,7 +148,10 @@ export default function Register() {
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={(e) => {
+                            setData('password', e.target.value);
+                            if (errors.password) clearErrors('password');
+                        }}
                         error={errors.password}
                         required
                     />

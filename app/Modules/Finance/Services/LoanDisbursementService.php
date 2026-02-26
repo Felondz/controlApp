@@ -25,7 +25,7 @@ class LoanDisbursementService
 
         // Update loan account with disbursement info
         $loan->monto_desembolsado = $amount;
-        $loan->cuenta_destino_id = $destination?->id;
+        $loan->cuenta_destino_id = $destination ? $destination->id : null;
         $loan->save();
 
         // If no destination, it's cash - just record the info

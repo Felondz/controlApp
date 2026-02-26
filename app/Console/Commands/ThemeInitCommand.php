@@ -80,6 +80,7 @@ class ThemeInitCommand extends Command
         
         $this->info('📊 Theme Distribution:');
         foreach ($themeDistribution as $theme) {
+            /** @var object{global_theme: string|null, count: int} $theme */
             $themeName = $theme->global_theme ?? 'none';
             $percentage = round(($theme->count / $totalUsers) * 100, 1);
             $this->line("   • {$themeName}: {$theme->count} users ({$percentage}%)");

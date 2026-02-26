@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserLlmSettingController;
+use App\Http\Controllers\LlmModelsController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
@@ -44,6 +46,12 @@ Route::middleware('auth')->group(function () {
     // Routes moved to project scope below
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('profile.photo.delete');
+
+    // LLM Settings
+    Route::post('/profile/llm-settings', [UserLlmSettingController::class, 'store'])->name('profile.llm-settings.store');
+    Route::delete('/profile/llm-settings/{provider}', [UserLlmSettingController::class, 'destroy'])->name('profile.llm-settings.destroy');
+    Route::post('/profile/llm-settings/fetch-models', [LlmModelsController::class, 'fetchModels'])->name('profile.llm-settings.fetch-models');
+    Route::post('/profile/toggle-ai', [ProfileController::class, 'toggleAi'])->name('profile.toggle-ai');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
 
@@ -151,6 +159,14 @@ Route::middleware('auth')->group(function () {
 Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
 
 require __DIR__ . '/auth.php';
+
+// Admin User Management Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::patch('/users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    Route::patch('/users/{user}/admin', [\App\Http\Controllers\Admin\UserController::class, 'toggleAdmin'])->name('users.toggleAdmin');
+});
 
 
 

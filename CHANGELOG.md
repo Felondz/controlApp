@@ -2,9 +2,146 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.1.0] - 2026-02-26
+
+### 🚀 Performance & Scalability (The Ferrari Update)
+- **High-Performance Server**: Integrated **Laravel Octane** with Swoole for sub-second response times.
+- **Async Exports**: Moved PDF and CSV generation to background jobs (`ExportProjectData`) to prevent request blocking.
+- **Global Indexing**: Proactive database audit and indexing across Tasks, Chat, Inventory, Operations, and Bug Reports.
+- **Resource Management**: Implemented Docker CPU (0.75) and RAM (750MB) limits for safe multi-app coexistence.
+- **Log Rotation**: Switched to daily logs with 7-day retention to prevent disk saturation.
+- **Observability**: Verified and documented **Laravel Pulse** for real-time performance monitoring.
+
+## [3.0.0] - 2026-02-25
+
+### 👑 FEATURE: Admin Panel — User Management & PTR Dashboard (Feb 25, 2026)
+
+**Type**: Feature & Internationalization
+**Impact**: HIGH — Centralized administration for users and bug reports
+**Tests Affected**: Core Admin & PTR routes verified
+
+**Description**:
+Implemented a comprehensive Admin Suite for user management and a dedicated dashboard for the Bug Reporter (PTR). Standardized internationalization across all administration panels and enforced security defaults for AI features.
+
+**Key Changes**:
+
+- ✅ **User Management Dashboard** (`Admin/Users/Index.jsx`): Paginated data table with real-time search, role filtering (Super Admin/User), and status filtering (Active/Inactive).
+- ✅ **User Detail View** (`Admin/Users/Show.jsx`): Deep dive into user statistics (projects, tasks, accounts, messages) and a "Dangerous Zone" for account activation/deactivation and role promotion.
+- ✅ **Bug Reports Dashboard** (`Ptr/BugReportsDashboard.jsx`): Refactored full-page dashboard for PTR module, supporting status updates, developer notes, and category filtering.
+- ✅ **Admin Internationalization**: 100% `i18n` coverage for all admin panels. Replaced 40+ hardcoded strings with `t()` calls and expanded `es.json`/`en.json` dictionaries.
+- ✅ **AI Security Default**: All users (new and existing) now have `is_ai_enabled` set to `false` by default. Existing users had their toggles reset via a one-time data migration to ensure consistency.
+- ✅ **UI Theme Consistency**: Standardized topbar headers in Admin views to follow the primary theme color (`text-primary-600`), resolving "white text" visibility issues.
+- ✅ **Sidebar Administration Section**: New organized sidebar group for Super Admins.
+
+**Files Created/Modified**:
+- `resources/js/Pages/Admin/Users/Index.jsx` (NEW)
+- `resources/js/Pages/Admin/Users/Show.jsx` (NEW)
+- `resources/js/Pages/Ptr/BugReportsDashboard.jsx` (NEW)
+- `database/migrations/2026_02_25_203947_change_is_ai_enabled_default_in_users_table.php` (NEW)
+- `database/migrations/2026_02_25_211500_disable_ai_for_all_existing_users.php` (NEW)
+- `resources/lang/es/es.json`, `resources/lang/en/en.json`
+- `routes/web.php` — New `/admin/users` route group
+- `app/Http/Controllers/Admin/UserController.php` (NEW)
+
+---
+
+### 🤖 FEATURE: AI Integration — LLM Chat Widget & Global Kill Switch (Feb 24, 2026)
+
+**Type**: Major Feature
+**Impact**: HIGH — Adds AI-powered assistance across the entire platform
+**Tests Affected**: 28 new MCP tests, 350+ total backend tests passing
+
+**Description**:
+Completed end-to-end LLM integration, from user API key configuration to a fully functional global AI Chat Widget with recursive MCP tool execution. Implemented a global kill switch to instantly disable all AI features per user.
+
+**Key Changes**:
+
+- ✅ **AI Chat Widget** (`AiChatWidget.jsx`): Global widget injected into `AuthenticatedLayout`, supporting multi-provider LLM conversations with SSE streaming.
+- ✅ **Agent Loop**: Native recursive MCP Tool execution (up to 5 levels of depth) — AI can autonomously invoke domain tools (query balances, create tasks, manage inventory).
+- ✅ **Dynamic Model Selection**: Users can switch LLM provider and model at runtime from the chat widget header.
+- ✅ **LLM Settings UI** (`UpdateLlmSettingsForm.jsx`): Premium UI for managing API keys with per-provider add/update/delete and encrypted storage (`UserLlmSetting` model).
+- ✅ **LLM Models Proxy** (`LlmModelsController`): Backend proxy fetches available models from providers with 7-day cache to avoid rate limits.
+- ✅ **Global AI Kill Switch**: New `is_ai_enabled` column on `users` table. Toggle in profile settings instantly disables all AI features (chat widget disappears, MCP tools inaccessible).
+  - Flow: `router.post('/profile/toggle-ai')` → Backend inverts flag → Inertia recalculates `has_active_ai` → Widget dismounts.
+- ✅ **MCP Test Suite** (28 tests, 56+ assertions): Automated coverage for all 25+ MCP Tools across 5 servers (`InventoryMcpTest`, `OperationsMcpTest`, `FinanceMcpTest`, `TasksMcpTest`, `ChatMcpTest`).
+- 🐛 **Bug Fix**: Resolved AI widget visibility issue where deactivating one provider didn't hide the widget when other active providers existed.
+- 🐛 **Bug Fix**: Fixed Ziggy route cache requiring regeneration after adding `profile.toggle-ai` route.
+- 🐛 **Cleanup**: Removed 3 duplicate migration stubs for `add_is_ai_enabled_to_users_table`.
+
+**Files Created/Modified**:
+- `database/migrations/2026_02_24_225000_add_is_ai_enabled_to_users_table.php` (NEW)
+- `app/Models/User.php` — Added `is_ai_enabled` to `$fillable`
+- `app/Http/Middleware/HandleInertiaRequests.php` — `has_active_ai` now checks `is_ai_enabled && providers`
+- `app/Http/Controllers/ProfileController.php` — New `toggleAi()` method
+- `resources/js/Components/AiChatWidget.jsx`, `resources/js/Components/Icons.jsx` (SparklesAi icons)
+- `resources/js/Pages/Profile/Partials/UpdateLlmSettingsForm.jsx`
+- `tests/Feature/Mcp/*.php` (5 new test files)
+
+---
+
+### 🏗️ REFACTOR: Macro-Refactor — Actions/DTOs + GraphQL + MCP Architecture (Feb 23, 2026)
+
+**Type**: Architecture Refactoring
+**Impact**: CRITICAL — Complete backend architecture overhaul
+**Tests Affected**: 323+ passing, 0 regressions
+
+**Description**:
+Decoupled all business logic from HTTP controllers into a clean Actions/DTOs pattern. Introduced GraphQL (Lighthouse) as the primary mobile data layer and MCP (Model Context Protocol) tools for AI integration. Applied across all 5 active modules. Deprecated and removed Analytics and Notifications modules.
+
+**Module-by-Module Changes**:
+
+#### Inventory Module (Pilot)
+- ✅ `CreateInventoryItemDTO`, `UpdateInventoryItemDTO` — Strict readonly DTOs
+- ✅ `CreateInventoryItemAction`, `UpdateInventoryItemAction`, `DeleteInventoryItemAction`
+- ✅ `inventory.graphql` schema — Queries & Mutations resolved via `InventoryMutations.php`
+- ✅ **3 MCP Tools**: `ConsultStockTool`, `CreateInventoryItemTool`, `UpdateInventoryItemTool` on `InventoryServer`
+
+#### Operations Module
+- ✅ **11 Actions**: Process CRUD, Lote lifecycle (Create/Update/Stage/Finish/Discard), Input management
+- ✅ **11 DTOs**: Strict typed `readonly class` inputs for every action
+- ✅ `operations.graphql` — Types, Queries, 10 Mutations via `OperationsMutations.php`
+- ✅ **12 MCP Tools** on `OperationsServer`: Full process and lote lifecycle management for AI
+- ✅ **PHPStan**: Generics added to all 6 model relationships and factories — zero errors
+
+#### Finance Module
+- ✅ **8 DTOs** + **12 Actions**: Transactions CRUD, Accounts CRUD + Estado + PayBill, Categories CRUD
+- ✅ `finance.graphql` — Types `Transaccion`, `Cuenta`, `Categoria`, `BalanceResponse`, 12 Mutations via `FinanceMutations.php`
+- ✅ **7 MCP Tools** on `FinanceServer`: Balance, Transactions, Accounts, Bills, Categories
+- ✅ **Model `Transaccion`**: Generics on 9 relationships, typed factory — PHPStan clean
+- ✅ 48 finance tests passing independently
+
+#### Tasks Module
+- ✅ **2 DTOs** (`CreateTaskDTO`, `UpdateTaskDTO`) + **3 Actions** (Create/Update/Delete)
+- ✅ **4 MCP Tools** on `TasksServer`: List, Create, Update, Summary
+- ✅ **Model `Task`**: Generics on 6 relationships, typed factory
+
+#### Chat Module
+- ✅ **1 DTO** (`SendMessageDTO`) + **1 Action** (`SendMessageAction`)
+- ✅ **2 MCP Tools** on `ChatServer`: Send & List Messages
+- ✅ **Model `Message`**: Generics on 3 relationships, typed factory
+
+**Infrastructure**:
+- ✅ **GraphQL**: `nuwave/lighthouse` with `Sanctum` auth guard, per-module schema imports
+- ✅ **LLM Manager**: `UserLlmSetting` model (encrypted API keys), `LLMServiceInterface`, `LLMManager` for dynamic provider injection
+- ✅ **API Strategy**: GraphQL → Mobile CRUD, REST → Streaming/SSE (LLM chat) + Web parity
+- ✅ **Security**: `composer audit` — updated `phpunit` and symfony packages
+
+**Cleanup — Deprecated Modules Removed**:
+- 🗑️ **Deleted** `app/Modules/Analytics/` (8 files) and `app/Modules/Notifications/` (9 files)
+- 🗑️ **Deleted** `tests/Unit/Modules/Analytics/MetricsCollectorTest.php`
+- 🗑️ **Cleaned** `EnterpriseTemplate.php`: removed `analytics`/`notifications` references
+- 🗑️ **Migration**: `drop_deprecated_analytics_notifications_tables` — drops `analytics_metrics`, `notification_preferences`, `notifications`
+- 📐 **Decision**: Analytics will use query-time analytics from existing transactional tables
+
+**Validation**:
+- ✅ PHPStan Level 8: `[OK] No errors` across all modified modules and `app/Mcp/`
+- ✅ 323 backend tests passing, 2 skipped
+- ✅ Full suite: 350+ tests after MCP test addition
+
+---
 
 ### 19 de Diciembre de 2025 (Operations Testing)
 

@@ -12,6 +12,8 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { useInactivityTimeout } from '@/Hooks/useInactivityTimeout';
 import SessionExpiredModal from '@/Components/SessionExpiredModal';
 import BottomNavigation from '@/Components/BottomNavigation';
+import AiChatWidget from '@/Components/AiChatWidget';
+import BugReporterWidget from '@/Components/BugReporterWidget';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -49,6 +51,13 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
         setShowSessionExpired(true);
     });
 
+
+    // Helper function for user roles
+    const hasRole = (role) => {
+        return user?.role === role;
+    };
+
+    const hasActiveAi = user?.has_active_ai || false;
 
     // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
     const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
@@ -399,6 +408,8 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
             </div >
 
             <SessionExpiredModal show={showSessionExpired} />
+            {hasActiveAi && <AiChatWidget />}
+            {usePage().props.is_ptr && <BugReporterWidget />}
         </div >
     );
 }

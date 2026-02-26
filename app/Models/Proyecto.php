@@ -17,10 +17,47 @@ use App\Modules\Tasks\Models\Task;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Laravel\Scout\Searchable;
+use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property string|null $descripcion
+ * @property string|null $description Alias for descripcion
+ * @property string $moneda_default
+ * @property int $user_id
+ * @property bool $es_personal
+ * @property bool $visible_en_listado
+ * @property array|null $modules
+ * @property string|null $color
+ * @property string|null $icon
+ * @property string|null $image_path
+ * @property string|null $theme
+ * @property string|null $typography
+ * @property array|null $settings
+ * @property-read bool $has_messaging_feature
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $miembros
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentasAsociadas
+ * @property int|null $proyecto_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Finance\Models\Categoria> $categorias
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaccion> $transacciones
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invitacion> $invitaciones
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Message> $messages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Inventory\Models\InventoryItem> $inventoryItems
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * 
+ * @property bool $isAdmin Flag for UI
+ * @property int $unread_messages_count Flag for UI
+ * @property int $pending_tasks_count Flag for UI
+ * @property int $due_today_count Flag for UI
+ */
 class Proyecto extends Model
 {
-    use HasFactory, SoftDeletes, Searchable;
+    /** @use HasFactory<\Database\Factories\ProyectoFactory> */
+    use HasFactory, SoftDeletes, Searchable, Notifiable;
 
     /**
      * Los atributos que se pueden asignar masivamente.
@@ -57,17 +94,22 @@ class Proyecto extends Model
         'settings' => 'array',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
+    /** @phpstan-ignore-next-line */
     protected $appends = ['has_messaging_feature'];
+
+    /**
+     * Determina si el proyecto tiene habilitada la mensajería.
+     * Requerido por $appends.
+     */
+    public function getHasMessagingFeatureAttribute(): bool
+    {
+        return in_array('chat', $this->modules ?? []);
+    }
 
     /**
      * Relación Miembros (muchos a muchos)
      */
-    public function miembros()
+    public function miembros(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'proyecto_user')->withPivot('rol', 'last_read_at');
     }
@@ -75,7 +117,7 @@ class Proyecto extends Model
     /**
      * Relación Cuentas (polimórfica)
      */
-    public function cuentas()
+    public function cuentas(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Cuenta::class, 'propietario');
     }
@@ -84,7 +126,7 @@ class Proyecto extends Model
      * Relación Cuentas Asociadas (muchos a muchos)
      * Cuentas personales vinculadas al proyecto.
      */
-    public function cuentasAsociadas()
+    public function cuentasAsociadas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Cuenta::class, 'cuenta_proyecto')
             ->withTimestamps();
@@ -93,7 +135,7 @@ class Proyecto extends Model
     /**
      * Relación Categorías (uno a muchos)
      */
-    public function categorias()
+    public function categorias(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Categoria::class);
     }
@@ -101,7 +143,7 @@ class Proyecto extends Model
     /**
      * Relación Transacciones (uno a muchos)
      */
-    public function transacciones()
+    public function transacciones(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Transaccion::class);
     }
@@ -109,7 +151,7 @@ class Proyecto extends Model
     /**
      * Obtiene las invitaciones pendientes para este proyecto.
      */
-    public function invitaciones()
+    public function invitaciones(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Invitacion::class);
     }
@@ -158,7 +200,7 @@ class Proyecto extends Model
     /**
      * Relación Mensajes (uno a muchos)
      */
-    public function messages()
+    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Message::class);
     }
@@ -166,7 +208,7 @@ class Proyecto extends Model
     /**
      * Relación Tareas (uno a muchos)
      */
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class, 'project_id');
     }
@@ -181,13 +223,6 @@ class Proyecto extends Model
         return in_array('chat', $modules);
     }
 
-    /**
-     * Accessor for has_messaging_feature
-     */
-    public function getHasMessagingFeatureAttribute(): bool
-    {
-        return $this->hasMessagingFeature();
-    }
     /**
      * Relationship with Inventory Items
      */

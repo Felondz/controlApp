@@ -8,19 +8,15 @@ use App\Models\Proyecto;
 use App\Modules\Inventory\Models\InventoryItem;
 use App\Models\User;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Modules\Operations\Models\LoteProduccion>
+ */
 class LoteProduccionFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = LoteProduccion::class;
 
     /**
-     * Define the model's default state.
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function definition()
     {

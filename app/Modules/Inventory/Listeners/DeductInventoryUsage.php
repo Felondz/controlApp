@@ -27,7 +27,7 @@ class DeductInventoryUsage implements ShouldQueue
      */
     public $connection = 'redis';
 
-    protected $inventoryService;
+    protected InventoryService $inventoryService;
 
     /**
      * Create the event listener.

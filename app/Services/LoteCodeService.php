@@ -42,6 +42,6 @@ class LoteCodeService
         $nextSeq = intval($lastSeq) + 1;
         
         // Pad with zeros to at least 3 digits
-        return "$prefix-" . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+        return "$prefix-" . str_pad((string) $nextSeq, 3, '0', STR_PAD_LEFT);
     }
 }

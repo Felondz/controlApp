@@ -37,3 +37,11 @@ Thumbs.db
 /docs/private/
 _ide_helper.php
 .phpstorm.meta.php
+
+# PHPStan
+.phpstan*
+phpstan.neon.cache
+/storage/phpstan
+
+# Generated API Documentation
+/public/docs/graphql/

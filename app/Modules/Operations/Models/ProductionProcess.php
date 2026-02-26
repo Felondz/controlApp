@@ -6,12 +6,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $proyecto_id
+ * @property string $name
+ * @property string|null $description
+ * @property bool $is_active
+ * @property int|null $inventory_item_id
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Operations\Models\EtapaProceso> $etapas
+ * @property \App\Modules\Inventory\Models\InventoryItem|null $outputProduct
+ * @property \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Operations\Models\LoteProduccion> $lotes
+ */
 class ProductionProcess extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProductionProcessFactory> */
     use HasFactory, SoftDeletes;
 
-    protected static function newFactory()
+    /**
+     * @return \Illuminate\Database\Eloquent\Factories\Factory<self>
+     */
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
     {
         return \Database\Factories\ProductionProcessFactory::new();
     }
@@ -30,22 +47,34 @@ class ProductionProcess extends Model
         'is_active' => 'boolean',
     ];
 
-    public function proyecto()
+    /**
+     * @return BelongsTo<Proyecto, $this>
+     */
+    public function proyecto(): BelongsTo
     {
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function outputProduct()
+    /**
+     * @return BelongsTo<\App\Modules\Inventory\Models\InventoryItem, $this>
+     */
+    public function outputProduct(): BelongsTo
     {
         return $this->belongsTo(\App\Modules\Inventory\Models\InventoryItem::class, 'inventory_item_id');
     }
 
-    public function etapas()
+    /**
+     * @return HasMany<EtapaProceso, $this>
+     */
+    public function etapas(): HasMany
     {
         return $this->hasMany(EtapaProceso::class, 'production_process_id')->orderBy('order');
     }
 
-    public function lotes()
+    /**
+     * @return HasMany<LoteProduccion, $this>
+     */
+    public function lotes(): HasMany
     {
         return $this->hasMany(LoteProduccion::class, 'production_process_id');
     }

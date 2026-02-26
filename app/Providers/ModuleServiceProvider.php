@@ -73,13 +73,13 @@ class ModuleServiceProvider extends ServiceProvider
             }
 
             // Handle 'web' routes
-            if (isset($routes['web']) && is_string($routes['web']) && file_exists($routes['web'])) {
+            if (isset($routes['web']) && file_exists((string) $routes['web'])) {
                 \Illuminate\Support\Facades\Route::middleware('web')
                     ->group($routes['web']);
             }
 
             // Handle 'api' routes
-            if (isset($routes['api']) && is_string($routes['api']) && file_exists($routes['api'])) {
+            if (isset($routes['api']) && file_exists((string) $routes['api'])) {
                 \Illuminate\Support\Facades\Route::prefix('api')
                     ->middleware('api')
                     ->group($routes['api']);

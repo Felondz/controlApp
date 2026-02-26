@@ -3,9 +3,10 @@ import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import UpdateLlmSettingsForm from './Partials/UpdateLlmSettingsForm';
 import { useTranslate } from '@/Hooks/useTranslate';
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function Edit({ mustVerifyEmail, status, llmSettings }) {
     const { t } = useTranslate();
 
     return (
@@ -29,6 +30,10 @@ export default function Edit({ mustVerifyEmail, status }) {
 
                     <div className="bg-white dark:bg-gray-800 p-4 shadow sm:rounded-lg sm:p-8">
                         <UpdatePasswordForm />
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 p-4 shadow sm:rounded-lg sm:p-8">
+                        <UpdateLlmSettingsForm llmSettings={llmSettings} />
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 p-4 shadow sm:rounded-lg sm:p-8 border border-red-200 dark:border-red-900/50">

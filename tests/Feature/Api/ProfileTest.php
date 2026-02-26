@@ -60,14 +60,14 @@ class ProfileTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')
             ->putJson('/api/password', [
                 'current_password' => 'password',
-                'password' => 'new-password',
-                'password_confirmation' => 'new-password',
+                'password' => 'New-password1',
+                'password_confirmation' => 'New-password1',
             ]);
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Contraseña actualizada correctamente']);
 
-        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+        $this->assertTrue(Hash::check('New-password1', $user->refresh()->password));
     }
     public function test_profile_photo_can_be_uploaded(): void
     {

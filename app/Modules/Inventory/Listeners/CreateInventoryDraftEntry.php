@@ -50,6 +50,7 @@ class CreateInventoryDraftEntry implements ShouldQueue
             $contractId = $event->get('contract_id');
             $invoiceId = $event->get('invoice_id');
             
+            /** @var SupplyContract|null $contract */
             $contract = SupplyContract::find($contractId);
             
             if (!$contract) {

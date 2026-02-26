@@ -52,37 +52,37 @@ class ExportControllerTest extends TestCase
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_export_accounts_to_csv(): void
     {
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=accounts");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
-    /** @test */
+    #[Test]
     public function member_can_export_categories_to_csv(): void
     {
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=categories");
 
         $response->assertSuccessful();
-        $this->assertEquals(
-            'text/csv; charset=utf-8',
-            strtolower($response->headers->get('Content-Type'))
-        );
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.'
+        ]);
     }
 
-    /** @test */
+    #[Test]
     public function csv_export_supports_date_filtering(): void
     {
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions&from=2024-01-01&to=2024-12-31");
@@ -90,7 +90,7 @@ class ExportControllerTest extends TestCase
         $response->assertSuccessful();
     }
 
-    /** @test */
+    #[Test]
     public function non_member_cannot_export_csv(): void
     {
         $otherUser = User::factory()->create();
@@ -101,7 +101,7 @@ class ExportControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function member_can_export_pdf_summary(): void
     {
         $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
@@ -109,10 +109,13 @@ class ExportControllerTest extends TestCase
         ]);
 
         $response->assertSuccessful();
-        $response->assertHeader('Content-Type', 'application/pdf');
+        $response->assertJson([
+            'status' => 'processing',
+            'message' => 'El reporte PDF se está generando en segundo plano. Podrás descargarlo pronto.'
+        ]);
     }
 
-    /** @test */
+    #[Test]
     public function pdf_export_supports_date_range(): void
     {
         $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
@@ -124,7 +127,7 @@ class ExportControllerTest extends TestCase
         $response->assertSuccessful();
     }
 
-    /** @test */
+    #[Test]
     public function non_member_cannot_export_pdf(): void
     {
         $otherUser = User::factory()->create();
@@ -135,7 +138,7 @@ class ExportControllerTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function csv_export_validates_type_parameter(): void
     {
         $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=invalid");
@@ -143,7 +146,7 @@ class ExportControllerTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /** @test */
+    #[Test]
     public function pdf_export_validates_type_parameter(): void
     {
         $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
@@ -153,7 +156,7 @@ class ExportControllerTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_export(): void
     {
         // Clear authentication

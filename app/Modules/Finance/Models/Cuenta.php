@@ -4,15 +4,58 @@ namespace App\Modules\Finance\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Models\Proyecto;
 use App\Modules\Finance\Models\Transaccion;
 
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property string|null $banco
+ * @property string $tipo
+ * @property int $saldo_inicial
+ * @property int $saldo_actual
+ * @property int $balance
+ * @property int $saldo
+ * @property int $propietario_id
+ * @property string|null $propietario_type
+ * @property string|null $estado
+ * @property string|null $moneda
+ * @property string|null $descripcion
+ * @property string|null $color
+ * @property string|null $icono
+ * @property bool|null $es_nomina
+ * @property int|null $dia_nomina
+ * @property int|null $valor_nomina
+ * @property float|null $tasa_interes_anual
+ * @property \Carbon\Carbon|null $fecha_vencimiento
+ * @property int|null $dia_corte
+ * @property int|null $dia_pago
+ * @property int|null $limite_credito
+ * @property float|null $tasa_interes
+ * @property string|null $fecha_interes
+ * @property bool|null $capitalizable
+ * @property string|null $periodo_capitalizacion
+ * @property int|null $plazo
+ * @property int|null $valor_cuota
+ * @property int|null $cuotas_pagadas
+ * @property int|null $monto_desembolsado
+ * @property int|null $cuenta_destino_id
+ * @property int|null $proyecto_id
+ * @property-read Proyecto $proyecto
+ * @property-read Proyecto $propietario
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class Cuenta extends Model
 {
     /** @use HasFactory<\Database\Factories\CuentaFactory> */
     use HasFactory;
 
-    protected static function newFactory()
+    protected static function newFactory(): \Database\Factories\CuentaFactory
     {
         return \Database\Factories\CuentaFactory::new();
     }
@@ -78,26 +121,27 @@ class Cuenta extends Model
     ];
     /**
      * Obtiene el modelo propietario (ya sea un User o un Proyecto).
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo<Model, $this>
      */
-    public function propietario()
+    public function propietario(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }
 
     /**
      * Obtiene las transacciones asociadas con la cuenta.
+     * @return HasMany<Transaccion, $this>
      */
-    public function transacciones()
+    public function transacciones(): HasMany
     {
         return $this->hasMany(Transaccion::class);
     }
 
     /**
      * Relación Proyectos Asociados (muchos a muchos)
-     * Proyectos donde esta cuenta está vinculada.
+     * @return BelongsToMany<Proyecto, $this>
      */
-    public function proyectosAsociados()
+    public function proyectosAsociados(): BelongsToMany
     {
         return $this->belongsToMany(Proyecto::class, 'cuenta_proyecto')
             ->withTimestamps();
@@ -105,8 +149,9 @@ class Cuenta extends Model
 
     /**
      * Destination account for loan disbursement
+     * @return BelongsTo<Cuenta, $this>
      */
-    public function cuentaDestino()
+    public function cuentaDestino(): BelongsTo
     {
         return $this->belongsTo(Cuenta::class, 'cuenta_destino_id');
     }

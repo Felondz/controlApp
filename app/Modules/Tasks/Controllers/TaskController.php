@@ -17,7 +17,7 @@ use Illuminate\Http\JsonResponse;
  */
 class TaskController extends Controller
 {
-    public function index(Request $request, Proyecto $proyecto)
+    public function index(Request $request, Proyecto $proyecto): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $this->authorize('view', $proyecto);
 
@@ -78,7 +78,8 @@ class TaskController extends Controller
 
             \Illuminate\Support\Facades\Log::info("Users fetched for workload: " . $users->count());
 
-            $data = $users->map(function ($user) {
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users */
+            $data = $users->map(function (\App\Models\User $user) {
                 // Calculate stats
                 $stats = new \stdClass();
                 // Ensure accessed via relation property
@@ -116,7 +117,7 @@ class TaskController extends Controller
      * Create a new task in the project.
      * Supports both JSON and HTML responses.
      */
-    public function store(Request $request, Proyecto $proyecto)
+    public function store(Request $request, Proyecto $proyecto): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->authorize('addTask', $proyecto);
 
@@ -132,6 +133,7 @@ class TaskController extends Controller
             'related_id' => 'nullable|string|max:255',
         ]);
 
+        /** @var \App\Modules\Tasks\Models\Task $task */
         $task = $proyecto->tasks()->create($validated);
 
         if (!empty($validated['assignees'])) {
@@ -151,7 +153,7 @@ class TaskController extends Controller
      * Update an existing task.
      * Supports both JSON and HTML responses.
      */
-    public function update(Request $request, Proyecto $proyecto, Task $task)
+    public function update(Request $request, Proyecto $proyecto, Task $task): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->authorize('updateTask', $proyecto);
 
@@ -186,7 +188,7 @@ class TaskController extends Controller
      * Permanently delete a task.
      * Supports both JSON and HTML responses.
      */
-    public function destroy(Request $request, Proyecto $proyecto, Task $task)
+    public function destroy(Request $request, Proyecto $proyecto, Task $task): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->authorize('deleteTask', $proyecto);
 

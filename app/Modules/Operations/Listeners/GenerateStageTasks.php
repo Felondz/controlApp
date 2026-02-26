@@ -51,7 +51,9 @@ class GenerateStageTasks implements ShouldQueue
             $loteId = $event->get('lote_id');
             $stageId = $event->get('new_stage_id');
             
+            /** @var LoteProduccion|null $lote */
             $lote = LoteProduccion::find($loteId);
+            /** @var EtapaProceso|null $stage */
             $stage = EtapaProceso::find($stageId);
             
             if (!$lote || !$stage) {

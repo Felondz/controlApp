@@ -19,7 +19,12 @@ use Carbon\Carbon;
 
 class LoteController extends Controller
 {
-    public function index(Request $request, Proyecto $proyecto)
+    /**
+     * Listar lotes
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     */
+    public function index(Request $request, Proyecto $proyecto): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $processes = ProductionProcess::where('proyecto_id', $proyecto->id)
             ->where('is_active', true)
@@ -80,7 +85,7 @@ class LoteController extends Controller
         ]);
     }
 
-    public function storeProcess(Request $request, Proyecto $proyecto)
+    public function storeProcess(Request $request, Proyecto $proyecto, \App\Modules\Operations\Actions\CreateProductionProcessAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -91,28 +96,15 @@ class LoteController extends Controller
             'stages.*.description' => 'nullable|string|max:255',
         ]);
 
-        $process = DB::transaction(function () use ($proyecto, $validated) {
-            $process = ProductionProcess::create([
-                'proyecto_id' => $proyecto->id,
-                'name' => $validated['name'],
-                'description' => $validated['description'],
-                'inventory_item_id' => $validated['inventory_item_id'] ?? null,
-                'is_active' => true,
-            ]);
+        $dto = new \App\Modules\Operations\DTOs\CreateProductionProcessDTO(
+            proyecto: $proyecto,
+            name: $validated['name'],
+            description: $validated['description'] ?? null,
+            inventoryItemId: isset($validated['inventory_item_id']) ? (int) $validated['inventory_item_id'] : null,
+            stages: $validated['stages']
+        );
 
-            // Create configured stages
-            foreach ($validated['stages'] as $index => $stageData) {
-                EtapaProceso::create([
-                    'proyecto_id' => $proyecto->id,
-                    'production_process_id' => $process->id,
-                    'name' => $stageData['name'],
-                    'description' => $stageData['description'] ?? null,
-                    'order' => $index + 1, // Order based on array index
-                ]);
-            }
-
-            return $process;
-        });
+        $process = $action->execute($dto);
 
         if ($request->wantsJson()) {
             return response()->json($process, 201);
@@ -125,7 +117,7 @@ class LoteController extends Controller
         ])->with('success', 'Proceso creado. Ahora configura los insumos (Receta).');
     }
 
-    public function updateProcess(Request $request, Proyecto $proyecto, ProductionProcess $process)
+    public function updateProcess(Request $request, Proyecto $proyecto, ProductionProcess $process, \App\Modules\Operations\Actions\UpdateProductionProcessAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -134,7 +126,16 @@ class LoteController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $process->update($validated);
+        $dto = new \App\Modules\Operations\DTOs\UpdateProductionProcessDTO(
+            proyecto: $proyecto,
+            process: $process,
+            name: $validated['name'],
+            description: $validated['description'] ?? null,
+            inventoryItemId: isset($validated['inventory_item_id']) ? (int) $validated['inventory_item_id'] : null,
+            isActive: (bool) ($validated['is_active'] ?? $process->is_active)
+        );
+
+        $process = $action->execute($dto);
 
         if ($request->wantsJson()) {
             return response()->json($process, 200);
@@ -147,7 +148,12 @@ class LoteController extends Controller
 
 
 
-    public function store(Request $request, Proyecto $proyecto, \App\Services\LoteCodeService $codeService)
+    /**
+     * Crear un nuevo lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     */
+    public function store(Request $request, Proyecto $proyecto, \App\Modules\Operations\Actions\CreateLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'production_process_id' => 'required|exists:production_processes,id',
@@ -156,42 +162,21 @@ class LoteController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $process = ProductionProcess::with(['etapas.inputTemplates'])->findOrFail($validated['production_process_id']);
+        $dto = new \App\Modules\Operations\DTOs\CreateLoteDTO(
+            proyecto: $proyecto,
+            productionProcessId: (int) $validated['production_process_id'],
+            startDate: $validated['start_date'],
+            assignedTo: isset($validated['assigned_to']) ? (int) $validated['assigned_to'] : null,
+            notes: $validated['notes'] ?? null
+        );
 
-        if (!$process->etapas->count()) {
-            return back()->with('error', 'El proceso seleccionado no tiene etapas configuradas.');
+        try {
+            $action->execute($dto);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
 
-        $firstStage = $process->etapas->first();
-
-        DB::transaction(function () use ($proyecto, $process, $firstStage, $validated, $codeService) {
-            // 1. Auto-generate Code
-            $code = $codeService->generate($proyecto->id);
-
-            // 2. Create Lote
-            $lote = LoteProduccion::create([
-                'proyecto_id' => $proyecto->id,
-                'production_process_id' => $process->id,
-                'stage_id' => $firstStage->id,
-                'inventory_item_id' => $process->inventory_item_id, // The Output Product
-                'code' => $code,
-                'initial_quantity' => null,
-                'current_quantity' => 0,
-                'start_date' => $validated['start_date'],
-                'assigned_to' => $validated['assigned_to'] ?? null,
-                'notes' => $validated['notes'] ?? null,
-                'status' => 'active',
-            ]);
-
-            // 3. Dispatch Event to Hydrate Inputs (Async)
-            \App\Modules\Operations\Events\LoteCreated::dispatch($lote);
-        });
-
         if ($request->wantsJson()) {
-            return response()->json($process, 201); // Ideally return lote, but logic is complex here. Returning process/lote info? Returning null for now or redirect equivalent.
-            // Actually, we created a lote inside transaction but scope is lost.
-            // Let's rely on standard response or refactor to return lote. 
-            // For now, 201 Created is safer.
             return response()->json(['message' => 'Lote creado exitosamente'], 201);
         }
 
@@ -201,97 +186,40 @@ class LoteController extends Controller
         ])->with('success', 'Lote creado exitosamente.');
     }
 
-    public function updateStage(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    /**
+     * Actualizar etapa del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
+    public function updateStage(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\UpdateLoteStageAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'stage_id' => 'required|exists:etapas_proceso,id',
         ]);
 
-        $newStageId = $validated['stage_id'];
+        $dto = new \App\Modules\Operations\DTOs\UpdateLoteStageDTO(
+            lote: $lote,
+            newStageId: (int) $validated['stage_id'],
+            forceConsumeInputs: $request->boolean('consume_inputs')
+        );
 
-        // Prevent re-processing if already on this stage
-        if ($lote->stage_id == $newStageId) {
-            return back();
-        }
-
-        DB::transaction(function () use ($lote, $newStageId, $request) {
-            // Store old stage for the event before updating the lote
-            $oldStageId = $lote->stage_id;
-            $oldStage = $oldStageId ? EtapaProceso::find($oldStageId) : null;
-            $newStage = EtapaProceso::find($newStageId);
-
-            // Update the lote to the new stage
-            $lote->update(['stage_id' => $newStageId]);
-
-            // Dispatch StageChanged Event
-            \App\Modules\Operations\Events\StageChanged::dispatch($lote, $oldStage, $newStage);
-
-            // Fetch Recipe for this new Stage
-            $templates = \App\Modules\Operations\Models\StageInputTemplate::where('etapa_proceso_id', $newStageId)
-                ->with('item') // Eager load item to access cost_price
-                ->get();
-
-            $forceConsume = $request->boolean('consume_inputs');
-
-            foreach ($templates as $template) {
-                // Determine quantity to consume
-                $quantity = (float) ($template->quantity > 0 ? $template->quantity : 0);
-                
-                // Determine if we SHOULD consume (auto or forced)
-                $shouldConsume = $quantity > 0;
-                if ($forceConsume && $quantity > 0) {
-                     $shouldConsume = true;
-                }
-
-                // Check if input exists for this stage
-                $existingInput = $lote->inputs()
-                    ->where('inventory_item_id', $template->inventory_item_id)
-                    ->where('stage_id', $newStageId)
-                    ->first();
-
-                if ($existingInput) {
-                    // IDEMPOTENCY FIX: If it exists but is PENDING, and we SHOULD consume, then consume it now.
-                    if ($existingInput->status !== 'consumed' && $shouldConsume) {
-                        $existingInput->update([
-                            'status' => 'consumed',
-                            'consumed_at' => now(),
-                            'quantity' => $quantity, // Ensure quantity matches template if it changed? Optional.
-                            'unit_cost' => $template->item->cost_price ?? $existingInput->unit_cost, // Update cost if needed
-                            'total_cost' => $quantity * ($template->item->cost_price ?? ($existingInput->unit_cost ?? 0)),
-                        ]);
-                        
-                        \App\Modules\Operations\Events\InputConsumed::dispatch($existingInput);
-                        Log::info("LoteController: Consumed PRE-EXISTING input {$existingInput->id} for Lote {$lote->id}");
-                    }
-                } else {
-                    // Create new input
-                     $insumo = LoteInsumo::create([
-                          'lote_produccion_id' => $lote->id,
-                          'inventory_item_id' => $template->inventory_item_id,
-                          'stage_id' => $newStageId,
-                          'quantity' => $quantity,
-                          'unit_cost' => $template->item->cost_price ?? 0,
-                          'total_cost' => $quantity * ($template->item->cost_price ?? 0),
-                          'status' => $shouldConsume ? 'consumed' : 'pending',
-                          'consumed_at' => $shouldConsume ? now() : null,
-                     ]);
-
-                    if ($shouldConsume) {
-                        \App\Modules\Operations\Events\InputConsumed::dispatch($insumo);
-                        Log::info("LoteController: Created and Consumed input {$insumo->id} for Lote {$lote->id}");
-                    }
-                }
-            }
-        });
+        $action->execute($dto);
 
         if ($request->wantsJson()) {
-            return response()->json(['message' => 'Etapa actualizada', 'stage_id' => $newStageId]);
+            return response()->json(['message' => 'Etapa actualizada', 'stage_id' => $dto->newStageId]);
         }
 
         return back()->with('success', 'Etapa actualizada.');
     }
 
-    public function show(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    /**
+     * Ver detalle del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
+    public function show(Request $request, Proyecto $proyecto, LoteProduccion $lote): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $lote->load(['assignedUser', 'stage', 'productionProcess', 'tasks.assignedTo', 'inputs.product']);
 
@@ -301,7 +229,13 @@ class LoteController extends Controller
         ]);
     }
 
-    public function addInput(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    /**
+     * Añadir insumo al lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
+    public function addInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\AddLoteInputAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'inventory_item_id' => 'required|exists:inventory_items,id',
@@ -309,7 +243,14 @@ class LoteController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        \App\Modules\Operations\Events\LoteInputAdded::dispatch($lote, $validated);
+        $dto = new \App\Modules\Operations\DTOs\AddLoteInputDTO(
+            lote: $lote,
+            inventoryItemId: (int) $validated['inventory_item_id'],
+            quantity: (float) $validated['quantity'],
+            notes: $validated['notes'] ?? null
+        );
+
+        $action->execute($dto);
 
         if ($request->wantsJson()) {
              return response()->json(['message' => 'Insumo agregado'], 201);
@@ -325,29 +266,26 @@ class LoteController extends Controller
      * but could be refactored similar to addInput if desired. 
      * Leaving consumeInput as is for this scope unless specific request to change it too.
      */
-    public function consumeInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, LoteInsumo $input)
+    public function consumeInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, LoteInsumo $input, \App\Modules\Operations\Actions\ConsumeLoteInputAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        if ($input->lote_produccion_id !== $lote->id)
-            abort(403);
-        if ($input->status === 'consumed')
-            return back()->with('error', 'El insumo ya ha sido consumido.');
+        $quantity = $input->quantity; // Avoid mutation errors before DTO if needed
+        $requestedQuantity = (float) $request->input('quantity', $quantity);
 
-        $quantity = $request->input('quantity', $input->quantity);
-        $totalCost = $quantity * ($input->product->cost_price ?? 0);
+        $dto = new \App\Modules\Operations\DTOs\ConsumeLoteInputDTO(
+            lote: $lote,
+            input: $input,
+            quantity: $requestedQuantity
+        );
 
-        // Update the input model first to mark as done/consumed logic
-        // But true event-driven would might even defer this. 
-        // However, updating the LoteInsumo record itself is local to this context. 
-        // The Inventory movement (external module side effect) is what we defer.
-        $input->update([
-            'status' => 'consumed', // Marked as consumed here so UI updates immediately
-            'quantity' => $quantity,
-            'total_cost' => $totalCost,
-            'consumed_at' => now(),
-        ]);
-
-        // Dispatch Event for Inventory Module to handle deduction asynchronously
-        \App\Modules\Operations\Events\InputConsumed::dispatch($input);
+        try {
+            $action->execute($dto);
+        } catch (\Exception $e) {
+            $status = $e->getMessage() === 'Acceso denegado: El insumo no pertenece a este lote.' ? 403 : 400;
+            if ($status === 403) {
+                 abort(403);
+            }
+            return back()->with('error', $e->getMessage());
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['message' => 'Consumo registrado']);
@@ -356,18 +294,30 @@ class LoteController extends Controller
         return back()->with('success', 'Consumo registrado (descontando de inventario en segundo plano).');
     }
 
-    public function finish(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    /**
+     * Finalizar producción del lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
+    public function finish(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\FinishLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'final_quantity' => 'required|numeric|min:0',
             'inventory_item_id' => 'required|exists:inventory_items,id',
         ]);
 
-        if ($lote->status !== 'active') {
-            return back()->with('error', 'El lote no está activo.');
-        }
+        $dto = new \App\Modules\Operations\DTOs\FinishLoteDTO(
+            lote: $lote,
+            finalQuantity: (float) $validated['final_quantity'],
+            inventoryItemId: (int) $validated['inventory_item_id']
+        );
 
-        \App\Modules\Operations\Events\LoteFinished::dispatch($lote, $validated);
+        try {
+            $action->execute($dto);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['message' => 'Lote finalizado']);
@@ -376,17 +326,28 @@ class LoteController extends Controller
         return back()->with('success', 'Lote finalizado (procesando en segundo plano).');
     }
 
-    public function discard(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    /**
+     * Descartar lote
+     * 
+     * @urlParam proyecto integer required The ID of the project. Example: 1
+     * @urlParam lote integer required The ID of the lote. Example: 1
+     */
+    public function discard(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\DiscardLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'reason' => 'required|string|max:255',
         ]);
 
-        if ($lote->status !== 'active') {
-            return back()->with('error', 'Solo se pueden descartar lotes activos.');
-        }
+        $dto = new \App\Modules\Operations\DTOs\DiscardLoteDTO(
+            lote: $lote,
+            reason: $validated['reason']
+        );
 
-        \App\Modules\Operations\Events\LoteDiscarded::dispatch($lote, $validated['reason']);
+        try {
+            $action->execute($dto);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         if ($request->wantsJson()) {
             return response()->json(['message' => 'Lote descartado']);
@@ -394,14 +355,20 @@ class LoteController extends Controller
 
         return back()->with('success', 'Lote marcado como descartado (procesando en segundo plano).');
     }
-    public function update(Request $request, Proyecto $proyecto, LoteProduccion $lote)
+    public function update(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\UpdateLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'notes' => 'nullable|string',
             'assigned_to' => 'nullable|exists:users,id',
         ]);
 
-        $lote->update($validated);
+        $dto = new \App\Modules\Operations\DTOs\UpdateLoteDTO(
+            lote: $lote,
+            notes: $validated['notes'] ?? null,
+            assignedTo: isset($validated['assigned_to']) ? (int) $validated['assigned_to'] : null,
+        );
+
+        $action->execute($dto);
 
         if ($request->wantsJson()) {
             return response()->json($lote);
@@ -410,16 +377,13 @@ class LoteController extends Controller
         return back()->with('success', 'Lote actualizado correctamente.');
     }
 
-    public function destroyProcess(Request $request, Proyecto $proyecto, ProductionProcess $process)
+    public function destroyProcess(Request $request, Proyecto $proyecto, ProductionProcess $process, \App\Modules\Operations\Actions\DeleteProductionProcessAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        // Check for active lotes
-        if ($process->lotes()->where('status', 'active')->exists()) {
-            return back()->with('error', 'No se puede eliminar el proceso porque tiene lotes activos. Finalízalos o descártalos primero.');
+        try {
+            $action->execute($process);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        // Delete related data (stages, recipes) handled by DB cascade or manually if needed
-        // Assuming SoftDeletes or Cascade on DB. If SoftDeletes, just delete process.
-        $process->delete();
 
         if ($request->wantsJson()) {
             return response()->json(['message' => 'Proceso eliminado'], 200);
@@ -427,7 +391,7 @@ class LoteController extends Controller
 
         return back()->with('success', 'Proceso eliminado correctamente.');
     }
-    public function history(Request $request, Proyecto $proyecto)
+    public function history(Request $request, Proyecto $proyecto): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
         $query = LoteProduccion::where('proyecto_id', $proyecto->id)
             ->with(['productionProcess', 'stage', 'assignee']);

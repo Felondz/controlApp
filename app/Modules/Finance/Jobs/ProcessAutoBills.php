@@ -53,10 +53,8 @@ class ProcessAutoBills implements ShouldQueue
 
                 // Update Account Balance
                 $cuenta = $bill->cuentaPredeterminada;
-                if ($cuenta) {
-                    $cuenta->saldo_actual += $bill->monto; // Monto is already negative for expenses
-                    $cuenta->save();
-                }
+                $cuenta->saldo_actual += (int) $bill->monto; // Monto is already negative for expenses
+                $cuenta->save();
 
                 Log::info("ProcessAutoBills: Successfully processed bill #{$bill->id}");
 

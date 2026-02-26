@@ -21,7 +21,7 @@ class CreateFinishedGoodsEntry
 {
     // use InteractsWithQueue; // Not queueing for now to ensure synchronous execution
 
-    protected $inventoryService;
+    protected InventoryService $inventoryService;
 
     /**
      * Create the event listener.
@@ -55,6 +55,7 @@ class CreateFinishedGoodsEntry
         } else {
             // Fallback: load from payload
             $loteId = $event->get('lote_id');
+            /** @var LoteProduccion|null $lote */
             $lote = LoteProduccion::find($loteId);
             
             if ($lote) {

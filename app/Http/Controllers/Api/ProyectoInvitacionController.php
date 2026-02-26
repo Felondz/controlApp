@@ -62,6 +62,7 @@ class ProyectoInvitacionController extends Controller
         }
 
         // 4. Crear la invitación
+        /** @var Invitacion $invitacion */
         $invitacion = $proyecto->invitaciones()->create([
             'user_id' => $request->user()->id, // Quién envió la invitación
             'email' => $emailInvitado,
