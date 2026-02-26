@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-02-26
+
+### 🚀 Performance & Scalability (The Ferrari Update)
+- **High-Performance Server**: Integrated **Laravel Octane** with Swoole for sub-second response times.
+- **Async Exports**: Moved PDF and CSV generation to background jobs (`ExportProjectData`) to prevent request blocking.
+- **Global Indexing**: Proactive database audit and indexing across Tasks, Chat, Inventory, Operations, and Bug Reports.
+- **Resource Management**: Implemented Docker CPU (0.75) and RAM (750MB) limits for safe multi-app coexistence.
+- **Log Rotation**: Switched to daily logs with 7-day retention to prevent disk saturation.
+- **Observability**: Verified and documented **Laravel Pulse** for real-time performance monitoring.
+
 ## [3.0.0] - 2026-02-25
 
 ### 👑 FEATURE: Admin Panel — User Management & PTR Dashboard (Feb 25, 2026)

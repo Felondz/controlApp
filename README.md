@@ -15,7 +15,7 @@ This status reflects the stability achieved through **Continuous Integration (CI
 | **Total Tests** | ~625+ tests | ✅ **Robust Coverage** |
 | **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
 | **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v3.0.0 (Actions/DTOs + GraphQL + MCP) | ✅ **Stable** |
+| **Backend Version** | v3.1.0 (Octane + Scalability Update) | ✅ **Stable** |
 | **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
 
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
@@ -44,7 +44,9 @@ ControlApp employs a **Modular Event-Driven Architecture** with an **Actions/DTO
 | **Static Analysis** | PHPStan Level 8 | Mandatory zero-error policy on every PHP change. |
 | **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
 | **Search** | Meilisearch + Scout | Fast, relevant, and secure full-text search implementation. |
-| **PDF Export** | DomPDF + HTML2Canvas | High-quality PDF generation for financial reports and amortization schedules. |
+| **PDF Export** | DomPDF + HTML2Canvas | Async background generation for scalability. |
+| **High Performance** | Laravel Octane + Swoole | Persistence in memory for sub-second response times. |
+| **Observability** | Laravel Pulse | Real-time monitoring of CPU, RAM, and slow queries. |
 
 ### AI Integration
 | Component | Technology | Description |
