@@ -24,10 +24,14 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     default-mysql-client \
     libbrotli-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Redis and Swoole extensions
-RUN pecl install redis swoole && docker-php-ext-enable redis swoole
+RUN pecl install redis \
+    && pecl install --configureoptions 'enable-sockets="yes" enable-openssl="yes" enable-http2="yes" enable-mysqlnd="yes" enable-swoole-curl="yes" enable-swoole-json="yes"' swoole \
+    && docker-php-ext-enable redis swoole
 
 # Set working directory
 WORKDIR /var/www/html
