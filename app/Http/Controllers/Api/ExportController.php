@@ -32,60 +32,19 @@ class ExportController extends Controller
             "Expires" => "0"
         ];
 
-        $callback = function () use ($proyecto, $type, $validated) {
-            $file = fopen('php://output', 'w');
-
-            if ($type === 'transactions') {
-                fputcsv($file, ['Fecha', 'Descripcion', 'Monto', 'Categoria', 'Cuenta', 'Tipo']);
-
-                $query = $proyecto->transacciones()->with(['categoria', 'cuenta']);
-
-                if (!empty($validated['from'])) {
-                    $query->where('fecha', '>=', $validated['from']);
-                }
-                if (!empty($validated['to'])) {
-                    $query->where('fecha', '<=', $validated['to']);
-                }
-
-                foreach ($query->get() as $t) {
-                    fputcsv($file, [
-                        $t->fecha,
-                        $t->descripcion,
-                        $t->monto / 100, // Convert from cents
-                        $t->categoria->nombre ?? 'Sin categoría',
-                        $t->cuenta->nombre ?? 'Sin cuenta',
-                        $t->monto > 0 ? 'Ingreso' : 'Gasto',
-                    ]);
-                }
-            } elseif ($type === 'accounts') {
-                fputcsv($file, ['Nombre', 'Tipo', 'Saldo', 'Moneda', 'Estado']);
-
-                foreach ($proyecto->cuentas as $cuenta) {
-                    fputcsv($file, [
-                        $cuenta->nombre,
-                        $cuenta->tipo,
-                        $cuenta->saldo,
-                        $cuenta->moneda ?? $proyecto->moneda_default,
-                        $cuenta->estado,
-                    ]);
-                }
-            } elseif ($type === 'categories') {
-                fputcsv($file, ['Nombre', 'Tipo', 'Icono', 'Color']);
-
-                foreach ($proyecto->categorias as $cat) {
-                    fputcsv($file, [
-                        $cat->nombre,
-                        $cat->tipo,
-                        $cat->icono ?? '',
-                        $cat->color ?? '',
-                    ]);
-                }
-            }
-
-            fclose($file);
+        $callback = function () use ($proyecto, $type, $validated, $request) {
+            \App\Jobs\ExportProjectData::dispatch(
+                $proyecto,
+                $request->user(),
+                'csv',
+                $validated
+            );
         };
 
-        return response()->stream($callback, 200, $headers);
+        return response()->json([
+            'message' => 'El proceso de exportación CSV ha comenzado. Se te notificará cuando esté listo.',
+            'status' => 'processing'
+        ]);
     }
 
     /**
@@ -101,39 +60,16 @@ class ExportController extends Controller
             'to' => 'nullable|date',
         ]);
 
-        $type = $validated['type'] ?? 'summary';
+        \App\Jobs\ExportProjectData::dispatch(
+            $proyecto,
+            $request->user(),
+            'pdf',
+            $validated
+        );
 
-        $query = $proyecto->transacciones()->with(['categoria', 'cuenta']);
-
-        if (!empty($validated['from'])) {
-            $query->where('fecha', '>=', $validated['from']);
-        }
-        if (!empty($validated['to'])) {
-            $query->where('fecha', '<=', $validated['to']);
-        }
-
-        $transactions = $query->get();
-        $accounts = $proyecto->cuentas;
-        $categories = $proyecto->categorias;
-
-        // Calculate summary
-        $totalIncome = $transactions->where('monto', '>', 0)->sum('monto') / 100;
-        $totalExpenses = abs($transactions->where('monto', '<', 0)->sum('monto')) / 100;
-        $balance = $totalIncome - $totalExpenses;
-
-        $pdf = Pdf::loadView('exports.project-pdf', [
-            'proyecto' => $proyecto,
-            'transactions' => $transactions,
-            'accounts' => $accounts,
-            'categories' => $categories,
-            'type' => $type,
-            'totalIncome' => $totalIncome,
-            'totalExpenses' => $totalExpenses,
-            'balance' => $balance,
-            'from' => $validated['from'] ?? null,
-            'to' => $validated['to'] ?? null,
+        return response()->json([
+            'message' => 'El reporte PDF se está generando en segundo plano. Podrás descargarlo pronto.',
+            'status' => 'processing'
         ]);
-
-        return $pdf->download("proyecto-{$proyecto->id}-{$type}.pdf");
     }
 }
