@@ -69,9 +69,8 @@ class RegisteredUserController extends Controller
             // NO hacer login automático
             // Auth::login($user);
 
-            if ($request->wantsJson()) {
-                return response()->json(['message' => __('auth.account_created_verification_required')], 201);
-            }
+            // NO hacer login automático
+            // Auth::login($user);
 
             Log::info('Redirecting to login with status message');
             return redirect(route('login'))->with('status', __('auth.account_created_verification_required'));

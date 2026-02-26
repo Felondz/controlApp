@@ -13,7 +13,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import SecondaryLink from '@/Components/SecondaryLink';
 import PasswordRequirements from '@/Components/PasswordRequirements';
 
-export default function Register() {
+export default function Register({ status }) {
     const { t } = useTranslate();
     const [activeModal, setActiveModal] = useState(null); // 'terms' | 'privacy' | null
     const { data, setData, post, processing, errors, reset, setError, clearErrors } = useForm({
@@ -24,6 +24,13 @@ export default function Register() {
         terms: false,
     });
     const submittingRef = useRef(false);
+
+    // Logging errors for debugging
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            console.log('Register Errors Updated:', errors);
+        }
+    }, [errors]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -91,6 +98,12 @@ export default function Register() {
 
     return (
         <AuthLayout title={t('auth.register')}>
+            {status && (
+                <div className="mb-6 p-4 bg-success-50 dark:bg-success-900/20 text-success-700 dark:text-success-300 text-sm rounded-md">
+                    {status}
+                </div>
+            )}
+
             <form onSubmit={submit} className="space-y-6" noValidate>
                 <div>
                     <InputLabel htmlFor="name" value={t('auth.name')} />
@@ -118,7 +131,10 @@ export default function Register() {
                         className="mt-1 block w-full"
                         autoComplete="username"
                         inputMode="email"
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => {
+                            setData('email', e.target.value);
+                            if (errors.email) clearErrors('email');
+                        }}
                         required
                     />
                     <InputError message={errors.email} className="mt-1" />
@@ -132,7 +148,10 @@ export default function Register() {
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
+                        onChange={(e) => {
+                            setData('password', e.target.value);
+                            if (errors.password) clearErrors('password');
+                        }}
                         error={errors.password}
                         required
                     />
