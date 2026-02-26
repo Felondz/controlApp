@@ -157,7 +157,9 @@
         "password_rule_letters": "At least one letter",
         "password_rule_numbers": "At least one number",
         "password_rule_mixed": "Uppercase and lowercase letters",
-        "password_requirements_error": "Password does not meet minimum requirements."
+        "password_requirements_error": "Password does not meet minimum requirements.",
+        "registration_errors_title": "Registration errors:",
+        "email_already_registered": "This email is already registered."
     },
     "docs": {
         "hub_title": "Learning Center",

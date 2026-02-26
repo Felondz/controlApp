@@ -141,7 +141,9 @@
         "password_rule_letters": "Al menos una letra",
         "password_rule_numbers": "Al menos un número",
         "password_rule_mixed": "Mayúsculas y minúsculas",
-        "password_requirements_error": "La contraseña no cumple con los requisitos mínimos."
+        "password_requirements_error": "La contraseña no cumple con los requisitos mínimos.",
+        "registration_errors_title": "Errores de registro:",
+        "email_already_registered": "Este correo ya está registrado."
     },
     "categories": {
         "title": "Categorías",
