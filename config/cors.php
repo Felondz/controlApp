@@ -17,10 +17,11 @@ return [
     /*
      * Matches the request origin. Configure based on environment for security.
      * SECURITY: Never use '*' in production - always specify explicit origins
+     * 
+     * In production (APP_ENV=production), CORS_ALLOWED_ORIGINS MUST be set.
+     * In other environments, falls back to localhost for development.
      */
-    'allowed_origins' => ($origins = env('CORS_ALLOWED_ORIGINS'))
-        ? explode(',', (string) $origins)
-        : ['http://localhost:5173', 'http://controlapp:8000'],
+    'allowed_origins' => env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://localhost:3000'),
 
     /*
      * Sets the Access-Control-Allow-Headers response header.

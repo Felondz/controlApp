@@ -6,7 +6,8 @@
         "build": "vite build",
         "dev": "vite",
         "test": "vitest",
-        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 vitest run --reporter=verbose"
+        "test:ci": "LARAVEL_BYPASS_ENV_CHECK=1 vitest run --reporter=verbose",
+        "sail-dev": "./vendor/bin/sail shell -c 'sh scripts/dev.sh'"
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",
@@ -20,6 +21,7 @@
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.12",
         "axios": "^1.13.5",
+        "chokidar": "^5.0.0",
         "concurrently": "^9.0.1",
         "jsdom": "^27.2.0",
         "laravel-vite-plugin": "^2.0.0",
