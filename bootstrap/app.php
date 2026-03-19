@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
         $middleware->alias([
@@ -45,7 +46,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // Trust Cloudflare/Traefik proxies to fix HTTPS detection
-        $middleware->trustProxies(at: '*'); // Force Rebuild
+        // ⚠️ Security: In production, set TRUSTED_PROXIES env var with specific IPs
+        // ⚠️ Currently trusting all proxies only in non-production environments
+        if (env('APP_ENV') !== 'production') {
+            $middleware->trustProxies(at: '*');
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

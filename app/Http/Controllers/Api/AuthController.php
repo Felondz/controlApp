@@ -75,6 +75,14 @@ class AuthController extends Controller
             ], 403); // 403 Forbidden
         }
 
+        // 4.1 Verificar que el usuario esté activo (is_active check)
+        if ($usuario && property_exists($usuario, 'is_active') && $usuario->is_active === false) {
+            return response()->json([
+                'message' => 'Tu cuenta ha sido desactivada. Contacta al administrador.',
+                'error' => 'account_inactive'
+            ], 403); // 403 Forbidden
+        }
+
         // 5. Crear el token de acceso
         $tokenName = $request->input('device_name', 'auth_token');
         $newTokenResult = $usuario->createToken($tokenName);

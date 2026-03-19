@@ -170,38 +170,45 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 
 
-Route::get('/fix-migrations-table', function () {
-    try {
-        $wrongMigration = '2025_11_28_023700_add_image_path_theme_typography_to_proyectos_table';
-        $correctMigration = '2025_11_28_021238_add_theme_and_image_to_proyectos_table';
+// ==========================================
+// DEBUG ROUTES - ONLY AVAILABLE IN LOCAL/TESTING
+// Remove these routes before production deployment
+// ==========================================
+if (app()->environment('local', 'testing', 'staging')) {
+    Route::get('/fix-migrations-table', function () {
+        try {
+            $wrongMigration = '2025_11_28_023700_add_image_path_theme_typography_to_proyectos_table';
+            $correctMigration = '2025_11_28_021238_add_theme_and_image_to_proyectos_table';
 
-        // Remove wrong one
-        \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $wrongMigration)->delete();
+            // Remove wrong one
+            \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $wrongMigration)->delete();
 
-        // Add correct one if not exists
-        $exists = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $correctMigration)->exists();
-        if (!$exists) {
-            \Illuminate\Support\Facades\DB::table('migrations')->insert([
-                'migration' => $correctMigration,
-                'batch' => \Illuminate\Support\Facades\DB::table('migrations')->max('batch')
-            ]);
-            return 'Migrations table fixed: Swapped 023700 for 021238.';
+            // Add correct one if not exists
+            $exists = \Illuminate\Support\Facades\DB::table('migrations')->where('migration', $correctMigration)->exists();
+            if (!$exists) {
+                \Illuminate\Support\Facades\DB::table('migrations')->insert([
+                    'migration' => $correctMigration,
+                    'batch' => \Illuminate\Support\Facades\DB::table('migrations')->max('batch')
+                ]);
+                return 'Migrations table fixed: Swapped 023700 for 021238.';
+            }
+            return 'Migrations table already has correct migration.';
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
         }
-        return 'Migrations table already has correct migration.';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-Route::get('/debug-email', function () {
-    try {
-        Illuminate\Support\Facades\Log::info('Debug Email: Start');
-        Illuminate\Support\Facades\Mail::raw('This is a test email from ControlApp debug route.', function ($message) {
-            $message->to('test@example.com')->subject('Debug Email Test');
-        });
-        Illuminate\Support\Facades\Log::info('Debug Email: Dispatched');
-        return 'Email dispatched via ' . config('mail.default') . '. Check logs and inbox.';
-    } catch (\Exception $e) {
-        Illuminate\Support\Facades\Log::error('Debug Email Error: ' . $e->getMessage());
-        return 'Error: ' . $e->getMessage();
-    }
-});
+    });
+
+    Route::get('/debug-email', function () {
+        try {
+            Illuminate\Support\Facades\Log::info('Debug Email: Start');
+            Illuminate\Support\Facades\Mail::raw('This is a test email from ControlApp debug route.', function ($message) {
+                $message->to('test@example.com')->subject('Debug Email Test');
+            });
+            Illuminate\Support\Facades\Log::info('Debug Email: Dispatched');
+            return 'Email dispatched via ' . config('mail.default') . '. Check logs and inbox.';
+        } catch (\Exception $e) {
+            Illuminate\Support\Facades\Log::error('Debug Email Error: ' . $e->getMessage());
+            return 'Error: ' . $e->getMessage();
+        }
+    });
+}
