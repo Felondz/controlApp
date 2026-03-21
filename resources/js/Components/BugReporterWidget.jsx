@@ -23,7 +23,8 @@ const CATEGORIES = [
 const SEVERITIES = ['low', 'medium', 'high'];
 
 export default function BugReporterWidget() {
-    const { is_ptr } = usePage().props;
+    const { is_ptr, auth } = usePage().props;
+    const isSuperAdmin = auth?.user?.is_super_admin ?? false;
     const { t } = useTranslate();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -39,9 +40,9 @@ export default function BugReporterWidget() {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        if (!is_ptr) return;
+        if (!is_ptr || !isSuperAdmin) return;
         axios.get('/ptr/bug-reports/stats').then(r => setOpenCount(r.data.open_count || 0)).catch(() => { });
-    }, [is_ptr]);
+    }, [is_ptr, isSuperAdmin]);
 
     // Clipboard paste support
     useEffect(() => {
@@ -253,7 +254,7 @@ export default function BugReporterWidget() {
                         <BugIcon className="w-7 h-7" />
                     </div>
                     <span className="text-[11px] font-bold uppercase tracking-wider">{t('bug_reporter.floating_label', 'Bug Tracker')}</span>
-                    {openCount > 0 && (
+                    {isSuperAdmin && openCount > 0 && (
                         <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-white text-danger-600 rounded-full ring-2 ring-danger-600 shadow-sm">
                             {openCount > 99 ? '99+' : openCount}
                         </span>
