@@ -198,10 +198,10 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                 <div>
                                                     <InputLabel value={t('bug_reporter.screenshot', 'Screenshot')} />
                                                     <img
-                                                        src={`/storage/${report.screenshot_path}`}
+                                                        src={route('ptr.bug-reports.screenshot', { bugReport: report.id })}
                                                         alt={t('bug_reporter.screenshot', 'Screenshot')}
                                                         className="max-w-sm rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-90 transition"
-                                                        onClick={() => window.open(`/storage/${report.screenshot_path}`, '_blank')}
+                                                        onClick={() => window.open(route('ptr.bug-reports.screenshot', { bugReport: report.id }), '_blank')}
                                                     />
                                                 </div>
                                             )}

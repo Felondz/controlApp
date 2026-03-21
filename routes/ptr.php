@@ -1,6 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use App\Modules\BugReporter\Controllers\BugReportController;
+use App\Modules\BugReporter\Controllers\BugReportScreenshotController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,4 +23,6 @@ Route::middleware(['web', 'auth', \App\Http\Middleware\RequirePtrEnvironment::cl
         Route::post('/bug-reports', [BugReportController::class, 'store'])->name('ptr.bug-reports.store');
         Route::patch('/bug-reports/{bugReport}', [BugReportController::class, 'update'])->name('ptr.bug-reports.update');
         Route::get('/bug-reports/stats', [BugReportController::class, 'stats'])->name('ptr.bug-reports.stats');
+        Route::get('/bug-reports/{bugReport}/screenshot', [BugReportScreenshotController::class, 'show'])
+            ->name('ptr.bug-reports.screenshot');
     });
