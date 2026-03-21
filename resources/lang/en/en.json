@@ -63,33 +63,104 @@
         }
     },
     "landing": {
-        "hero_title": "Take Control of Your Projects",
-        "hero_subtitle": "The complete solution to manage your projects, finances and team in one place.",
-        "cta_primary": "Get Started",
-        "cta_secondary": "Learn More",
-        "features_title": "Why Choose ControlApp?",
-        "features": [
-            {
-                "title": "Project Management",
-                "description": "Organize and track all your projects in one place.",
-                "icon": "📊"
-            },
-            {
-                "title": "Financial Control",
-                "description": "Keep track of expenses, income and budgets.",
-                "icon": "💰"
-            },
-            {
-                "title": "Team Collaboration",
-                "description": "Work together with your team in real time.",
-                "icon": "👥"
-            }
-        ],
-        "coming_soon_title": "Continuous Improvement",
-        "coming_soon_message": "We are committed to constantly evolving the platform. New features are added regularly based on your feedback.",
+        "badge": "Now in English",
+        "hero_title": "Stop wasting time",
+        "hero_title_accent": "managing everything in spreadsheets",
+        "hero_subtitle": "ControlApp centralizes your projects, finances, inventory and team in a single platform. No complications, no unnecessary technology. Just you and your business.",
+        "cta_primary": "Start free",
+        "cta_secondary": "See how it works",
+        "cta_note": "No credit card required · Setup in 2 minutes",
+        "cta_section_title": "Ready to regain control?",
+        "cta_section_subtitle": "Join entrepreneurs who are already managing their businesses intelligently. No contracts, no complications.",
+        "cta_docs": "Read guides",
+        "nav_problems": "Problems",
+        "nav_solutions": "Solutions",
+        "nav_features": "Features",
+        "nav_how_it_works": "How it works",
+        "stat_cloud": "In the cloud",
+        "stat_access": "Access",
+        "stat_projects": "Projects",
+        "stat_complexity": "Complexity",
+        "problems_title": "Sound familiar?",
+        "problems_subtitle": "These are the problems we hear every day from entrepreneurs like you",
+        "problem_scattered": {
+            "title": "Do you have your finances in separate spreadsheets?",
+            "desc": "Losing time reconciling numbers and with no clear vision of your real financial situation."
+        },
+        "problem_communication": {
+            "title": "Does your team communicate via WhatsApp?",
+            "desc": "Lost messages, outdated files and nobody knows what state the tasks are in."
+        },
+        "problem_tasks": {
+            "title": "Do important tasks slip through the cracks?",
+            "desc": "You promised to deliver something weeks ago and you simply forgot. The stress is constant."
+        },
+        "problem_inventory": {
+            "title": "Do you control your inventory manually?",
+            "desc": "You don't know how much stock you have, which products sell more and when to order more supplies."
+        },
+        "solutions_title": "The solution you need",
+        "solutions_subtitle": "ControlApp is designed to solve the problems that really matter",
+        "solution_finance": {
+            "title": "Real-time finances",
+            "desc": "All your income, expenses and budgets in one place. No spreadsheets, no errors.",
+            "highlight": "View your cash flow instantly"
+        },
+        "solution_team": {
+            "title": "Connected team",
+            "desc": "Integrated chat, assigned tasks and progress tracking. Everyone knows what to do.",
+            "highlight": "Collaboration without chaos"
+        },
+        "solution_tasks": {
+            "title": "Tasks that don't get forgotten",
+            "desc": "To-do lists, deadlines and reminders. Stop losing projects due to forgetfulness.",
+            "highlight": "Zero lost tasks"
+        },
+        "solution_inventory": {
+            "title": "Inventory under control",
+            "desc": "Automatically updated stock, low product alerts and movement reports.",
+            "highlight": "Always knowing what you have"
+        },
+        "features_title": "Everything you need",
+        "features_subtitle": "Powerful modules that work together for you",
+        "feature_projects": {
+            "title": "Projects",
+            "desc": "Manage multiple projects with different teams and objectives."
+        },
+        "feature_finance": {
+            "title": "Finance",
+            "desc": "Accounts, transactions, budgets and financial reports."
+        },
+        "feature_tasks": {
+            "title": "Tasks",
+            "desc": "Organize, assign and track all tasks."
+        },
+        "feature_chat": {
+            "title": "Chat",
+            "desc": "Real-time communication with your team within the project."
+        },
+        "feature_inventory": {
+            "title": "Inventory",
+            "desc": "Stock control, movements and low inventory alerts."
+        },
+        "feature_production": {
+            "title": "Production",
+            "desc": "Production batch management with stage tracking."
+        },
+        "how_it_works_title": "Start in minutes",
+        "how_it_works_subtitle": "4 simple steps to have everything under control",
+        "step1_title": "Create your account",
+        "step1_desc": "Sign up in seconds. No credit card required.",
+        "step2_title": "Create your first project",
+        "step2_desc": "Define your project, invite your team and start organizing.",
+        "step3_title": "Connect your finances",
+        "step3_desc": "Link your accounts and start tracking every movement.",
+        "step4_title": "Keep control",
+        "step4_desc": "Access from anywhere and keep everything under control.",
         "footer_copyright": "© :year ControlApp. All rights reserved.",
-        "test_environment_warning": "",
-        "working_on_something": "Evolving for you..."
+        "footer_guide": "Getting started guide",
+        "footer_docs": "Documentation",
+        "footer_support": "Support"
     },
     "auth": {
         "session_expired": "Session Expired",
@@ -162,11 +233,28 @@
         "email_already_registered": "This email is already registered."
     },
     "docs": {
-        "hub_title": "Learning Center",
+        "hub_title": "Guides & Help",
+        "hub_welcome_title": "Learn to use ControlApp",
+        "hub_welcome_desc": "Detailed guides to make the most of every feature on the platform.",
         "hub_user_title": "User Guides",
         "hub_user_desc": "Infographics and step-by-step tutorials to master the platform.",
-        "hub_dev_title": "Developer Zone",
-        "hub_dev_desc": "Technical resources and API reference for integrations.",
+        "guide_getting_started": "Getting Started",
+        "guide_getting_started_desc": "Learn to create your account, set up your first project and invite your team.",
+        "guide_projects": "Projects",
+        "guide_projects_desc": "How to create, organize and manage your projects effectively.",
+        "guide_finance": "Finance",
+        "guide_finance_desc": "Set up your accounts, register transactions and understand your financial reports.",
+        "guide_team": "Teamwork",
+        "guide_team_desc": "Learn to invite members, assign tasks and collaborate in real time.",
+        "guide_inventory": "Inventory",
+        "guide_inventory_desc": "Control your stock, register movements and keep your inventory updated.",
+        "guide_chat": "Chat & Communication",
+        "guide_chat_desc": "Use the integrated chat to communicate with your team without leaving the platform.",
+        "read_guide": "Read guide",
+        "need_help": "Need help?",
+        "contact_support": "If you can't find what you're looking for, our team is ready to help you.",
+        "contact_support_btn": "Contact support",
+        "back_home": "Back to home",
         "view_user_guide": "View Guides",
         "explore_code": "Technical Access",
         "dev_docs_title": "Technical Documentation",
@@ -1338,5 +1426,12 @@
         "modal_promote_admin_desc": "This user will be able to manage accounts and bug reports.",
         "btn_confirm_revoke": "Revoke",
         "btn_confirm_promote": "Promote"
+    },
+    "ptr": {
+        "banner": {
+            "environment": "TEST ENVIRONMENT",
+            "warning": "Data is for testing purposes and may be deleted at any time",
+            "dismiss": "Close"
+        }
     }
 }

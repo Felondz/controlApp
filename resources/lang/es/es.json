@@ -47,33 +47,104 @@
         "no_recent_messages": "No hay mensajes recientes"
     },
     "landing": {
-        "hero_title": "Toma el Control de Tus Proyectos",
-        "hero_subtitle": "La solución completa para gestionar tus proyectos, finanzas y equipo en un solo lugar.",
-        "cta_primary": "Comenzar",
-        "cta_secondary": "Saber más",
-        "features_title": "¿Por qué elegir ControlApp?",
-        "features": [
-            {
-                "title": "Gestión de Proyectos",
-                "description": "Organiza y haz seguimiento a todos tus proyectos en un solo lugar.",
-                "icon": "📊"
-            },
-            {
-                "title": "Control Financiero",
-                "description": "Mantén un registro de gastos, ingresos y presupuestos.",
-                "icon": "💰"
-            },
-            {
-                "title": "Colaboración en Equipo",
-                "description": "Trabaja en equipo en tiempo real con tus compañeros.",
-                "icon": "👥"
-            }
-        ],
-        "coming_soon_title": "Mejora Continua",
-        "coming_soon_message": "Estamos comprometidos con la evolución constante de la plataforma. Nuevas características y módulos son agregados regularmente base a tu feedback.",
+        "badge": "Ahora en español",
+        "hero_title": "Deja de perder tiempo",
+        "hero_title_accent": "gestionando todo en hojas de cálculo",
+        "hero_subtitle": "ControlApp centraliza tus proyectos, finanzas, inventario y equipo en una sola plataforma. Sin complicaciones, sin tecnología innecesaria. Solo tú y tu negocio.",
+        "cta_primary": "Comenzar gratis",
+        "cta_secondary": "Mira cómo funciona",
+        "cta_note": "No se requiere tarjeta de crédito · Configuración en 2 minutos",
+        "cta_section_title": "Listo para recuperar el control?",
+        "cta_section_subtitle": "Únete a emprendedores que ya están gestionando sus negocios de manera inteligente. Sin contratos, sin complicaciones.",
+        "cta_docs": "Leer guías",
+        "nav_problems": "Problemas",
+        "nav_solutions": "Soluciones",
+        "nav_features": "Características",
+        "nav_how_it_works": "Cómo funciona",
+        "stat_cloud": "En la nube",
+        "stat_access": "Acceso",
+        "stat_projects": "Proyectos",
+        "stat_complexity": "Complejidad",
+        "problems_title": "Suena familiar?",
+        "problems_subtitle": "Estos son los problemas que escuchamos todos los días de emprendedores como tú",
+        "problem_scattered": {
+            "title": "¿Tienes tus finanzas en hojas de cálculo separadas?",
+            "desc": "Perdiendo tiempo reconciliando números y sin visión clara de tu situación financiera real."
+        },
+        "problem_communication": {
+            "title": "¿Tu equipo se comunica por WhatsApp?",
+            "desc": "Mensajes perdidos, archivos obsoletos y nadie sabe en qué estado están las tareas."
+        },
+        "problem_tasks": {
+            "title": "¿Se te escapan tareas importantes?",
+            "desc": "Prometiste entregar algo hace semanas y simplemente se te olvidó. El estrés es constante."
+        },
+        "problem_inventory": {
+            "title": "¿Controlas tu inventario a mano?",
+            "desc": "No sabes cuánto stock tienes, qué productos se venden más y cuándo pedir más suministros."
+        },
+        "solutions_title": "La solución que necesitas",
+        "solutions_subtitle": "ControlApp está diseñado para resolver los problemas que realmente importan",
+        "solution_finance": {
+            "title": "Finanzas en tiempo real",
+            "desc": "Todos tus ingresos, gastos y presupuestos en un solo lugar. Sin hojas de cálculo, sin errores.",
+            "highlight": "Mira tu flujo de caja al instante"
+        },
+        "solution_team": {
+            "title": "Equipo conectado",
+            "desc": "Chat integrado, tareas asignadas y seguimiento de progreso. Todos saben qué hacer.",
+            "highlight": "Colaboración sin caos"
+        },
+        "solution_tasks": {
+            "title": "Tareas que no se olvidan",
+            "desc": "Lista de pendientes, fechas límite y recordatorios. Deja de perder proyectos por olvidos.",
+            "highlight": "Cero tareas perdidas"
+        },
+        "solution_inventory": {
+            "title": "Inventario bajo control",
+            "desc": "Stock actualizado automáticamente, alertas de productos bajos y reportes de movimiento.",
+            "highlight": "Siempre sabiendo qué tienes"
+        },
+        "features_title": "Todo lo que necesitas",
+        "features_subtitle": "Módulos potentes que trabajan juntos para ti",
+        "feature_projects": {
+            "title": "Proyectos",
+            "desc": "Gestiona múltiples proyectos con diferentes equipos y objetivos."
+        },
+        "feature_finance": {
+            "title": "Finanzas",
+            "desc": "Cuentas, transacciones, presupuestos y reportes financieros."
+        },
+        "feature_tasks": {
+            "title": "Tareas",
+            "desc": "Organiza, asigna y haz seguimiento de todas las tareas."
+        },
+        "feature_chat": {
+            "title": "Chat",
+            "desc": "Comunicación en tiempo real con tu equipo dentro del proyecto."
+        },
+        "feature_inventory": {
+            "title": "Inventario",
+            "desc": "Control de stock, movimientos y alertas de bajo inventario."
+        },
+        "feature_production": {
+            "title": "Producción",
+            "desc": "Gestión de lotes de producción con seguimiento de etapas."
+        },
+        "how_it_works_title": "Empieza en minutos",
+        "how_it_works_subtitle": "4 pasos simples para tener todo bajo control",
+        "step1_title": "Crea tu cuenta",
+        "step1_desc": "Regístrate en segundos. Sin tarjeta de crédito requerida.",
+        "step2_title": "Crea tu primer proyecto",
+        "step2_desc": "Define tu proyecto, invita a tu equipo y comienza a organizar.",
+        "step3_title": "Conecta tus finanzas",
+        "step3_desc": "Vincula tus cuentas y comienza a rastrear cada movimiento.",
+        "step4_title": "Mantén el control",
+        "step4_desc": "Accede desde cualquier lugar y mantén todo bajo control.",
         "footer_copyright": "© :year ControlApp. Todos los derechos reservados.",
-        "test_environment_warning": "",
-        "working_on_something": "Evolucionando para ti..."
+        "footer_guide": "Guía de inicio",
+        "footer_docs": "Documentación",
+        "footer_support": "Soporte"
     },
     "auth": {
         "session_expired": "Sesión Expirada",
@@ -334,11 +405,28 @@
         "admin_only": "Solo admins"
     },
     "docs": {
-        "hub_title": "Centro de Aprendizaje",
+        "hub_title": "Guías y Ayuda",
+        "hub_welcome_title": "Aprende a usar ControlApp",
+        "hub_welcome_desc": "Guías detalladas para aprovechar al máximo cada característica de la plataforma.",
         "hub_user_title": "Guías de Usuario",
         "hub_user_desc": "Infografías y tutoriales paso a paso para dominar la plataforma.",
-        "hub_dev_title": "Zona de Desarrolladores",
-        "hub_dev_desc": "Recursos técnicos y referencia de API para integraciones.",
+        "guide_getting_started": "Primeros Pasos",
+        "guide_getting_started_desc": "Aprende a crear tu cuenta, configurar tu primer proyecto e invitar a tu equipo.",
+        "guide_projects": "Proyectos",
+        "guide_projects_desc": "Cómo crear, organizar y gestionar tus proyectos de manera efectiva.",
+        "guide_finance": "Finanzas",
+        "guide_finance_desc": "Configura tus cuentas, registra transacciones y entiende tus reportes financieros.",
+        "guide_team": "Trabajo en Equipo",
+        "guide_team_desc": "Aprende a invitar miembros, asignar tareas y colaborar en tiempo real.",
+        "guide_inventory": "Inventario",
+        "guide_inventory_desc": "Controla tu stock, registra movimientos y mantén tu inventario actualizado.",
+        "guide_chat": "Chat y Comunicación",
+        "guide_chat_desc": "Utiliza el chat integrado para comunicarte con tu equipo sin salir de la plataforma.",
+        "read_guide": "Leer guía",
+        "need_help": "¿Necesitas ayuda?",
+        "contact_support": "Si no encuentras lo que buscas, nuestro equipo está listo para ayudarte.",
+        "contact_support_btn": "Contactar soporte",
+        "back_home": "Volver al inicio",
         "view_user_guide": "Ver Guías",
         "explore_code": "Acceso Técnico",
         "user_guide_title": "Guía de Inicio Rápido",
@@ -1338,5 +1426,12 @@
         "modal_promote_admin_desc": "Este usuario podrá ver reportes de bugs y gestionar otras cuentas.",
         "btn_confirm_revoke": "Revocar",
         "btn_confirm_promote": "Promover"
+    },
+    "ptr": {
+        "banner": {
+            "environment": "ENTORNO DE PRUEBA",
+            "warning": "Los datos son de prueba y pueden ser eliminados en cualquier momento",
+            "dismiss": "Cerrar"
+        }
     }
 }

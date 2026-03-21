@@ -374,7 +374,7 @@ export default function AccountModal({
                                     </div>
                                 )}
                             </>)}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {data.tipo === 'credito' && (
                                     <div>
                                         <div className="flex items-center gap-2">
@@ -537,8 +537,8 @@ export default function AccountModal({
                             </div>
 
                             {data.es_nomina && (
-                                <div className="grid grid-cols-2 gap-4 pl-6">
-                                    <div className="col-span-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-6">
+                                    <div className="sm:col-span-2">
                                         <InputLabel value={t('finance.payroll_days', 'Días de Pago')} />
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-2">
                                             {t('finance.select_payroll_days_hint', 'Selecciona uno o más días del mes')}

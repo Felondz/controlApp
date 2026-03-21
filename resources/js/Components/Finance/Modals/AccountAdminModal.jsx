@@ -379,7 +379,7 @@ export default function AccountAdminModal({
                                 <>
                                     <Alert type="info" title={t('finance.credit_card_settings', 'Configuración de Tarjeta de Crédito')} />
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel htmlFor="limite_credito" value={t('finance.credit_limit', 'Límite de Crédito')} />
                                             <TextInput
@@ -457,7 +457,7 @@ export default function AccountAdminModal({
                                 <>
                                     <Alert type="info" title={t('finance.loan_settings', 'Configuración de Préstamo')} />
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel htmlFor="plazo" value={t('finance.term_months', 'Plazo (meses)')} />
                                             <TextInput
@@ -537,7 +537,7 @@ export default function AccountAdminModal({
                                 <>
                                     <Alert type="info" title={t('finance.investment_settings', 'Configuración de Inversión')} />
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <InputLabel htmlFor="tasa_interes" value={t('finance.expected_return', 'Tasa Esperada (%)')} />
                                             <TextInput

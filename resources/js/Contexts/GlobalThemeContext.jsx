@@ -3,6 +3,8 @@ import { router, usePage } from '@inertiajs/react';
 
 const GlobalThemeContext = createContext();
 
+const PTR_THEME = 'ptr-orange';
+
 /**
  * Global Theme Provider
  * 
@@ -11,8 +13,11 @@ const GlobalThemeContext = createContext();
  */
 export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', forceTheme = null }) {
     const { props } = usePage();
+    const isPtr = props.is_ptr || false;
+    
     // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
-    const effectiveTheme = forceTheme || props.auth?.user?.global_theme || initialTheme;
+    // In PTR environment, always use PTR theme
+    const effectiveTheme = isPtr ? PTR_THEME : (forceTheme || props.auth?.user?.global_theme || initialTheme);
     const userTheme = props.auth?.user?.global_theme || initialTheme;
 
     const [theme, setTheme] = useState(effectiveTheme);
@@ -29,13 +34,16 @@ export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', 
     });
 
     // Sync theme with props changes (or forceTheme changes)
+    // In PTR environment, always keep PTR theme
     useEffect(() => {
-        if (forceTheme) {
+        if (isPtr) {
+            setTheme(PTR_THEME);
+        } else if (forceTheme) {
             setTheme(forceTheme);
         } else if (userTheme && userTheme !== theme) {
             setTheme(userTheme);
         }
-    }, [userTheme, forceTheme]);
+    }, [userTheme, forceTheme, isPtr]);
 
     // Apply dark mode class to html element and save to localStorage
     useEffect(() => {

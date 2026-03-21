@@ -121,7 +121,7 @@ export default function CreditCardPaymentModal({
 
                 {/* Bill Summary */}
                 <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div>
                             <span className="text-gray-500 dark:text-gray-400">
                                 {t('finance.one_installment_purchases', 'Compras 1 cuota')}

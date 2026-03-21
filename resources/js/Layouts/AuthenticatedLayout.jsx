@@ -14,6 +14,7 @@ import SessionExpiredModal from '@/Components/SessionExpiredModal';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AiChatWidget from '@/Components/AiChatWidget';
 import BugReporterWidget from '@/Components/BugReporterWidget';
+import PtrBanner from '@/Components/PtrBanner';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -64,6 +65,9 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
     return (
         <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
+            {/* PTR Banner */}
+            {usePage().props.is_ptr && <PtrBanner />}
+            
             {/* Desktop Sidebar */}
             <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
