@@ -3,25 +3,14 @@ import { router, usePage } from '@inertiajs/react';
 
 const GlobalThemeContext = createContext();
 
-const PTR_THEME = 'ptr-orange';
-
-/**
- * Global Theme Provider
- * 
- * Provides global theme context to the entire application.
- * Manages theme selection and persistence via backend.
- */
 export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', forceTheme = null }) {
     const { props } = usePage();
-    const isPtr = props.is_ptr || false;
-    
-    // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
-    // In PTR environment, always use PTR theme
-    const effectiveTheme = isPtr ? PTR_THEME : (forceTheme || props.auth?.user?.global_theme || initialTheme);
-    const userTheme = props.auth?.user?.global_theme || initialTheme;
 
-    const [theme, setTheme] = useState(effectiveTheme);
-    const [isDark, setIsDark] = useState(() => {
+    // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
+    const userTheme = props.auth?.user?.global_theme || initialTheme;
+    const effectiveTheme = forceTheme || userTheme;
+
+    const [theme, setTheme] = useState(effectiveTheme);    const [isDark, setIsDark] = useState(() => {
         if (typeof window !== 'undefined') {
             const stored = localStorage.getItem('darkMode');
             if (stored !== null) {
@@ -34,16 +23,13 @@ export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', 
     });
 
     // Sync theme with props changes (or forceTheme changes)
-    // In PTR environment, always keep PTR theme
     useEffect(() => {
-        if (isPtr) {
-            setTheme(PTR_THEME);
-        } else if (forceTheme) {
+        if (forceTheme) {
             setTheme(forceTheme);
         } else if (userTheme && userTheme !== theme) {
             setTheme(userTheme);
         }
-    }, [userTheme, forceTheme, isPtr]);
+    }, [userTheme, forceTheme]);
 
     // Apply dark mode class to html element and save to localStorage
     useEffect(() => {

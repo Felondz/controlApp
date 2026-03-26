@@ -23,12 +23,12 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
     const renderGlobalMenu = () => (
         <>
-            <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')} collapsed={collapsed}>
+            <ResponsiveNavLink id="tour-nav-dashboard" href={route('dashboard')} active={route().current('dashboard')} collapsed={collapsed}>
                 <DashboardIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('dashboard.title')}
             </ResponsiveNavLink>
 
-            <ResponsiveNavLink href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
+            <ResponsiveNavLink id="tour-nav-marketplace" href={route('tools.index')} active={route().current('tools.index')} collapsed={collapsed}>
                 <PuzzleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
                 {!collapsed && t('dashboard.marketplace', 'Mercado')}
             </ResponsiveNavLink>
@@ -96,7 +96,6 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
         // Robust Image Detection (Same as ProjectCard)
         const imageUrl = project.image_url
-            || project.imagen
             || (project.image_path ? `/storage/${project.image_path}` : null)
             || (project.icon && (project.icon.startsWith('http') || project.icon.startsWith('/')) ? project.icon : null);
 
@@ -150,6 +149,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {modules.includes('finance') && (
                     <ResponsiveNavLink
+                        id="tour-nav-finance"
                         href={route('mis-proyectos.finance', project.id)}
                         active={route().current('mis-proyectos.finance', project.id)}
                         collapsed={collapsed}
@@ -161,6 +161,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {modules.includes('tasks') && (
                     <ResponsiveNavLink
+                        id="tour-nav-tasks"
                         href={route('mis-proyectos.tasks.index', { proyecto: project.id })}
                         active={route().current('mis-proyectos.tasks.index', project.id)}
                         collapsed={collapsed}
@@ -173,6 +174,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {/* Operations Module Link with Submenu */}
                 {modules.includes('operations') && (
                     <ResponsiveNavLink
+                        id="tour-nav-operations"
                         href={route('operations.lotes.index', project.id)}
                         active={route().current('operations.lotes.*', project.id)}
                         collapsed={collapsed}
@@ -185,6 +187,7 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {/* Inventory Module Link */}
                 {modules.includes('inventory') && (
                     <ResponsiveNavLink
+                        id="tour-nav-inventory"
                         href={route('inventory.items.index', project.id)}
                         active={route().current('inventory.items.*', project.id)}
                         collapsed={collapsed}

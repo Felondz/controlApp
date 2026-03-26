@@ -75,9 +75,21 @@ class InventoryItem extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image_path
-            ? asset('storage/' . $this->image_path)
-            : null;
+        if (!$this->image_path) {
+            return null;
+        }
+
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // Usar ruta relativa en local para evitar fallos por APP_URL (localhost vs IP)
+        if (config('app.env') === 'local') {
+            return '/storage/' . ltrim($this->image_path, '/');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
     }
 
     /**

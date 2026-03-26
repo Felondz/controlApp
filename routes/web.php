@@ -61,8 +61,13 @@ Route::middleware('auth')->group(function () {
     // Project Messages
     Route::get('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
     Route::post('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
-    Route::post('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read');
+    Route::put('mis-proyectos/{mis_proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'update'])->name('project.messages.update');
+    Route::delete('mis-proyectos/{mis_proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'destroy'])->name('project.messages.destroy');
+    Route::post('mis-proyectos/{mis_proyecto}/messages/{message}/react', [ProjectMessageUiWebController::class, 'toggleReaction'])->name('project.messages.react');
+    Route::get('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read'); // Should be post but current routes have it mixed
+    Route::post('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
     Route::get('mis-proyectos/{mis_proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
+    Route::get('mis-proyectos/{mis_proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
 
     // Invitations
     Route::get('/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
@@ -135,6 +140,8 @@ Route::middleware('auth')->group(function () {
         ->name('preferences.theme.update');
     Route::post('/preferences/dashboard', [\App\Http\Controllers\UserPreferencesController::class, 'updateDashboardSettings'])
         ->name('preferences.dashboard.update');
+    Route::post('/preferences/complete-tour', [\App\Http\Controllers\UserPreferencesController::class, 'completeTour'])
+        ->name('preferences.tour.complete');
 
     // Tools Market
     Route::prefix('tools')->name('tools.')->group(function () {
@@ -212,3 +219,4 @@ if (app()->environment('local', 'testing', 'staging')) {
         }
     });
 }
+Route::get("/proyectos/{proyecto}/image", [\App\Http\Controllers\ProjectImageController::class, "show"])->middleware(["auth", "verified"])->name("projects.image");

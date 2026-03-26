@@ -95,7 +95,7 @@ class Proyecto extends Model
     ];
 
     /** @phpstan-ignore-next-line */
-    protected $appends = ['has_messaging_feature'];
+    protected $appends = ['has_messaging_feature', 'image_url'];
 
     /**
      * Determina si el proyecto tiene habilitada la mensajería.
@@ -179,9 +179,23 @@ class Proyecto extends Model
      */
     public function getImageUrlAttribute()
     {
-        return $this->image_path
-            ? asset('storage/' . $this->image_path)
-            : null;
+        if (!$this->image_path) {
+            return null;
+        }
+
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // Usar el disco public para generar la URL correcta (soporta S3 y local)
+        // Devolvemos una ruta relativa /storage/... si es local para máxima compatibilidad
+        // en entornos de desarrollo donde APP_URL puede variar entre dispositivos (localhost vs IP)
+        if (config('app.env') === 'local') {
+            return '/storage/' . ltrim($this->image_path, '/');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
     }
 
     /**

@@ -44,7 +44,19 @@
         "offline": "Offline",
         "back": "Chats",
         "unread_count": ":count new messages",
-        "no_recent_messages": "No recent messages"
+        "no_recent_messages": "No recent messages",
+        "reply": "Reply",
+        "replying_to": "Replying to",
+        "new_messages": "New Messages",
+        "search_placeholder": "Search in chat...",
+        "no_results": "No messages found.",
+        "close_search": "Close search and back to chat",
+        "editing": "Editing message",
+        "attach_file": "Attach file",
+        "attachment": "Attachment",
+        "cancel_edit": "Cancel edit",
+        "save_edit": "Save",
+        "react": "React"
     },
     "settings": {
         "theme": {
@@ -311,6 +323,7 @@
         "security_note_title": "Security Note",
         "security_note_desc": "Detailed technical documentation is restricted to verified collaborators.",
         "loading": "Loading...",
+        "no_results": "No results found",
         "save": "Save",
         "cancel": "Cancel",
         "delete": "Delete",
@@ -573,6 +586,7 @@
         "pending_bills": "Pending Bills",
         "add_bill": "Add Bill",
         "bill": "Bill",
+        "add_transaction": "Add Transaction",
         "account": "Account",
         "link": "Link Account",
         "select_account": "Select Account",
@@ -647,6 +661,8 @@
         "income_by_account": "Income by Account",
         "expense_by_account": "Expenses by Account",
         "net_flow": "Net Flow",
+        "financial_charts": "Financial Charts",
+        "customize_dashboard": "Customize Dashboard",
         "credit_limit": "Credit Limit",
         "cutoff_date": "Cutoff Date",
         "payment_date": "Payment Date",
@@ -1043,6 +1059,7 @@
         "title": "Inventory",
         "summary": "Inventory Summary",
         "items": "Items",
+        "movements": "Movements",
         "new_item": "New Item",
         "edit_item": "Edit Item",
         "name": "Name",
@@ -1133,19 +1150,14 @@
             "back": "Chats"
         },
         "inbox": {
-            "title": "Inbox",
-            "empty": "You have no new messages or invitations.",
+            "title": "Notifications",
+            "empty": "You have no notifications.",
             "messages": "Messages",
             "unread_messages": "You have :count unread messages",
             "unread_count": ":count new messages",
-            "view_all": "View all"
-        },
-        "invitations": {
-            "title": "Invitations",
-            "pending": "Pending Invitations",
-            "invited_by": "Invited by",
-            "empty_title": "No invitations",
-            "empty_desc": "When you are invited to a project, it will appear here."
+            "view_all": "View notification center",
+            "notifications": "Notifications",
+            "new_messages": "new messages"
         },
         "transactions": {
             "title": "Transactions",
@@ -1165,6 +1177,10 @@
             "title": "Analytics",
             "metrics": "Metrics",
             "summary": "Summary",
+            "performance": "Performance",
+            "charts": "Charts",
+            "projections": "Projections",
+            "stats": "Statistics",
             "insights": "Insights",
             "total_income": "Total Income",
             "total_expenses": "Total Expenses",
@@ -1251,6 +1267,7 @@
         "select_user": "Select User",
         "notes": "Notes",
         "select_process": "Select Process",
+        "production_process": "Production Process",
         "no_processes_config": "No production processes configured.",
         "create_first_process": "Create First Process",
         "no_stages_defined": "This process has no stages defined.",
@@ -1335,6 +1352,9 @@
         "category_performance": "Performance",
         "category_other": "Other",
         "description": "Description",
+        "platform": "Platform",
+        "platform_web": "Web / Desktop",
+        "platform_mobile": "Mobile / Tablet",
         "severity": "Severity",
         "severity_low": "Low",
         "severity_medium": "Medium",
@@ -1433,5 +1453,93 @@
             "warning": "Data is for testing purposes and may be deleted at any time",
             "dismiss": "Close"
         }
+    },
+    "invitations": {
+        "title": "Invitations",
+        "pending": "Pending Invitations",
+        "pending_title": "Pending Invitations",
+        "invited_by": "Invited by",
+        "empty_title": "No invitations",
+        "empty_desc": "When you are invited to a project, it will appear here."
+    },
+    "onboarding": {
+        "dashboard": {
+            "welcome_title": "Welcome to ControlApp!",
+            "welcome_desc": "Your command center for projects and finances. Let's show you the basics.",
+            "sidebar_title": "Main Navigation",
+            "sidebar_desc": "From here you can always return to your main dashboard or explore the Tools Marketplace.",
+            "create_title": "Create your first project",
+            "create_desc": "A project can be anything: a business, a construction, or your shared personal finances.",
+            "list_title": "Your Projects",
+            "list_desc": "Here you will see all your active projects. Click on one to manage it."
+        },
+        "project": {
+            "welcome_title": "Inside the Project",
+            "welcome_desc": "Now you are inside a project. Each project has its own modules and tools.",
+            "finance_title": "Finance Module",
+            "finance_desc": "Keep track of incomes, expenses, and bank accounts for this specific project.",
+            "tasks_title": "Tasks and Tracking",
+            "tasks_desc": "Organize teamwork with assigned task boards.",
+            "summary_title": "Quick Overview",
+            "summary_desc": "A general look at the current state of the project's finances and operations."
+        },
+        "finance": {
+            "welcome_title": "Finance Module",
+            "welcome_desc": "Here you will manage the flow of money. Order is important.",
+            "account_title": "1. Create an Account",
+            "account_desc": "First you must register an account (Bank, Cash, CC). Without accounts there are no transactions.",
+            "transaction_title": "2. Record Movements",
+            "transaction_desc": "Record your incomes and expenses. You can categorize them for better reports.",
+            "balance_title": "3. Monitor Balance",
+            "balance_desc": "See the consolidated state of all your accounts in real time."
+        },
+        "tasks": {
+            "welcome_title": "Task Board",
+            "welcome_desc": "Organize your team's work visually and efficiently.",
+            "board_title": "Status Columns",
+            "board_desc": "Drag tasks between columns to update their progress (To Do, In Progress, Done).",
+            "create_title": "New Task",
+            "create_desc": "Create tasks, assign them to team members, and define due dates.",
+            "filters_title": "Quick Filters",
+            "filters_desc": "Search for specific tasks or filter by priority and assignee to focus on what matters."
+        },
+        "inventory": {
+            "welcome_title": "Inventory Control",
+            "welcome_desc": "Manage your raw materials, finished goods, and assets in one place.",
+            "list_title": "Items List",
+            "list_desc": "See all your current stock, SKUs, and prices at a glance here.",
+            "create_title": "Add Products",
+            "create_desc": "Register new items by defining their minimum stock level to receive automatic alerts.",
+            "filters_title": "Advanced Search",
+            "filters_desc": "Filter by product type or stock status (low stock) to manage your orders."
+        },
+        "operations": {
+            "welcome_title": "Operations and Production",
+            "welcome_desc": "Control your production processes and manufacturing batches step by step.",
+            "process_title": "Process Selection",
+            "process_desc": "Choose the production process you want to visualize or manage.",
+            "kanban_title": "Batch Flow",
+            "kanban_desc": "Visualize which stage each production batch is currently in.",
+            "create_title": "Start Production",
+            "create_desc": "Create a new batch to start tracking a new production run."
+        },
+        "create_project": {
+            "welcome_title": "🚀 Create your new project",
+            "welcome_desc": "ControlApp lets you set up your workspace in seconds. Follow this short tour to learn about the options.",
+            "mode_title": "Choose your method",
+            "mode_desc": "You can use a pre-designed template for speed or select modules one by one for a custom setup.",
+            "templates_title": "Quick Templates",
+            "templates_desc": "Here you'll find optimized setups for different business types. It's the fastest way to start!",
+            "pricing_title": "Total Transparency",
+            "pricing_desc": "As you add modules, you'll see the updated price. Many of our base modules are free.",
+            "submit_title": "All set!",
+            "submit_desc": "Once configured, click here to bring your project to life and start managing."
+        }
+    },
+    "tour": {
+        "done": "Got it!",
+        "close": "Close",
+        "next": "Next →",
+        "prev": "← Back"
     }
 }

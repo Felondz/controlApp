@@ -44,7 +44,19 @@
         "offline": "Desconectado",
         "back": "Chats",
         "unread_count": ":count mensajes nuevos",
-        "no_recent_messages": "No hay mensajes recientes"
+        "no_recent_messages": "No hay mensajes recientes",
+        "reply": "Responder",
+        "replying_to": "Respondiendo a",
+        "new_messages": "Nuevos Mensajes",
+        "search_placeholder": "Buscar en el chat...",
+        "no_results": "No se encontraron mensajes.",
+        "close_search": "Cerrar búsqueda y volver al chat",
+        "editing": "Editando mensaje",
+        "attach_file": "Adjuntar archivo",
+        "attachment": "Archivo adjunto",
+        "cancel_edit": "Cancelar edición",
+        "save_edit": "Guardar",
+        "react": "Reaccionar"
     },
     "landing": {
         "badge": "Ahora en español",
@@ -229,6 +241,8 @@
         "documentation": "Guías",
         "security_note_title": "Nota de Seguridad",
         "security_note_desc": "La documentación técnica detallada está restringida a colaboradores verificados.",
+        "loading": "Cargando...",
+        "no_results": "No hay resultados",
         "save": "Guardar",
         "add_account": "Nueva Cuenta",
         "cancel": "Cancelar",
@@ -518,6 +532,7 @@
         "no_accounts_alert": "No tienes cuentas asociadas a este proyecto. Debes crear una cuenta primero para registrar transacciones.",
         "personal_finance": "Finanzas Personales",
         "add_bill": "Agregar Factura",
+        "pending_bills": "Cuentas por Pagar",
         "bill": "Factura",
         "add_transaction": "Agregar Transacción",
         "account": "Cuenta",
@@ -765,7 +780,8 @@
         "credit_balance_hint": "Para tarjetas de crédito, ingresa el monto que actualmente DEBES (deuda). Si está en cero, déjalo en 0.",
         "loan_balance_hint": "Ingresa el monto total del préstamo recibido (deuda inicial).",
         "bank_balance_hint": "Ingresa el saldo actual de esta cuenta (el monto que tienes disponible).",
-        "investment_balance_hint": "Ingresa el valor actual de tu inversión (capital + rendimientos)."
+        "investment_balance_hint": "Ingresa el valor actual de tu inversión (capital + rendimientos).",
+        "cash_account_hint": "Tip: Para una mejor organización, recomendamos manejar el efectivo como un gasto directo de tus cuentas bancarias en lugar de crear una cuenta de efectivo separada."
     },
     "settings": {
         "theme": {
@@ -852,12 +868,14 @@
         "priority_label": "Prioridad",
         "due_date": "Fecha Límite",
         "assign_hint": "Haz clic en un miembro para asignarlo a esta tarea",
+        "assignee": "Responsable",
         "assignees": "Asignados",
         "unassigned": "Sin Asignar",
         "no_members": "No hay miembros",
         "todo": "Por Hacer",
         "in_progress": "En Progreso",
         "done": "Hecho",
+        "overdue_count": "{count} tareas vencidas",
         "all_priorities": "Todas",
         "all_assignees": "Todos",
         "assigned_count": ":count asignadas",
@@ -1119,6 +1137,7 @@
         "inventory": "Inventario",
         "operations": "Operaciones",
         "crm": "CRM",
+        "marketplace_desc": "Explora y activa módulos para potenciar tus proyectos.",
         "requires": "Requiere",
         "chat": {
             "title": "Chat de Equipo",
@@ -1132,24 +1151,19 @@
             "back": "Chats"
         },
         "inbox": {
-            "title": "Buzón de entrada",
-            "empty": "No tienes mensajes nuevos ni invitaciones.",
+            "title": "Notificaciones",
+            "empty": "No tienes notificaciones.",
             "messages": "Mensajes",
             "unread_messages": "Tienes :count mensajes sin leer",
             "unread_count": ":count nuevos mensajes",
-            "view_all": "Ver todos"
-        },
-        "invitations": {
-            "title": "Invitaciones",
-            "pending": "Invitaciones Pendientes",
-            "invited_by": "Invitado por",
-            "empty_title": "No tienes invitaciones",
-            "empty_desc": "Cuando te inviten a un proyecto, aparecerá aquí."
+            "view_all": "Ver centro de mensajes",
+            "notifications": "Notificaciones",
+            "new_messages": "mensajes nuevos"
         },
         "transactions": {
             "title": "Transacciones",
             "income": "Ingreso",
-            "expense": "Egreso",
+            "expense": "Gasto",
             "amount": "Monto",
             "category": "Categoría",
             "description": "Descripción",
@@ -1164,6 +1178,10 @@
             "title": "Analíticas",
             "metrics": "Métricas",
             "summary": "Resumen",
+            "performance": "Rendimiento",
+            "charts": "Gráficos",
+            "projections": "Proyecciones",
+            "stats": "Estadísticas",
             "insights": "Insights",
             "total_income": "Ingresos Totales",
             "total_expenses": "Gastos Totales",
@@ -1335,6 +1353,9 @@
         "category_performance": "Rendimiento",
         "category_other": "Otro",
         "description": "Descripción",
+        "platform": "Plataforma",
+        "platform_web": "Web / Escritorio",
+        "platform_mobile": "Móvil / Tablet",
         "severity": "Severidad",
         "severity_low": "Baja",
         "severity_medium": "Media",
@@ -1433,5 +1454,93 @@
             "warning": "Los datos son de prueba y pueden ser eliminados en cualquier momento",
             "dismiss": "Cerrar"
         }
+    },
+    "invitations": {
+        "title": "Invitaciones",
+        "pending": "Invitaciones Pendientes",
+        "pending_title": "Invitaciones Pendientes",
+        "invited_by": "Invitado por",
+        "empty_title": "Sin invitaciones",
+        "empty_desc": "Cuando seas invitado a un proyecto, aparecerá aquí."
+    },
+    "onboarding": {
+        "dashboard": {
+            "welcome_title": "¡Bienvenido a ControlApp!",
+            "welcome_desc": "Tu centro de mando para proyectos y finanzas. Vamos a mostrarte lo básico.",
+            "sidebar_title": "Navegación Principal",
+            "sidebar_desc": "Desde aquí puedes volver siempre a tu panel principal o explorar el Mercado de Herramientas.",
+            "create_title": "Crea tu primer proyecto",
+            "create_desc": "Un proyecto puede ser cualquier cosa: un negocio, una construcción, o tus finanzas personales compartidas.",
+            "list_title": "Tus Proyectos",
+            "list_desc": "Aquí verás todos tus proyectos activos. Haz clic en uno para entrar a gestionarlo."
+        },
+        "project": {
+            "welcome_title": "Dentro del Proyecto",
+            "welcome_desc": "Ahora estás dentro de un proyecto. Cada proyecto tiene sus propios módulos y herramientas.",
+            "finance_title": "Módulo de Finanzas",
+            "finance_desc": "Lleva el control de ingresos, gastos y cuentas bancarias de este proyecto específico.",
+            "tasks_title": "Tareas y Seguimiento",
+            "tasks_desc": "Organiza el trabajo en equipo con tableros de tareas asignadas.",
+            "summary_title": "Resumen Rápido",
+            "summary_desc": "Un vistazo general al estado actual de las finanzas y operaciones del proyecto."
+        },
+        "finance": {
+            "welcome_title": "Módulo de Finanzas",
+            "welcome_desc": "Aquí gestionarás el flujo de dinero. El orden es importante.",
+            "account_title": "1. Crea una Cuenta",
+            "account_desc": "Primero debes registrar una cuenta (Banco, Efectivo, TC). Sin cuentas no hay transacciones.",
+            "transaction_title": "2. Registra Movimientos",
+            "transaction_desc": "Registra tus ingresos y gastos. Puedes categorizarlos para tener mejores reportes.",
+            "balance_title": "3. Monitoriza el Balance",
+            "balance_desc": "Mira el estado consolidado de todas tus cuentas en tiempo real."
+        },
+        "tasks": {
+            "welcome_title": "Tablero de Tareas",
+            "welcome_desc": "Organiza el trabajo de tu equipo de forma visual y eficiente.",
+            "board_title": "Columnas de Estado",
+            "board_desc": "Arrastra las tareas entre columnas para actualizar su progreso (Por hacer, En progreso, Hecho).",
+            "create_title": "Nueva Tarea",
+            "create_desc": "Crea tareas, asígnalas a miembros del equipo y define fechas de entrega.",
+            "filters_title": "Filtros Rápidos",
+            "filters_desc": "Busca tareas específicas o filtra por prioridad y responsable para enfocarte en lo importante."
+        },
+        "inventory": {
+            "welcome_title": "Control de Inventario",
+            "welcome_desc": "Gestiona tus materias primas, productos terminados y activos en un solo lugar.",
+            "list_title": "Lista de Items",
+            "list_desc": "Aquí verás todo tu stock actual, SKUs y precios de un vistazo.",
+            "create_title": "Agregar Productos",
+            "create_desc": "Registra nuevos items definiendo su stock mínimo para recibir alertas automáticas.",
+            "filters_title": "Búsqueda Avanzada",
+            "filters_desc": "Filtra por tipo de producto o estado de stock (bajo stock) para gestionar tus pedidos."
+        },
+        "operations": {
+            "welcome_title": "Operaciones y Producción",
+            "welcome_desc": "Controla tus procesos productivos y lotes de fabricación paso a paso.",
+            "process_title": "Selección de Proceso",
+            "process_desc": "Elige el proceso productivo que deseas visualizar o gestionar.",
+            "kanban_title": "Flujo de Lotes",
+            "kanban_desc": "Visualiza en qué etapa se encuentra cada lote de producción actualmente.",
+            "create_title": "Iniciar Producción",
+            "create_desc": "Crea un nuevo lote para comenzar el seguimiento de una nueva tanda de producción."
+        },
+        "create_project": {
+            "welcome_title": "🚀 Crea tu nuevo proyecto",
+            "welcome_desc": "ControlApp te permite configurar tu entorno de trabajo en segundos. Sigue este breve tour para conocer las opciones.",
+            "mode_title": "Elige tu método",
+            "mode_desc": "Puedes usar una plantilla prediseñada para mayor velocidad o seleccionar los módulos uno a uno de forma personalizada.",
+            "templates_title": "Plantillas Rápidas",
+            "templates_desc": "Aquí encontrarás configuraciones optimizadas para diferentes tipos de negocios. ¡Es la forma más rápida de empezar!",
+            "pricing_title": "Transparencia Total",
+            "pricing_desc": "A medida que añades módulos, verás el precio actualizado. Muchos de nuestros módulos base son gratuitos.",
+            "submit_title": "¡Todo listo!",
+            "submit_desc": "Una vez configurado, pulsa aquí para dar vida a tu proyecto y comenzar a gestionar."
+        }
+    },
+    "tour": {
+        "done": "¡Entendido!",
+        "close": "Cerrar",
+        "next": "Siguiente →",
+        "prev": "← Atrás"
     }
 }

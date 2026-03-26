@@ -68,7 +68,7 @@ class ProfileController extends Controller
 
         // Store new photo
         $file = $request->file('profile_photo');
-        $extension = $file->getClientOriginalExtension();
+        $extension = $file->extension();
         $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
         
         $path = $file->storeAs('profile-photos', $filename, 'public');

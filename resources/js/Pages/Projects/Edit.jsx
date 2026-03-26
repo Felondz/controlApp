@@ -180,7 +180,7 @@ export default function Edit({ auth, proyecto }) {
                             {/* Image Upload */}
                             <ImageUploader
                                 value={data.image}
-                                preview={proyecto.image_path ? `/storage/${proyecto.image_path}` : null}
+                                preview={proyecto.image_url || (proyecto.image_path ? `/storage/${proyecto.image_path}` : null)}
                                 onChange={(file) => setData('image', file)}
                                 shape="square"
                                 size="lg"

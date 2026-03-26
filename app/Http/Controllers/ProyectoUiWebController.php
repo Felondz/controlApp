@@ -115,13 +115,10 @@ class ProyectoUiWebController extends Controller
 
         // 5. Cargar estadísticas de Inventario para el Widget de Resumen
         $inventoryStats = null;
-        // Verify if module inventory is active for this project
-        // Assuming modules array check or relying on isAdmin which implies full access context for now,
-        // but explicit module check is better practice.
-        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+        if (in_array('inventory', $mis_proyecto->modules ?? [])) {
             $inventoryStats = [
                 'totalItems' => $mis_proyecto->inventoryItems()->count(),
-                'totalValue' => $mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0,
+                'totalValue' => $isAdmin ? ($mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0) : null, // Ocultar valor total a no admins
                 'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
                 'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
             ];
@@ -129,19 +126,18 @@ class ProyectoUiWebController extends Controller
 
         // 6. Cargar Lotes de Operaciones para el Widget de Operaciones
         $lotes = null;
-        if ($isAdmin && in_array('operations', $mis_proyecto->modules ?? [])) {
-            // Eager load process and stage for display
+        if (in_array('operations', $mis_proyecto->modules ?? [])) {
             $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $mis_proyecto->id)
                 ->where('status', 'active')
                 ->with(['productionProcess', 'currentStage'])
                 ->orderBy('created_at', 'desc')
-                ->limit(6) // Limit for widget display
+                ->limit(6)
                 ->get();
         }
 
         // 7. Cargar items de inventario (limited) para widgets de Items y Low Stock
         $inventoryItems = null;
-        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+        if (in_array('inventory', $mis_proyecto->modules ?? [])) {
             $items = $mis_proyecto->inventoryItems()
                 ->orderBy('created_at', 'desc')
                 ->limit(20)

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 import { Cog6ToothIcon } from '@/Components/Icons';
 import { DraggableWidgetGrid } from '@/Modules/Core/Widgets';
 
@@ -22,6 +23,9 @@ import { DEFAULT_OVERVIEW_LAYOUT, OVERVIEW_HIDDEN_DEFAULTS } from '@/Utils/widge
 export default function Show({ auth, proyecto, isAdmin, transacciones = [], pendingBills = [], inventoryStats = null, lotes = null, inventoryItems = null }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+    // Iniciar el tutorial del resumen del proyecto
+    useOnboarding('project_overview');
 
     // Page title
     const headerTitle = `${proyecto.nombre} | ${t('dashboard.title')}`;
@@ -85,23 +89,25 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
                 </div>
 
                 {/* Draggable Widget Grid */}
-                <DraggableWidgetGrid
-                    project={proyecto}
-                    isAdmin={isAdmin}
-                    dashboardData={{
-                        accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
-                        transactions: transacciones,
-                        pendingBills: pendingBills,
-                        categories: proyecto.categorias || [],
-                        currency: proyecto.moneda_default,
-                        stats: inventoryStats, // Map to 'stats' expected by InventorySummary
-                        inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
-                        lotes: lotes,
-                        items: inventoryItems, // Map to 'items' expected by LowStockWidget
-                    }}
-                    defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
-                    defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}
-                />
+                <div id="tour-project-summary">
+                    <DraggableWidgetGrid
+                        project={proyecto}
+                        isAdmin={isAdmin}
+                        dashboardData={{
+                            accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
+                            transactions: transacciones,
+                            pendingBills: pendingBills,
+                            categories: proyecto.categorias || [],
+                            currency: proyecto.moneda_default,
+                            stats: inventoryStats, // Map to 'stats' expected by InventorySummary
+                            inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
+                            lotes: lotes,
+                            items: inventoryItems, // Map to 'items' expected by LowStockWidget
+                        }}
+                        defaultLayout={DEFAULT_OVERVIEW_LAYOUT}
+                        defaultHidden={OVERVIEW_HIDDEN_DEFAULTS}
+                    />
+                </div>
             </div>
 
             {/* Settings Modal */}

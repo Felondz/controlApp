@@ -32,10 +32,10 @@ export default function SearchResults({ auth, users, projects, query }) {
                                     <li key={project.id} className="py-4">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex-shrink-0">
-                                                {project.image_path ? (
+                                                {project.image_url || project.image_path ? (
                                                     <img
                                                         className="h-12 w-12 rounded-lg object-cover border-2 border-primary-600 dark:border-primary-400"
-                                                        src={`/storage/${project.image_path}`}
+                                                        src={project.image_url || `/storage/${project.image_path}`}
                                                         alt={project.nombre}
                                                     />
                                                 ) : project.icon ? (

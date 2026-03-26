@@ -65,65 +65,65 @@ export default function InventoryItemsWidget({
             default: return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
         }
     };
+const actionButton = onAdd ? (
+    <button
+        id="tour-inventory-create"
+        onClick={onAdd}
+        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all text-xs font-medium"
+    >
+        <PlusIcon className="w-4 h-4" />
+        <span className="hidden sm:inline">{t('inventory.new_item', 'Nuevo Item')}</span>
+    </button>
+) : null;
 
-    const actionButton = onAdd ? (
-        <button
-            onClick={onAdd}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-all text-xs font-medium"
-        >
-            <PlusIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">{t('inventory.new_item', 'Nuevo Item')}</span>
-        </button>
-    ) : null;
-
-    return (
-        <WidgetCard
-            widget={widget}
-            title={t('inventory.title', 'Inventario')}
-            action={actionButton}
-            onHide={onHide}
-            isDragging={isDragging}
-            dragHandleProps={dragHandleProps}
-        >
-            {/* Filter Toolbar */}
-            <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/10 flex flex-col md:flex-row gap-4 items-center">
-                <div className="w-full md:flex-1">
-                    <SearchInput
-                        placeholder={t('inventory.search_placeholder', 'Buscar por nombre o SKU...')}
-                        value={params.search}
-                        onChange={(e) => handleFilterChange('search', e.target.value)}
-                        className="w-full h-10"
-                    />
-                </div>
-                <div className="w-full md:w-48">
-                    <SelectInput
-                        value={params.type}
-                        onChange={(e) => handleFilterChange('type', e.target.value)}
-                        className="w-full h-10 text-sm"
-                        options={[
-                            { value: '', label: t('inventory.all_types', 'Todos los tipos') },
-                            { value: 'raw_material', label: t('inventory.types.raw_material', 'Materia Prima') },
-                            { value: 'finished_good', label: t('inventory.types.finished_good', 'Prod. Terminado') },
-                            { value: 'service', label: t('inventory.types.service', 'Servicio') },
-                            { value: 'asset', label: t('inventory.types.asset', 'Activo') },
-                        ]}
-                    />
-                </div>
-                <div className="w-full md:w-48">
-                    <SelectInput
-                        value={params.stock_status}
-                        onChange={(e) => handleFilterChange('stock_status', e.target.value)}
-                        className="w-full h-10 text-sm"
-                        options={[
-                            { value: '', label: t('inventory.all_stock_status', 'Todo el Stock') },
-                            { value: 'low', label: t('inventory.low_stock', 'Bajo Stock') },
-                            { value: 'normal', label: t('inventory.normal_stock', 'Stock Normal') },
-                        ]}
-                    />
-                </div>
+return (
+    <WidgetCard
+        widget={widget}
+        title={t('inventory.title', 'Inventario')}
+        action={actionButton}
+        onHide={onHide}
+        isDragging={isDragging}
+        dragHandleProps={dragHandleProps}
+    >
+        {/* Filter Toolbar */}
+        <div id="tour-inventory-filters" className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/10 flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1 w-full">
+                <SearchInput
+                    placeholder={t('inventory.search_placeholder', 'Buscar por nombre o SKU...')}
+                    value={params.search}
+                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    className="w-full h-10"
+                />
             </div>
+            <div className="w-full md:w-48">
+                <SelectInput
+                    value={params.type}
+                    onChange={(e) => handleFilterChange('type', e.target.value)}
+                    className="w-full h-10 text-sm"
+                    options={[
+                        { value: '', label: t('inventory.all_types', 'Todos los tipos') },
+                        { value: 'raw_material', label: t('inventory.types.raw_material', 'Materia Prima') },
+                        { value: 'finished_good', label: t('inventory.types.finished_good', 'Prod. Terminado') },
+                        { value: 'service', label: t('inventory.types.service', 'Servicio') },
+                        { value: 'asset', label: t('inventory.types.asset', 'Activo') },
+                    ]}
+                />
+            </div>
+            <div className="w-full md:w-48">
+                <SelectInput
+                    value={params.stock_status}
+                    onChange={(e) => handleFilterChange('stock_status', e.target.value)}
+                    className="w-full h-10 text-sm"
+                    options={[
+                        { value: '', label: t('inventory.all_stock_status', 'Todo el Stock') },
+                        { value: 'low', label: t('inventory.low_stock', 'Bajo Stock') },
+                        { value: 'normal', label: t('inventory.normal_stock', 'Stock Normal') },
+                    ]}
+                />
+            </div>
+        </div>
 
-            <div className="overflow-x-auto">
+        <div id="tour-inventory-list" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900/50">
                         <tr>

@@ -200,6 +200,119 @@
     }
 }
 
+/* Custom Driver.js styles to match ControlApp */
+.driver-popover.driverjs-theme {
+    background-color: white !important;
+    color: #1f2937 !important;
+    border-radius: 1rem !important;
+    padding: 1.25rem !important;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+    border: 1px solid rgba(var(--color-primary-200), 0.5) !important;
+    max-width: 380px !important;
+}
+
+.dark .driver-popover.driverjs-theme {
+    background-color: #1f2937 !important;
+    color: #f3f4f6 !important;
+    border-color: #374151 !important;
+}
+
+.driver-popover-title {
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    color: rgb(var(--color-primary-600)) !important;
+    margin-bottom: 0.5rem !important;
+    font-family: inherit !important;
+}
+
+.dark .driver-popover-title {
+    color: rgb(var(--color-primary-400)) !important;
+}
+
+.driver-popover-description {
+    font-size: 0.875rem !important;
+    line-height: 1.35rem !important;
+    color: #4b5563 !important;
+    font-family: inherit !important;
+}
+
+.dark .driver-popover-description {
+    color: #9ca3af !important;
+}
+
+.driver-popover-footer {
+    margin-top: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.driver-popover-navigation-btns {
+    display: flex !important;
+    gap: 0.5rem !important;
+}
+
+/* Reusing app button styles for driver.js buttons */
+.driver-popover-next-btn, 
+.driver-popover-prev-btn, 
+.driver-popover-close-btn {
+    text-shadow: none !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.2s !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+/* Next / Done Button (Primary Style) */
+.driver-popover-next-btn {
+    background-color: rgb(var(--color-primary-600)) !important;
+    color: white !important;
+}
+
+.driver-popover-next-btn:hover {
+    background-color: rgb(var(--color-primary-700)) !important;
+}
+
+/* Prev / Close Button (Secondary Style) */
+.driver-popover-prev-btn, 
+.driver-popover-close-btn {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+}
+
+.dark .driver-popover-prev-btn, 
+.dark .driver-popover-close-btn {
+    background-color: #374151 !important;
+    color: #d1d5db !important;
+}
+
+.driver-popover-prev-btn:hover, 
+.driver-popover-close-btn:hover {
+    background-color: #e5e7eb !important;
+}
+
+.dark .driver-popover-prev-btn:hover, 
+.dark .driver-popover-close-btn:hover {
+    background-color: #4b5563 !important;
+}
+
+.driver-popover-progress-text {
+    color: #9ca3af !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+}
+
+.driver-popover-arrow {
+    border-color: white !important;
+}
+
+.dark .driver-popover-arrow {
+    border-color: #1f2937 !important;
+}
+
 @layer utilities {
 
     /* Custom Scrollbar */

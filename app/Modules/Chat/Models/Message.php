@@ -34,11 +34,51 @@ class Message extends Model
         return \Database\Factories\MessageFactory::new();
     }
 
-    protected $fillable = ['content', 'type', 'proyecto_id', 'user_id', 'recipient_id', 'read_at'];
+    protected $fillable = [
+        'content', 
+        'type', 
+        'proyecto_id', 
+        'user_id', 
+        'recipient_id', 
+        'read_at',
+        'parent_id',
+        'is_edited',
+        'file_path',
+        'reactions'
+    ];
 
     protected $casts = [
         'read_at' => 'datetime',
+        'is_edited' => 'boolean',
+        'reactions' => 'array',
     ];
+
+    protected $appends = ['file_url'];
+
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        if (filter_var($this->file_path, FILTER_VALIDATE_URL)) {
+            return $this->file_path;
+        }
+
+        if (config('app.env') === 'local') {
+            return '/storage/' . ltrim($this->file_path, '/');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+    }
+
+    /**
+     * @return BelongsTo<Message, $this>
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'parent_id');
+    }
 
     /**
      * @return BelongsTo<Proyecto, $this>

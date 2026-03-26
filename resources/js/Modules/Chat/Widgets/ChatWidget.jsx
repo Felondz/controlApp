@@ -9,6 +9,9 @@ export default function ChatWidget({ project, user }) {
     const [activeChannel, setActiveChannel] = useState('general');
     const [unreadCounts, setUnreadCounts] = useState({ general: 0, dms: {} });
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+    const [searchResults, setSearchResults] = useState(null);
+    const [isSearching, setIsSearching] = useState(false);
+    const [lastReadAt, setLastReadAt] = useState(null);
 
     // Refs for stable values
     const activeChannelRef = useRef(activeChannel);
@@ -17,6 +20,24 @@ export default function ChatWidget({ project, user }) {
     useEffect(() => {
         activeChannelRef.current = activeChannel;
     }, [activeChannel]);
+
+    // Fetch unread counts and timestamps
+    const fetchUnreadCounts = useCallback(async () => {
+        try {
+            const response = await axios.get(route('project.messages.unread', project.id));
+            setUnreadCounts(response.data);
+            
+            // Update lastReadAt based on active channel
+            const channel = activeChannelRef.current;
+            if (channel === 'general') {
+                setLastReadAt(response.data.general_last_read_at);
+            } else {
+                setLastReadAt(response.data.dms_last_read_at?.[channel]);
+            }
+        } catch (error) {
+            console.error("Error fetching unread counts:", error);
+        }
+    }, [project.id]);
 
     // Fetch messages
     const fetchMessages = useCallback(async () => {
@@ -40,17 +61,7 @@ export default function ChatWidget({ project, user }) {
         }
     }, [project.id]);
 
-    // Fetch unread counts
-    const fetchUnreadCounts = useCallback(async () => {
-        try {
-            const response = await axios.get(route('project.messages.unread', project.id));
-            setUnreadCounts(response.data);
-        } catch (error) {
-            console.error("Error fetching unread counts:", error);
-        }
-    }, [project.id]);
-
-    // Mark as read - calls API and updates local state only (no page reload)
+    // Mark as read
     const markAsRead = useCallback(async () => {
         try {
             const channel = activeChannelRef.current;
@@ -73,8 +84,13 @@ export default function ChatWidget({ project, user }) {
     useEffect(() => {
         setLoading(true);
         lastMessageCountRef.current = 0;
-        fetchMessages();
-        markAsRead();
+        setSearchResults(null);
+        
+        // Load counts first to get the separator date
+        fetchUnreadCounts().then(() => {
+            fetchMessages();
+            markAsRead();
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeChannel]);
 
@@ -93,20 +109,77 @@ export default function ChatWidget({ project, user }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [project.id]);
 
-    const handleSendMessage = async (content) => {
+    const handleSendMessage = async (content, file = null, parentId = null) => {
         try {
             const channel = activeChannelRef.current;
-            const payload = {
-                content,
-                type: 'text',
-                recipient_id: channel === 'general' ? null : channel
-            };
+            
+            const formData = new FormData();
+            if (content) formData.append('content', content);
+            if (channel !== 'general') formData.append('recipient_id', channel);
+            if (parentId) formData.append('parent_id', parentId);
+            if (file) formData.append('file', file);
 
-            const response = await axios.post(route('project.messages.store', project.id), payload);
+            const response = await axios.post(route('project.messages.store', project.id), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            
             setMessages(prev => [...prev, response.data]);
             lastMessageCountRef.current += 1;
         } catch (error) {
             console.error("Error sending message:", error);
+        }
+    };
+
+    const handleUpdateMessage = async (messageId, newContent) => {
+        try {
+            const response = await axios.put(route('project.messages.update', [project.id, messageId]), {
+                content: newContent
+            });
+            setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
+        } catch (error) {
+            console.error("Error updating message:", error);
+        }
+    };
+
+    const handleDeleteMessage = async (messageId) => {
+        try {
+            await axios.delete(route('project.messages.destroy', [project.id, messageId]));
+            setMessages(prev => prev.filter(m => m.id !== messageId));
+        } catch (error) {
+            console.error("Error deleting message:", error);
+        }
+    };
+
+    const handleToggleReaction = async (messageId, emoji) => {
+        try {
+            const response = await axios.post(route('project.messages.react', [project.id, messageId]), {
+                emoji
+            });
+            setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
+        } catch (error) {
+            console.error("Error toggling reaction:", error);
+        }
+    };
+
+    const handleSearch = async (query) => {
+        if (!query.trim()) {
+            setSearchResults(null);
+            setIsSearching(false);
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            const response = await axios.get(route('project.messages.search', project.id), {
+                params: { query }
+            });
+            setSearchResults(response.data.data);
+        } catch (error) {
+            console.error("Error searching messages:", error);
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -128,7 +201,14 @@ export default function ChatWidget({ project, user }) {
                 activeChannel={activeChannel}
                 messages={messages}
                 loading={loading}
+                searchResults={searchResults}
+                isSearching={isSearching}
+                lastReadAt={lastReadAt}
                 onSendMessage={handleSendMessage}
+                onUpdateMessage={handleUpdateMessage}
+                onDeleteMessage={handleDeleteMessage}
+                onToggleReaction={handleToggleReaction}
+                onSearch={handleSearch}
                 onMobileMenuClick={() => setShowMobileSidebar(true)}
             />
 

@@ -47,8 +47,16 @@ type User {
     "When the account was last updated."
     updated_at: DateTime!
     
+    "User's settings and preferences"
+    settings: UserSettings
+    
     "User's configured LLM settings"
     llmSettings: [UserLlmSetting!]! @hasMany
+}
+
+"User's global settings and preferences"
+type UserSettings {
+    completed_tours: [String!]
 }
 
 "User's LLM API Configuration"
@@ -74,4 +82,9 @@ type Mutation {
     deleteUserLlmSetting(
         provider: String!
     ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\DeleteUserLlmSetting")
+
+    "Mark an interactive tour as completed for the current user."
+    completeTour(
+        tour: String!
+    ): User! @field(resolver: "App\\GraphQL\\Mutations\\CompleteTour") @auth
 }

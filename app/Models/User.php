@@ -142,6 +142,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Invitaciones pendientes para este usuario (basado en su email).
+     */
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invitacion::class, 'email', 'email');
+    }
+
+    /**
      * User's LLM Configuration Settings
      */
     public function llmSettings(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -240,13 +248,25 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the URL to the user's profile photo.
      *
-     * @return string
+     * @return string|null
      */
     public function getProfilePhotoUrlAttribute()
     {
-        return $this->profile_photo_path
-            ? asset('storage/' . $this->profile_photo_path)
-            : null;
+        if (!$this->profile_photo_path) {
+            return null;
+        }
+
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (filter_var($this->profile_photo_path, FILTER_VALIDATE_URL)) {
+            return $this->profile_photo_path;
+        }
+
+        // Usar ruta relativa en local para evitar fallos por APP_URL (localhost vs IP)
+        if (config('app.env') === 'local') {
+            return '/storage/' . ltrim($this->profile_photo_path, '/');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->profile_photo_path);
     }
 
     /**
@@ -360,6 +380,7 @@ class User extends Authenticatable implements MustVerifyEmail
                     'id' => $proyecto->id,
                     'nombre' => $proyecto->nombre,
                     'image_path' => $proyecto->image_path,
+                    'image_url' => $proyecto->image_url,
                     'icon' => $proyecto->icon, // Assuming accessor or column
                     'unread_count' => $projTotal,
                 ];
@@ -367,9 +388,27 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
+        // 3. Fetch Pending Invitations (from Projects I'm invited to)
+        $pendingInvitations = $this->invitations()
+            ->with(['proyecto', 'invitador'])
+            ->latest()
+            ->get()
+            ->map(fn($inv) => [
+                'id' => $inv->id,
+                'proyecto_id' => $inv->proyecto_id,
+                'proyecto_nombre' => $inv->proyecto->nombre,
+                'invitador_nombre' => $inv->invitador->name,
+                'image_url' => $inv->proyecto->image_url,
+                'rol' => $inv->rol,
+                'token' => $inv->token,
+                'type' => 'invitation'
+            ]);
+
         return [
             'unread_projects' => $unreadProjects,
             'unread_messages_count' => $totalUnreadCount,
+            'pending_invitations' => $pendingInvitations,
+            'pending_invitations_count' => $pendingInvitations->count(),
         ];
     }
 

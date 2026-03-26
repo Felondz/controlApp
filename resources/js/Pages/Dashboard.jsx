@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 
 import DraggableProjectGrid from '@/Components/Dashboard/DraggableProjectGrid';
 import { WidgetSettingsModal } from '@/Modules/Core/Widgets';
@@ -9,6 +10,9 @@ import { useState } from 'react';
 export default function Dashboard({ auth, proyectos = [] }) {
     const { t } = useTranslate();
     const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+    // Iniciar el tutorial del Dashboard
+    useOnboarding('dashboard');
 
     const dashboardData = {
         projects: proyectos

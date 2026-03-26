@@ -21,6 +21,7 @@ class CreateBugReportAction
             'category' => $dto->category,
             'description' => $dto->description,
             'page_url' => $dto->pageUrl,
+            'platform' => $dto->platform,
             'screenshot_path' => $screenshotPath,
             'severity' => $dto->severity,
             'status' => 'open',

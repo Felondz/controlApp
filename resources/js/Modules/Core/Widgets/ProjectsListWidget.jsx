@@ -3,9 +3,12 @@ import ProjectCard from '@/Components/Project/ProjectCard';
 import { Link } from '@inertiajs/react';
 import { PlusIcon, EmptyStateIcon } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 
 export default function ProjectsListWidget({ projects = [] }) {
     const { t } = useTranslate();
+    const { isTourCompleted } = useOnboarding();
+    const tourPending = !isTourCompleted('create_project');
 
     if (!projects || projects.length === 0) {
         return (
@@ -20,7 +23,7 @@ export default function ProjectsListWidget({ projects = [] }) {
                     {t('dashboard.create_first_project_desc')}
                 </p>
                 <Link
-                    href={route('mis-proyectos.create')}
+                    href={route('mis-proyectos.create', tourPending ? { start_tour: 1 } : {})}
                     className="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition ease-in-out duration-150"
                 >
                     {t('projects.create_new')}
@@ -37,7 +40,7 @@ export default function ProjectsListWidget({ projects = [] }) {
 
             {/* Always visible Add Card in grid */}
             <Link
-                href={route('mis-proyectos.create')}
+                href={route('mis-proyectos.create', tourPending ? { start_tour: 1 } : {})}
                 className="group border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center hover:border-primary-500 dark:hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 min-h-[200px]"
             >
                 <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 flex items-center justify-center mb-3 transition-colors">

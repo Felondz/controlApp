@@ -11,6 +11,7 @@ readonly class CreateBugReportDTO
         public string $category,
         public string $description,
         public string $pageUrl,
+        public string $platform = 'web',
         public string $severity = 'medium',
         public ?UploadedFile $screenshot = null,
     ) {}

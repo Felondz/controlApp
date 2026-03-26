@@ -47,15 +47,19 @@ class HandleInertiaRequests extends Middleware
         $userData = null;
 
         if ($user) {
-            // Calculate unread data once efficiently
+            // Recargar datos frescos del usuario para evitar props desactualizadas tras un post
+            $user->refresh();
             $unreadData = $user->getUnreadData();
             
             $userData = [
                 ...$user->toArray(),
+                'settings' => $user->settings ?? ['completed_tours' => []],
                 'global_theme' => $user->global_theme ?? 'purple-modern',
                 'enabled_tools' => $user->enabled_tools ?? [],
                 'unread_messages_count' => $unreadData['unread_messages_count'],
                 'unread_projects' => $unreadData['unread_projects'],
+                'pending_invitations' => $unreadData['pending_invitations'],
+                'pending_invitations_count' => $unreadData['pending_invitations_count'],
                 'is_ai_enabled' => (bool) ($user->is_ai_enabled ?? true),
                 'has_active_ai' => (bool) ($user->is_ai_enabled ?? true) && $user->llmSettings()->where('is_active', true)->whereNotNull('api_key')->exists(),
                 'is_super_admin' => (bool) $user->is_super_admin,
