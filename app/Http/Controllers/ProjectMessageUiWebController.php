@@ -88,7 +88,8 @@ class ProjectMessageUiWebController extends Controller
             $filename = Str::uuid() . '.' . $extension;
             $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'public');
             
-            if (str_starts_with($file->getMimeType(), 'image/')) {
+            $mimeType = $file->getMimeType() ?? '';
+            if (str_starts_with($mimeType, 'image/')) {
                 $type = 'image';
             } else {
                 $type = 'file';
@@ -99,6 +100,7 @@ class ProjectMessageUiWebController extends Controller
             }
         }
 
+        /** @var \App\Modules\Chat\Models\Message $message */
         $message = $mis_proyecto->messages()->create([
             'user_id' => auth()->id(),
             'content' => $validated['content'],
@@ -111,7 +113,7 @@ class ProjectMessageUiWebController extends Controller
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
 
         // Dispatch el evento para WebSockets
-        \App\Modules\Chat\Events\MessageSent::dispatch($message);
+        broadcast(new \App\Modules\Chat\Events\MessageSent($message))->toOthers();
 
         return response()->json($message, 201);
     }
@@ -136,7 +138,7 @@ class ProjectMessageUiWebController extends Controller
 
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
 
-        MessageUpdated::dispatch($message);
+        broadcast(new \App\Modules\Chat\Events\MessageUpdated($message))->toOthers();
 
         return response()->json($message);
     }
@@ -146,7 +148,10 @@ class ProjectMessageUiWebController extends Controller
      */
     public function destroy(Request $request, Proyecto $mis_proyecto, Message $message): JsonResponse
     {
-        if ($message->user_id !== auth()->id() && !$request->user()->esAdminDe($mis_proyecto)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        
+        if ($message->user_id !== auth()->id() && !$user->esAdminDe($mis_proyecto)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -155,7 +160,7 @@ class ProjectMessageUiWebController extends Controller
 
         $message->delete();
 
-        MessageDeleted::dispatch($messageId, $proyectoId);
+        broadcast(new \App\Modules\Chat\Events\MessageDeleted($messageId, $proyectoId))->toOthers();
 
         return response()->json(['status' => 'success']);
     }
@@ -192,7 +197,7 @@ class ProjectMessageUiWebController extends Controller
         $message->update(['reactions' => empty($reactions) ? null : $reactions]);
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
 
-        MessageUpdated::dispatch($message);
+        broadcast(new \App\Modules\Chat\Events\MessageUpdated($message))->toOthers();
 
         return response()->json($message);
     }

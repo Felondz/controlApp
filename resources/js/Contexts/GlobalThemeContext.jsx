@@ -4,7 +4,8 @@ import { router, usePage } from '@inertiajs/react';
 const GlobalThemeContext = createContext();
 
 export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', forceTheme = null }) {
-    const { props } = usePage();
+    const page = usePage();
+    const props = page?.props || {};
 
     // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
     const userTheme = props.auth?.user?.global_theme || initialTheme;

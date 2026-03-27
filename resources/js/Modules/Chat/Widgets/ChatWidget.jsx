@@ -94,18 +94,84 @@ export default function ChatWidget({ project, user }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeChannel]);
 
-    // Polling every 3 seconds
+    const [onlineUsers, setOnlineUsers] = useState([]);
+    const [typingUsers, setTypingUsers] = useState({});
+
+    // WebSocket setup with Laravel Echo
     useEffect(() => {
-        fetchUnreadCounts();
+        if (!window.Echo) return;
 
-        if (import.meta.env.MODE === 'test') return;
+        const channel = window.Echo.join(`project.${project.id}.chat`);
 
-        const interval = setInterval(() => {
-            fetchMessages();
-            fetchUnreadCounts();
-        }, 3000);
+        channel
+            .here((users) => {
+                setOnlineUsers(users);
+            })
+            .joining((user) => {
+                setOnlineUsers(prev => [...prev.filter(u => u.id !== user.id), user]);
+            })
+            .leaving((user) => {
+                setOnlineUsers(prev => prev.filter(u => u.id !== user.id));
+            })
+            .listenForWhisper('typing', (e) => {
+                setTypingUsers(prev => ({
+                    ...prev,
+                    [e.user_id]: {
+                        name: e.user_name,
+                        channel: e.channel
+                    }
+                }));
+                
+                // Clear typing indicator after 3 seconds
+                setTimeout(() => {
+                    setTypingUsers(prev => {
+                        const newState = { ...prev };
+                        delete newState[e.user_id];
+                        return newState;
+                    });
+                }, 3000);
+            })
+            .listen('.MessageSent', (data) => {
+                const newMessage = data.message;
+                const currentChannel = activeChannelRef.current;
 
-        return () => clearInterval(interval);
+                // Check if message belongs to current view
+                const isGeneral = !newMessage.recipient_id && currentChannel === 'general';
+                const isDMWithMe = (newMessage.user_id === parseInt(currentChannel) || newMessage.recipient_id === parseInt(currentChannel)) && currentChannel !== 'general';
+
+                if (isGeneral || isDMWithMe) {
+                    setMessages(prev => {
+                        // Avoid duplicates just in case (though we use toOthers())
+                        if (prev.some(m => m.id === newMessage.id)) return prev;
+                        return [...prev, newMessage];
+                    });
+                    lastMessageCountRef.current += 1;
+                    markAsRead();
+                } else {
+                    // Update unread counts for other channels
+                    setUnreadCounts(prev => {
+                        if (!newMessage.recipient_id) {
+                            return { ...prev, general: prev.general + 1 };
+                        }
+                        const senderId = newMessage.user_id;
+                        return {
+                            ...prev,
+                            dms: { ...prev.dms, [senderId]: (prev.dms[senderId] || 0) + 1 }
+                        };
+                    });
+                }
+            })
+            .listen('.MessageUpdated', (data) => {
+                const updatedMessage = data.message;
+                setMessages(prev => prev.map(m => m.id === updatedMessage.id ? updatedMessage : m));
+            })
+            .listen('.MessageDeleted', (data) => {
+                setMessages(prev => prev.filter(m => m.id !== data.message_id));
+            });
+
+        return () => {
+            window.Echo.leave(`project.${project.id}.chat`);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [project.id]);
 
@@ -183,6 +249,17 @@ export default function ChatWidget({ project, user }) {
         }
     };
 
+    const handleTyping = () => {
+        if (!window.Echo) return;
+        
+        window.Echo.join(`project.${project.id}.chat`)
+            .whisper('typing', {
+                user_id: user.id,
+                user_name: user.name,
+                channel: activeChannelRef.current
+            });
+    };
+
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 flex h-[600px] overflow-hidden">
             <ChatSidebar
@@ -191,6 +268,7 @@ export default function ChatWidget({ project, user }) {
                 activeChannel={activeChannel}
                 onChannelSelect={setActiveChannel}
                 unreadCounts={unreadCounts}
+                onlineUsers={onlineUsers}
                 showMobile={showMobileSidebar}
                 onCloseMobile={() => setShowMobileSidebar(false)}
             />
@@ -204,11 +282,14 @@ export default function ChatWidget({ project, user }) {
                 searchResults={searchResults}
                 isSearching={isSearching}
                 lastReadAt={lastReadAt}
+                onlineUsers={onlineUsers}
+                typingUsers={typingUsers}
                 onSendMessage={handleSendMessage}
                 onUpdateMessage={handleUpdateMessage}
                 onDeleteMessage={handleDeleteMessage}
                 onToggleReaction={handleToggleReaction}
                 onSearch={handleSearch}
+                onTyping={handleTyping}
                 onMobileMenuClick={() => setShowMobileSidebar(true)}
             />
 

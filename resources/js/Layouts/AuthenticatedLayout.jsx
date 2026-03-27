@@ -88,7 +88,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
                 {/* Desktop Topbar */}
                 <header
-                    className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
+                    className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-30 relative border-b border-gray-200 dark:border-gray-700"
                 >
                     <div className="flex-1 flex items-center gap-4">
                         {/* Sidebar Toggle */}

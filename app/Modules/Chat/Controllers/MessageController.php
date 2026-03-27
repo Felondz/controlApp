@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Core\Events\ModuleEventBus;
 use App\Modules\Chat\Events\MessageSent;
 use App\Modules\Chat\Events\MessageRead;
+use App\Modules\Chat\Events\MessageUpdated;
+use App\Modules\Chat\Events\MessageDeleted;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -50,6 +52,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        
         if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -79,7 +82,8 @@ class MessageController extends Controller
             $filename = Str::uuid() . '.' . $extension;
             $filePath = $file->storeAs('chat/' . $proyecto->id, $filename, 'public');
             
-            if (str_starts_with($file->getMimeType(), 'image/')) {
+            $mimeType = (string)$file->getMimeType();
+            if (str_starts_with($mimeType, 'image/')) {
                 $type = 'image';
             } else {
                 $type = 'file';
@@ -105,8 +109,8 @@ class MessageController extends Controller
         // Load relationships for the response and event
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent']);
 
-        // Dispatch MessageSent event
-        MessageSent::dispatch($message);
+        // Dispatch MessageSent event to others
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json($message, 201);
     }
@@ -116,6 +120,7 @@ class MessageController extends Controller
      */
     public function update(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
         if ($message->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -132,8 +137,8 @@ class MessageController extends Controller
 
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent']);
         
-        // Aquí podríamos disparar un MessageUpdated event
-        // MessageUpdated::dispatch($message);
+        // Dispatch MessageUpdated event to others
+        broadcast(new MessageUpdated($message))->toOthers();
 
         return response()->json($message);
     }
@@ -143,15 +148,17 @@ class MessageController extends Controller
      */
     public function destroy(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
         if ($message->user_id !== $user->id && !$user->esAdminDe($proyecto)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        $messageId = $message->id;
         $message->delete();
         
-        // Aquí podríamos disparar un MessageDeleted event
-        // MessageDeleted::dispatch($message->id, $proyecto->id);
+        // Dispatch MessageDeleted event to others
+        broadcast(new MessageDeleted($messageId, $proyecto->id))->toOthers();
 
         return response()->json(['status' => 'success']);
     }
@@ -161,6 +168,7 @@ class MessageController extends Controller
      */
     public function toggleReaction(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
         
         $validated = $request->validate([
@@ -191,7 +199,8 @@ class MessageController extends Controller
 
         $message->update(['reactions' => empty($reactions) ? null : $reactions]);
         
-        // MessageUpdated::dispatch($message);
+        // Dispatch MessageUpdated event (which includes reactions) to others
+        broadcast(new MessageUpdated($message))->toOthers();
 
         return response()->json($message);
     }

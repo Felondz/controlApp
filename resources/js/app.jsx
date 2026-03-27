@@ -1,10 +1,10 @@
 import '../css/app.css';
 import './bootstrap';
+import './echo';
 import { Ziggy } from './ziggy';
 import { route } from 'ziggy-js';
 
-// Use static Ziggy configuration as primary source to ensure all routes are present
-// FORCE relative URLs (absolute = false) to prevent Mixed Content errors behind Reverse Proxy
+// DEFINICIÓN GLOBAL DE ROUTE: Crítica para que no explote React
 window.route = (name, params, absolute = false, config = Ziggy) => route(name, params, absolute, config);
 
 import { createInertiaApp } from '@inertiajs/react';
@@ -22,27 +22,23 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.jsx'),
         ).then((module) => {
             const Page = module.default;
-            const originalLayout = Page.layout;
-
-            // Wrap everything in GlobalThemeProvider
+            
+            // Envolvemos la página y su layout en el GlobalThemeProvider
+            // Esto asegura que usePage() funcione correctamente dentro del proveedor
+            const oldLayout = Page.layout;
             Page.layout = (page) => {
-                // Import dynamically to avoid circular dependencies or top-level import issues if any
-                // But better to import at top level. 
-                // Since I cannot change top level imports easily with this tool without replacing whole file or using multi_replace
-                // I will assume I can add the import at the top.
-                // Wait, I need to add the import at the top first.
-                return (
-                    <GlobalThemeProvider>
-                        {originalLayout ? originalLayout(page) : page}
-                    </GlobalThemeProvider>
-                );
+                const layout = oldLayout ? oldLayout(page) : page;
+                return <GlobalThemeProvider>{layout}</GlobalThemeProvider>;
             };
+            
             return module;
         }),
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <App {...props} />
+        );
     },
     progress: {
         color: '#4B5563',

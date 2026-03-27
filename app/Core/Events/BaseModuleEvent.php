@@ -19,10 +19,10 @@ abstract class BaseModuleEvent implements ModuleEvent
      * @param mixed ...$args Arguments for the event constructor
      * @return static
      */
-    public static function dispatch(...$args): mixed
+    public static function dispatch(...$arguments)
     {
         /** @phpstan-ignore-next-line */
-        $event = new static(...$args);
+        $event = new static(...$arguments);
         
         // Dispatch via custom ModuleEventBus for inter-module communication and testing spies
         if (app()->bound(ModuleEventBus::class)) {
