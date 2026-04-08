@@ -114,7 +114,6 @@ jobs:
           echo "SCOUT_DRIVER=meilisearch" >> .env
           echo "MEILISEARCH_HOST=http://meilisearch:7700" >> .env
           echo "REDIS_HOST=redis" >> .env
-          echo "REDIS_HOST=redis" >> .env
           echo "REDIS_PORT=6379" >> .env
           echo "SUPER_ADMIN_EMAIL=${{ secrets.SUPER_ADMIN_EMAIL }}" >> .env
           echo "SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}" >> .env
@@ -191,4 +190,4 @@ jobs:
           docker compose exec -T app php artisan queue:restart
           
       - name: Cleanup
-        run: docker image prune -f        run: docker image prune -f
+        run: docker image prune -f
