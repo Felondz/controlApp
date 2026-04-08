@@ -19,6 +19,7 @@ class ProyectoFactory extends Factory
         return [
             'nombre' => $this->faker->words(3, true),
             'moneda_default' => $this->faker->randomElement(['USD', 'COP', 'EUR', 'MXN']),
+            'user_id' => \App\Models\User::factory(),
         ];
     }
 }
