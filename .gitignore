@@ -46,3 +46,8 @@ phpstan.neon.cache
 
 # Generated API Documentation
 /public/docs/graphql/
+GEMINI.md
+controlapp-design-system/SKILL.md
+.gitignore
+PROGRESS.md
+controlapp-design-system.skill

@@ -6,7 +6,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 export default function KanbanColumn({ stage, lotes, onLoteClick, isLastStage, onFinishLote }) {
     const { t } = useTranslate();
     return (
-        <div className="flex flex-col min-w-[300px] w-[85vw] md:w-auto md:flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-lg h-full max-h-[calc(100vh-220px)] snap-center border border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col min-w-[280px] w-[85vw] sm:w-auto sm:flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-lg h-full max-h-[70vh] sm:max-h-[75vh] lg:max-h-[calc(100vh-220px)] snap-center border border-gray-200 dark:border-gray-800">
             {/* Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900/50 rounded-t-lg z-[1] backdrop-blur-sm">
                 <h3 className="font-semibold text-gray-700 dark:text-gray-200">

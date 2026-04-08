@@ -458,7 +458,7 @@ export default function QuickTransactionModal({
                     {activeTab === 'expense' && (
                         <div className="space-y-2">
                             <InputLabel value={t('finance.category', 'Categoría')} />
-                            <div className="grid grid-cols-5 gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                                 {expenseCategories.map((cat) => (
                                     <button
                                         key={cat.id}

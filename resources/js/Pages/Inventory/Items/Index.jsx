@@ -7,10 +7,12 @@ import SearchInput from "@/Components/SearchInput";
 import { PlusIcon, SearchIcon, PackageIcon, ExclamationTriangleIcon, Cog6ToothIcon } from '@/Components/Icons';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { DraggableWidgetGrid, WidgetSettingsModal } from '@/Modules/Core/Widgets';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 import ItemModal from './ItemModal';
 
 export default function InventoryIndex({ auth, proyecto, items, filters, inventoryStats, lowStockItems }) {
     const { t } = useTranslate();
+    useOnboarding('inventory');
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 

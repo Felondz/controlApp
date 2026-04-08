@@ -24,8 +24,10 @@
         "chokidar": "^5.0.0",
         "concurrently": "^9.0.1",
         "jsdom": "^27.2.0",
+        "laravel-echo": "^2.3.1",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.4.31",
+        "pusher-js": "^8.4.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "tailwindcss": "^3.2.1",
@@ -35,6 +37,7 @@
     "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
         "dayjs": "^1.11.19",
+        "driver.js": "^1.4.0",
         "html2canvas": "^1.4.1",
         "i18next": "^25.6.3",
         "lodash": "^4.17.23",
@@ -43,5 +46,11 @@
         "recharts": "^3.5.1",
         "rehype-raw": "^7.0.0",
         "ziggy-js": "^2.6.0"
+    },
+    "pnpm": {
+        "overrides": {
+            "axios": "^1.13.5",
+            "lodash": "^4.17.23"
+        }
     }
 }

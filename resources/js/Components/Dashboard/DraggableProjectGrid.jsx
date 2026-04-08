@@ -4,10 +4,13 @@ import { router, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import ProjectCard from '@/Components/Project/ProjectCard'; // Adjust path if needed (e.g., ../../Project/ProjectCard)
 import { PlusIcon, EmptyStateIcon } from '@/Components/Icons';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 
 export default function DraggableProjectGrid({ projects = [], user, settingsKey = 'global_dashboard' }) {
     const { t } = useTranslate();
     const [enabled, setEnabled] = useState(false);
+    const { isTourCompleted } = useOnboarding();
+    const tourPending = !isTourCompleted('create_project');
 
     // Determine saved order
     const savedSettings = user?.settings?.[settingsKey] || {};
@@ -86,7 +89,7 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
                     {t('dashboard.no_projects')}
                 </h3>
                 <Link
-                    href={route('mis-proyectos.create')}
+                    href={route('mis-proyectos.create', tourPending ? { start_tour: 1 } : {})}
                     className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition ease-in-out duration-150"
                 >
                     {t('projects.create_new')}
@@ -100,6 +103,7 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
             <Droppable droppableId="projects-grid" direction="horizontal">
                 {(provided, snapshot) => (
                     <div
+                        id="tour-project-list"
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6"
@@ -125,7 +129,8 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
 
                         {/* Always visible Add Card */}
                         <Link
-                            href={route('mis-proyectos.create')}
+                            id="tour-create-project-card"
+                            href={route('mis-proyectos.create', tourPending ? { start_tour: 1 } : {})}
                             className="group border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center hover:border-primary-500 dark:hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 min-h-[200px]"
                         >
                             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 flex items-center justify-center mb-3 transition-colors">

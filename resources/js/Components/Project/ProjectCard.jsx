@@ -157,7 +157,6 @@ export default function ProjectCard(props) {
                             {(() => {
                                 // Robust Image Detection
                                 const imageUrl = proyecto.image_url
-                                    || proyecto.imagen
                                     || (proyecto.image_path ? `/storage/${proyecto.image_path}` : null)
                                     || (proyecto.icon && (proyecto.icon.startsWith('http') || proyecto.icon.startsWith('/')) ? proyecto.icon : null);
 

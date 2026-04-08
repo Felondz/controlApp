@@ -279,7 +279,7 @@ export default function AccountChart({ cuenta, onEdit, onDelete, onClick, isColl
 
             {/* Extra Balance Info - Compact Grid with smaller text */}
             {balanceInfo.extra.length > 0 && (
-                <div className="mb-3 grid grid-cols-2 gap-1.5">
+                <div className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                     {balanceInfo.extra.map((item, idx) => (
                         <div key={idx} className="bg-gray-50 dark:bg-gray-700/50 p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 text-center">
                             <p className="text-[9px] font-medium text-gray-500 dark:text-gray-400 mb-0.5 truncate">{item.label}</p>

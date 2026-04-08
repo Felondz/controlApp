@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon } from '@/Components/Icons';
+import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon, BugIcon } from '@/Components/Icons';
 import Dropdown from '@/Components/Dropdown';
 import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
@@ -14,6 +14,7 @@ import SessionExpiredModal from '@/Components/SessionExpiredModal';
 import BottomNavigation from '@/Components/BottomNavigation';
 import AiChatWidget from '@/Components/AiChatWidget';
 import BugReporterWidget from '@/Components/BugReporterWidget';
+import PtrBanner from '@/Components/PtrBanner';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
 
@@ -27,10 +28,14 @@ export default function AuthenticatedLayout({ header, children, projectTheme = n
 
 function LayoutContent({ user, header, children, projectTheme, project, showBackButton }) {
     const { t } = useTranslate();
+    const { is_ptr } = usePage().props;
+    const isSuperAdmin = user?.is_super_admin ?? false;
     const { theme, isDark, setThemeLocal } = useGlobalTheme();
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [showSessionExpired, setShowSessionExpired] = useState(false);
+    const [bugModalOpen, setBugModalOpen] = useState(false);
+    const [bugCount, setBugCount] = useState(0);
 
     // Sync project theme
     useEffect(() => {
@@ -45,6 +50,14 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
             setThemeLocal(user.global_theme);
         }
     }, [projectTheme, project, user.global_theme, setThemeLocal]);
+
+    // Fetch bug count for super admins
+    useEffect(() => {
+        if (!is_ptr || !isSuperAdmin) return;
+        import('axios').then(axios => {
+            axios.default.get('/ptr/bug-reports/stats').then(r => setBugCount(r.data.open_count || 0)).catch(() => { });
+        });
+    }, [is_ptr, isSuperAdmin]);
 
     // Auto-logout on inactivity (30 minutes)
     useInactivityTimeout(30 * 60 * 1000, () => {
@@ -64,6 +77,9 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
     return (
         <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
+            {/* PTR Banner */}
+            {usePage().props.is_ptr && <PtrBanner />}
+            
             {/* Desktop Sidebar */}
             <Sidebar user={user} className="hidden md:flex" collapsed={!isSidebarOpen} project={project} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
@@ -72,7 +88,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
                 {/* Desktop Topbar */}
                 <header
-                    className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-10 relative border-b border-gray-200 dark:border-gray-700"
+                    className="hidden md:flex items-center justify-between h-12 bg-white dark:bg-gray-800 px-6 shrink-0 z-30 relative border-b border-gray-200 dark:border-gray-700"
                 >
                     <div className="flex-1 flex items-center gap-4">
                         {/* Sidebar Toggle */}
@@ -99,6 +115,22 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                         {header}
                     </div>
                     <div className="flex items-center gap-4">
+                        {/* Bug Reporter Trigger (Desktop) */}
+                        {is_ptr && (
+                            <div className="hidden lg:flex items-center">
+                                <button
+                                    onClick={() => setBugModalOpen(true)}
+                                    className="p-1 rounded-full text-danger-500 hover:text-danger-600 focus:outline-none transition-colors relative"
+                                    title={t('bug_reporter.title', 'Report a Bug')}
+                                >
+                                    <BugIcon className="h-6 w-6" />
+                                    {isSuperAdmin && bugCount > 0 && (
+                                        <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-danger-500 transform translate-x-1/4 -translate-y-1/4"></span>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+
                         {/* Global Search */}
                         <div className="hidden lg:block w-48 xl:w-56">
                             <SearchInput
@@ -118,62 +150,106 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                     <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                                         <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
                                         <InboxIcon className={`h-6 w-6 ${iconClasses}`} />
-                                        {user.unread_messages_count > 0 && (
+                                        {(user.unread_messages_count > 0 || user.pending_invitations_count > 0) && (
                                             <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
                                         )}
                                     </button>
                                 </Dropdown.Trigger>
 
                                 <Dropdown.Content>
-                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                            {t('inbox.title', 'Buzón de entrada')}
+                                            {t('inbox.notifications', 'Notificaciones')}
                                         </span>
+                                        {(user.unread_messages_count + user.pending_invitations_count) > 0 && (
+                                            <span className="text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400 px-1.5 py-0.5 rounded-full font-bold">
+                                                {user.unread_messages_count + user.pending_invitations_count}
+                                            </span>
+                                        )}
                                     </div>
 
-                                    {user.unread_projects && user.unread_projects.length > 0 ? (
-                                        <div className="max-h-64 overflow-y-auto">
-                                            {user.unread_projects.map((project) => (
-                                                <Dropdown.Link
-                                                    key={project.id}
-                                                    href={route('mis-proyectos.chat', project.id)}
-                                                    className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                                >
-                                                    <div className="shrink-0 mr-3">
-                                                        {project.image_path ? (
-                                                            <img className="h-8 w-8 rounded-full object-cover" src={`/storage/${project.image_path}`} alt="" />
-                                                        ) : (
-                                                            <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                                                                <FolderIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                                    <div className="max-h-80 overflow-y-auto scrollbar-thin">
+                                        {/* Invitations Section */}
+                                        {user.pending_invitations && user.pending_invitations.length > 0 && (
+                                            <div className="bg-amber-50/30 dark:bg-amber-900/10">
+                                                <div className="px-4 py-1 text-[10px] uppercase font-bold text-amber-600 dark:text-amber-500 tracking-wider">
+                                                    {t('invitations.pending_title', 'Invitaciones Pendientes')}
+                                                </div>
+                                                {user.pending_invitations.map((invitation) => (
+                                                    <Dropdown.Link
+                                                        key={`inv-${invitation.id}`}
+                                                        href={route('invitations.index')}
+                                                        className="flex items-center px-4 py-3 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors border-b border-amber-100/50 dark:border-amber-900/20"
+                                                    >
+                                                        <div className="shrink-0 mr-3">
+                                                            <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                                                                <EnvelopeIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                            {project.nombre}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                            {project.unread_count} mensajes nuevos
-                                                        </p>
-                                                    </div>
-                                                    {project.unread_count > 0 && (
-                                                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                            {project.unread_count}
-                                                        </span>
-                                                    )}
-                                                </Dropdown.Link>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                                            {t('inbox.empty', 'No tienes mensajes nuevos.')}
-                                        </div>
-                                    )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                                {invitation.proyecto_nombre}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                {t('invitations.invited_by', 'Invitado por')} {invitation.invitador_nombre}
+                                                            </p>
+                                                        </div>
+                                                    </Dropdown.Link>
+                                                ))}
+                                            </div>
+                                        )}
 
-                                    <div className="border-t border-gray-100 dark:border-gray-700">
-                                        <Dropdown.Link href={route('inbox')} className="text-center text-primary-600 dark:text-primary-400 text-xs font-medium">
-                                            {t('inbox.view_all', 'Ver todos')}
-                                        </Dropdown.Link>
+                                        {/* Chat Messages Section */}
+                                        {user.unread_projects && user.unread_projects.length > 0 ? (
+                                            <div>
+                                                {user.pending_invitations?.length > 0 && (
+                                                    <div className="px-4 py-1 text-[10px] uppercase font-bold text-primary-600 dark:text-primary-500 tracking-wider border-t border-gray-100 dark:border-gray-700">
+                                                        {t('modules.chat.title', 'Mensajes de Chat')}
+                                                    </div>
+                                                )}
+                                                {user.unread_projects.map((project) => (
+                                                    <Dropdown.Link
+                                                        key={`chat-${project.id}`}
+                                                        href={route('mis-proyectos.chat', project.id)}
+                                                        className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                                    >
+                                                        <div className="shrink-0 mr-3">
+                                                            {project.image_url || project.image_path ? (
+                                                                <img className="h-8 w-8 rounded-full object-cover border border-gray-100 dark:border-gray-700" src={project.image_url || `/storage/${project.image_path}`} alt="" />
+                                                            ) : (
+                                                                <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                                                                    <FolderIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                                {project.nombre}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                {project.unread_count} {t('inbox.new_messages', 'mensajes nuevos')}
+                                                            </p>
+                                                        </div>
+                                                        {project.unread_count > 0 && (
+                                                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                                {project.unread_count}
+                                                            </span>
+                                                        )}
+                                                    </Dropdown.Link>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            (!user.pending_invitations || user.pending_invitations.length === 0) && (
+                                                <div className="px-4 py-10 text-center flex flex-col items-center">
+                                                    <div className="h-12 w-12 rounded-full bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3">
+                                                        <InboxIcon className="h-6 w-6 text-gray-300 dark:text-gray-600" />
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                        {t('inbox.empty', 'No tienes notificaciones.')}
+                                                    </p>
+                                                </div>
+                                            )
+                                        )}
                                     </div>
                                 </Dropdown.Content>
                             </Dropdown>
@@ -280,6 +356,18 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                             <div className="-mr-2 flex items-center gap-2 md:hidden">
                                 <ThemeToggle className="" />
 
+                                {/* Bug Reporter Trigger (Mobile) */}
+                                {is_ptr && (
+                                    <button
+                                        onClick={() => setBugModalOpen(true)}
+                                        className="relative p-1 rounded-full text-danger-500 hover:text-danger-600 focus:outline-none transition-colors"
+                                    >
+                                        <BugIcon className="h-6 w-6" />
+                                        {isSuperAdmin && bugCount > 0 && (
+                                            <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-danger-500 transform translate-x-1/4 -translate-y-1/4"></span>
+                                        )}
+                                    </button>
+                                )}
 
                                 {/* Mobile Inbox Icon */}
                                 <Link
@@ -409,7 +497,12 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
             <SessionExpiredModal show={showSessionExpired} />
             {hasActiveAi && <AiChatWidget />}
-            {usePage().props.is_ptr && <BugReporterWidget />}
+            {is_ptr && (
+                <BugReporterWidget
+                    show={bugModalOpen}
+                    onClose={() => setBugModalOpen(false)}
+                />
+            )}
         </div >
     );
 }

@@ -50,6 +50,7 @@ use Laravel\Scout\Searchable;
 class User extends Authenticatable implements MustVerifyEmail
 {
 
+    /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, Searchable;
 
     /**
@@ -111,6 +112,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Los proyectos en los que este usuario es miembro (a través de la tabla pivote).
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Proyecto, $this>
      */
     public function proyectos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -119,6 +121,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Los proyectos personales de este usuario (aquellos donde user_id = auth()->user()->id).
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Proyecto, $this>
      */
     public function proyectosPersonales(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -127,6 +130,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Las cuentas personales del usuario (tarjetas, efectivo personal, etc.).
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<Cuenta, $this>
      */
     public function cuentas(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
@@ -135,6 +139,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relación con Mensajes (uno a muchos)
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Modules\Chat\Models\Message, $this>
      */
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -142,7 +147,17 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Invitaciones pendientes para este usuario (basado en su email).
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Invitacion, $this>
+     */
+    public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invitacion::class, 'email', 'email');
+    }
+
+    /**
      * User's LLM Configuration Settings
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<UserLlmSetting, $this>
      */
     public function llmSettings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -151,14 +166,16 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Obtiene los mensajes enviados por el usuario.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Modules\Chat\Models\Message, $this>
      */
-    public function sentMessages()
+    public function sentMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->messages();
     }
 
     /**
      * Tasks assigned to the user.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Task, $this>
      */
     public function tasks(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -240,13 +257,25 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the URL to the user's profile photo.
      *
-     * @return string
+     * @return string|null
      */
     public function getProfilePhotoUrlAttribute()
     {
-        return $this->profile_photo_path
-            ? asset('storage/' . $this->profile_photo_path)
-            : null;
+        if (!$this->profile_photo_path) {
+            return null;
+        }
+
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (filter_var($this->profile_photo_path, FILTER_VALIDATE_URL)) {
+            return $this->profile_photo_path;
+        }
+
+        // Usar ruta relativa en local para evitar fallos por APP_URL (localhost vs IP)
+        if (config('app.env') === 'local') {
+            return '/storage/' . ltrim($this->profile_photo_path, '/');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->profile_photo_path);
     }
 
     /**
@@ -267,9 +296,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * Efficiently fetch unread project data manualy (avoiding global appends).
      * Returns struct compatible with frontend expectation.
      *
-     * @return array
+     * @return array{unread_projects: array<int, mixed>, unread_messages_count: int, pending_invitations: \Illuminate\Support\Collection<int, mixed>, pending_invitations_count: int}
      */
-    public function getUnreadData()
+    public function getUnreadData(): array
     {
         $userId = $this->id;
         
@@ -281,7 +310,12 @@ class User extends Authenticatable implements MustVerifyEmail
         $projectIds = $allProjects->pluck('id')->toArray();
 
         if (empty($projectIds)) {
-            return ['unread_projects' => [], 'unread_messages_count' => 0];
+            return [
+                'unread_projects' => [], 
+                'unread_messages_count' => 0,
+                'pending_invitations' => collect([]),
+                'pending_invitations_count' => 0
+            ];
         }
 
         // 2. Batch Query for Private Messages (Direct Messages to me)
@@ -360,6 +394,7 @@ class User extends Authenticatable implements MustVerifyEmail
                     'id' => $proyecto->id,
                     'nombre' => $proyecto->nombre,
                     'image_path' => $proyecto->image_path,
+                    'image_url' => $proyecto->image_url,
                     'icon' => $proyecto->icon, // Assuming accessor or column
                     'unread_count' => $projTotal,
                 ];
@@ -367,9 +402,27 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
+        // 3. Fetch Pending Invitations (from Projects I'm invited to)
+        $pendingInvitations = $this->invitations()
+            ->with(['proyecto', 'invitador'])
+            ->latest()
+            ->get()
+            ->map(fn(Invitacion $inv) => [
+                'id' => $inv->id,
+                'proyecto_id' => $inv->proyecto_id,
+                'proyecto_nombre' => $inv->proyecto->nombre,
+                'invitador_nombre' => $inv->invitador->name ?? 'System',
+                'image_url' => $inv->proyecto->image_url,
+                'rol' => $inv->rol,
+                'token' => $inv->token,
+                'type' => 'invitation'
+            ]);
+
         return [
             'unread_projects' => $unreadProjects,
-            'unread_messages_count' => $totalUnreadCount,
+            'unread_messages_count' => (int)$totalUnreadCount,
+            'pending_invitations' => $pendingInvitations,
+            'pending_invitations_count' => $pendingInvitations->count(),
         ];
     }
 

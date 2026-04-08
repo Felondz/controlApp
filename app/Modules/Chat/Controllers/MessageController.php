@@ -9,13 +9,14 @@ use Illuminate\Http\Request;
 use App\Core\Events\ModuleEventBus;
 use App\Modules\Chat\Events\MessageSent;
 use App\Modules\Chat\Events\MessageRead;
+use App\Modules\Chat\Events\MessageUpdated;
+use App\Modules\Chat\Events\MessageDeleted;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
-    /**
-     * List messages for a project.
-     */
     /**
      * List messages for a project.
      */
@@ -37,7 +38,7 @@ class MessageController extends Controller
                     ->orWhere('recipient_id', $user->id) // Private to me
                     ->orWhere('user_id', $user->id); // Private from me
             })
-            ->with('user:id,name,profile_photo_path', 'recipient:id,name')
+            ->with(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent'])
             ->latest()
             ->paginate(50);
 
@@ -51,6 +52,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        
         if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -60,27 +62,147 @@ class MessageController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|max:1000',
+            'content' => 'nullable|string|max:2000',
             'type' => 'nullable|string|in:text,image,file',
             'recipient_id' => 'nullable|exists:users,id',
+            'parent_id' => 'nullable|exists:messages,id',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
+
+        if (empty($validated['content']) && !$request->hasFile('file')) {
+            return response()->json(['message' => 'Message content or file is required'], 422);
+        }
+
+        $filePath = null;
+        $type = $validated['type'] ?? 'text';
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $filename = Str::uuid() . '.' . $extension;
+            $filePath = $file->storeAs('chat/' . $proyecto->id, $filename, 'public');
+            
+            $mimeType = (string)$file->getMimeType();
+            if (str_starts_with($mimeType, 'image/')) {
+                $type = 'image';
+            } else {
+                $type = 'file';
+            }
+            
+            // Si el contenido está vacío pero hay archivo, asignamos el nombre del archivo
+            if (empty($validated['content'])) {
+                $validated['content'] = $file->getClientOriginalName();
+            }
+        }
 
         $message = Message::create([
             'proyecto_id' => $proyecto->id,
             'user_id' => $user->id,
             'recipient_id' => $validated['recipient_id'] ?? null,
+            'parent_id' => $validated['parent_id'] ?? null,
             'content' => $validated['content'],
-            'type' => $validated['type'] ?? 'text',
+            'type' => $type,
+            'file_path' => $filePath,
             'read_at' => null, // New messages are unread
         ]);
 
-        // Dispatch MessageSent event
-        MessageSent::dispatch($message);
+        // Load relationships for the response and event
+        $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent']);
 
-        // Load user relationship for the response
-        $message->load('user:id,name,profile_photo_path', 'recipient:id,name');
+        // Dispatch MessageSent event to others
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json($message, 201);
+    }
+
+    /**
+     * Update a message (edit content).
+     */
+    public function update(Request $request, Proyecto $proyecto, Message $message): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if ($message->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|max:2000',
+        ]);
+
+        $message->update([
+            'content' => $validated['content'],
+            'is_edited' => true,
+        ]);
+
+        $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent']);
+        
+        // Dispatch MessageUpdated event to others
+        broadcast(new MessageUpdated($message))->toOthers();
+
+        return response()->json($message);
+    }
+
+    /**
+     * Delete a message.
+     */
+    public function destroy(Request $request, Proyecto $proyecto, Message $message): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if ($message->user_id !== $user->id && !$user->esAdminDe($proyecto)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $messageId = $message->id;
+        $message->delete();
+        
+        // Dispatch MessageDeleted event to others
+        broadcast(new MessageDeleted($messageId, $proyecto->id))->toOthers();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * Toggle a reaction on a message.
+     */
+    public function toggleReaction(Request $request, Proyecto $proyecto, Message $message): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        
+        $validated = $request->validate([
+            'emoji' => 'required|string|max:10',
+        ]);
+
+        $emoji = $validated['emoji'];
+        $reactions = $message->reactions ?? [];
+
+        if (!isset($reactions[$emoji])) {
+            $reactions[$emoji] = [];
+        }
+
+        $userIdStr = (string)$user->id;
+        $userIndex = array_search($userIdStr, $reactions[$emoji]);
+
+        if ($userIndex !== false) {
+            // Remove reaction
+            unset($reactions[$emoji][$userIndex]);
+            $reactions[$emoji] = array_values($reactions[$emoji]); // reindex
+            if (empty($reactions[$emoji])) {
+                unset($reactions[$emoji]);
+            }
+        } else {
+            // Add reaction
+            $reactions[$emoji][] = $userIdStr;
+        }
+
+        $message->update(['reactions' => empty($reactions) ? null : $reactions]);
+        
+        // Dispatch MessageUpdated event (which includes reactions) to others
+        broadcast(new MessageUpdated($message))->toOthers();
+
+        return response()->json($message);
     }
 
     /**

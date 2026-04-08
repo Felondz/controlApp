@@ -3,20 +3,15 @@ import { router, usePage } from '@inertiajs/react';
 
 const GlobalThemeContext = createContext();
 
-/**
- * Global Theme Provider
- * 
- * Provides global theme context to the entire application.
- * Manages theme selection and persistence via backend.
- */
 export function GlobalThemeProvider({ children, initialTheme = 'purple-modern', forceTheme = null }) {
-    const { props } = usePage();
-    // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
-    const effectiveTheme = forceTheme || props.auth?.user?.global_theme || initialTheme;
-    const userTheme = props.auth?.user?.global_theme || initialTheme;
+    const page = usePage();
+    const props = page?.props || {};
 
-    const [theme, setTheme] = useState(effectiveTheme);
-    const [isDark, setIsDark] = useState(() => {
+    // If forceTheme is provided (e.g. inside a project), use it. Otherwise use user preference.
+    const userTheme = props.auth?.user?.global_theme || initialTheme;
+    const effectiveTheme = forceTheme || userTheme;
+
+    const [theme, setTheme] = useState(effectiveTheme);    const [isDark, setIsDark] = useState(() => {
         if (typeof window !== 'undefined') {
             const stored = localStorage.getItem('darkMode');
             if (stored !== null) {

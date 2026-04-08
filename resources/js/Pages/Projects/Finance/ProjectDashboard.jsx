@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import AccountModal from '@/Components/Finance/Modals/AccountModal';
@@ -23,6 +24,12 @@ import { PlusIcon, CurrencyDollarIcon, PencilIcon, TrashIcon, LinkIcon, Cog6Toot
 
 export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [], financialTasks = [], pendingBills = [], creditCardBills = [], upcomingIncomes = [], loanInstallments = [], inventoryStats = null }) {
     const { t } = useTranslate();
+    
+    // Iniciar el tutorial de finanzas
+    const { runTour, isTourCompleted } = useOnboarding('finance');
+
+    const handleStartTour = () => runTour('finance', true);
+
     const [showAccountModal, setShowAccountModal] = useState(false);
     const [showAccountAdminModal, setShowAccountAdminModal] = useState(false);
     const [showLinkAccountModal, setShowLinkAccountModal] = useState(false);
@@ -427,13 +434,22 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
                                 {/* Settings Button */}
                                 {isAdmin && (
-                                    <button
-                                        onClick={() => setShowSettingsModal(true)}
-                                        className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                                        title={t('finance.customize_dashboard', 'Personalizar Panel')}
-                                    >
-                                        <Cog6ToothIcon className="w-6 h-6" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={handleStartTour}
+                                            className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            title={t('finance.start_tour', 'Ver Tutorial')}
+                                        >
+                                            <span className="font-bold text-lg">?</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setShowSettingsModal(true)}
+                                            className="p-2 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            title={t('finance.customize_dashboard', 'Personalizar Panel')}
+                                        >
+                                            <Cog6ToothIcon className="w-6 h-6" />
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -453,6 +469,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
                                 {/* Add Expense */}
                                 <button
+                                    id="tour-create-transaction-btn"
                                     onClick={handleAddExpense}
                                     className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg bg-danger-50 dark:bg-danger-900/20 text-danger-700 dark:text-danger-400 hover:bg-danger-100 dark:hover:bg-danger-900/30 transition-all hover:shadow-md border-2 border-transparent hover:border-danger-500 dark:hover:border-danger-600"
                                     aria-label={t('finance.add_expense', 'Agregar Gasto')}
@@ -473,6 +490,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
                                 {/* Create Account */}
                                 <button
+                                    id="tour-create-account-btn"
                                     onClick={handleCreateAccount}
                                     className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all hover:shadow-md border-2 border-transparent hover:border-indigo-500 dark:hover:border-indigo-600"
                                     aria-label={t('finance.create_account', 'Crear Cuenta')}
@@ -497,38 +515,40 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                     </div>
 
                     {/* Draggable Widgets Grid */}
-                    <DraggableWidgetGrid
-                        project={proyecto}
-                        isAdmin={isAdmin}
-                        dashboardData={{
-                            accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
-                            transactions: transacciones,
-                            pendingBills: pendingBills,
-                            creditCardBills: creditCardBills,
-                            upcomingIncomes: upcomingIncomes,
-                            loanInstallments: loanInstallments,
-                            financialTasks: financialTasks,
-                            categories: proyecto.categorias || [],
-                            currency: proyecto.moneda_default,
-                            // Handlers
-                            onEdit: handleEditTransaction,
-                            onDelete: handleDeleteTransaction,
-                            onPayBill: handlePayBill,
-                            onPayLoan: handlePayLoanInstallment,
-                            onMarkAsPaid: handleMarkAsPaid,
-                            onAddBill: handleCreateBill,
-                            onAdd: handleCreateBill, // For BillsWidget
-                            projectId: proyecto.id,
-                            projects: [],
-                            isCollaborative: !proyecto.es_personal,
-                            currentUserId: auth.user.id,
-                            inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
-                        }}
-                        onSettingsClick={() => setShowSettingsModal(true)}
-                        settingsKey="finance_dashboard"
-                        defaultLayout={FINANCE_DEFAULT_LAYOUT}
-                        allowedModules={['finance']}
-                    />
+                    <div id="tour-balance-widget">
+                        <DraggableWidgetGrid
+                            project={proyecto}
+                            isAdmin={isAdmin}
+                            dashboardData={{
+                                accounts: [...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])],
+                                transactions: transacciones,
+                                pendingBills: pendingBills,
+                                creditCardBills: creditCardBills,
+                                upcomingIncomes: upcomingIncomes,
+                                loanInstallments: loanInstallments,
+                                financialTasks: financialTasks,
+                                categories: proyecto.categorias || [],
+                                currency: proyecto.moneda_default,
+                                // Handlers
+                                onEdit: handleEditTransaction,
+                                onDelete: handleDeleteTransaction,
+                                onPayBill: handlePayBill,
+                                onPayLoan: handlePayLoanInstallment,
+                                onMarkAsPaid: handleMarkAsPaid,
+                                onAddBill: handleCreateBill,
+                                onAdd: handleCreateBill, // For BillsWidget
+                                projectId: proyecto.id,
+                                projects: [],
+                                isCollaborative: !proyecto.es_personal,
+                                currentUserId: auth.user.id,
+                                inventoryStats: inventoryStats, // Pass inventory stats for BalanceSummaryWidget
+                            }}
+                            onSettingsClick={() => setShowSettingsModal(true)}
+                            settingsKey="finance_dashboard"
+                            defaultLayout={FINANCE_DEFAULT_LAYOUT}
+                            allowedModules={['finance']}
+                        />
+                    </div>
 
 
                     {/* Accounts Section with Charts */}

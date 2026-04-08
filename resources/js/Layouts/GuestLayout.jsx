@@ -1,9 +1,14 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
+import PtrBanner from '@/Components/PtrBanner';
+import { usePage } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col items-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pt-6 sm:justify-center sm:pt-0">
+            {/* PTR Banner */}
+            {usePage().props.is_ptr && <PtrBanner />}
+            
             <div>
                 <Link href="/">
                     <ApplicationLogo className="h-20 w-20 fill-current text-gray-500" />

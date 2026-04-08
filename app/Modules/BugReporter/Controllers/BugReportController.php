@@ -73,6 +73,7 @@ class BugReportController extends Controller
             'category' => 'required|string|in:' . implode(',', BugReport::CATEGORIES),
             'description' => 'required|string|max:5000',
             'page_url' => 'required|string|max:2048',
+            'platform' => 'sometimes|string|in:web,mobile',
             'severity' => 'sometimes|string|in:' . implode(',', BugReport::SEVERITIES),
             'screenshot' => 'nullable|image|max:5120', // 5MB max
         ]);
@@ -85,6 +86,7 @@ class BugReportController extends Controller
             category: $validated['category'],
             description: $validated['description'],
             pageUrl: $validated['page_url'],
+            platform: $validated['platform'] ?? 'web',
             severity: $validated['severity'] ?? 'medium',
             screenshot: $request->file('screenshot'),
         );

@@ -121,7 +121,7 @@ export default function CreditSimulationWidget({
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div className="p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-800/30 text-center">
                             <p className="text-xs text-red-600 dark:text-red-400 font-medium mb-1">
                                 {t('finance.total_interest', 'Intereses Totales')}

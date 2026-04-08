@@ -75,9 +75,9 @@ export default function Inbox({ auth, projects, invitations = [] }) {
                                                         className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 p-4 rounded-lg transition-colors"
                                                     >
                                                         <div className="flex items-center space-x-4">
-                                                            <div className="shrink-0">
-                                                                {project.image_path ? (
-                                                                    <img className="h-12 w-12 rounded-full object-cover" src={`/storage/${project.image_path}`} alt="" />
+                                                            <div className="shrink-0 mr-4">
+                                                                {project.image_url || project.image_path ? (
+                                                                    <img className="h-12 w-12 rounded-full object-cover" src={project.image_url || `/storage/${project.image_path}`} alt="" />
                                                                 ) : (
                                                                     <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
                                                                         <FolderIcon className="h-6 w-6 text-primary-600 dark:text-primary-400" />

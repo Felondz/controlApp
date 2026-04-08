@@ -3,6 +3,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -68,6 +69,7 @@ const TYPOGRAPHIES = [
 
 export default function CreateProject({ auth, availableModules = [] }) {
     const { t } = useTranslate();
+    const { runTour } = useOnboarding('create_project');
     const fileInputRef = useRef(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [creationMode, setCreationMode] = useState('template'); // 'template' or 'custom'
@@ -325,7 +327,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                             {t('projects.setup_project', 'Configura tu Proyecto')}
                                             {/* Pricing Badge - Will show Free if 0 */}
-                                            <span className="text-sm px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium border border-green-200 dark:border-green-800">
+                                            <span id="tour-project-pricing" className="text-sm px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium border border-green-200 dark:border-green-800">
                                                 {formatPrice(totalPrice)}
                                             </span>
                                         </h3>
@@ -335,7 +337,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                     </div>
 
                                     {/* Mode Toggle */}
-                                    <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 self-start sm:self-auto">
+                                    <div id="tour-creation-mode" className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1 self-start sm:self-auto">
                                         <button
                                             type="button"
                                             onClick={() => setCreationMode('template')}
@@ -363,7 +365,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                 <div style={getThemeStyle(data.theme)}>
                                     {creationMode === 'template' ? (
                                         /* Template Rail */
-                                        <div className="relative group/rail">
+                                        <div id="tour-project-templates" className="relative group/rail">
                                             <div className="flex overflow-x-auto pb-6 gap-6 snap-x snap-mandatory sm:overflow-visible sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent px-1">
                                                 {PROJECT_TEMPLATES.map((template) => {
                                                     const isSelected = JSON.stringify(data.modules.sort()) === JSON.stringify(template.modules.sort());
@@ -438,7 +440,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                         </div>
                                     ) : (
                                         /* Manual Selection Grid */
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                        <div id="tour-module-selection" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                                             {availableModules.map((module) => {
                                                 const Icon = MODULE_ICONS[module.key] || MODULE_ICONS.notes;
                                                 const isSelected = data.modules.includes(module.key);
@@ -581,7 +583,7 @@ export default function CreateProject({ auth, availableModules = [] }) {
                                         {t('common.cancel')}
                                     </SecondaryButton>
                                 </Link>
-                                <PrimaryButton disabled={processing} className="h-12 px-8 text-base shadow-xl shadow-primary-500/20">
+                                <PrimaryButton id="tour-project-submit" disabled={processing} className="h-12 px-8 text-base shadow-xl shadow-primary-500/20">
                                     {formatPrice(totalPrice) === t('common.free', 'Gratis')
                                         ? t('projects.create')
                                         : `${t('projects.create')} (${formatPrice(totalPrice)})`}

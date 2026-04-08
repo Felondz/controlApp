@@ -18,7 +18,7 @@ export default forwardRef(function TextInput(
         }
     }, [isFocused]);
 
-    const baseStyles = 'border rounded-md shadow-sm ' +
+    const baseStyles = 'w-full min-w-0 border rounded-md shadow-sm ' +
         'focus:ring-2 focus:ring-opacity-50 ' +
         'transition duration-200 ease-in-out ';
 

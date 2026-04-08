@@ -171,9 +171,11 @@ describe('ChatWidget', () => {
         await waitFor(() => {
             expect(axios.post).toHaveBeenCalledWith(
                 expect.stringContaining('/messages'),
+                expect.any(FormData),
                 expect.objectContaining({
-                    content: 'Test message',
-                    type: 'text'
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 })
             );
         }, { timeout: 3000 });

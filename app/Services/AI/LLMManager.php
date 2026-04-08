@@ -3,7 +3,7 @@
 namespace App\Services\AI;
 
 use App\Models\User;
-use App\Models\UserLLMSetting;
+use App\Models\UserLlmSetting;
 use App\Services\AI\Contracts\LLMServiceInterface;
 use App\Services\AI\Providers\OpenAIService;
 use Exception;
@@ -17,7 +17,7 @@ class LLMManager
      */
     public function resolveForUser(User $user, ?string $provider = null): LLMServiceInterface
     {
-        $query = UserLLMSetting::where('user_id', $user->id)->where('is_active', true);
+        $query = UserLlmSetting::where('user_id', $user->id)->where('is_active', true);
         
         if ($provider) {
             $query->where('provider', $provider);

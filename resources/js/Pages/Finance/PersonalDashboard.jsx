@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useTranslate } from '@/Hooks/useTranslate';
+import { useOnboarding } from '@/Hooks/useOnboarding';
 import { formatCurrency } from '@/Utils/currencyHelpers';
 import { UpcomingObligationsWidget, BalanceSummaryWidget, SavingsGoalWidget, CreditSimulationWidget, FinancialChartsWidget, TransactionsWidget } from '@/Modules/Finance/Widgets';
 import AccountChart from '@/Components/Finance/AccountChart';
@@ -27,6 +28,9 @@ export default function PersonalDashboard({
     const [categorias, setCategorias] = useState(proyectoPersonal?.categorias || []);
     const [cuentas, setCuentas] = useState(todasLasCuentas || []);
     const [transacciones, setTransacciones] = useState(todasLasTransacciones || []);
+
+    // Inicializar el tour
+    useOnboarding('finance');
 
     // Sync local state with Inertia props when they change
     useEffect(() => {
@@ -112,6 +116,7 @@ export default function PersonalDashboard({
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3">
                         <PrimaryButton
+                            id="tour-create-account-btn"
                             onClick={handleCreateAccount}
                             className="flex items-center justify-center gap-2"
                         >
@@ -119,6 +124,7 @@ export default function PersonalDashboard({
                             {t('finance.create_account', 'Crear Cuenta')}
                         </PrimaryButton>
                         <PrimaryButton
+                            id="tour-create-transaction-btn"
                             onClick={handleCreateTransaction}
                             className="flex items-center justify-center gap-2"
                         >
@@ -130,7 +136,7 @@ export default function PersonalDashboard({
                     {/* Top Row: Balance & Upcoming */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Balance Summary */}
-                        <div className="lg:col-span-2">
+                        <div id="tour-balance-widget" className="lg:col-span-2">
                             <BalanceSummaryWidget
                                 accounts={cuentas}
                                 currency={proyectoPersonal?.moneda_default || 'COP'}

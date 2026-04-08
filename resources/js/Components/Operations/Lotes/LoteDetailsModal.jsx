@@ -233,7 +233,7 @@ export default function LoteDetailsModal({ show, onClose, lote, proyecto, invent
                         <Tab.Panels>
                             {/* OVERVIEW TAB */}
                             <Tab.Panel>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t('operations.dates', 'Fechas')}</h3>
                                         <p><span className="font-semibold">{t('operations.start', 'Inicio')}:</span> {lote.start_date ? new Date(lote.start_date).toLocaleDateString() : '-'}</p>

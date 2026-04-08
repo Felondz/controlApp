@@ -105,7 +105,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                         {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Status */}
                         <div>
                             <InputLabel htmlFor="status" value={t('tasks.status', 'Estado')} />
@@ -140,7 +140,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Due Date */}
                         <div>
                             <InputLabel htmlFor="due_date" value={t('tasks.due_date', 'Fecha Límite')} />
@@ -156,7 +156,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
 
                         {/* Assignee */}
                         {/* Assignees (Multi-Select) */}
-                        <div className="col-span-2">
+                        <div className="sm:col-span-2">
                             <InputLabel value={t('tasks.assignees', 'Asignados')} />
                             <div className="flex items-center gap-2 mb-2 mt-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-md text-xs border border-blue-100 dark:border-blue-800">
                                 <InformationCircleIcon className="w-4 h-4 flex-shrink-0" />
