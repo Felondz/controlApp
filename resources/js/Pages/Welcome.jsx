@@ -2,7 +2,23 @@ import { Head, Link } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { useState } from 'react';
 import ThemeToggle from '@/Components/ThemeToggle';
-import { MenuIcon, XIcon, LoginIcon, UserPlusIcon, CheckCircleIcon, ArrowRightIcon } from '@/Components/Icons';
+import { 
+    MenuIcon, 
+    XIcon, 
+    LoginIcon, 
+    UserPlusIcon, 
+    CheckCircleIcon, 
+    ArrowRightIcon,
+    ArrowTrendingDownIcon,
+    ChatIcon,
+    ExclamationTriangleIcon,
+    PackageIcon,
+    CurrencyDollarIcon,
+    CheckListIcon,
+    FactoryIcon,
+    TargetIcon,
+    Squares2X2Icon
+} from '@/Components/Icons';
 
 export default function Welcome({ auth }) {
     const { t } = useTranslate();
@@ -13,22 +29,22 @@ export default function Welcome({ auth }) {
         {
             title: t('landing.problem_scattered.title', '¿Tienes tus finanzas en hojas de cálculo separadas?'),
             description: t('landing.problem_scattered.desc', 'Perdiendo tiempo reconciliando números y sin visión clara de tu situación financiera real.'),
-            icon: '📉'
+            icon: ArrowTrendingDownIcon
         },
         {
             title: t('landing.problem_communication.title', '¿Tu equipo se comunica por WhatsApp?'),
             description: t('landing.problem_communication.desc', 'Mensajes perdidos, archivos obsoletos y nadie sabe en qué estado están las tareas.'),
-            icon: '💬'
+            icon: ChatIcon
         },
         {
             title: t('landing.problem_tasks.title', '¿Se te escapan tareas importantes?'),
             description: t('landing.problem_tasks.desc', 'Prometiste entregar algo hace semanas y simplemente se te olvidó. El estrés es constante.'),
-            icon: '🤯'
+            icon: ExclamationTriangleIcon
         },
         {
             title: t('landing.problem_inventory.title', '¿Controlas tu inventario a mano?'),
             description: t('landing.problem_inventory.desc', 'No sabes cuánto stock tienes, qué productos se venden más y cuándo pedir más suministros.'),
-            icon: '📦'
+            icon: PackageIcon
         }
     ];
 
@@ -36,22 +52,26 @@ export default function Welcome({ auth }) {
         {
             title: t('landing.solution_finance.title', 'Finanzas en tiempo real'),
             description: t('landing.solution_finance.desc', 'Todos tus ingresos, gastos y presupuestos en un solo lugar. Sin hojas de cálculo, sin errores.'),
-            highlight: t('landing.solution_finance.highlight', 'Mira tu flujo de caja al instante')
+            highlight: t('landing.solution_finance.highlight', 'Mira tu flujo de caja al instante'),
+            icon: CurrencyDollarIcon
         },
         {
             title: t('landing.solution_team.title', 'Equipo conectado'),
             description: t('landing.solution_team.desc', 'Chat integrado, tareas asignadas y seguimiento de progreso. Todos saben qué hacer.'),
-            highlight: t('landing.solution_team.highlight', 'Colaboración sin caos')
+            highlight: t('landing.solution_team.highlight', 'Colaboración sin caos'),
+            icon: ChatIcon
         },
         {
             title: t('landing.solution_tasks.title', 'Tareas que no se olvidan'),
             description: t('landing.solution_tasks.desc', 'Lista de pendientes, fechas límite y recordatorios. Deja de perder proyectos por olvidos.'),
-            highlight: t('landing.solution_tasks.highlight', 'Cero tareas perdidas')
+            highlight: t('landing.solution_tasks.highlight', 'Cero tareas perdidas'),
+            icon: CheckListIcon
         },
         {
             title: t('landing.solution_inventory.title', 'Inventario bajo control'),
             description: t('landing.solution_inventory.desc', 'Stock actualizado automáticamente, alertas de productos bajos y reportes de movimiento.'),
-            highlight: t('landing.solution_inventory.highlight', 'Siempre sabiendo qué tienes')
+            highlight: t('landing.solution_inventory.highlight', 'Siempre sabiendo qué tienes'),
+            icon: PackageIcon
         }
     ];
 
@@ -59,32 +79,32 @@ export default function Welcome({ auth }) {
         {
             title: t('landing.feature_projects.title', 'Proyectos'),
             description: t('landing.feature_projects.desc', 'Gestiona múltiples proyectos con diferentes equipos y objetivos.'),
-            icon: '🎯'
+            icon: Squares2X2Icon
         },
         {
             title: t('landing.feature_finance.title', 'Finanzas'),
             description: t('landing.feature_finance.desc', 'Cuentas, transacciones, presupuestos y reportes financieros.'),
-            icon: '💰'
+            icon: CurrencyDollarIcon
         },
         {
             title: t('landing.feature_tasks.title', 'Tareas'),
             description: t('landing.feature_tasks.desc', 'Organiza, asigna y haz seguimiento de todas las tareas.'),
-            icon: '✅'
+            icon: CheckListIcon
         },
         {
             title: t('landing.feature_chat.title', 'Chat'),
             description: t('landing.feature_chat.desc', 'Comunicación en tiempo real con tu equipo dentro del proyecto.'),
-            icon: '💬'
+            icon: ChatIcon
         },
         {
             title: t('landing.feature_inventory.title', 'Inventario'),
             description: t('landing.feature_inventory.desc', 'Control de stock, movimientos y alertas de bajo inventario.'),
-            icon: '📦'
+            icon: PackageIcon
         },
         {
             title: t('landing.feature_production.title', 'Producción'),
             description: t('landing.feature_production.desc', 'Gestión de lotes de producción con seguimiento de etapas.'),
-            icon: '🏭'
+            icon: FactoryIcon
         }
     ];
 
@@ -300,7 +320,9 @@ export default function Welcome({ auth }) {
                         {problems.map((problem, index) => (
                             <div key={index} className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-red-200 dark:hover:border-red-800/50 transition-all duration-300 group">
                                 <div className="flex items-start gap-4">
-                                    <span className="text-4xl">{problem.icon}</span>
+                                    <div className="flex-shrink-0 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600 dark:text-red-400 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
+                                        <problem.icon className="w-8 h-8" />
+                                    </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                                             {problem.title}
@@ -332,9 +354,12 @@ export default function Welcome({ auth }) {
                         {solutions.map((solution, index) => (
                             <div key={index} className="relative bg-gradient-to-br from-primary-50 to-white dark:from-gray-800 dark:to-gray-800 p-8 rounded-2xl border border-primary-100 dark:border-primary-900/50 hover:shadow-xl transition-all duration-300">
                                 <div className="absolute top-4 right-4">
-                                    <CheckCircleIcon className="w-8 h-8 text-primary-500" />
+                                    <solution.icon className="w-10 h-10 text-primary-200 dark:text-primary-800/50" />
                                 </div>
                                 <div className="pr-10">
+                                    <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary-500/30">
+                                        <solution.icon className="w-7 h-7" />
+                                    </div>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                                         {solution.title}
                                     </h3>
@@ -366,8 +391,10 @@ export default function Welcome({ auth }) {
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                         {features.map((feature, index) => (
-                            <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-800/50 transition-all duration-300 group">
-                                <div className="text-3xl mb-4">{feature.icon}</div>
+                            <div key={index} className="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-800/50 transition-all duration-300 group">
+                                <div className="w-12 h-12 bg-primary-50 dark:bg-primary-900/20 rounded-lg flex items-center justify-center text-primary-600 dark:text-primary-400 mb-6 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
+                                    <feature.icon className="w-6 h-6" />
+                                </div>
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                     {feature.title}
                                 </h3>

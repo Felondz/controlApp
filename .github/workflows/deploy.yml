@@ -21,9 +21,9 @@ jobs:
       - name: Set Build Arguments
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "VITE_REVERB_HOST=controlapp.site" >> $GITHUB_ENV
+            echo "VITE_REVERB_HOST=ws.controlapp.site" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "VITE_REVERB_HOST=ptr.controlapp.site" >> $GITHUB_ENV
+            echo "VITE_REVERB_HOST=ws.ptr.controlapp.site" >> $GITHUB_ENV
           fi
 
       - name: Log in to the Container registry
