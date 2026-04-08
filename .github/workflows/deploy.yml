@@ -18,6 +18,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set Build Arguments
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "VITE_REVERB_HOST=controlapp.site" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "VITE_REVERB_HOST=ptr.controlapp.site" >> $GITHUB_ENV
+          fi
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -43,6 +51,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY }}
+            VITE_REVERB_HOST=${{ env.VITE_REVERB_HOST }}
+            VITE_REVERB_PORT=443
+            VITE_REVERB_SCHEME=https
 
   deploy:
     needs: build-and-push

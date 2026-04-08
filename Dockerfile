@@ -1,6 +1,18 @@
 # Stage 1: Build Frontend Assets
 FROM node:20-alpine AS frontend_builder
 WORKDIR /app
+
+# Inyectamos variables de entorno para Vite en tiempo de construcción
+ARG VITE_REVERB_APP_KEY
+ARG VITE_REVERB_HOST
+ARG VITE_REVERB_PORT=443
+ARG VITE_REVERB_SCHEME=https
+
+ENV VITE_REVERB_APP_KEY=$VITE_REVERB_APP_KEY
+ENV VITE_REVERB_HOST=$VITE_REVERB_HOST
+ENV VITE_REVERB_PORT=$VITE_REVERB_PORT
+ENV VITE_REVERB_SCHEME=$VITE_REVERB_SCHEME
+
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml vite.config.js ./
 RUN pnpm install --frozen-lockfile
