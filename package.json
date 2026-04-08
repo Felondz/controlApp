@@ -46,5 +46,11 @@
         "recharts": "^3.5.1",
         "rehype-raw": "^7.0.0",
         "ziggy-js": "^2.6.0"
+    },
+    "pnpm": {
+        "overrides": {
+            "axios": "^1.13.5",
+            "lodash": "^4.17.23"
+        }
     }
 }
