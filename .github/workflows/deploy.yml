@@ -21,9 +21,9 @@ jobs:
       - name: Set Build Arguments
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "VITE_REVERB_HOST=ws.controlapp.site" >> $GITHUB_ENV
+            echo "VITE_REVERB_HOST=controlapp.site" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "VITE_REVERB_HOST=ws.ptr.controlapp.site" >> $GITHUB_ENV
+            echo "VITE_REVERB_HOST=ptr.controlapp.site" >> $GITHUB_ENV
           fi
 
       - name: Log in to the Container registry
@@ -71,6 +71,7 @@ jobs:
             echo "IMAGE_TAG=latest" >> $GITHUB_ENV
             echo "DB_DATABASE=control_prod" >> $GITHUB_ENV
             echo "LOG_CHANNEL=stderr" >> $GITHUB_ENV
+            echo "REVERB_ALLOWED_ORIGINS=controlapp.site,api.controlapp.site,capacitor://localhost,http://localhost" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "DEPLOY_PATH=/home/guaro/docker-sites/controlapp-ptr" >> $GITHUB_ENV
             echo "APP_DOMAIN=ptr.controlapp.site" >> $GITHUB_ENV
@@ -79,6 +80,7 @@ jobs:
             echo "IMAGE_TAG=testing" >> $GITHUB_ENV
             echo "DB_DATABASE=control_ptr" >> $GITHUB_ENV
             echo "LOG_CHANNEL=stderr" >> $GITHUB_ENV
+            echo "REVERB_ALLOWED_ORIGINS=ptr.controlapp.site,api.ptr.controlapp.site,capacitor://localhost,http://localhost,*.local" >> $GITHUB_ENV
           fi
 
       - name: Login to GitHub Container Registry (Local)
@@ -131,16 +133,23 @@ jobs:
           echo 'SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}' >> .env
           
           # --- REVERB / WEBSOCKETS ---
-          echo 'REVERB_APP_ID=${{ secrets.REVERB_APP_ID }}' >> .env
-          echo 'REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY }}' >> .env
-          echo 'REVERB_APP_SECRET=${{ secrets.REVERB_APP_SECRET }}' >> .env
-          echo 'REVERB_HOST=ws.${{ env.APP_DOMAIN }}' >> .env
+          # Usamos fallbacks por si los secretos de GitHub no están configurados
+          echo 'REVERB_APP_ID=${{ secrets.REVERB_APP_ID || '"'123456'"' }}' >> .env
+          echo 'REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY || '"'ptr_reverb_key_2025'"' }}' >> .env
+          echo 'REVERB_APP_SECRET=${{ secrets.REVERB_APP_SECRET || '"'ptr_reverb_secret_2025'"' }}' >> .env
+          echo 'REVERB_HOST=${{ env.APP_DOMAIN }}' >> .env
           echo 'REVERB_PORT=443' >> .env
           echo 'REVERB_SCHEME=https' >> .env
-          echo 'VITE_REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY }}' >> .env
-          echo 'VITE_REVERB_HOST=ws.${{ env.APP_DOMAIN }}' >> .env
+          echo 'VITE_REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY || '"'ptr_reverb_key_2025'"' }}' >> .env
+          echo 'VITE_REVERB_HOST=${{ env.APP_DOMAIN }}' >> .env
           echo 'VITE_REVERB_PORT=443' >> .env
           echo 'VITE_REVERB_SCHEME=https' >> .env
+          
+          # Reverb Security Hardening
+          echo 'REVERB_APP_ALLOWED_ORIGINS=${{ env.REVERB_ALLOWED_ORIGINS }}' >> .env
+          echo 'REVERB_APP_RATE_LIMITING_ENABLED=true' >> .env
+          echo 'REVERB_APP_RATE_LIMIT_MAX_ATTEMPTS=100' >> .env
+          echo 'REVERB_APP_RATE_LIMIT_DECAY_SECONDS=60' >> .env
           
           # --- EMAIL CONFIGURATION ---
           echo 'MAIL_MAILER=smtp' >> .env
