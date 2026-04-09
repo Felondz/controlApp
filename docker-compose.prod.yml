@@ -101,7 +101,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
       # Router WebSocket (HTTPS con soporte para WSS)
-      - "traefik.http.routers.controlapp-reverb-https-${APP_ENV}.rule=Host(`ws.${APP_DOMAIN}`)"
+      - "traefik.http.routers.controlapp-reverb-https-${APP_ENV}.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/app`)"
       - "traefik.http.routers.controlapp-reverb-https-${APP_ENV}.entrypoints=websecure"
       - "traefik.http.routers.controlapp-reverb-https-${APP_ENV}.tls.certresolver=letsencrypt"
       # Servicio Reverb en puerto 8080
