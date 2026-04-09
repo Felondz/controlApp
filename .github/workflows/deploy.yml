@@ -133,14 +133,13 @@ jobs:
           echo 'SUPER_ADMIN_PASSWORD=${{ secrets.SUPER_ADMIN_PASSWORD }}' >> .env
           
           # --- REVERB / WEBSOCKETS ---
-          # Usamos fallbacks por si los secretos de GitHub no están configurados
-          echo 'REVERB_APP_ID=${{ secrets.REVERB_APP_ID || '"'123456'"' }}' >> .env
-          echo 'REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY || '"'ptr_reverb_key_2025'"' }}' >> .env
-          echo 'REVERB_APP_SECRET=${{ secrets.REVERB_APP_SECRET || '"'ptr_reverb_secret_2025'"' }}' >> .env
+          echo 'REVERB_APP_ID=${{ secrets.REVERB_APP_ID }}' >> .env
+          echo 'REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY }}' >> .env
+          echo 'REVERB_APP_SECRET=${{ secrets.REVERB_APP_SECRET }}' >> .env
           echo 'REVERB_HOST=${{ env.APP_DOMAIN }}' >> .env
           echo 'REVERB_PORT=443' >> .env
           echo 'REVERB_SCHEME=https' >> .env
-          echo 'VITE_REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY || '"'ptr_reverb_key_2025'"' }}' >> .env
+          echo 'VITE_REVERB_APP_KEY=${{ secrets.REVERB_APP_KEY }}' >> .env
           echo 'VITE_REVERB_HOST=${{ env.APP_DOMAIN }}' >> .env
           echo 'VITE_REVERB_PORT=443' >> .env
           echo 'VITE_REVERB_SCHEME=https' >> .env
