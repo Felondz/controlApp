@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['web', 'auth', \App\Http\Middleware\RequirePtrEnvironment::class])
+Route::middleware(['web', 'auth:sanctum', \App\Http\Middleware\RequirePtrEnvironment::class])
     ->prefix('ptr')
     ->group(function (): void {
         Route::get('/bug-reports', [BugReportController::class, 'index'])->name('ptr.bug-reports.index');
