@@ -12,7 +12,7 @@ class CreateBugReportAction
         $screenshotPath = null;
 
         if ($dto->screenshot !== null) {
-            $screenshotPath = $dto->screenshot->store('bug-reports', 'public');
+            $screenshotPath = $dto->screenshot->store('bug-reports', 'local');
         }
 
         /** @var BugReport $bugReport */

@@ -73,7 +73,7 @@ class BugReportTest extends TestCase
 
     public function test_screenshot_upload_stores_file(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
 
         $response = $this->actingAs($this->tester)->postJson('/ptr/bug-reports', [
             'category' => 'ui_visual',
@@ -87,7 +87,7 @@ class BugReportTest extends TestCase
         $bugReport = BugReport::first();
         $this->assertNotNull($bugReport);
         $this->assertNotNull($bugReport->screenshot_path);
-        Storage::disk('public')->assertExists($bugReport->screenshot_path);
+        Storage::disk('local')->assertExists($bugReport->screenshot_path);
     }
 
     // ─── Dashboard Access ────────────────────────────────────
@@ -181,6 +181,49 @@ class BugReportTest extends TestCase
 
         $response->assertOk();
         $response->assertJson(['open_count' => 5]);
+    }
+
+    // ─── Security & Assets ───────────────────────────────────
+
+    public function test_admin_can_download_screenshot_from_private_disk(): void
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->image('test.png');
+        $path = $file->store('bug-reports', 'local');
+
+        $report = BugReport::factory()->create([
+            'screenshot_path' => $path,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get("/ptr/bug-reports/{$report->id}/screenshot");
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'image/png');
+        $response->assertHeader('Cache-Control', 'max-age=3600, private');
+    }
+
+    public function test_bug_description_and_url_are_encrypted_in_database(): void
+    {
+        $sensitiveText = 'Secret sensitive information about the bug.';
+        $sensitiveUrl = 'https://ptr.example.com/settings?token=secret123';
+        
+        $report = BugReport::factory()->create([
+            'description' => $sensitiveText,
+            'page_url' => $sensitiveUrl,
+        ]);
+
+        // Access via Eloquent should be decrypted
+        $this->assertEquals($sensitiveText, $report->description);
+        $this->assertEquals($sensitiveUrl, $report->page_url);
+
+        // Access via DB facade should be encrypted (raw value)
+        $rawReport = \Illuminate\Support\Facades\DB::table('bug_reports')->where('id', $report->id)->first();
+        
+        $this->assertNotEquals($sensitiveText, $rawReport->description);
+        $this->assertStringContainsString('eyJpdiI6', $rawReport->description);
+
+        $this->assertNotEquals($sensitiveUrl, $rawReport->page_url);
+        $this->assertStringContainsString('eyJpdiI6', $rawReport->page_url);
     }
 
     // ─── Environment Gating ──────────────────────────────────

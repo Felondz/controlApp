@@ -51,6 +51,9 @@ class BugReport extends Model
     {
         return [
             'resolved_at' => 'datetime',
+            'description' => 'encrypted',
+            'developer_notes' => 'encrypted',
+            'page_url' => 'encrypted',
         ];
     }
 

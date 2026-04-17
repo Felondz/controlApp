@@ -33,7 +33,7 @@ class BugReportScreenshotController extends Controller
             abort(404);
         }
 
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
 
         if (! $disk->exists($bugReport->screenshot_path)) {
             abort(404);
@@ -45,7 +45,7 @@ class BugReportScreenshotController extends Controller
         return response($contents, 200, [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline; filename="'.basename($bugReport->screenshot_path).'"',
-            'Cache-Control' => 'public, max-age=3600',
+            'Cache-Control' => 'private, max-age=3600',
         ]);
     }
 }

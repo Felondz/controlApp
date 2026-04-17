@@ -41,6 +41,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->validateCsrfTokens(except: [
+            'ptr/bug-reports',
+            'ptr/bug-reports/*',
             'stripe/*',
             'http://controlapp.test/stripe/*',
             'http://localhost/stripe/*',
