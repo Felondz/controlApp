@@ -1,11 +1,7 @@
 import '../css/app.css';
 import './bootstrap';
 import './echo';
-import { Ziggy } from './ziggy';
 import { route } from 'ziggy-js';
-
-// DEFINICIÓN GLOBAL DE ROUTE: Crítica para que no explote React
-window.route = (name, params, absolute = false, config = Ziggy) => route(name, params, absolute, config);
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -35,6 +31,10 @@ createInertiaApp({
         }),
     setup({ el, App, props }) {
         const root = createRoot(el);
+
+        // Definimos route global usando las rutas dinámicas compartidas por Inertia
+        window.route = (name, params, absolute, config = props.initialPage.props.ziggy) => 
+            route(name, params, absolute, config);
 
         root.render(
             <App {...props} />

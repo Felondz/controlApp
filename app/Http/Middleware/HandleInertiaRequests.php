@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\File;
 
+use Tighten\Ziggy\Ziggy;
+
 class HandleInertiaRequests extends Middleware
 {
     /**
@@ -78,6 +80,10 @@ class HandleInertiaRequests extends Middleware
                 return $request->session()->get('_old_input', []);
             },
             'is_ptr' => config('app.env') === 'staging' || filter_var(env('PTR_MODE', false), FILTER_VALIDATE_BOOLEAN),
+            'ziggy' => fn () => [
+                ...(new Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
