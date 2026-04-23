@@ -26,6 +26,7 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
+                'sometimes',
                 'required',
                 'string',
                 'lowercase',
@@ -33,12 +34,22 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()?->id),
             ],
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,jpg,png,gif,webp',
+                'max:4096', // 4MB max
+            ],
             'profile_photo' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,jpg,png,gif,webp',
-                'max:3072', // 3MB max
-                'dimensions:min_width=100,min_height=100,max_width=4000,max_height=4000',
+                'max:4096', // 4MB max
+            ],
+            'global_theme' => [
+                'nullable',
+                'string',
+                'max:50',
             ],
         ];
     }

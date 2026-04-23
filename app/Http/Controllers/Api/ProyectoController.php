@@ -28,7 +28,13 @@ class ProyectoController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $proyectos = $request->user()->proyectos;
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $proyectos = $user->proyectos;
         return response()->json($proyectos);
     }
 
@@ -42,29 +48,37 @@ class ProyectoController extends Controller
      */
     public function store(StoreProyectoRequest $request): JsonResponse
     {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         $validatedData = $request->validated();
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('project-images', 'public');
+            /** @var \Illuminate\Http\UploadedFile $file */
+            $file = $request->file('image');
+            $imagePath = $file->store('project-images', 'public');
         }
 
         $proyecto = Proyecto::create([
             'nombre' => $validatedData['nombre'],
             'descripcion' => $validatedData['descripcion'] ?? null,
             'moneda_default' => $validatedData['moneda_default'] ?? 'COP',
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'es_personal' => false,
             'visible_en_listado' => true,
             'modules' => $validatedData['modules'],
             'color' => $validatedData['color'] ?? null,
             'icon' => $validatedData['icon'] ?? null,
-            'image_path' => $imagePath,
+            'image_path' => $imagePath ?: null,
             'theme' => $validatedData['theme'] ?? 'purple-modern',
             'typography' => $validatedData['typography'] ?? 'sans',
         ]);
 
-        $proyecto->miembros()->attach($request->user()->id, ['rol' => 'admin']);
+        $proyecto->miembros()->attach($user->id, ['rol' => 'admin']);
 
         return response()->json($proyecto->load('miembros'), 201);
     }
@@ -80,14 +94,20 @@ class ProyectoController extends Controller
      */
     public function show(Request $request, Proyecto $proyecto): JsonResponse
     {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         // Para 'ver', solo necesita ser miembro
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+        abort_if(!$user->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
         // Cargar relaciones base
         $relations = ['miembros', 'categorias'];
 
         // Solo cargar cuentas (finanzas) si es admin
-        if ($request->user()->esAdminDe($proyecto)) {
+        if ($user->esAdminDe($proyecto)) {
             $relations[] = 'cuentas';
         }
 
@@ -105,13 +125,19 @@ class ProyectoController extends Controller
      */
     public function update(UpdateProyectoRequest $request, Proyecto $proyecto): JsonResponse
     {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         // solo un 'admin' puede editar.
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
+        abort_if(!$user->esAdminDe($proyecto), 403, 'Solo los administradores pueden editar este proyecto.');
 
         $validatedData = $request->validated();
         $dataToUpdate = [];
 
-        $fields = ['nombre', 'descripcion', 'moneda_default', 'color', 'icon', 'theme', 'typography', 'settings'];
+        $fields = ['nombre', 'descripcion', 'moneda_default', 'color', 'icon', 'theme', 'typography', 'settings', 'modules'];
         foreach ($fields as $field) {
             if (isset($validatedData[$field])) {
                 $dataToUpdate[$field] = $validatedData[$field];
@@ -123,8 +149,12 @@ class ProyectoController extends Controller
             if ($proyecto->image_path) {
                 Storage::disk('public')->delete($proyecto->image_path);
             }
-            $imagePath = $request->file('image')->store('project-images', 'public');
-            $dataToUpdate['image_path'] = $imagePath;
+            /** @var \Illuminate\Http\UploadedFile $file */
+            $file = $request->file('image');
+            $imagePath = $file->store('project-images', 'public');
+            if ($imagePath) {
+                $dataToUpdate['image_path'] = $imagePath;
+            }
         }
 
         $proyecto->update($dataToUpdate);
@@ -142,9 +172,14 @@ class ProyectoController extends Controller
      */
     public function destroy(Request $request, Proyecto $proyecto): JsonResponse|\Illuminate\Http\Response
     {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
         // solo un 'admin' puede eliminar.
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden eliminar este proyecto.');
+        abort_if(!$user->esAdminDe($proyecto), 403, 'Solo los administradores pueden eliminar este proyecto.');
 
         $proyecto->delete();
         return response()->noContent();
@@ -161,7 +196,13 @@ class ProyectoController extends Controller
      */
     public function updateSettings(Request $request, Proyecto $proyecto): JsonResponse
     {
-        abort_if(!$request->user()->esAdminDe($proyecto), 403, 'Solo los administradores pueden modificar la configuración.');
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        abort_if(!$user->esAdminDe($proyecto), 403, 'Solo los administradores pueden modificar la configuración.');
 
         $validated = $request->validate([
             'settings' => 'required|array',
@@ -169,7 +210,7 @@ class ProyectoController extends Controller
 
         // Merge existing settings with new ones
         $currentSettings = $proyecto->settings ?? [];
-        $newSettings = array_merge($currentSettings, $validated['settings']);
+        $newSettings = array_merge((array)$currentSettings, (array)$validated['settings']);
 
         $proyecto->settings = $newSettings;
         $proyecto->save();
@@ -193,8 +234,14 @@ class ProyectoController extends Controller
      */
     public function transferOwnership(Request $request, Proyecto $proyecto): JsonResponse
     {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         // Only the current Owner can transfer ownership
-        if ($request->user()->id !== $proyecto->user_id) {
+        if ($user->id !== $proyecto->user_id) {
             return response()->json([
                 'message' => 'Solo el Dueño del proyecto puede transferir la propiedad.'
             ], 403);
@@ -205,6 +252,7 @@ class ProyectoController extends Controller
             'password' => 'required|current_password',
         ]);
 
+        /** @var \App\Models\User $newOwner */
         $newOwner = \App\Models\User::findOrFail($validated['new_owner_id']);
 
         // Ensure the new owner is a member of the project
@@ -222,12 +270,12 @@ class ProyectoController extends Controller
         }
 
         // Update project owner
-        $proyecto->user_id = $newOwner->id;
+        $proyecto->user_id = (int)$newOwner->id;
         $proyecto->save();
 
         // Ensure the old owner remains as admin
-        if (!$request->user()->esAdminDe($proyecto)) {
-            $proyecto->miembros()->updateExistingPivot($request->user()->id, ['rol' => 'admin']);
+        if (!$user->esAdminDe($proyecto)) {
+            $proyecto->miembros()->updateExistingPivot($user->id, ['rol' => 'admin']);
         }
 
         return response()->json([

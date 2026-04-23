@@ -14,34 +14,67 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request)
+    public function update(ProfileUpdateRequest $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
-        $user->fill($request->validated());
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+        
+        $validatedData = $request->validated();
+        
+        // Handle basic information and theme
+        $user->fill($validatedData);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
+        }
+
+        // Handle profile photo if provided in the same request
+        $imageFile = $request->file('image') ?? $request->file('profile_photo');
+        
+        if ($imageFile instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old photo if exists
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            // Store new photo
+            $extension = $imageFile->extension();
+            $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
+            
+            $path = $imageFile->storeAs('profile-photos', $filename, 'public');
+            if ($path) {
+                $user->profile_photo_path = $path;
+            }
         }
 
         $user->save();
 
         return response()->json([
             'message' => 'Perfil actualizado correctamente',
-            'user' => $user,
+            'user' => $user->fresh(),
         ]);
     }
 
     /**
      * Update the user's password.
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        $request->user()->update([
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -53,13 +86,17 @@ class ProfileController extends Controller
     /**
      * Update the user's profile photo.
      */
-    public function uploadPhoto(Request $request)
+    public function uploadPhoto(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=2048,max_height=2048'],
         ]);
 
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
         // Delete old photo if exists
         if ($user->profile_photo_path) {
@@ -67,11 +104,16 @@ class ProfileController extends Controller
         }
 
         // Store new photo
+        /** @var \Illuminate\Http\UploadedFile $file */
         $file = $request->file('profile_photo');
         $extension = $file->extension();
         $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
         
         $path = $file->storeAs('profile-photos', $filename, 'public');
+        if (!$path) {
+            return response()->json(['message' => 'Error al guardar la imagen'], 500);
+        }
+
         $user->forceFill([
             'profile_photo_path' => $path,
         ])->save();
@@ -85,9 +127,13 @@ class ProfileController extends Controller
     /**
      * Delete the user's profile photo.
      */
-    public function deletePhoto(Request $request)
+    public function deletePhoto(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);
@@ -103,13 +149,17 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
         // Logout logic for API (revoke tokens)
         $user->tokens()->delete();
