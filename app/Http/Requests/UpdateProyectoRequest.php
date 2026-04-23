@@ -21,7 +21,7 @@ class UpdateProyectoRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,7 +33,7 @@ class UpdateProyectoRequest extends FormRequest
                 'min:3',
                 Rule::unique('proyectos')->ignore($this->route('proyecto') ?? $this->route('mis_proyecto')),
             ],
-            'moneda_default' => 'sometimes|required|in:COP,USD,EUR',
+            'moneda_default' => 'sometimes|required|in:COP,USD,EUR,MXN,PEN,CLP,ARS,BRL',
             'descripcion' => 'nullable|string|max:1000',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
@@ -41,7 +41,7 @@ class UpdateProyectoRequest extends FormRequest
             'typography' => 'nullable|string|in:sans,serif,mono,roboto,opensans,lato,montserrat,nunito,raleway,playfair,merriweather',
             'image' => 'nullable|image|max:4096', // 4MB max
             'modules' => 'nullable|array',
-            'modules.*' => 'string|in:finance,tasks,chat',
+            'modules.*' => 'string|in:finance,tasks,chat,inventory,operations,crm',
             'settings' => 'nullable|array',
         ];
     }
