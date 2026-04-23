@@ -9,6 +9,9 @@ class UserPreferencesController extends Controller
 {
     /**
      * Mark a tour as completed in the user's settings.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function completeTour(Request $request)
     {
@@ -16,25 +19,28 @@ class UserPreferencesController extends Controller
             'tour' => 'required|string',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
-        if (!$user) return response()->json(['error' => 'Unauthenticated'], 401);
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
 
         // Recargar el usuario para asegurarnos de tener la versión más fresca de la BD
         $user->refresh();
         
-        $settings = $user->settings ?? [];
-        if (!is_array($settings)) $settings = [];
+        /** @var mixed $rawSettings */
+        $rawSettings = $user->settings;
+        $settings = is_array($rawSettings) ? $rawSettings : [];
         
+        /** @var array<string, mixed> $completedTours */
         $completedTours = $settings['completed_tours'] ?? [];
 
-        if (!in_array($validated['tour'], $completedTours)) {
+        if (!in_array($validated['tour'], (array)$completedTours)) {
             $completedTours[] = $validated['tour'];
             
             // Re-asignación explícita para forzar el Cast de JSON en el guardado
             $settings['completed_tours'] = $completedTours;
-            $user->settings = $settings;
-            $user->save();
+            $user->update(['settings' => $settings]);
             
             Log::info("DEBUG: Tour '{$validated['tour']}' persistido para usuario #{$user->id}. Nuevo estado: " . json_encode($user->settings));
         }
@@ -47,22 +53,48 @@ class UserPreferencesController extends Controller
     }
 
     /**
-     * Update the user's interface theme (light/dark/system).
+     * Update the user's interface theme (accent colors).
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function updateTheme(Request $request)
     {
+        // Support both 'theme' and 'global_theme' for compatibility
+        $themeKey = $request->has('global_theme') ? 'global_theme' : 'theme';
+
         $request->validate([
-            'theme' => 'required|in:light,dark,system',
+            $themeKey => 'required|string|max:50',
         ]);
 
+        $themeValue = $request->input($themeKey);
+
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
-        $user->update(['global_theme' => $request->theme]);
+        if (!$user) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Unauthenticated'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        $user->update(['global_theme' => $themeValue]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'global_theme' => $user->global_theme
+            ]);
+        }
 
         return back()->with('success', 'Tema actualizado.');
     }
 
     /**
      * Update the user's dashboard settings (widgets layout).
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateDashboardSettings(Request $request)
     {
@@ -70,14 +102,20 @@ class UserPreferencesController extends Controller
             'settings' => 'required|array',
         ]);
 
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         // Merge existing settings with new ones
-        $currentSettings = $user->settings ?? [];
-        $newSettings = array_merge($currentSettings, $validated['settings']);
+        /** @var mixed $currentSettingsRaw */
+        $currentSettingsRaw = $user->settings;
+        $currentSettings = is_array($currentSettingsRaw) ? $currentSettingsRaw : [];
+        
+        $newSettings = array_merge($currentSettings, (array)$validated['settings']);
 
-        $user->settings = $newSettings;
-        $user->save();
+        $user->update(['settings' => $newSettings]);
 
         return back()->with('success', 'Configuración del dashboard actualizada.');
     }

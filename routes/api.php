@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- Usuario: Preferencias y Perfil ---
     Route::put('/user/locale', [UserController::class, 'updateLocale']);
+    Route::post('/user/theme', [UserController::class, 'updateTheme']);
     Route::post('/preferences/dashboard/update', [UserController::class, 'updateDashboardPreferences']); // Added for Mobile/Parity
 
     // Perfil (Sincronizado con Web)
