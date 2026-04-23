@@ -21,13 +21,19 @@ class UserController extends Controller
             'locale' => 'required|in:es,en,pt',
         ]);
 
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
         // Actualizar el locale del usuario autenticado
-        Auth::user()->update(['locale' => $validated['locale']]);
+        $user->update(['locale' => $validated['locale']]);
 
         return response()->json([
             'success' => true,
             'message' => 'Idioma actualizado correctamente',
-            'locale' => Auth::user()->locale,
+            'locale' => $user->locale,
         ]);
     }
 
@@ -43,11 +49,18 @@ class UserController extends Controller
             'settings' => 'required|array',
         ]);
 
-        $user = Auth::user();
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
         
         // Merge with existing settings
-        $currentSettings = $user->settings ?? [];
-        $newSettings = array_merge($currentSettings, $validated['settings']);
+        /** @var mixed $currentSettingsRaw */
+        $currentSettingsRaw = $user->settings;
+        $currentSettings = is_array($currentSettingsRaw) ? $currentSettingsRaw : [];
+
+        $newSettings = array_merge($currentSettings, (array)$validated['settings']);
 
         $user->update(['settings' => $newSettings]);
 
@@ -55,6 +68,37 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Preferencias actualizadas correctamente',
             'settings' => $user->settings,
+        ]);
+    }
+
+    /**
+     * Update the user's interface theme (accent colors).
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateTheme(Request $request)
+    {
+        $themeKey = $request->has('global_theme') ? 'global_theme' : 'theme';
+
+        $request->validate([
+            $themeKey => 'required|string|max:50',
+        ]);
+
+        $themeValue = $request->input($themeKey);
+
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $user->update(['global_theme' => $themeValue]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tema actualizado correctamente',
+            'global_theme' => $user->global_theme,
         ]);
     }
 }
