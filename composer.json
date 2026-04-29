@@ -20,6 +20,7 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.22",
+        "laravel/socialite": "^5.27",
         "laravel/tinker": "^2.10.1",
         "meilisearch/meilisearch-php": "^1.16",
         "nuwave/lighthouse": "^6.65",
