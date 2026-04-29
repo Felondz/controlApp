@@ -41,6 +41,10 @@ Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:5,1')
     ->name('auth.login');
 
+Route::post('/auth/google/token', [\App\Http\Controllers\Auth\SocialAuthController::class, 'apiLogin'])
+    ->middleware('throttle:5,1')
+    ->name('api.auth.google');
+
 // --- Ruta Pública de Invitación ---
 Route::get('/invitaciones/{token}', [InvitacionController::class, 'show']);
 

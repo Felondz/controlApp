@@ -69,6 +69,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'settings',
         'is_ai_enabled',
         'is_active',
+        'google_id',
+        'avatar',
     ];
 
     /**
