@@ -242,7 +242,10 @@
         "password_rule_mixed": "Uppercase and lowercase letters",
         "password_requirements_error": "Password does not meet minimum requirements.",
         "registration_errors_title": "Registration errors:",
-        "email_already_registered": "This email is already registered."
+        "email_already_registered": "This email is already registered.",
+        "or_continue_with": "Or continue with",
+        "continue_with_google": "Continue with Google",
+        "google_login_error": "There was an error logging in with Google."
     },
     "docs": {
         "hub_title": "Guides & Help",

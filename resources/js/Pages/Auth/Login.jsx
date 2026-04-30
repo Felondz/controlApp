@@ -186,7 +186,7 @@ export default function Login({ status, canResetPassword }) {
                     </div>
                     <div className="relative flex justify-center text-sm">
                         <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
-                            {t('auth.or_continue_with') || 'O continuar con'}
+                            {t('auth.or_continue_with')}
                         </span>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ export default function Login({ status, canResetPassword }) {
                                 fill="#EA4335"
                             />
                         </svg>
-                        <span>Google</span>
+                        <span>{t('auth.continue_with_google') || 'Google'}</span>
                     </a>
                 </div>
 

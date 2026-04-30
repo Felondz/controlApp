@@ -226,7 +226,10 @@
         "password_rule_mixed": "Mayúsculas y minúsculas",
         "password_requirements_error": "La contraseña no cumple con los requisitos mínimos.",
         "registration_errors_title": "Errores de registro:",
-        "email_already_registered": "Este correo ya está registrado."
+        "email_already_registered": "Este correo ya está registrado.",
+        "or_continue_with": "O continuar con",
+        "continue_with_google": "Continuar con Google",
+        "google_login_error": "Hubo un error al iniciar sesión con Google."
     },
     "categories": {
         "title": "Categorías",
@@ -278,7 +281,6 @@
         "view": "Ver",
         "view_profile": "Ver Perfil",
         "no_description": "Sin descripción",
-        "no_results": "No hay resultados",
         "coming_soon": "Próximamente",
         "create": "Crear",
         "update": "Actualizar",
@@ -1542,5 +1544,19 @@
         "close": "Cerrar",
         "next": "Siguiente →",
         "prev": "← Atrás"
-    }
+    },
+    "Welcome to ControlApp!": "¡Bienvenido a ControlApp!",
+    "Hello": "Hola",
+    "We are excited to have you with us. Your account has been successfully created using your Google account.": "Estamos emocionados de tenerte con nosotros. Tu cuenta ha sido creada exitosamente usando tu cuenta de Google.",
+    "With ControlApp, you can manage your projects, finances, and tasks all in one place. Start exploring your dashboard now.": "Con ControlApp, puedes gestionar tus proyectos, finanzas y tareas, todo en un solo lugar. Comienza a explorar tu tablero ahora.",
+    "Go to Dashboard": "Ir al Tablero",
+    "Tip:": "Consejo:",
+    "You can customize your profile and security settings at any time from your account settings.": "Puedes personalizar tu perfil y ajustes de seguridad en cualquier momento desde los ajustes de tu cuenta.",
+    "If you have any questions, feel free to reply to this email or visit our help center.": "Si tienes alguna pregunta, no dudes en responder a este correo o visitar nuestro centro de ayuda.",
+    "Best regards,": "Saludos cordiales,",
+    "The ControlApp Team": "El equipo de ControlApp",
+    "Todos los derechos reservados.": "Todos los derechos reservados.",
+    "Política de Privacidad": "Política de Privacidad",
+    "Términos de Servicio": "Términos de Servicio",
+    "Contacto": "Contacto"
 }

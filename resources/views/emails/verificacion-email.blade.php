@@ -19,14 +19,15 @@
         </p>
     </div>
 
-    <a href="{{ $verificationUrl }}" class="cta-button">
-        Verificar en Navegador
-    </a>
+    <div class="button-wrapper">
+        <a href="{{ $verificationUrl }}" class="cta-button">
+            Verificar en Navegador
+        </a>
     </div>
 
     @if(isset($mobileUrl))
-        <div class="button-wrapper" style="margin-top: 10px;">
-            <a href="{{ $mobileUrl }}" class="cta-button" style="background-color: #6d28d9;">
+        <div class="button-wrapper">
+            <a href="{{ $mobileUrl }}" class="cta-button" style="background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);">
                 Verificar en App Móvil
             </a>
         </div>
