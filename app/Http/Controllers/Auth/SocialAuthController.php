@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +37,7 @@ class SocialAuthController extends Controller
 
             return redirect()->intended(route('dashboard', absolute: false));
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Hubo un error al iniciar sesión con Google.');
+            return redirect()->route('login')->with('error', __('auth.google_login_error', [], app()->getLocale()) ?:  'Hubo un error al iniciar sesión con Google.');
         }
     }
 
@@ -66,7 +68,7 @@ class SocialAuthController extends Controller
                 'token_type' => 'Bearer',
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Invalid Google token'], 401);
+            return response()->json(['error' => __('auth.google_login_error', [], app()->getLocale()) ?:  'Invalid Google token'], 401);
         }
     }
 
@@ -83,25 +85,31 @@ class SocialAuthController extends Controller
             ->first();
 
         if ($user) {
+            $updates = [];
             // Actualizar el google_id si solo lo encontramos por email
             if (!$user->google_id) {
-                $user->update([
-                    'google_id' => $googleUser->getId(),
-                ]);
+                $updates['google_id'] = $googleUser->getId();
             }
             
-            // Actualizar avatar si es necesario
-            if ($googleUser->getAvatar()) {
-                $user->update([
-                    'avatar' => $googleUser->getAvatar(),
-                    'profile_photo_path' => $googleUser->getAvatar(),
-                ]);
+            // Actualizar avatar si es necesario (priorizar si no tiene)
+            if ($googleUser->getAvatar() && !$user->avatar) {
+                $updates['avatar'] = $googleUser->getAvatar();
+                $updates['profile_photo_path'] = $googleUser->getAvatar();
+            }
+
+            // Marcar correo como verificado si aún no lo está, ya que Google lo valida
+            if (!$user->email_verified_at) {
+                $updates['email_verified_at'] = now();
+            }
+
+            if (!empty($updates)) {
+                $user->update($updates);
             }
 
             return $user;
         }
 
-        return User::create([
+        $user = User::create([
             'name' => $googleUser->getName(),
             'email' => $googleUser->getEmail(),
             'google_id' => $googleUser->getId(),
@@ -110,5 +118,13 @@ class SocialAuthController extends Controller
             'password' => null,
             'email_verified_at' => now(),
         ]);
+
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($user->name, app()->getLocale()));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Could not send welcome email to {$user->email}: " . $e->getMessage());
+        }
+
+        return $user;
     }
 }
