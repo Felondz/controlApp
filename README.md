@@ -1,206 +1,120 @@
-# ControlApp: Collaborative Project Management Platform
+# ControlApp
+## Unified Business Operations & Project Ecosystem
 
-> A highly-rated **Full-Stack API-First** project built with **Laravel 12** and **React 18**, showcasing modern architecture, robust testing, and clean CI/CD practices.
-
----
-
-## Project Status & Quality Assurance
-
-This status reflects the stability achieved through **Continuous Integration (CI)** running on GitHub Actions.
-
-| Metric | Value | Status |
-| :--- | :--- | :--- |
-| **Backend Tests** | 350+ | ✅ **100% Stable** |
-| **Frontend Tests** | ~275 tests | ✅ **100% Coverage** |
-| **Total Tests** | ~625+ tests | ✅ **Robust Coverage** |
-| **CI Workflow** | GitHub Actions | ✅ **Active & Automated** |
-| **Branching Model** | Git Flow (develop/main) | ✅ **Enforced** |
-| **Backend Version** | v3.1.0 (Octane + Scalability Update) | ✅ **Stable** |
-| **Frontend Status** | ✅ Stable & Tested | 🔄 **Active Development** |
-
-[![Tests Status](https://img.shields.io/github/actions/workflow/status/Felondz/controlApp/tests.yml?branch=develop&label=Tests%20(Develop)&logo=github)](https://github.com/Felondz/controlApp/actions/workflows/tests.yml)
+ControlApp is a robust, modular platform designed to unify every aspect of business operations—from complex financial management and industrial production lines to real-time inventory and team collaboration. Engineered with an API-first philosophy and a strictly decoupled modular architecture, it serves as a high-performance backbone for scalable business ecosystems.
 
 ---
 
-## Technology Stack (Demonstrated Skills)
+### Core Business Pillars
 
-ControlApp employs a **Modular Event-Driven Architecture** with an **Actions/DTOs** pattern, ensuring strict separation of concerns and scalability.
+#### 1. Intelligent Financial Management
+ControlApp provides a high-precision financial core capable of managing complex fiscal operations:
+* **Account Ecosystem**: Native support for 6 account types including Cash, Bank, Credit Cards, Investments, and Loans.
+* **Credit Cycle Intelligence**: Advanced tracking of billing cycles, cutoff dates, and minimum payments for credit products.
+* **Investment & Yields**: Automatic monthly interest accrual for savings and investment accounts (e.g., CDTs) with maturity protection.
+* **Predictive Cash Flow**: Integrated "Upcoming Obligations" engine that forecasts expenses, installments, and projected yields.
+* **Reporting**: High-fidelity PDF financial reports and CSV data exports for external auditing.
 
-### Modular Architecture (Core)
-- **Modules**: Independent units (Finance, Tasks, Chat, Inventory, Operations) located in `app/Modules/`.
-- **Communication**: Strictly via **Event Bus** (`ModuleEventBus`). **Zero direct coupling** between modules.
-- **Actions/DTOs Pattern**: All business logic lives in dedicated Action classes with strict DTO inputs, decoupled from HTTP/GraphQL/MCP protocols.
-- **Registry**: Automatic module discovery and dependency resolution via `ModuleRegistry`.
-- **Scalability**: New features are added as isolated modules without modifying the core system.
+#### 2. Industrial Operations & Traceability
+The Operations module is built for precision manufacturing and production tracking:
+* **Production Life-cycles**: Define multi-stage production processes with inherited "Recipe" templates (ingredients and quantities).
+* **Batch (Lote) Tracking**: Full traceability of production batches from creation to completion or discard.
+* **Stage Automation**: Intelligent stage progression that automatically triggers Standard Operating Procedures (SOPs), creates tasks, and consumes inventory.
+* **Performance Analysis**: Detailed history of batch efficiency and status transitions.
 
-### Backend (API-First: REST + GraphQL + MCP)
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **Framework** | Laravel 12 (PHP 8.2+) | Expertise in MVC, Eloquent ORM, and modern PHP development. |
-| **GraphQL** | Lighthouse (nuwave/lighthouse) | Primary mobile data layer for CRUD and nested relationship fetching. |
-| **MCP (AI Tools)** | Laravel MCP (laravel/mcp) | 25+ domain-specific tools for AI-powered project management. |
-| **Authentication** | Laravel Sanctum | Implementation of **stateless JWT-style API tokens** and session management. |
-| **Authorization** | Policies & Gates | **Granular access control** (e.g., Owner, Admin, Member) and **SuperAdmin** readiness. |
-| **Static Analysis** | PHPStan Level 8 | Mandatory zero-error policy on every PHP change. |
-| **Testing** | PHPUnit | Deep understanding of testing architecture, **RefreshDatabase** isolation, and full test suite maintenance. |
-| **Search** | Meilisearch + Scout | Fast, relevant, and secure full-text search implementation. |
-| **PDF Export** | DomPDF + HTML2Canvas | Async background generation for scalability. |
-| **High Performance** | Laravel Octane + Swoole | Persistence in memory for sub-second response times. |
-| **Observability** | Laravel Pulse | Real-time monitoring of CPU, RAM, and slow queries. |
+#### 3. Real-Time Unified Inventory
+An event-driven inventory system that ensures stock integrity across the platform:
+* **Asynchronous Synchronization**: Automatic stock deduction triggered by production events or sales via the Module Event Bus.
+* **Replenishment Intelligence**: Automated task generation when items fall below safety stock levels.
+* **Global Registry**: Unified item management with per-project cost and sale price tracking using the localized `CurrencyInput` system.
 
-### AI Integration
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **LLM Providers** | OpenAI, Google Gemini, Anthropic | Multi-provider support with encrypted per-user API keys. |
-| **AI Chat Widget** | Global React Widget + SSE Streaming | Context-aware AI assistant with recursive MCP Tool execution (up to 5 levels). |
-| **MCP Servers** | 5 servers (Inventory, Operations, Finance, Tasks, Chat) | 25+ tools exposing business logic to AI agents. |
-| **Kill Switch** | Global `is_ai_enabled` toggle | Instantly disable all AI features per user. |
-
-### Frontend (Web/Mobile Readiness)
-| Component | Technology | Status |
-| :--- | :--- | :--- |
-| **Framework** | React 18 + Inertia.js | ✅ **Active** |
-| **Tooling** | Vite | ✅ **Configured** |
-| **Localization (i18n)** | i18next + Custom Hook | ✅ **Implemented** |
-| **UI/UX** | Tailwind CSS + React Components | ✅ **Standardized (Dark Mode Support)** |
+#### 4. Agile Collaboration & Messaging
+Built-in tools to keep teams aligned and workflows moving:
+* **Kanban Task Management**: Dynamic drag-and-drop board for task tracking with priority, assignment, and due-date management.
+* **Contextual Communication**: Real-time private and project-based messaging system integrated into the core workflow.
+* **Centralized Inbox**: Unified view of unread notifications and cross-project interactions.
 
 ---
 
-## Key Features
+### The AI Advantage: Model Context Protocol (MCP)
 
-### Project Management
-- **Creation & Admin**: Manage projects with custom settings.
-- **Customization**: Per-project themes (colors, typography) and cover images.
-- **Team Management**: Invite members via email, manage roles/permissions.
-- **Dashboard**: Centralized view with active module indicators and quick stats.
-
-### Tasks Management (Kanban)
-- **Kanban Board**: Interactive drag-and-drop board for task workflow.
-- **Task Tracking**: Assignees, priorities, due dates, and status tracking.
-- **Financial Integration**: Create financial tasks with monetary values.
-- **Audit**: Automatic logging of task completion events.
-
-### Operations & Production
-- **Production Lines**: Manage complex workflows (e.g., Crops, Manufacturing) via `ProductionProcess`.
-- **Batch Management**: Track `LoteProduccion` across stages with full traceability.
-- **Recipe System**: Define input templates (ingredients/quantities) per stage, auto-cloned to batches.
-- **Stage Automation**: Automatically trigger tasks, SOPs, and inventory consumption when batches advance.
-- **Event-Driven Inventory Sync**: Consumption dispatches events; Inventory module deducts stock asynchronously.
-- **History & Reports**: Dedicated view for analyzing finished/discarded batches with status filtering.
-
-### Finance Management
-- **Accounts**: Manage 6 account types (Cash, Bank, Credit, Investment, Loan, Other).
-- **Multi-Currency Global**: Support for 8 currencies (USD, COP, EUR, etc.) per account.
-- **Credit Card Management**: Track billing cycles, cutoff dates, and minimum payments (Debt as negative).
-- **Loans & Investments**:
-    - **Amortization**: Automatic calculation of installments.
-    - **Interest Accrual**: Daily jobs for calculating monthly interest yields.
-    - **CDT Protection**: Withdrawal locks until maturity date.
-- **Recurring Bills**: Schedule payments (daily/weekly/monthly/yearly).
-- **Financial Dashboard**:
-    - **Cash Flow**: Income/Expense analysis.
-    - **AccountFlow Widget**: 3D Pie charts for visual distribution.
-    - **Upcoming Obligations**: Predictive view of expenses, loan installments, and yields.
-
-### AI-Powered Assistance
-- **Global AI Chat Widget**: Context-aware assistant integrated into the main layout.
-- **Multi-Provider LLM Support**: Configure OpenAI, Google Gemini, or Anthropic with encrypted per-user API keys.
-- **Recursive Tool Execution**: AI can invoke MCP Tools (query balances, create tasks, manage inventory) up to 5 levels deep.
-- **Dynamic Model Selection**: Switch provider and model at runtime from the chat widget.
-- **Global Kill Switch**: Instantly disable all AI features with a single toggle.
-
-### Communication & Inbox
-- **Real-time Chat**: Private and project-based messaging.
-- **Inbox**: Centralized unread message tracking.
-- **Notifications**: Visual badges and real-time alerts.
-
-### 🛠️ Strategic Tools
-- **Financial Calculator**: Advanced loan simulator with amortization charts.
-- **PDF Reports**: Generate and export detailed financial schedules.
+ControlApp integrates a state-of-the-art AI layer that goes beyond simple chat. It features a contextual assistant capable of interacting directly with business logic:
+* **Autonomous Agents**: Powered by the Model Context Protocol (MCP), the AI assistant can invoke over 25 domain-specific tools to query balances, update inventory, or manage tasks autonomously.
+* **Multi-Provider Support**: Seamlessly switch between OpenAI, Google Gemini, and Anthropic providers with per-user encrypted API key management.
+* **Security First**: A global "Kill Switch" allows instant deactivation of all AI features at the user level, ensuring total control over data exposure.
 
 ---
 
-## 🧪 Testing Strategy
+### Engineering & Reliability Standards
 
-ControlApp maintains comprehensive test coverage to ensure code quality and reliability:
-
-- **Backend Tests (100% Coverage)**:
-  - Feature tests for all API endpoints using `RefreshDatabase`.
-  - Unit tests for complex business logic (Interest, Amortization).
-  - Integration tests for Module Event Bus.
-  
-- **Frontend Tests (100% Component Coverage)**:
-  - Vitest + React Testing Library.
-  - Snapshot testing for UI consistency.
-
-Run tests locally:
-```bash
-# Backend tests
-./vendor/bin/sail test
-
-# Frontend tests
-pnpm test
-```
+Designed for mission-critical reliability, ControlApp adheres to strict engineering principles:
+* **Modular Event-Driven Architecture**: Total decoupling between modules (Finance, Inventory, etc.) ensures that the failure of one component never compromises the integrity of the system.
+* **Enterprise Static Analysis**: 100% compliance with PHPStan Level 8, enforcing strict type-safety across the entire backend.
+* **Comprehensive Test Suite**: A robust infrastructure of 625+ automated tests (Backend PHPUnit & Frontend Vitest) ensuring 100% stability of critical business flows.
+* **High Performance**: Optimized with Laravel Octane and Swoole, achieving sub-second response times for high-concurrency environments.
+* **Security & Auditing**: Granular role-based access control (RBAC), UUID-based routing to prevent enumeration, and automatic audit logging of critical events.
 
 ---
 
-## Architectural Highlights
+### Technical Specification
 
-### 1. Robust Testing Architecture (QA)
-All feature tests utilize the `RefreshDatabase` trait to ensure **zero data contamination** between tests. This guarantees that every test runs in a pristine environment.
-
-### 2. CI/CD Pipeline
-- **Continuous Integration**: `tests.yml` runs on every push to `develop`.
-- **Automated Deployment**: `deploy.yml` handles deployment to Homelab/Production environments via self-hosted runners.
-
-### 3. Security & Data Integrity
-- **Authorization Layer**: Centralized **Laravel Policies** for scalable security.
-- **Soft Deletes**: Data recovery handling for non-critical models.
-- **Observers**: Automatic data synchronization (e.g., updating account balances on transaction changes).
+| Layer | Technology |
+| :--- | :--- |
+| **Backend Core** | Laravel 12 (PHP 8.2+) |
+| **Frontend Web** | React 18 + Inertia.js + Vite |
+| **Performance** | Laravel Octane + Redis |
+| **Primary APIs** | REST + GraphQL (Mobile Layer) + MCP (AI Layer) |
+| **Observability** | Laravel Pulse |
+| **Static Analysis** | PHPStan (Level 8) |
+| **Security** | UUID Routing + Sanctum Auth |
 
 ---
 
-## Documentation
+### Deployment & Installation
 
-> **Security Note**: Detailed technical documentation is only shared with verified collaborators.
+ControlApp is designed for containerized environments using Docker.
 
-| Language | Link | Contents |
-| :--- | :--- | :--- |
-| **English** | [`/docs/private/en/`](./docs/private/en/01-core/INDEX.md) | Installation, API Reference, Architecture, Testing, and Development Guides |
-| **Spanish** | [`/docs/private/es/`](./docs/private/es/01-core/INDEX.md) | Instalación, Referencia de API, Arquitectura, Testing y Guías de Desarrollo |
-
----
-
-## Local Installation Guide (for Reviewers)
-
-### Prerequisites
+#### Prerequisites
 * Docker & Docker Compose
-* Git
-* **PNPM** (Mandatory)
+* PNPM (Package Manager)
 
-### Setup Steps
+#### Setup Steps
 
-1.  **Clone & Configure**:
-    ```bash
-    git clone https://github.com/Felondz/controlApp.git
-    cd controlApp
-    cp .env.example .env
-    ```
+1. **Environment Initialization**:
+   ```bash
+   cp .env.example .env
+   # Update your database and APP_URL settings
+   ```
 
-2.  **Start Environment**:
-    ```bash
-    ./vendor/bin/sail up -d
-    ```
+2. **Infrastructure Launch**:
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
 
-3.  **Install & Migrate**:
-    ```bash
-    ./vendor/bin/sail composer install
-    ./vendor/bin/sail artisan migrate --seed
-    ```
+3. **Dependency Management**:
+   ```bash
+   ./vendor/bin/sail composer install
+   pnpm install
+   pnpm run build
+   ```
 
-4.  **Verify**:
-    ```bash
-    ./vendor/bin/sail test
-    ```
+4. **Database & Seeding**:
+   ```bash
+   ./vendor/bin/sail artisan migrate --seed
+   ```
 
-* **Application URL**: `http://localhost`
+5. **Stability Verification**:
+   ```bash
+   ./vendor/bin/sail test
+   ```
+
+---
+
+### Roadmap & Future
+* **Mobile Ecosystem**: Native iOS and Android clients leveraging the GraphQL data layer.
+* **Advanced Analytics**: Real-time business intelligence dashboards.
+* **Marketplace Expansion**: Pluggable modules for external integrations.
+
+---
+
+© 2026 ControlApp. Built for enterprise scalability and operational excellence.

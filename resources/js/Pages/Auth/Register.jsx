@@ -280,7 +280,14 @@ export default function Register({ status }) {
                         {modalContent}
                     </div>
 
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-6 flex justify-between items-center">
+                        <Link 
+                            href={route('docs.user', { page: activeModal === 'terms' ? 'terms' : 'privacy' })}
+                            className="text-xs text-primary-600 hover:underline"
+                            target="_blank"
+                        >
+                            {t('auth.read_full_text', 'Leer texto completo')}
+                        </Link>
                         <SecondaryButton onClick={closeModal}>
                             {t('auth.close')}
                         </SecondaryButton>

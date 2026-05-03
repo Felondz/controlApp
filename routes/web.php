@@ -33,7 +33,7 @@ use App\Http\Controllers\DocumentationController;
 
 Route::get('/', WelcomeController::class);
 Route::get('/docs', [DocumentationController::class, 'index'])->name('docs.index');
-Route::get('/docs/user', [DocumentationController::class, 'user'])->name('docs.user');
+Route::get('/docs/user/{page?}', [DocumentationController::class, 'user'])->name('docs.user');
 Route::get('/docs/dev/{path?}', [DocumentationController::class, 'dev'])->where('path', '.*')->name('docs.dev');
 Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
