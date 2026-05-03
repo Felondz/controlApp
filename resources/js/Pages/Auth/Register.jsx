@@ -276,7 +276,7 @@ export default function Register({ status }) {
                         {modalTitle}
                     </h2>
 
-                    <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line max-h-96 overflow-y-auto">
+                    <div className="mt-4 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line max-h-96 overflow-y-auto overflow-x-hidden scrollbar-thin">
                         {modalContent}
                     </div>
 

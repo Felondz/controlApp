@@ -36,7 +36,7 @@ export default function KanbanColumn({ stage, lotes, onLoteClick, isLastStage, o
                     <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className={`flex-1 p-4 overflow-y-auto space-y-3 transition-colors ${snapshot.isDraggingOver ? 'bg-gray-200 dark:bg-gray-800' : ''
+                        className={`flex-1 p-4 overflow-y-auto overflow-x-hidden scrollbar-thin space-y-3 transition-colors ${snapshot.isDraggingOver ? 'bg-gray-200 dark:bg-gray-800' : ''
                             }`}
                     >
                         {lotes.map((lote, index) => (

@@ -76,18 +76,18 @@ export default function WidgetSettingsModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="md">
-            <div className="p-6">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    {t('dashboard.customize', 'Personalizar Dashboard')}
-                </h2>
-
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                    {t('dashboard.customize_desc', 'Selecciona qué widgets mostrar en tu dashboard. Puedes arrastrar los widgets para reordenarlos.')}
-                </p>
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex-none">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                        {t('dashboard.customize', 'Personalizar Dashboard')}
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {t('dashboard.customize_desc', 'Selecciona qué widgets mostrar en tu dashboard. Puedes arrastrar los widgets para reordenarlos.')}
+                    </p>
+                </div>
 
                 {/* Widget List */}
-                {/* Widget List Grouped by Module */}
-                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-6">
                     {Object.entries(
                         (availableWidgets || []).filter(w => w).reduce((acc, widget) => {
                             const module = widget.module || 'core';
@@ -165,7 +165,7 @@ export default function WidgetSettingsModal({
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between p-6 border-t border-gray-200 dark:border-gray-700 flex-none bg-white dark:bg-gray-800">
                     <button
                         onClick={handleReset}
                         className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -174,10 +174,10 @@ export default function WidgetSettingsModal({
                     </button>
 
                     <div className="flex gap-3">
-                        <SecondaryButton onClick={onClose}>
+                        <SecondaryButton onClick={onClose} type="button">
                             {t('common.cancel', 'Cancelar')}
                         </SecondaryButton>
-                        <PrimaryButton onClick={handleSave}>
+                        <PrimaryButton onClick={handleSave} type="button">
                             {t('common.save', 'Guardar')}
                         </PrimaryButton>
                     </div>

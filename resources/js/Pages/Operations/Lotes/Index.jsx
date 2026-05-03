@@ -211,7 +211,7 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
                 </div>
 
                 <div className="flex-1 overflow-hidden flex flex-col">
-                    <div id="tour-operations-kanban" className="flex-1 overflow-x-auto overflow-y-hidden">
+                    <div id="tour-operations-kanban" className="flex-1 overflow-x-auto overflow-y-hidden scrollbar-thin">
                         {processes.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
                                 <FactoryIcon className="h-16 w-16 mb-4 opacity-50" />

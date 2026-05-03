@@ -183,7 +183,7 @@ export default function UpcomingObligationsWidget({
         >
 
             {upcoming.length > 0 ? (
-                <div className="space-y-2 flex-1 overflow-y-auto pr-1 scrollbar-thin max-h-[320px]">
+                <div className="space-y-2 flex-1 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin max-h-[320px]">
                     {upcoming.map((event) => (
                         <div
                             key={event.id}

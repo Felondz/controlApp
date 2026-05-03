@@ -237,7 +237,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                             <div
                                                 {...provided.droppableProps}
                                                 ref={provided.innerRef}
-                                                className="flex-1 space-y-1.5 md:space-y-3 overflow-y-auto min-h-[100px] pr-0.5 md:pr-1 scrollbar-thin"
+                                                className="flex-1 space-y-1.5 md:space-y-3 overflow-y-auto overflow-x-hidden min-h-[100px] pr-0.5 md:pr-1 scrollbar-thin"
                                             >
                                                 {column.items.map((task, index) => (
                                                     <Draggable key={task.id} draggableId={task.id.toString()} index={index}>

@@ -72,7 +72,7 @@ export default function BillsWidget({
         >
 
             {/* Bills List */}
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
                 {bills.length > 0 ? (
                     bills.map((bill) => {
                         const remaining = getDaysRemaining(bill.fecha);

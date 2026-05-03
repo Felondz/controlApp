@@ -113,7 +113,7 @@ export default function Index({ users, filters, stats }) {
 
                 {/* Users Table */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scrollbar-thin">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-900/50">
                                 <tr>

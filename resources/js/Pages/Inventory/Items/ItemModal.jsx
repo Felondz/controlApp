@@ -72,9 +72,9 @@ export default function ItemModal({ show, onClose, project, item = null }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
                 {/* Header Compacto */}
-                <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800">
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800 flex-none">
                     <div className="flex items-center gap-3">
                         <div className="bg-primary-50 dark:bg-primary-900/20 p-2 rounded-lg text-primary-600 dark:text-primary-400">
                             <PackageIcon className="w-5 h-5" />
@@ -93,8 +93,8 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-6 pb-6">
 
                         {/* Top Section: Image + Basic Info */}
                         <div className="flex flex-col sm:flex-row gap-6">
@@ -206,8 +206,7 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                                         onChange={(e) => item ? setData('cost_price', e.target.value) : setData('initial_cost', e.target.value)}
                                         className="block w-full pl-6"
                                         placeholder="0.00"
-                                        disabled={!!item} // Cost is managed via transactions usually, but allowed to edit if manual correction needed? Keeping it editable for now or as per established rules. 
-                                    // Actually user asked for initial cost on creation. On edit, cost is usually weighted avg.
+                                        disabled={!!item}
                                     />
                                 </div>
                                 <InputError message={errors.initial_cost} className="mt-1" />
@@ -300,7 +299,7 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3 rounded-b-2xl border-t border-gray-100 dark:border-gray-700">
+                    <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 flex-none">
                         <SecondaryButton onClick={onClose} className="border-0 shadow-none hover:bg-gray-200 dark:hover:bg-gray-700">
                             {t('common.cancel', 'Cancelar')}
                         </SecondaryButton>

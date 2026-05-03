@@ -77,7 +77,7 @@ export default function History({ auth, proyecto, lotes, filters }) {
                             </div>
 
                             {/* Table */}
-                            <div className="overflow-x-auto -mx-4 sm:mx-0">
+                            <div className="overflow-x-auto -mx-4 sm:mx-0 scrollbar-thin">
                                 <div className="inline-block min-w-full align-middle md:px-0">
                                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                         <thead className="bg-gray-50 dark:bg-gray-700/50">

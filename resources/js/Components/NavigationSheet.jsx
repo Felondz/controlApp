@@ -176,7 +176,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
                             <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-8 scrollbar-thin">
                             {project && (
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">

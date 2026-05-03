@@ -33,11 +33,8 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
         setError(null);
 
         try {
-            console.log('🟢 Sending delete request...');
             await axios.delete(`/api/proyectos/${project.id}/cuentas/${account.id}`);
-            console.log('🟢 Delete request successful');
         } catch (err) {
-            console.error('🔴 Delete failed:', err);
             setError(err.response?.data?.message || t('common.error_saving', 'Error al guardar'));
             setProcessing(false);
             return;
@@ -47,7 +44,6 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
         setProcessing(false); // Force UI update immediately
         setConfirmation('');
 
-        console.log('🟢 Calling onSuccess...');
         if (onSuccess) {
             onSuccess();
         } else {

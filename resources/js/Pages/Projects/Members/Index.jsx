@@ -83,7 +83,7 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
                     {/* Members List */}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto scrollbar-thin">
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                     <thead className="bg-gray-50 dark:bg-gray-700">
                                         <tr>

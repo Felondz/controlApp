@@ -115,7 +115,7 @@ export default function QuickTransactionModal({
                 setAvailableCategorias(response.data);
             }
         } catch (error) {
-            console.error('Error loading categories:', error);
+            // Error loading handled silently or via UI
         } finally {
             setLoadingCategorias(false);
         }
@@ -126,7 +126,7 @@ export default function QuickTransactionModal({
             const response = await axios.get(`/api/proyectos/${pid}/cuentas`);
             setAvailableCuentas(response.data);
         } catch (error) {
-            console.error('Error loading accounts:', error);
+            // Error loading handled silently or via UI
         }
     };
 
@@ -138,7 +138,7 @@ export default function QuickTransactionModal({
             const response = await axios.get(`/api/proyectos/${pid}/transacciones?status=pending`);
             setAvailableBills(response.data);
         } catch (error) {
-            console.error('Error loading bills:', error);
+            // Error loading handled silently or via UI
         } finally {
             setLoadingBills(false);
         }
@@ -265,7 +265,6 @@ export default function QuickTransactionModal({
                 onClose();
             },
             onError: (errors) => {
-                console.error('Transaction submission errors:', errors);
                 // Alert first error if any
                 if (Object.keys(errors).length > 0) {
                     alert(Object.values(errors)[0]);
@@ -331,7 +330,6 @@ export default function QuickTransactionModal({
                 onClose();
             },
             onError: (errors) => {
-                console.error('Transaction errors:', errors);
                 if (Object.keys(errors).length > 0) {
                     alert(t('finance.error_saving', 'Error al guardar: ') + Object.values(errors)[0]);
                 }
@@ -343,10 +341,11 @@ export default function QuickTransactionModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="md">
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
                 {/* Header with Tabs */}
-                <div className="flex border-b border-gray-200 dark:border-gray-700">
+                <div className="flex border-b border-gray-200 dark:border-gray-700 flex-none">
                     <button
+                        type="button"
                         className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'expense'
                             ? 'text-red-600 border-b-2 border-red-600 bg-red-50 dark:bg-red-900/10'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
@@ -356,6 +355,7 @@ export default function QuickTransactionModal({
                         {t('finance.expense', 'Gasto')}
                     </button>
                     <button
+                        type="button"
                         className={`flex-1 py-4 text-sm font-medium text-center transition-colors ${activeTab === 'income'
                             ? 'text-green-600 border-b-2 border-green-600 bg-green-50 dark:bg-green-900/10'
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
@@ -364,157 +364,158 @@ export default function QuickTransactionModal({
                     >
                         {t('finance.income', 'Ingreso')}
                     </button>
-
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Amount Input - Large & Center */}
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-gray-500 sm:text-2xl">$</span>
+                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-6">
+                        {/* Amount Input - Large & Center */}
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="text-gray-500 sm:text-2xl">$</span>
+                            </div>
+                            <input
+                                id="monto"
+                                type="number"
+                                step="0.01"
+                                value={data.monto}
+                                onChange={(e) => setData('monto', e.target.value)}
+                                className="block w-full pl-8 pr-12 py-4 text-3xl text-center font-bold text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-transparent"
+                                placeholder="0.00"
+                                required
+                                autoFocus
+                            />
                         </div>
-                        <input
-                            id="monto"
-                            type="number"
-                            step="0.01"
-                            value={data.monto}
-                            onChange={(e) => setData('monto', e.target.value)}
-                            className="block w-full pl-8 pr-12 py-4 text-3xl text-center font-bold text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-transparent"
-                            placeholder="0.00"
-                            required
-                            autoFocus
-                        />
+
+                        {/* Account Selector (Hidden for Bills) */}
+                        {activeTab !== 'bill' && (
+                            <div>
+                                <InputLabel htmlFor="cuenta_id" value={t('finance.account', 'Cuenta')} />
+                                <select
+                                    id="cuenta_id"
+                                    value={data.cuenta_id}
+                                    onChange={(e) => setData('cuenta_id', e.target.value)}
+                                    className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
+                                    required={activeTab !== 'bill'}
+                                >
+                                    <option value="">{t('finance.select_account', 'Seleccionar Cuenta')}</option>
+                                    {availableCuentas.map((cuenta) => (
+                                        <option key={cuenta.id} value={cuenta.id}>
+                                            {cuenta.nombre}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* Installments Selector for Credit Card */}
+                        {activeTab === 'expense' && data.cuenta_id && availableCuentas.find(c => c.id == data.cuenta_id)?.tipo === 'credito' && (
+                            <div>
+                                <InputLabel value={t('finance.installments', 'Cuotas')} />
+                                <div className="flex items-center gap-2 mt-1">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="48"
+                                        value={data.cuotas}
+                                        onChange={(e) => setData('cuotas', Math.min(48, Math.max(1, parseInt(e.target.value) || 1)))}
+                                        className="w-20 text-center border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
+                                    />
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        {data.cuotas > 1
+                                            ? t('finance.with_interest', 'con interés')
+                                            : t('finance.no_interest', 'sin interés')
+                                        }
+                                    </span>
+                                </div>
+                                {data.cuotas > 1 && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        {t('finance.monthly_payment', 'Pago mensual')}: ~${(parseFloat(data.monto || 0) / data.cuotas).toFixed(2)}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Bill Selector (Only for Bills category) */}
+                        {showBillSelector && (
+                            <div className="animate-fade-in-down">
+                                <InputLabel value={t('finance.select_bill', 'Seleccionar Factura Pendiente (Opcional)')} />
+                                <select
+                                    onChange={(e) => handleBillSelect(e.target.value)}
+                                    className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
+                                >
+                                    <option value="">{t('finance.new_bill_payment', 'Registrar Nuevo Pago')}</option>
+                                    {availableBills.map((bill) => (
+                                        <option key={bill.id} value={bill.id}>
+                                            {bill.descripcion} ({new Date(bill.fecha).toLocaleDateString()}) - {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(Math.abs(bill.monto) / 100)}
+                                        </option>
+                                    ))}
+                                </select>
+                                {loadingBills && <p className="text-xs text-gray-500 mt-1">{t('common.loading', 'Cargando...')}</p>}
+                            </div>
+                        )}
+
+                        {/* Expense Categories Grid */}
+                        {activeTab === 'expense' && (
+                            <div className="space-y-2">
+                                <InputLabel value={t('finance.category', 'Categoría')} />
+                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                                    {expenseCategories.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            type="button"
+                                            onClick={() => handleCategorySelect(cat)}
+                                            className={`flex flex-col items-center p-2 rounded-lg transition-colors border ${data.custom_category === cat.id
+                                                ? 'bg-primary-50 border-primary-500 text-primary-700 dark:bg-primary-900/20 dark:border-primary-500 dark:text-primary-300'
+                                                : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+                                                }`}
+                                        >
+                                            <cat.icon className="w-6 h-6 mb-1" />
+                                            <span className="text-[10px] font-medium truncate w-full text-center">{cat.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Description - Required for 'Other', 'Bill', Optional for Income */}
+                        {(activeTab === 'income' || activeTab === 'bill' || data.custom_category === 'other') && (
+                            <div>
+                                <InputLabel
+                                    value={activeTab === 'bill' ? t('finance.company', 'Empresa / Concepto') : t('finance.description', 'Descripción')}
+                                    required={data.custom_category === 'other' || activeTab === 'bill'}
+                                />
+                                <TextInput
+                                    value={data.descripcion}
+                                    onChange={(e) => setData('descripcion', e.target.value)}
+                                    className="mt-1 block w-full"
+                                    placeholder={
+                                        activeTab === 'income' ? t('finance.income_desc', 'Ej: Salario, Venta') :
+                                            activeTab === 'bill' ? t('finance.bill_desc', 'Ej: EPM, Claro, Arriendo') :
+                                                t('finance.other_desc', 'Especificar gasto...')
+                                    }
+                                    required={data.custom_category === 'other' || activeTab === 'bill'}
+                                />
+                            </div>
+                        )}
+
+                        {/* Due Date for Bills */}
+                        {activeTab === 'bill' && (
+                            <div>
+                                <InputLabel value={t('finance.due_date', 'Fecha de Vencimiento')} />
+                                <TextInput
+                                    type="date"
+                                    value={data.fecha}
+                                    onChange={(e) => setData('fecha', e.target.value)}
+                                    className="mt-1 block w-full"
+                                    required
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    {/* Account Selector (Hidden for Bills) */}
-                    {activeTab !== 'bill' && (
-                        <div>
-                            <InputLabel htmlFor="cuenta_id" value={t('finance.account', 'Cuenta')} />
-                            <select
-                                id="cuenta_id"
-                                value={data.cuenta_id}
-                                onChange={(e) => setData('cuenta_id', e.target.value)}
-                                className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
-                                required={activeTab !== 'bill'}
-                            >
-                                <option value="">{t('finance.select_account', 'Seleccionar Cuenta')}</option>
-                                {availableCuentas.map((cuenta) => (
-                                    <option key={cuenta.id} value={cuenta.id}>
-                                        {cuenta.nombre}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Installments Selector for Credit Card */}
-                    {activeTab === 'expense' && data.cuenta_id && availableCuentas.find(c => c.id == data.cuenta_id)?.tipo === 'credito' && (
-                        <div>
-                            <InputLabel value={t('finance.installments', 'Cuotas')} />
-                            <div className="flex items-center gap-2 mt-1">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="48"
-                                    value={data.cuotas}
-                                    onChange={(e) => setData('cuotas', Math.min(48, Math.max(1, parseInt(e.target.value) || 1)))}
-                                    className="w-20 text-center border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
-                                />
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                    {data.cuotas > 1
-                                        ? t('finance.with_interest', 'con interés')
-                                        : t('finance.no_interest', 'sin interés')
-                                    }
-                                </span>
-                            </div>
-                            {data.cuotas > 1 && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    {t('finance.monthly_payment', 'Pago mensual')}: ~${(parseFloat(data.monto || 0) / data.cuotas).toFixed(2)}
-                                </p>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Bill Selector (Only for Bills category) */}
-                    {showBillSelector && (
-                        <div className="animate-fade-in-down">
-                            <InputLabel value={t('finance.select_bill', 'Seleccionar Factura Pendiente (Opcional)')} />
-                            <select
-                                onChange={(e) => handleBillSelect(e.target.value)}
-                                className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-primary-500 dark:focus:border-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 rounded-md shadow-sm"
-                            >
-                                <option value="">{t('finance.new_bill_payment', 'Registrar Nuevo Pago')}</option>
-                                {availableBills.map((bill) => (
-                                    <option key={bill.id} value={bill.id}>
-                                        {bill.descripcion} ({new Date(bill.fecha).toLocaleDateString()}) - {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(Math.abs(bill.monto) / 100)}
-                                    </option>
-                                ))}
-                            </select>
-                            {loadingBills && <p className="text-xs text-gray-500 mt-1">{t('common.loading', 'Cargando...')}</p>}
-                        </div>
-                    )}
-
-                    {/* Expense Categories Grid */}
-                    {activeTab === 'expense' && (
-                        <div className="space-y-2">
-                            <InputLabel value={t('finance.category', 'Categoría')} />
-                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                                {expenseCategories.map((cat) => (
-                                    <button
-                                        key={cat.id}
-                                        type="button"
-                                        onClick={() => handleCategorySelect(cat)}
-                                        className={`flex flex-col items-center p-2 rounded-lg transition-colors border ${data.custom_category === cat.id
-                                            ? 'bg-primary-50 border-primary-500 text-primary-700 dark:bg-primary-900/20 dark:border-primary-500 dark:text-primary-300'
-                                            : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                                            }`}
-                                    >
-                                        <cat.icon className="w-6 h-6 mb-1" />
-                                        <span className="text-[10px] font-medium truncate w-full text-center">{cat.label}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Description - Required for 'Other', 'Bill', Optional for Income */}
-                    {(activeTab === 'income' || activeTab === 'bill' || data.custom_category === 'other') && (
-                        <div>
-                            <InputLabel
-                                value={activeTab === 'bill' ? t('finance.company', 'Empresa / Concepto') : t('finance.description', 'Descripción')}
-                                required={data.custom_category === 'other' || activeTab === 'bill'}
-                            />
-                            <TextInput
-                                value={data.descripcion}
-                                onChange={(e) => setData('descripcion', e.target.value)}
-                                className="mt-1 block w-full"
-                                placeholder={
-                                    activeTab === 'income' ? t('finance.income_desc', 'Ej: Salario, Venta') :
-                                        activeTab === 'bill' ? t('finance.bill_desc', 'Ej: EPM, Claro, Arriendo') :
-                                            t('finance.other_desc', 'Especificar gasto...')
-                                }
-                                required={data.custom_category === 'other' || activeTab === 'bill'}
-                            />
-                        </div>
-                    )}
-
-                    {/* Due Date for Bills */}
-                    {activeTab === 'bill' && (
-                        <div>
-                            <InputLabel value={t('finance.due_date', 'Fecha de Vencimiento')} />
-                            <TextInput
-                                type="date"
-                                value={data.fecha}
-                                onChange={(e) => setData('fecha', e.target.value)}
-                                className="mt-1 block w-full"
-                                required
-                            />
-                        </div>
-                    )}
-
                     {/* Footer Actions */}
-                    <div className="flex justify-end gap-3 pt-2">
-                        <SecondaryButton onClick={onClose} disabled={isSubmitting}>
+                    <div className="flex justify-end gap-3 p-6 pt-2 border-t border-gray-100 dark:border-gray-700 flex-none">
+                        <SecondaryButton onClick={onClose} disabled={isSubmitting} type="button">
                             {t('common.cancel', 'Cancelar')}
                         </SecondaryButton>
                         <PrimaryButton type="submit" disabled={isSubmitting}>

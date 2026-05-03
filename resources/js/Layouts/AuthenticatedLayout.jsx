@@ -168,7 +168,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                         )}
                                     </div>
 
-                                    <div className="max-h-80 overflow-y-auto scrollbar-thin">
+                                    <div className="max-h-80 overflow-y-auto overflow-x-hidden scrollbar-thin">
                                         {/* Invitations Section */}
                                         {user.pending_invitations && user.pending_invitations.length > 0 && (
                                             <div className="bg-amber-50/30 dark:bg-amber-900/10">
@@ -476,7 +476,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                 </nav>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto focus:outline-none scrollbar-thin">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none scrollbar-thin">
                     {header && (
                         <header className="md:hidden bg-white dark:bg-gray-800 shadow shrink-0">
                             <div className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">

@@ -52,7 +52,7 @@ export default function UserTasksWidget({ project, widget, onHide, isDragging, d
             isDragging={isDragging}
             dragHandleProps={dragHandleProps}
         >
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-60 overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin">
                 {data.map((user) => (
                     <div key={user.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                         {/* User Info */}

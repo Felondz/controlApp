@@ -47,8 +47,7 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
             router.reload({ only: ['proyecto'] });
             onClose();
         } catch (error) {
-            console.error('Error updating settings:', error);
-            // Ideally show a toast notification here
+            alert(t('common.error_saving', 'Error al guardar'));
         } finally {
             setProcessing(false);
         }
@@ -67,8 +66,8 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="md">
-            <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
+            <div className="bg-white dark:bg-gray-800 flex flex-col max-h-[calc(100vh-4rem)]">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-none">
                     <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
                         <Cog6ToothIcon className="w-5 h-5 text-gray-500" />
                         {t('finance.dashboard_settings', 'Personalizar Panel')}
@@ -79,7 +78,7 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
                     </button>
                 </div>
 
-                <div className="space-y-4 mb-6">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-4">
                     {widgetOptions.map((option) => (
                         <div key={option.key} className="flex items-start justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer" onClick={() => handleToggle(option.key)}>
                             <div className="flex-1">
@@ -90,14 +89,14 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
                                     {option.description}
                                 </p>
                             </div>
-                            <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${widgets[option.key] ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                            <div className={`w-10 h-6 flex items-center rounded-full p-1 flex-none transition-colors duration-300 ${widgets[option.key] ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}>
                                 <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${widgets[option.key] ? 'translate-x-4' : 'translate-x-0'}`}></div>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 flex-none">
                     <SecondaryButton onClick={onClose} disabled={processing}>
                         {t('common.cancel', 'Cancelar')}
                     </SecondaryButton>

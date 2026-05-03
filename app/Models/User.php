@@ -261,23 +261,20 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return string|null
      */
-    public function getProfilePhotoUrlAttribute()
+    public function getProfilePhotoUrlAttribute(): ?string
     {
         if (!$this->profile_photo_path) {
             return null;
         }
 
-        // Si ya es una URL absoluta, devolverla tal cual
+        // Si ya es una URL absoluta (como las de Google), devolverla tal cual
         if (filter_var($this->profile_photo_path, FILTER_VALIDATE_URL)) {
             return $this->profile_photo_path;
         }
 
-        // Usar ruta relativa en local para evitar fallos por APP_URL (localhost vs IP)
-        if (config('app.env') === 'local') {
-            return '/storage/' . ltrim($this->profile_photo_path, '/');
-        }
-
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->profile_photo_path);
+        // Usar asset() para generar una URL absoluta basada en la petición actual
+        // Esto es compatible con Docker, Sail, PTR y Apps Móviles (Expo)
+        return asset('storage/' . ltrim($this->profile_photo_path, '/'));
     }
 
     /**
