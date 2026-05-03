@@ -163,7 +163,7 @@ export default function DraggableWidgetGrid({
         if (project) {
             // Save to Project Settings
             router.put(
-                route('finance.projects.update-settings', { project: project.id }),
+                route('finance.projects.update-settings', { project: project.uuid }),
                 { settings: newSettings },
                 {
                     preserveScroll: true,

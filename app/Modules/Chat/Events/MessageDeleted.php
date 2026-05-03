@@ -22,10 +22,10 @@ class MessageDeleted extends BaseModuleEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param int $messageId
-     * @param int $proyectoId
+     * @param string $messageId
+     * @param string $proyectoId
      */
-    public function __construct(int $messageId, int $proyectoId)
+    public function __construct(string $messageId, string $proyectoId)
     {
         parent::__construct('chat', [
             'message_id' => $messageId,

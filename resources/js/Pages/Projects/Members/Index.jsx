@@ -21,17 +21,17 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
         setSuccessMessage(flash.success);
     }
 
-    const handleRemoveMember = (memberId) => {
+    const handleRemoveMember = (memberUuid) => {
         if (!confirm(t('members.confirm_remove', '¿Estás seguro de eliminar este miembro?'))) return;
 
-        router.delete(route('project.members.destroy', { proyecto: proyecto.id, user: memberId }), {
+        router.delete(route('project.members.destroy', { proyecto: proyecto.uuid, user: memberUuid }), {
             preserveScroll: true,
             onSuccess: () => setSuccessMessage(t('members.member_removed', 'Miembro eliminado.')),
         });
     };
 
-    const handleChangeRole = (memberId, newRole) => {
-        router.put(route('project.members.update', { proyecto: proyecto.id, user: memberId }), {
+    const handleChangeRole = (memberUuid, newRole) => {
+        router.put(route('project.members.update', { proyecto: proyecto.uuid, user: memberUuid }), {
             rol: newRole
         }, {
             preserveScroll: true,
@@ -39,10 +39,10 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
         });
     };
 
-    const handleCancelInvitation = (invitationId) => {
+    const handleCancelInvitation = (invitationUuid) => {
         if (!confirm(t('members.confirm_cancel_invite', '¿Cancelar invitación?'))) return;
 
-        router.delete(route('project.invitations.destroy', { proyecto: proyecto.id, invitation: invitationId }), {
+        router.delete(route('project.invitations.destroy', { proyecto: proyecto.uuid, invitation: invitationUuid }), {
             preserveScroll: true,
             onSuccess: () => setSuccessMessage(t('members.invite_cancelled', 'Invitación cancelada.')),
         });
@@ -83,7 +83,7 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
                     {/* Members List */}
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto scrollbar-thin">
                                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                     <thead className="bg-gray-50 dark:bg-gray-700">
                                         <tr>
@@ -136,14 +136,14 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
                                                             <div className="flex justify-end space-x-2">
                                                                 <select
                                                                     value={member.pivot.rol}
-                                                                    onChange={(e) => handleChangeRole(member.id, e.target.value)}
+                                                                    onChange={(e) => handleChangeRole(member.uuid, e.target.value)}
                                                                     className="text-xs border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                                 >
                                                                     <option value="miembro">{t('members.role_member', 'Miembro')}</option>
                                                                     <option value="admin">{t('members.role_admin', 'Admin')}</option>
                                                                 </select>
                                                                 <button
-                                                                    onClick={() => handleRemoveMember(member.id)}
+                                                                    onClick={() => handleRemoveMember(member.uuid)}
                                                                     className="text-red-600 hover:text-red-900 dark:hover:text-red-400"
                                                                     title={t('common.remove', 'Eliminar')}
                                                                 >
@@ -183,7 +183,7 @@ export default function MembersIndex({ auth, proyecto, members, invitations, isA
                                                 </p>
                                             </div>
                                             {isAdmin && (
-                                                <DangerButton onClick={() => handleCancelInvitation(invitation.id)} className="ml-4 text-xs">
+                                                <DangerButton onClick={() => handleCancelInvitation(invitation.uuid)} className="ml-4 text-xs">
                                                     {t('common.cancel', 'Cancelar')}
                                                 </DangerButton>
                                             )}

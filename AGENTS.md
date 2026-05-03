@@ -143,19 +143,71 @@ export default forwardRef(function ComponentName(
 ## Architecture Guidelines
 
 ### Modular Backend Structure
-- **Modules**: `app/Modules/{ModuleName}/` (Finance, Tasks, Chat, Inventory, Operations, Analytics, Notifications)
+- **Modules**: `app/Modules/{ModuleName}/` (Finance, Tasks, Chat, Inventory, Operations)
 - **Event-Driven**: Use ModuleEventBus for inter-module communication (NO direct module coupling)
 - **Standard Laravel**: Controllers, Models, Policies, Requests, Observers
+- **Deprecated**: Analytics and Notifications modules have been removed
+
+### UUID Routing Convention (CRITICAL)
+> **⚠️ MANDATORY**: All primary resources use **UUID** for route model binding, NOT integer IDs.
+> This applies to `Proyecto`, `Cuenta`, `InventoryItem`, `LoteProduccion`, `Task`, and all models using the `HasUuids` trait.
+
+**Rules:**
+1. **Models**: All routable models MUST have `getRouteKeyName()` returning `'uuid'` and use the `HasUuids` trait.
+2. **Frontend routing**: Always use `model.uuid` when building route parameters:
+   ```jsx
+   // ✅ CORRECT
+   route('operations.lotes.store', { proyecto: proyecto.uuid })
+   post(`/api/proyectos/${proyectoId}/cuentas/${account.uuid}`, data)
+   
+   // ❌ WRONG — will cause 404
+   route('operations.lotes.store', { proyecto: proyecto.id })
+   post(`/api/proyectos/${proyectoId}/cuentas/${account.id}`, data)
+   ```
+3. **Backend redirects**: Controllers MUST use `$model->uuid` in route parameters:
+   ```php
+   // ✅ CORRECT
+   return to_route('operations.lotes.index', ['proyecto' => $proyecto->uuid]);
+   
+   // ❌ WRONG
+   return to_route('operations.lotes.index', ['proyecto' => $proyecto->id]);
+   ```
+4. **GraphQL (Mobile)**: GraphQL mutations use integer `id` via `findOrFail()` — this is correct since GraphQL operates with internal PKs, not UUIDs.
+5. **Internal queries**: Use `$model->id` (integer) for database queries, foreign keys, and relationships. UUIDs are ONLY for routing.
 
 ### API Strategy (GraphQL vs REST)
 - **GraphQL (Primary Mobile Data Layer)**: Use for >95% of standard Mobile operations. Ideal for CRUD, fetching nested relationships (e.g., loading a Project with Members, Tasks, and Transactions in one trip), and reducing mobile payload sizes.
 - **REST API (Specialized/Streaming/Web Parity Layer)**: Use strictly for endpoints requiring HTTP Streaming (like LLM Chat SSE responses), binary file uploads, webhooks, or when identical request/response parity is mandatory between Web (React) and Mobile (React Native) bypassing GraphQL limitations.
 
 ### Frontend Organization
-- **Components**: `resources/js/components/` for reusable UI components
+- **Components**: `resources/js/Components/` for reusable UI components
 - **Pages**: `resources/js/Pages/` for Inertia.js page components
 - **Modules**: `resources/js/Modules/{ModuleName}/` for feature-specific components
 - **Path Aliases**: Use `@/*` mapping to `resources/js/*`
+
+### Currency Formatting Convention
+- **Database**: All monetary values are stored as **integers in cents** (centavos).
+- **Display**: Use `formatCurrency(amountInCents, currencyCode)` from `@/Utils/currencyHelpers.js`.
+- **Input Fields**: Use the `<CurrencyInput>` component (`@/Components/CurrencyInput.jsx`) for all money input fields. It:
+  - Shows the correct currency symbol based on `currency` prop
+  - Formats with thousand separators on blur
+  - Respects decimal rules: **no decimals** for COP/JPY/KRW/CLP, **2 decimals** for USD/EUR/GBP
+  ```jsx
+  <CurrencyInput
+      id="saldo_inicial"
+      value={data.saldo_inicial}  // Value in currency units (NOT cents)
+      onChange={(e) => setData('saldo_inicial', e.target.value)}
+      currency={data.moneda}      // ISO 4217 code
+      className="mt-1 block w-full"
+  />
+  ```
+- **Conversion**: When loading from DB, divide by 100. When saving to DB, multiply by 100.
+  ```js
+  // Loading: centsToDisplay
+  const val = (dbValue / 100).toFixed(shouldShowDecimals(currency) ? 2 : 0);
+  // Saving: displayToCents
+  const cents = parseFloat(formValue || 0) * 100;
+  ```
 
 ## Critical Rules
 

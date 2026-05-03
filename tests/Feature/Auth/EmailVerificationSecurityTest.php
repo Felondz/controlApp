@@ -90,7 +90,7 @@ class EmailVerificationSecurityTest extends TestCase
         // 7. Intentar verificar con el primer hash (debe funcionar porque el hash es el mismo)
         // Nota: En este caso, el hash no cambia porque se basa en el email
         // La seguridad viene de que email_verified_at se resetea a null
-        $verifyResponse = $this->get("/api/email/verify/{$user->id}/{$firstHash}");
+        $verifyResponse = $this->get("/api/email/verify/{$user->uuid}/{$firstHash}");
 
         // Debe funcionar porque el hash es válido y email_verified_at es null
         $verifyResponse->assertStatus(302);
@@ -167,7 +167,7 @@ class EmailVerificationSecurityTest extends TestCase
 
         $invalidHash = 'hash_invalido_123';
 
-        $response = $this->get("/api/email/verify/{$user->id}/{$invalidHash}");
+        $response = $this->get("/api/email/verify/{$user->uuid}/{$invalidHash}");
 
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));

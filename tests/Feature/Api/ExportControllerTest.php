@@ -49,7 +49,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function member_can_export_transactions_to_csv(): void
     {
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv?type=transactions");
 
         $response->assertSuccessful();
         $response->assertJson([
@@ -61,7 +61,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function member_can_export_accounts_to_csv(): void
     {
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=accounts");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv?type=accounts");
 
         $response->assertSuccessful();
         $response->assertJson([
@@ -73,7 +73,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function member_can_export_categories_to_csv(): void
     {
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=categories");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv?type=categories");
 
         $response->assertSuccessful();
         $response->assertJson([
@@ -85,7 +85,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function csv_export_supports_date_filtering(): void
     {
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=transactions&from=2024-01-01&to=2024-12-31");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv?type=transactions&from=2024-01-01&to=2024-12-31");
 
         $response->assertSuccessful();
     }
@@ -96,7 +96,7 @@ class ExportControllerTest extends TestCase
         $otherUser = User::factory()->create();
         Sanctum::actingAs($otherUser);
 
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv");
 
         $response->assertForbidden();
     }
@@ -104,7 +104,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function member_can_export_pdf_summary(): void
     {
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/export/pdf", [
             'type' => 'summary',
         ]);
 
@@ -118,7 +118,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function pdf_export_supports_date_range(): void
     {
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/export/pdf", [
             'type' => 'all',
             'from' => '2024-01-01',
             'to' => '2024-12-31',
@@ -133,7 +133,7 @@ class ExportControllerTest extends TestCase
         $otherUser = User::factory()->create();
         Sanctum::actingAs($otherUser);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/export/pdf");
 
         $response->assertForbidden();
     }
@@ -141,7 +141,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function csv_export_validates_type_parameter(): void
     {
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv?type=invalid");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv?type=invalid");
 
         $response->assertUnprocessable();
     }
@@ -149,7 +149,7 @@ class ExportControllerTest extends TestCase
     #[Test]
     public function pdf_export_validates_type_parameter(): void
     {
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/export/pdf", [
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/export/pdf", [
             'type' => 'invalid',
         ]);
 
@@ -162,7 +162,7 @@ class ExportControllerTest extends TestCase
         // Clear authentication
         $this->app['auth']->forgetGuards();
 
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/export/csv");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/export/csv");
 
         $response->assertUnauthorized();
     }

@@ -27,14 +27,14 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('modules.finance', 'Finanzas'),
             icon: CurrencyDollarIcon,
             route: 'mis-proyectos.finance',
-            routeParams: project.id,
+            routeParams: project.uuid,
             show: modules.includes('finance'),
         },
         {
             name: t('modules.tasks', 'Tareas'),
             icon: CheckListIcon,
             route: 'mis-proyectos.tasks.index',
-            routeParams: { proyecto: project.id },
+            routeParams: { proyecto: project.uuid },
             disabled: false,
             show: modules.includes('tasks'),
         },
@@ -42,7 +42,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('modules.chat.title', 'Chat'),
             icon: ChatIcon,
             route: 'mis-proyectos.chat',
-            routeParams: project.id,
+            routeParams: project.uuid,
             show: modules.includes('chat') && !project.es_personal,
             badge: project.unread_messages_count
         },
@@ -50,7 +50,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('projects.members', 'Miembros'),
             icon: UserCircleIcon,
             route: 'project.members.index',
-            routeParams: project.id,
+            routeParams: project.uuid,
             disabled: false,
             show: !project.es_personal && project.es_personal !== 1,
         },
@@ -58,14 +58,14 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('projects.project_settings', 'Configuración'),
             icon: EllipsisVerticalIcon,
             route: 'mis-proyectos.edit',
-            routeParams: project.id,
+            routeParams: project.uuid,
             show: !project.es_personal,
         },
         {
             name: t('operations.title', 'Operaciones'),
             icon: FactoryIcon, // Ensure FactoryIcon is imported
             route: 'operations.lotes.index',
-            routeParams: project.id,
+            routeParams: project.uuid,
             show: modules.includes('operations'),
         },
     ] : [];
@@ -176,7 +176,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
                             <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-8 scrollbar-thin">
                             {project && (
                                 <div>
                                     <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">

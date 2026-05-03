@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon, BugIcon } from '@/Components/Icons';
+import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon, BugIcon, EnvelopeIcon } from '@/Components/Icons';
 import Dropdown from '@/Components/Dropdown';
 import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
@@ -17,12 +17,35 @@ import BugReporterWidget from '@/Components/BugReporterWidget';
 import PtrBanner from '@/Components/PtrBanner';
 import { useGlobalTheme } from '@/Contexts/GlobalThemeContext';
 import { getThemeStyle } from '@/Utils/themeStyles';
+import Toast from '@/Components/Toast';
 
 export default function AuthenticatedLayout({ header, children, projectTheme = null, project = null, showBackButton = true }) {
     const user = usePage().props.auth.user;
+    const { flash } = usePage().props;
+    const [toast, setToast] = useState(null);
+
+    // Watch for flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            setToast({ message: flash.success, type: 'success' });
+        } else if (flash?.error) {
+            setToast({ message: flash.error, type: 'error' });
+        } else if (flash?.status) {
+            setToast({ message: flash.status, type: 'info' });
+        }
+    }, [flash]);
 
     return (
-        <LayoutContent user={user} header={header} projectTheme={projectTheme} project={project} showBackButton={showBackButton}>{children}</LayoutContent>
+        <>
+            <LayoutContent user={user} header={header} projectTheme={projectTheme} project={project} showBackButton={showBackButton}>{children}</LayoutContent>
+            {toast && (
+                <Toast 
+                    message={toast.message} 
+                    type={toast.type} 
+                    onClose={() => setToast(null)} 
+                />
+            )}
+        </>
     );
 }
 
@@ -168,7 +191,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                         )}
                                     </div>
 
-                                    <div className="max-h-80 overflow-y-auto scrollbar-thin">
+                                    <div className="max-h-80 overflow-y-auto overflow-x-hidden scrollbar-thin">
                                         {/* Invitations Section */}
                                         {user.pending_invitations && user.pending_invitations.length > 0 && (
                                             <div className="bg-amber-50/30 dark:bg-amber-900/10">
@@ -210,7 +233,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                                 {user.unread_projects.map((project) => (
                                                     <Dropdown.Link
                                                         key={`chat-${project.id}`}
-                                                        href={route('mis-proyectos.chat', project.id)}
+                                                        href={route('mis-proyectos.chat', project.uuid)}
                                                         className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                                                     >
                                                         <div className="shrink-0 mr-3">
@@ -476,7 +499,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                 </nav>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto focus:outline-none scrollbar-thin">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden focus:outline-none scrollbar-thin">
                     {header && (
                         <header className="md:hidden bg-white dark:bg-gray-800 shadow shrink-0">
                             <div className="max-w-7xl mx-auto py-2 px-4 sm:px-6 lg:px-8">

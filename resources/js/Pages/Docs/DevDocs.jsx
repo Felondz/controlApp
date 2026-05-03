@@ -115,7 +115,7 @@ export default function DevDocs({ items, content, currentPath, isDir, breadcrumb
                                 </div>
                             )}
 
-                            <div className="max-h-[70vh] overflow-y-auto custom-scrollbar p-2">
+                            <div className="max-h-[70vh] overflow-y-auto overflow-x-hidden scrollbar-thin p-2">
                                 {items.map((item, index) => (
                                     <Link
                                         key={index}
@@ -197,7 +197,7 @@ export default function DevDocs({ items, content, currentPath, isDir, breadcrumb
                                             ),
                                             pre: ({ node, ...props }) => (
                                                 <div className="relative group my-6">
-                                                    <pre className="block bg-[#0d1117] text-gray-200 p-5 rounded-xl overflow-x-auto text-sm font-mono leading-relaxed border border-gray-700 shadow-inner" {...props} />
+                                                    <pre className="block bg-[#0d1117] text-gray-200 p-5 rounded-xl overflow-x-auto scrollbar-thin text-sm font-mono leading-relaxed border border-gray-700 shadow-inner" {...props} />
                                                 </div>
                                             ),
                                             code: ({ node, inline, className, children, ...props }) => {

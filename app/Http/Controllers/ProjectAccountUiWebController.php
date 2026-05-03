@@ -14,9 +14,11 @@ class ProjectAccountUiWebController extends Controller
      * Note: This is for unlinking a SHARED account, not deleting a project account.
      */
 
-    public function unlink(Request $request, Proyecto $proyecto, Cuenta $account)
+    public function unlink(Request $request, Proyecto $proyecto, Cuenta $account): \Illuminate\Http\RedirectResponse
     {
-        if (!$request->user()->esAdminDe($proyecto)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if (!$user->esAdminDe($proyecto)) {
             abort(403);
         }
 
@@ -28,19 +30,12 @@ class ProjectAccountUiWebController extends Controller
     /**
      * Delete a project account.
      */
-    /**
-     * Delete a project account.
-     */
-    public function destroy(Request $request, Proyecto $proyecto, $accountId)
+    public function destroy(Request $request, Proyecto $proyecto, Cuenta $account): \Illuminate\Http\RedirectResponse
     {
-        $account = Cuenta::find($accountId);
-
-        if (!$account) {
-            return redirect()->back()->withErrors(['error' => 'Cuenta no encontrada.']);
-        }
-
         // 1. Authorization
-        if (!$request->user()->esAdminDe($proyecto)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if (!$user->esAdminDe($proyecto)) {
             abort(403, 'Unauthorized');
         }
 

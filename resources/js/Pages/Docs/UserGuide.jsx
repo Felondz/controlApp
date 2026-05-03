@@ -103,7 +103,7 @@ export default function UserGuide({ content, title }) {
                                 </div>
                             ),
                             code: ({ node, inline, className, children, ...props }) => (
-                                <code className={`${inline ? 'bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm font-mono text-primary-600 dark:text-primary-400' : 'block bg-gray-900 text-white p-4 rounded-xl overflow-x-auto'}`} {...props}>
+                                <code className={`${inline ? 'bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-sm font-mono text-primary-600 dark:text-primary-400' : 'block bg-gray-900 text-white p-4 rounded-xl overflow-x-auto scrollbar-thin'}`} {...props}>
                                     {children}
                                 </code>
                             )

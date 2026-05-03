@@ -8,6 +8,7 @@ vi.mock('axios');
 describe('FinanceWidget', () => {
     const mockProject = {
         id: 1,
+        uuid: 'project-uuid-1',
         moneda_default: 'USD'
     };
 
@@ -35,7 +36,7 @@ describe('FinanceWidget', () => {
     });
 
     it('uses project currency', async () => {
-        const eurProject = { id: 2, moneda_default: 'EUR' };
+        const eurProject = { id: 2, uuid: 'project-uuid-2', moneda_default: 'EUR' };
         render(<FinanceWidget project={eurProject} />);
 
         await waitFor(() => {

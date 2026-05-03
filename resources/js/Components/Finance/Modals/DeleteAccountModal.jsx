@@ -8,6 +8,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import { ExclamationTriangleIcon } from '@/Components/Icons';
+import { formatCurrency } from '@/Utils/currencyHelpers';
 import axios from 'axios';
 
 export default function DeleteAccountModal({ show, onClose, account, project, onSuccess }) {
@@ -33,11 +34,8 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
         setError(null);
 
         try {
-            console.log('🟢 Sending delete request...');
-            await axios.delete(`/api/proyectos/${project.id}/cuentas/${account.id}`);
-            console.log('🟢 Delete request successful');
+            await axios.delete(`/api/proyectos/${project.uuid}/cuentas/${account.uuid}`);
         } catch (err) {
-            console.error('🔴 Delete failed:', err);
             setError(err.response?.data?.message || t('common.error_saving', 'Error al guardar'));
             setProcessing(false);
             return;
@@ -47,7 +45,6 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
         setProcessing(false); // Force UI update immediately
         setConfirmation('');
 
-        console.log('🟢 Calling onSuccess...');
         if (onSuccess) {
             onSuccess();
         } else {
@@ -85,7 +82,7 @@ export default function DeleteAccountModal({ show, onClose, account, project, on
                         <span className="text-red-600 font-bold">
                             {t('finance.delete_account_balance_error', 'No se puede eliminar la cuenta porque tiene un saldo diferente de 0. Por favor ajusta el saldo antes de continuar.')}
                             <br />
-                            <span className="text-sm">Saldo actual: {new Intl.NumberFormat(navigator.language, { style: 'currency', currency: 'USD' }).format(account?.saldo ?? account?.saldo_actual ?? 0)}</span>
+                            <span className="text-sm">Saldo actual: {formatCurrency(account?.saldo ?? account?.saldo_actual ?? 0, account?.moneda || project?.moneda_default || 'COP')}</span>
                         </span>
                     ) : account?.transacciones_count > 0
                         ? t('finance.delete_account_warning_transactions', 'Esta cuenta tiene :count transacciones asociadas. Será marcada como inactiva.', { count: account.transacciones_count })

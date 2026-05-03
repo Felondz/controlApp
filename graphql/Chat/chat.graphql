@@ -1,0 +1,37 @@
+type Message {
+    id: ID!
+    uuid: String!
+    content: String!
+    type: String!
+    proyecto_id: ID
+    user_id: ID!
+    user: User @belongsTo
+    recipient_id: ID
+    recipient: User @belongsTo
+    read_at: DateTime
+    file_url: String
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    "Listar mensajes de un proyecto"
+    messages(
+        proyecto_id: ID! @eq
+    ): [Message!]! @all @guard @auth
+    
+    "Listar mensajes directos con un usuario"
+    directMessages(
+        recipient_id: ID! @eq
+    ): [Message!]! @all @guard @auth
+}
+
+extend type Mutation {
+    "Enviar un mensaje"
+    sendMessage(
+        content: String!
+        proyecto_id: ID
+        recipient_id: ID
+        type: String
+    ): Message! @create @guard @auth
+}

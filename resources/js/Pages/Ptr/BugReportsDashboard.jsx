@@ -53,16 +53,16 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
         router.get('/ptr/bug-reports', newFilters, { preserveState: true, preserveScroll: true });
     };
 
-    const handleStatusChange = (reportId, status) => {
-        router.patch(`/ptr/bug-reports/${reportId}`, {
+    const handleStatusChange = (reportId, reportUuid, status) => {
+        router.patch(`/ptr/bug-reports/${reportUuid}`, {
             status,
             developer_notes: editingNotes[reportId] || null,
         }, { preserveState: true, preserveScroll: true });
     };
 
-    const handleSaveNotes = (reportId) => {
+    const handleSaveNotes = (reportId, reportUuid) => {
         const report = reports.data.find(r => r.id === reportId);
-        router.patch(`/ptr/bug-reports/${reportId}`, {
+        router.patch(`/ptr/bug-reports/${reportUuid}`, {
             status: report?.status || 'open',
             developer_notes: editingNotes[reportId] || '',
         }, { preserveState: true, preserveScroll: true });
@@ -71,11 +71,23 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight flex items-center gap-2">
-                    <BugIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-                    {t('bug_reporter.dashboard_title', 'Bug Reports')}
-                    <span className="text-sm font-normal text-gray-500">— PTR</span>
-                </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h2 className="font-semibold text-xl text-primary-600 dark:text-primary-400 leading-tight flex items-center gap-2">
+                        <BugIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                        {t('bug_reporter.dashboard_title', 'Bug Reports')}
+                        <span className="text-sm font-normal text-gray-500">— PTR</span>
+                    </h2>
+                    <div className="flex gap-2">
+                        <a
+                            href={route('ptr.bug-reports.export')}
+                            target="_blank"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm transition-all font-bold shadow-lg shadow-primary-600/20"
+                        >
+                            <GlobeAltIcon className="w-4 h-4" />
+                            {t('bug_reporter.export_json', 'Export JSON')}
+                        </a>
+                    </div>
+                </div>
             }
         >
             <Head title={`${t('bug_reporter.dashboard_title', 'Bug Reports')} — PTR`} />
@@ -166,13 +178,26 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                 {report.description}
                                             </p>
                                             <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-xs text-gray-400">
-                                                    {report.user?.name} · {new Date(report.created_at).toLocaleDateString()}
+                                                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                                                    {report.user?.name || t('common.unknown', 'Unknown')}
                                                 </span>
+                                                <span className="text-xs text-gray-400">
+                                                    · {new Date(report.created_at).toLocaleDateString()}
+                                                </span>
+                                                {(report.module || report.view) && (
+                                                    <span className="text-xs font-bold text-primary-500 dark:text-primary-400 uppercase tracking-tighter">
+                                                        {report.module ? t(`bug_reporter.module_${report.module}`, report.module) : ''}
+                                                        {report.view ? ` > ${t(`bug_reporter.view_${report.view}`, report.view)}` : ''}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-2 shrink-0">
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 border border-primary-200 dark:border-primary-800">
+                                                <CategoryIcon className="w-3 h-3" />
+                                                {t(`bug_reporter.category_${report.category}`, report.category)}
+                                            </span>
                                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${SEVERITY_COLORS[report.severity] || ''}`}>
                                                 {t(`bug_reporter.severity_${report.severity}`, report.severity)}
                                             </span>
@@ -198,10 +223,10 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                 <div>
                                                     <InputLabel value={t('bug_reporter.screenshot', 'Screenshot')} />
                                                     <img
-                                                        src={route('ptr.bug-reports.screenshot', { bugReport: report.id })}
+                                                        src={route('ptr.bug-reports.screenshot', { bugReport: report.uuid })}
                                                         alt={t('bug_reporter.screenshot', 'Screenshot')}
                                                         className="max-w-sm rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-90 transition"
-                                                        onClick={() => window.open(route('ptr.bug-reports.screenshot', { bugReport: report.id }), '_blank')}
+                                                        onClick={() => window.open(route('ptr.bug-reports.screenshot', { bugReport: report.uuid }), '_blank')}
                                                     />
                                                 </div>
                                             )}
@@ -224,7 +249,7 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                     <InputLabel value={t('bug_reporter.status', 'Status')} className="!mb-0" />
                                                     <SelectInput
                                                         value={report.status}
-                                                        onChange={(e) => handleStatusChange(report.id, e.target.value)}
+                                                        onChange={(e) => handleStatusChange(report.id, report.uuid, e.target.value)}
                                                         className="text-sm"
                                                     >
                                                         {Object.keys(STATUS_COLORS).map(status => (
@@ -254,7 +279,7 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                     className="w-full text-sm"
                                                 />
                                                 {(editingNotes[report.id] !== undefined && editingNotes[report.id] !== (report.developer_notes || '')) && (
-                                                    <PrimaryButton onClick={() => handleSaveNotes(report.id)} className="mt-1">
+                                                    <PrimaryButton onClick={() => handleSaveNotes(report.id, report.uuid)} className="mt-1">
                                                         {t('common.save', 'Save')}
                                                     </PrimaryButton>
                                                 )}

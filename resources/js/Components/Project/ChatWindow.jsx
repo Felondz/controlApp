@@ -363,7 +363,7 @@ export default function ChatWindow({ project, user, activeChannel, messages, loa
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-3 md:p-4 bg-gray-50/20 dark:bg-gray-900/20 custom-scrollbar relative">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4 bg-gray-50/20 dark:bg-gray-900/20 scrollbar-thin relative">
                 {loading && messages.length === 0 ? (
                     <div className="text-center text-gray-500 dark:text-gray-400 py-10 flex flex-col items-center justify-center h-full">
                         <div className="w-10 h-10 rounded border-2 border-primary-200 border-t-primary-600 animate-spin"></div>

@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
- * @property int $id
- * @property int $proyecto_id
+ * @property string $id
+ * @property string $uuid
+ * @property string $proyecto_id
  * @property string $name
  * @property string|null $description
  * @property bool $is_active
- * @property int|null $inventory_item_id
+ * @property string|null $inventory_item_id
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Operations\Models\EtapaProceso> $etapas
  * @property \App\Modules\Inventory\Models\InventoryItem|null $outputProduct
  * @property \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Operations\Models\LoteProduccion> $lotes
@@ -23,7 +25,27 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ProductionProcess extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductionProcessFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Factories\Factory<self>

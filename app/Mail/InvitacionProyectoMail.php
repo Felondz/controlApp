@@ -10,14 +10,15 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InvitacionProyectoMail extends Mailable
+class InvitacionProyectoMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * La instancia de la invitación.
+     * @var Invitacion
      */
-    public $invitacion;
+    public Invitacion $invitacion;
 
     /**
      * Crea una nueva instancia del mensaje.

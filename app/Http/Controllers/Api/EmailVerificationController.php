@@ -17,10 +17,11 @@ class EmailVerificationController extends Controller
      *
      * GET /api/email/verify/{id}/{hash}
      */
-    public function verify(Request $request, $id, $hash)
+    public function verify(Request $request, string|int $id, string $hash): \Illuminate\Http\RedirectResponse
     {
-        // 1. Buscar el usuario por ID
-        $user = User::find($id);
+        // 1. Buscar el usuario por UUID (routing convention) o ID (fallback)
+        $idStr = (string)$id;
+        $user = User::where('uuid', $idStr)->first() ?: User::find($idStr);
 
         // 2. Si no existe, redirigir a login con error
         if (!$user) {
@@ -53,17 +54,20 @@ class EmailVerificationController extends Controller
      * Esta ruta la llama el usuario desde la app si no recibió el correo.
      * POST /api/email/verification-notification
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         // 1. Verificar si el usuario ya está verificado
-        if ($request->user()->hasVerifiedEmail()) {
+        if ($user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Email ya verificado.'
             ], 422); // 422 Unprocessable Entity
         }
 
         // 2. Si no, enviar el correo de verificación
-        $request->user()->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         // 3. Devolver respuesta
         return response()->json([
@@ -76,7 +80,7 @@ class EmailVerificationController extends Controller
      * No requiere autenticación - el usuario puede reenviar sin estar logueado.
      * POST /api/email/resend-verification
      */
-    public function resend(Request $request)
+    public function resend(Request $request): \Illuminate\Http\JsonResponse
     {
         // 1. Validar que el email existe
         $request->validate([
@@ -84,7 +88,8 @@ class EmailVerificationController extends Controller
         ]);
 
         // 2. Buscar el usuario
-        $user = User::where('email', $request->email)->first();
+        /** @var \App\Models\User $user */
+        $user = User::where('email', (string)$request->email)->firstOrFail();
 
         // 3. Verificar si ya está verificado
         if ($user->hasVerifiedEmail()) {

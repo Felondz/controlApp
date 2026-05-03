@@ -24,7 +24,7 @@ export default function ChatWidget({ project, user }) {
     // Fetch unread counts and timestamps
     const fetchUnreadCounts = useCallback(async () => {
         try {
-            const response = await axios.get(route('project.messages.unread', project.id));
+            const response = await axios.get(route('project.messages.unread', project.uuid));
             setUnreadCounts(response.data);
             
             // Update lastReadAt based on active channel
@@ -37,14 +37,14 @@ export default function ChatWidget({ project, user }) {
         } catch (error) {
             console.error("Error fetching unread counts:", error);
         }
-    }, [project.id]);
+    }, [project.uuid]);
 
     // Fetch messages
     const fetchMessages = useCallback(async () => {
         try {
             const channel = activeChannelRef.current;
             const params = channel === 'general' ? {} : { recipient_id: channel };
-            const response = await axios.get(route('project.messages.index', project.id), { params });
+            const response = await axios.get(route('project.messages.index', project.uuid), { params });
             const newMessages = response.data.data.reverse();
 
             // If new messages arrived while viewing this channel, mark as read
@@ -59,7 +59,7 @@ export default function ChatWidget({ project, user }) {
             console.error("Error fetching messages:", error);
             setLoading(false);
         }
-    }, [project.id]);
+    }, [project.uuid]);
 
     // Mark as read
     const markAsRead = useCallback(async () => {
@@ -67,7 +67,7 @@ export default function ChatWidget({ project, user }) {
             const channel = activeChannelRef.current;
             const payload = channel === 'general' ? {} : { recipient_id: channel };
 
-            await axios.post(route('project.messages.read', project.id), payload);
+            await axios.post(route('project.messages.read', project.uuid), payload);
 
             setUnreadCounts(prev => {
                 if (channel === 'general') {
@@ -78,7 +78,7 @@ export default function ChatWidget({ project, user }) {
         } catch (error) {
             console.error("Error marking as read:", error);
         }
-    }, [project.id]);
+    }, [project.uuid]);
 
     // On channel change: load messages and mark as read
     useEffect(() => {
@@ -101,7 +101,7 @@ export default function ChatWidget({ project, user }) {
     useEffect(() => {
         if (!window.Echo) return;
 
-        const channel = window.Echo.join(`project.${project.id}.chat`);
+        const channel = window.Echo.join(`project.${project.uuid}.chat`);
 
         channel
             .here((users) => {
@@ -170,10 +170,10 @@ export default function ChatWidget({ project, user }) {
             });
 
         return () => {
-            window.Echo.leave(`project.${project.id}.chat`);
+            window.Echo.leave(`project.${project.uuid}.chat`);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [project.id]);
+    }, [project.uuid]);
 
     const handleSendMessage = async (content, file = null, parentId = null) => {
         try {
@@ -185,7 +185,7 @@ export default function ChatWidget({ project, user }) {
             if (parentId) formData.append('parent_id', parentId);
             if (file) formData.append('file', file);
 
-            const response = await axios.post(route('project.messages.store', project.id), formData, {
+            const response = await axios.post(route('project.messages.store', project.uuid), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -200,7 +200,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleUpdateMessage = async (messageId, newContent) => {
         try {
-            const response = await axios.put(route('project.messages.update', [project.id, messageId]), {
+            const response = await axios.put(route('project.messages.update', [project.uuid, messageId]), {
                 content: newContent
             });
             setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
@@ -211,7 +211,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleDeleteMessage = async (messageId) => {
         try {
-            await axios.delete(route('project.messages.destroy', [project.id, messageId]));
+            await axios.delete(route('project.messages.destroy', [project.uuid, messageId]));
             setMessages(prev => prev.filter(m => m.id !== messageId));
         } catch (error) {
             console.error("Error deleting message:", error);
@@ -220,7 +220,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleToggleReaction = async (messageId, emoji) => {
         try {
-            const response = await axios.post(route('project.messages.react', [project.id, messageId]), {
+            const response = await axios.post(route('project.messages.react', [project.uuid, messageId]), {
                 emoji
             });
             setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
@@ -238,7 +238,7 @@ export default function ChatWidget({ project, user }) {
 
         setIsSearching(true);
         try {
-            const response = await axios.get(route('project.messages.search', project.id), {
+            const response = await axios.get(route('project.messages.search', project.uuid), {
                 params: { query }
             });
             setSearchResults(response.data.data);
@@ -252,7 +252,7 @@ export default function ChatWidget({ project, user }) {
     const handleTyping = () => {
         if (!window.Echo) return;
         
-        window.Echo.join(`project.${project.id}.chat`)
+        window.Echo.join(`project.${project.uuid}.chat`)
             .whisper('typing', {
                 user_id: user.id,
                 user_name: user.name,

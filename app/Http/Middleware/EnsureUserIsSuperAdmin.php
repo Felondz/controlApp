@@ -19,6 +19,11 @@ class EnsureUserIsSuperAdmin
         // 1. Revisamos si el usuario está logueado Y si tiene la bandera
         //    (Este middleware SIEMPRE debe correr DESPUÉS de 'auth:sanctum')
         if (!$request->user() || !$request->user()->is_super_admin) {
+            \Illuminate\Support\Facades\Log::warning('SuperAdmin access denied', [
+                'user_id' => $request->user()?->id,
+                'email' => $request->user()?->email,
+                'is_super_admin' => $request->user()?->is_super_admin,
+            ]);
 
             // 2. Si no es Super Admin, lo bloqueamos.
             abort(403, 'Acceso denegado. Esta acción es solo para Súper Administradores.');

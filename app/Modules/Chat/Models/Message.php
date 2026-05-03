@@ -6,14 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Proyecto;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
- * @property int $id
+ * @property string $id
+ * @property string $uuid
  * @property string $content
  * @property string $type
- * @property int|null $proyecto_id
- * @property int $user_id
- * @property int|null $recipient_id
+ * @property string|null $proyecto_id
+ * @property string $user_id
+ * @property string|null $recipient_id
  * @property \Carbon\Carbon|null $read_at
  * @property-read bool $is_read
  * @property-read int|string $receiver_id Alias for recipient_id if used in events
@@ -28,6 +30,27 @@ class Message extends Model
     /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\MessageFactory> */
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
     use \Illuminate\Database\Eloquent\SoftDeletes;
+    use HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     protected static function newFactory(): \Database\Factories\MessageFactory
     {

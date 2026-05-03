@@ -37,7 +37,7 @@ export default function LowStockWidget({
                     <p className="text-sm">{t('inventory.no_low_stock', 'Todo el inventario está en niveles aceptables')}</p>
                 </div>
             ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="space-y-2 max-h-64 overflow-y-auto overflow-x-hidden scrollbar-thin">
                     {lowStockItems.map((item) => (
                         <div
                             key={item.id}

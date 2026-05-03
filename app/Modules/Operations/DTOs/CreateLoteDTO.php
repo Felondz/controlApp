@@ -10,7 +10,7 @@ readonly class CreateLoteDTO
 {
     public function __construct(
         public Proyecto $proyecto,
-        public int $productionProcessId,
+        public string $productionProcessId,
         public string $startDate,
         public ?int $assignedTo,
         public ?string $notes,

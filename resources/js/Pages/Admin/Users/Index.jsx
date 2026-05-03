@@ -113,7 +113,7 @@ export default function Index({ users, filters, stats }) {
 
                 {/* Users Table */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto scrollbar-thin">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-50 dark:bg-gray-900/50">
                                 <tr>
@@ -135,7 +135,7 @@ export default function Index({ users, filters, stats }) {
                                     users.data.map((user) => (
                                         <tr
                                             key={user.id}
-                                            onClick={() => router.get(route('admin.users.show', user.id))}
+                                            onClick={() => router.get(route('admin.users.show', user.uuid))}
                                             className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -190,7 +190,7 @@ export default function Index({ users, filters, stats }) {
                                                     type="button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        router.patch(route('admin.users.toggleStatus', user.id), {}, { preserveScroll: true });
+                                                        router.patch(route('admin.users.toggleStatus', user.uuid), {}, { preserveScroll: true });
                                                     }}
                                                     className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${user.is_active ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}`}
                                                 >

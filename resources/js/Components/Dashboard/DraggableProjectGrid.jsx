@@ -19,11 +19,11 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
     // Order projects
     const orderProjects = (currentProjects, orderList) => {
         const orderMap = new Map();
-        orderList.forEach((id, index) => orderMap.set(parseInt(id), index));
+        orderList.forEach((uuid, index) => orderMap.set(uuid, index));
 
         return [...currentProjects].sort((a, b) => {
-            const indexA = orderMap.has(a.id) ? orderMap.get(a.id) : 99999;
-            const indexB = orderMap.has(b.id) ? orderMap.get(b.id) : 99999;
+            const indexA = orderMap.has(a.uuid) ? orderMap.get(a.uuid) : 99999;
+            const indexB = orderMap.has(b.uuid) ? orderMap.get(b.uuid) : 99999;
             return indexA - indexB;
         });
     };
@@ -55,7 +55,7 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
         setOrderedProjects(newProjects);
 
         // Save to backend
-        const newOrder = newProjects.map(p => p.id);
+        const newOrder = newProjects.map(p => p.uuid);
         const updatedDashboardSettings = {
             ...savedSettings,
             project_order: newOrder
@@ -109,7 +109,7 @@ export default function DraggableProjectGrid({ projects = [], user, settingsKey 
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6"
                     >
                         {orderedProjects.map((proyecto, index) => (
-                            <Draggable key={proyecto.id} draggableId={String(proyecto.id)} index={index}>
+                            <Draggable key={proyecto.uuid} draggableId={String(proyecto.uuid)} index={index}>
                                 {(provided, snapshot) => (
                                     <div
                                         ref={provided.innerRef}

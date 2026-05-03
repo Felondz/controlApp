@@ -30,7 +30,7 @@ class AccountApiTest extends TestCase
     {
         $datos = $this->crearDatosPrueba(User::factory()->create());
 
-        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->id . '/cuentas', [
+        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->uuid . '/cuentas', [
             'nombre' => 'Tarjeta de Crédito',
             'banco' => 'Banco Nacional',
             'tipo' => 'credito',
@@ -76,7 +76,7 @@ class AccountApiTest extends TestCase
     {
         $datos = $this->crearDatosPrueba(User::factory()->create());
 
-        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->id . '/cuentas', [
+        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->uuid . '/cuentas', [
             'nombre' => 'Tarjeta Inválida',
             'tipo' => 'credito',
             'saldo_inicial' => 0
@@ -101,7 +101,7 @@ class AccountApiTest extends TestCase
     {
         $datos = $this->crearDatosPrueba(User::factory()->create(), 'miembro');
 
-        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->id . '/cuentas', [
+        $response = $this->actingAs($datos['user'])->postJson('/api/proyectos/' . $datos['proyecto']->uuid . '/cuentas', [
             'nombre' => 'Cuenta de Ahorros',
             'tipo' => 'banco',
             'saldo_inicial' => 1000,
@@ -137,7 +137,7 @@ class AccountApiTest extends TestCase
 
         // Filtrar por tipo 'credito'
         $response = $this->actingAs($datos['user'])
-            ->getJson('/api/proyectos/' . $datos['proyecto']->id . '/cuentas?tipo=credito');
+            ->getJson('/api/proyectos/' . $datos['proyecto']->uuid . '/cuentas?tipo=credito');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);
@@ -145,7 +145,7 @@ class AccountApiTest extends TestCase
 
         // Filtrar por estado 'inactiva'
         $response = $this->actingAs($datos['user'])
-            ->getJson('/api/proyectos/' . $datos['proyecto']->id . '/cuentas?estado=inactiva');
+            ->getJson('/api/proyectos/' . $datos['proyecto']->uuid . '/cuentas?estado=inactiva');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);
@@ -161,7 +161,7 @@ class AccountApiTest extends TestCase
 
         /** @var Proyecto $proyecto */
         $proyecto = Proyecto::factory()->create();
-        $proyecto->miembros()->attach($admin, ['rol' => 'admin']);
+        $proyecto->miembros()->attach($admin->id, ['rol' => 'admin']);
 
         /** @var Cuenta $cuenta */
         $cuenta = Cuenta::factory()->create([
@@ -170,7 +170,7 @@ class AccountApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)->putJson(
-            '/api/proyectos/' . $proyecto->id . '/cuentas/' . $cuenta->id,
+            '/api/proyectos/' . $proyecto->uuid . '/cuentas/' . $cuenta->uuid,
             [
                 'nombre' => 'Banco Actualizado',
                 'banco' => 'Otro Banco',
@@ -195,7 +195,7 @@ class AccountApiTest extends TestCase
 
         /** @var Proyecto $proyecto */
         $proyecto = Proyecto::factory()->create();
-        $proyecto->miembros()->attach($admin, ['rol' => 'admin']);
+        $proyecto->miembros()->attach($admin->id, ['rol' => 'admin']);
 
         /** @var Cuenta $cuenta */
         $cuenta = Cuenta::factory()->create([
@@ -205,7 +205,7 @@ class AccountApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)->deleteJson(
-            '/api/proyectos/' . $proyecto->id . '/cuentas/' . $cuenta->id
+            '/api/proyectos/' . $proyecto->uuid . '/cuentas/' . $cuenta->uuid
         );
 
         $response->assertStatus(204); // No Content
@@ -222,7 +222,7 @@ class AccountApiTest extends TestCase
         /** @var Proyecto $proyecto */
         $proyecto = Proyecto::factory()->create();
 
-        $response = $this->getJson('/api/proyectos/' . $proyecto->id . '/cuentas');
+        $response = $this->getJson('/api/proyectos/' . $proyecto->uuid . '/cuentas');
 
         $response->assertStatus(401);
     }

@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Proyecto;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
- * @property int $id
- * @property int $proyecto_id
+ * @property string $id
+ * @property string $uuid
+ * @property string $proyecto_id
  * @property int|null $parent_id
  * @property string $sku
  * @property string $name
@@ -35,7 +37,27 @@ use Laravel\Scout\Searchable;
 class InventoryItem extends Model
 {
     /** @use HasFactory<\Database\Factories\InventoryItemFactory> */
-    use HasFactory, SoftDeletes, Searchable;
+    use HasFactory, SoftDeletes, Searchable, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * Create a new factory instance for the model.

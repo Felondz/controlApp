@@ -123,7 +123,7 @@ return (
             </div>
         </div>
 
-        <div id="tour-inventory-list" className="overflow-x-auto">
+        <div id="tour-inventory-list" className="overflow-x-auto scrollbar-thin">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900/50">
                         <tr>

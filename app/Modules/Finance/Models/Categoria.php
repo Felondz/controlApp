@@ -11,8 +11,8 @@ use App\Models\Proyecto;
 use App\Models\User; // Added for the new @property-read User $user
 
 /**
- * @property int $id
- * @property int|null $proyecto_id
+ * @property string $id
+ * @property string|null $proyecto_id
  * @property string $nombre
  * @property string $tipo
  * @property string|null $image_path

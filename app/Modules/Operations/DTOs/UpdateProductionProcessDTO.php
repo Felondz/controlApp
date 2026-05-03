@@ -14,7 +14,7 @@ readonly class UpdateProductionProcessDTO
         public ProductionProcess $process,
         public string $name,
         public ?string $description,
-        public ?int $inventoryItemId,
+        public ?string $inventoryItemId,
         public bool $isActive,
     ) {}
 }

@@ -68,7 +68,7 @@ class LoteController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'processes' => $processes,
-                'selectedProcessId' => (int) $selectedProcessId,
+                'selectedProcessId' => $selectedProcessId,
                 'stages' => $stages,
                 'lotes' => $lotes,
             ]);
@@ -77,7 +77,7 @@ class LoteController extends Controller
         return Inertia::render('Operations/Lotes/Index', [
             'proyecto' => $proyecto,
             'processes' => $processes,
-            'selectedProcessId' => (int) $selectedProcessId,
+            'selectedProcessId' => $selectedProcessId,
             'stages' => $stages,
             'lotes' => $lotes,
             'members' => $members,
@@ -100,7 +100,7 @@ class LoteController extends Controller
             proyecto: $proyecto,
             name: $validated['name'],
             description: $validated['description'] ?? null,
-            inventoryItemId: isset($validated['inventory_item_id']) ? (int) $validated['inventory_item_id'] : null,
+            inventoryItemId: isset($validated['inventory_item_id']) ? $validated['inventory_item_id'] : null,
             stages: $validated['stages']
         );
 
@@ -111,7 +111,7 @@ class LoteController extends Controller
         }
 
         return to_route('operations.lotes.index', [
-            'proyecto' => $proyecto->id,
+            'proyecto' => $proyecto->uuid,
             'process_id' => $process->id,
             'open_modal' => 'process_settings' // Flag to open modal on front
         ])->with('success', 'Proceso creado. Ahora configura los insumos (Receta).');
@@ -131,7 +131,7 @@ class LoteController extends Controller
             process: $process,
             name: $validated['name'],
             description: $validated['description'] ?? null,
-            inventoryItemId: isset($validated['inventory_item_id']) ? (int) $validated['inventory_item_id'] : null,
+            inventoryItemId: isset($validated['inventory_item_id']) ? $validated['inventory_item_id'] : null,
             isActive: (bool) ($validated['is_active'] ?? $process->is_active)
         );
 
@@ -164,9 +164,9 @@ class LoteController extends Controller
 
         $dto = new \App\Modules\Operations\DTOs\CreateLoteDTO(
             proyecto: $proyecto,
-            productionProcessId: (int) $validated['production_process_id'],
+            productionProcessId: $validated['production_process_id'],
             startDate: $validated['start_date'],
-            assignedTo: isset($validated['assigned_to']) ? (int) $validated['assigned_to'] : null,
+            assignedTo: isset($validated['assigned_to']) ? $validated['assigned_to'] : null,
             notes: $validated['notes'] ?? null
         );
 
@@ -181,7 +181,7 @@ class LoteController extends Controller
         }
 
         return redirect()->route('operations.lotes.index', [
-            'proyecto' => $proyecto->id,
+            'proyecto' => $proyecto->uuid,
             'process_id' => $validated['production_process_id']
         ])->with('success', 'Lote creado exitosamente.');
     }
@@ -189,8 +189,8 @@ class LoteController extends Controller
     /**
      * Actualizar etapa del lote
      * 
-     * @urlParam proyecto integer required The ID of the project. Example: 1
-     * @urlParam lote integer required The ID of the lote. Example: 1
+     * @urlParam proyecto string required The ID of the project. Example: 1
+     * @urlParam lote string required The ID of the lote. Example: 1
      */
     public function updateStage(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\UpdateLoteStageAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
@@ -200,7 +200,7 @@ class LoteController extends Controller
 
         $dto = new \App\Modules\Operations\DTOs\UpdateLoteStageDTO(
             lote: $lote,
-            newStageId: (int) $validated['stage_id'],
+            newStageId: $validated['stage_id'],
             forceConsumeInputs: $request->boolean('consume_inputs')
         );
 
@@ -216,8 +216,8 @@ class LoteController extends Controller
     /**
      * Ver detalle del lote
      * 
-     * @urlParam proyecto integer required The ID of the project. Example: 1
-     * @urlParam lote integer required The ID of the lote. Example: 1
+     * @urlParam proyecto string required The ID of the project. Example: 1
+     * @urlParam lote string required The ID of the lote. Example: 1
      */
     public function show(Request $request, Proyecto $proyecto, LoteProduccion $lote): \Inertia\Response|\Illuminate\Http\JsonResponse
     {
@@ -232,8 +232,8 @@ class LoteController extends Controller
     /**
      * Añadir insumo al lote
      * 
-     * @urlParam proyecto integer required The ID of the project. Example: 1
-     * @urlParam lote integer required The ID of the lote. Example: 1
+     * @urlParam proyecto string required The ID of the project. Example: 1
+     * @urlParam lote string required The ID of the lote. Example: 1
      */
     public function addInput(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\AddLoteInputAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
@@ -245,7 +245,7 @@ class LoteController extends Controller
 
         $dto = new \App\Modules\Operations\DTOs\AddLoteInputDTO(
             lote: $lote,
-            inventoryItemId: (int) $validated['inventory_item_id'],
+            inventoryItemId: $validated['inventory_item_id'],
             quantity: (float) $validated['quantity'],
             notes: $validated['notes'] ?? null
         );
@@ -297,8 +297,8 @@ class LoteController extends Controller
     /**
      * Finalizar producción del lote
      * 
-     * @urlParam proyecto integer required The ID of the project. Example: 1
-     * @urlParam lote integer required The ID of the lote. Example: 1
+     * @urlParam proyecto string required The ID of the project. Example: 1
+     * @urlParam lote string required The ID of the lote. Example: 1
      */
     public function finish(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\FinishLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
@@ -310,7 +310,7 @@ class LoteController extends Controller
         $dto = new \App\Modules\Operations\DTOs\FinishLoteDTO(
             lote: $lote,
             finalQuantity: (float) $validated['final_quantity'],
-            inventoryItemId: (int) $validated['inventory_item_id']
+            inventoryItemId: $validated['inventory_item_id']
         );
 
         try {
@@ -329,8 +329,8 @@ class LoteController extends Controller
     /**
      * Descartar lote
      * 
-     * @urlParam proyecto integer required The ID of the project. Example: 1
-     * @urlParam lote integer required The ID of the lote. Example: 1
+     * @urlParam proyecto string required The ID of the project. Example: 1
+     * @urlParam lote string required The ID of the lote. Example: 1
      */
     public function discard(Request $request, Proyecto $proyecto, LoteProduccion $lote, \App\Modules\Operations\Actions\DiscardLoteAction $action): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
@@ -365,7 +365,7 @@ class LoteController extends Controller
         $dto = new \App\Modules\Operations\DTOs\UpdateLoteDTO(
             lote: $lote,
             notes: $validated['notes'] ?? null,
-            assignedTo: isset($validated['assigned_to']) ? (int) $validated['assigned_to'] : null,
+            assignedTo: isset($validated['assigned_to']) ? $validated['assigned_to'] : null,
         );
 
         $action->execute($dto);

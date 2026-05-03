@@ -13,15 +13,15 @@ class InventoryService
      * Register a new inventory transaction.
      */
     public function registerTransaction(
-        int $proyectoId,
+        string $proyectoId,
         int $itemId,
         string $type,
         float $quantity,
         float $unitPrice,
         ?string $referenceType,
-        ?int $referenceId,
+        ?string $referenceId,
         ?string $notes,
-        ?int $userId
+        ?string $userId
     ): InventoryTransaction {
         // Validate type
         $validTypes = ['purchase', 'sale', 'adjustment', 'production_in', 'production_out', 'transfer'];

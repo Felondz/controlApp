@@ -69,8 +69,8 @@ export default function ProjectCard(props) {
     const loadFinanceData = async (tipo) => {
         try {
             const [cuentasRes, categoriasRes] = await Promise.all([
-                axios.get(`/api/proyectos/${proyecto.id}/cuentas`),
-                axios.get(`/api/proyectos/${proyecto.id}/categorias`),
+                axios.get(`/api/proyectos/${proyecto.uuid}/cuentas`),
+                axios.get(`/api/proyectos/${proyecto.uuid}/categorias`),
             ]);
             setCuentas(cuentasRes.data);
             // Filtrar categorías por tipo (ingreso o gasto)
@@ -117,7 +117,7 @@ export default function ProjectCard(props) {
         router.reload({ only: ['proyectos'] });
     };
 
-    if (!proyecto || !proyecto.id) {
+    if (!proyecto || !proyecto.uuid) {
         console.error('ProjectCard received invalid project:', proyecto);
         return null; // Prevent rendering invalid cards
     }
@@ -148,7 +148,7 @@ export default function ProjectCard(props) {
                 )}
 
                 <Link
-                    href={route('mis-proyectos.show', { mis_proyecto: proyecto.id })}
+                    href={route('mis-proyectos.show', { mis_proyecto: proyecto.uuid })}
                     className="p-4 sm:p-6 flex-1 flex flex-col cursor-pointer"
                 >
                     {/* Header */}
@@ -268,7 +268,7 @@ export default function ProjectCard(props) {
                         setTransactionType(null);
                     }}
                     transaction={null}
-                    proyectoId={proyecto.id}
+                    proyectoId={proyecto.uuid}
                     proyectos={[]}
                     cuentas={cuentas}
                     categorias={categorias}

@@ -16,8 +16,8 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
             try {
                 // Use named API routes
                 const [messagesRes, unreadRes] = await Promise.all([
-                    axios.get(route('api.proyectos.messages.index', { proyecto: project.id })),
-                    axios.get(route('api.proyectos.messages.unread', { proyecto: project.id }))
+                    axios.get(route('api.proyectos.messages.index', { proyecto: project.uuid })),
+                    axios.get(route('api.proyectos.messages.unread', { proyecto: project.uuid }))
                 ]);
 
                 setMessages(messagesRes.data.data || []);
@@ -60,7 +60,7 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
             action={
                 project ? (
                     <Link
-                        href={route('mis-proyectos.chat', { mis_proyecto: project.id })}
+                        href={route('mis-proyectos.chat', { mis_proyecto: project.uuid })}
                         className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
                     >
                         {t('common.go_to_chat', 'Ir al chat')}

@@ -19,7 +19,8 @@ return [
     ],
     '503' => [
         'title' => 'Actualizando el Sistema',
-        'message' => 'Estamos implementando mejoras en la plataforma. Volveremos a estar operativos en unos instantes.',
+        'message' => 'Estamos implementando mejoras',
+        'description' => 'Estamos trabajando en actualizaciones importantes para mejorar tu experiencia. Volveremos a estar operativos en unos instantes. Puedes intentar regresar al inicio o esperar a que el sistema se restablezca.',
         'auto_refresh' => 'Comprobando estado automáticamente...'
     ],
 ];

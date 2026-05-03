@@ -58,7 +58,7 @@ export default function SearchResults({ auth, users, projects, query }) {
                                             </div>
                                             <div>
                                                 <PrimaryLink
-                                                    href={route('mis-proyectos.show', project.id)}
+                                                    href={route('mis-proyectos.show', project.uuid)}
                                                     className="text-xs"
                                                 >
                                                     {t('common.view', 'Ver')}
@@ -106,7 +106,7 @@ export default function SearchResults({ auth, users, projects, query }) {
                                             </div>
                                             <div>
                                                 <PrimaryLink
-                                                    href={route('users.show', user.id)}
+                                                    href={route('users.show', user.uuid)}
                                                     className="text-xs"
                                                 >
                                                     {t('common.view_profile', 'Ver Perfil')}

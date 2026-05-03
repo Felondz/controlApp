@@ -34,9 +34,9 @@ interface ModuleEvent
     /**
      * Get the project context for this event.
      *
-     * @return int|null Project ID
+     * @return string|null Project ID
      */
-    public function getProjectId(): ?int;
+    public function getProjectId(): ?string;
 
     /**
      * Get the timestamp when the event was created.

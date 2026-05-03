@@ -39,8 +39,8 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
     const handleUpdateProcess = (e) => {
         e.preventDefault();
         putSettings(route('operations.processes.update', {
-            proyecto: proyecto.id,
-            process: process.id
+            proyecto: proyecto.uuid,
+            process: process.uuid
         }), {
             preserveScroll: true,
             onSuccess: () => {
@@ -59,7 +59,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
 
     const handleAddTemplate = (stageId) => {
         post(route('operations.stage-templates.store', {
-            proyecto: proyecto.id,
+            proyecto: proyecto.uuid,
             stage: stageId
         }), {
             onSuccess: () => {
@@ -74,7 +74,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
     const handleDeleteTemplate = (templateId) => {
         if (confirm(t('common.confirm_delete', '¿Estás seguro de eliminar este ítem?'))) {
             router.delete(route('operations.stage-templates.destroy', {
-                proyecto: proyecto.id,
+                proyecto: proyecto.uuid,
                 template: templateId
             }), {
                 preserveScroll: true,
@@ -92,10 +92,10 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <div className="flex flex-col h-[80vh] md:h-[600px] bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl">
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl">
 
                 {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-none">
                     <div>
                         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                             {process.name}
@@ -111,7 +111,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                 </div>
 
                 {/* Tabs */}
-                <div className="px-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <div className="px-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-none">
                     <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                         {tabs.map((tab) => (
                             <button
@@ -130,7 +130,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50 dark:bg-gray-800/50 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-gray-50/50 dark:bg-gray-800/50 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                     {/* --- Recipe Tab --- */}
                     {activeTab === 'recipe' && (
                         <div className="space-y-6">
@@ -141,7 +141,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                                 </p>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-4 pb-4">
                                 {stages.map((stage) => (
                                     <div key={stage.id} className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
 
@@ -259,7 +259,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
 
                     {/* --- Settings Tab --- */}
                     {activeTab === 'settings' && (
-                        <div className="max-w-2xl mx-auto space-y-8">
+                        <div className="max-w-2xl mx-auto space-y-8 pb-4">
                             <form onSubmit={handleUpdateProcess} className="space-y-6">
                                 <div>
                                     <InputLabel htmlFor="p_name" value={t('operations.process_name', 'Nombre del Proceso')} />
@@ -335,12 +335,12 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                                             onClick={() => {
                                                 if (confirm(t('operations.confirm_delete_process', '¿Estás completamente seguro de que quieres eliminar este proceso?'))) {
                                                     router.delete(route('operations.processes.destroy', {
-                                                        proyecto: proyecto.id,
-                                                        process: process.id
+                                                        proyecto: proyecto.uuid,
+                                                        process: process.uuid
                                                     }), {
                                                         onSuccess: () => {
                                                             onClose();
-                                                            router.visit(route('operations.lotes.index', { proyecto: proyecto.id }));
+                                                            router.visit(route('operations.lotes.index', { proyecto: proyecto.uuid }));
                                                         }
                                                     });
                                                 }
@@ -353,6 +353,12 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end flex-none bg-white dark:bg-gray-800">
+                    <SecondaryButton onClick={onClose}>
+                        {t('common.close', 'Cerrar')}
+                    </SecondaryButton>
                 </div>
             </div>
         </Modal>

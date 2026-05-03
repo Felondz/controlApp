@@ -38,25 +38,25 @@ class FinanceMutations
     public function createTransaccion(mixed $_, array $args): Transaccion
     {
         /** @var Proyecto $proyecto */
-        $proyecto = Proyecto::findOrFail((int) $args['proyecto_id']);
+        $proyecto = Proyecto::findOrFail($args['proyecto_id']);
 
         $dto = new CreateTransaccionDTO(
             proyecto: $proyecto,
-            userId: (int) auth()->id(),
-            cuentaId: (int) $args['cuenta_id'],
-            categoriaId: (int) $args['categoria_id'],
+            userId: (string) auth()->id(),
+            cuentaId: $args['cuenta_id'],
+            categoriaId: $args['categoria_id'],
             monto: (float) $args['monto'],
             fecha: (string) $args['fecha'],
             titulo: $args['titulo'] ?? null,
             descripcion: $args['descripcion'] ?? null,
             notas: $args['notas'] ?? null,
             status: $args['status'] ?? 'completed',
-            cuentaPredeterminadaId: isset($args['cuenta_predeterminada_id']) ? (int) $args['cuenta_predeterminada_id'] : null,
+            cuentaPredeterminadaId: isset($args['cuenta_predeterminada_id']) ? $args['cuenta_predeterminada_id'] : null,
             debitoAutomatico: (bool) ($args['debito_automatico'] ?? false),
             isRecurring: (bool) ($args['is_recurring'] ?? false),
-            recurrenceDay: isset($args['recurrence_day']) ? (int) $args['recurrence_day'] : null,
-            cuotas: isset($args['cuotas']) ? (int) $args['cuotas'] : null,
-            taskId: isset($args['task_id']) ? (int) $args['task_id'] : null,
+            recurrenceDay: isset($args['recurrence_day']) ? $args['recurrence_day'] : null,
+            cuotas: isset($args['cuotas']) ? $args['cuotas'] : null,
+            taskId: isset($args['task_id']) ? $args['task_id'] : null,
         );
 
         return app(CreateTransaccionAction::class)->execute($dto);
@@ -69,7 +69,7 @@ class FinanceMutations
     public function updateTransaccion(mixed $_, array $args): Transaccion
     {
         /** @var Transaccion $transaccion */
-        $transaccion = Transaccion::findOrFail((int) $args['id']);
+        $transaccion = Transaccion::findOrFail($args['id']);
 
         $data = collect($args)->except('id')->toArray();
 
@@ -88,7 +88,7 @@ class FinanceMutations
     public function deleteTransaccion(mixed $_, array $args): bool
     {
         /** @var Transaccion $transaccion */
-        $transaccion = Transaccion::findOrFail((int) $args['id']);
+        $transaccion = Transaccion::findOrFail($args['id']);
 
         app(DeleteTransaccionAction::class)->execute($transaccion);
 
@@ -102,7 +102,7 @@ class FinanceMutations
     public function payBillDirectly(mixed $_, array $args): Transaccion
     {
         /** @var Transaccion $transaccion */
-        $transaccion = Transaccion::findOrFail((int) $args['id']);
+        $transaccion = Transaccion::findOrFail($args['id']);
 
         return app(PayBillDirectlyAction::class)->execute($transaccion);
     }
@@ -116,13 +116,13 @@ class FinanceMutations
     public function createCuenta(mixed $_, array $args): Cuenta
     {
         /** @var Proyecto $proyecto */
-        $proyecto = Proyecto::findOrFail((int) $args['proyecto_id']);
+        $proyecto = Proyecto::findOrFail($args['proyecto_id']);
 
         $data = collect($args)->except('proyecto_id')->toArray();
 
         $dto = new CreateCuentaDTO(
             proyecto: $proyecto,
-            userId: (int) auth()->id(),
+            userId: (string) auth()->id(),
             data: $data,
         );
 
@@ -136,10 +136,10 @@ class FinanceMutations
     public function updateCuenta(mixed $_, array $args): Cuenta
     {
         /** @var Proyecto $proyecto */
-        $proyecto = Proyecto::findOrFail((int) $args['proyecto_id']);
+        $proyecto = Proyecto::findOrFail($args['proyecto_id']);
 
         /** @var Cuenta $cuenta */
-        $cuenta = Cuenta::findOrFail((int) $args['id']);
+        $cuenta = Cuenta::findOrFail($args['id']);
 
         $data = collect($args)->except('id', 'proyecto_id')->toArray();
 
@@ -158,7 +158,7 @@ class FinanceMutations
     public function deleteCuenta(mixed $_, array $args): bool
     {
         /** @var Cuenta $cuenta */
-        $cuenta = Cuenta::findOrFail((int) $args['id']);
+        $cuenta = Cuenta::findOrFail($args['id']);
 
         app(DeleteCuentaAction::class)->execute($cuenta);
 
@@ -172,7 +172,7 @@ class FinanceMutations
     public function updateCuentaEstado(mixed $_, array $args): Cuenta
     {
         /** @var Cuenta $cuenta */
-        $cuenta = Cuenta::findOrFail((int) $args['id']);
+        $cuenta = Cuenta::findOrFail($args['id']);
 
         $dto = new UpdateCuentaEstadoDTO(
             cuenta: $cuenta,
@@ -190,20 +190,20 @@ class FinanceMutations
     public function payCreditCardBill(mixed $_, array $args): array
     {
         /** @var Proyecto $proyecto */
-        $proyecto = Proyecto::findOrFail((int) $args['proyecto_id']);
+        $proyecto = Proyecto::findOrFail($args['proyecto_id']);
 
         /** @var Cuenta $creditCard */
-        $creditCard = Cuenta::findOrFail((int) $args['cuenta_id']);
+        $creditCard = Cuenta::findOrFail($args['cuenta_id']);
 
         /** @var Cuenta $sourceAccount */
-        $sourceAccount = Cuenta::findOrFail((int) $args['cuenta_origen_id']);
+        $sourceAccount = Cuenta::findOrFail($args['cuenta_origen_id']);
 
         $dto = new PayCreditCardBillDTO(
             proyecto: $proyecto,
             creditCard: $creditCard,
             sourceAccount: $sourceAccount,
-            userId: (int) auth()->id(),
-            monto: (int) $args['monto'],
+            userId: (string) auth()->id(),
+            monto: $args['monto'],
             tipoPago: (string) $args['tipo_pago'],
         );
 
@@ -219,7 +219,7 @@ class FinanceMutations
     public function createCategoria(mixed $_, array $args): Categoria
     {
         /** @var Proyecto $proyecto */
-        $proyecto = Proyecto::findOrFail((int) $args['proyecto_id']);
+        $proyecto = Proyecto::findOrFail($args['proyecto_id']);
 
         $dto = new CreateCategoriaDTO(
             proyecto: $proyecto,
@@ -237,7 +237,7 @@ class FinanceMutations
     public function updateCategoria(mixed $_, array $args): Categoria
     {
         /** @var Categoria $categoria */
-        $categoria = Categoria::findOrFail((int) $args['id']);
+        $categoria = Categoria::findOrFail($args['id']);
 
         $dto = new UpdateCategoriaDTO(
             categoria: $categoria,
@@ -255,7 +255,7 @@ class FinanceMutations
     public function deleteCategoria(mixed $_, array $args): bool
     {
         /** @var Categoria $categoria */
-        $categoria = Categoria::findOrFail((int) $args['id']);
+        $categoria = Categoria::findOrFail($args['id']);
 
         app(DeleteCategoriaAction::class)->execute($categoria);
 

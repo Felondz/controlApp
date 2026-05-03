@@ -19,7 +19,8 @@ return [
     ],
     '503' => [
         'title' => 'System Update',
-        'message' => 'We are implementing improvements to the platform. We will be back online shortly.',
+        'message' => 'Implementing Improvements',
+        'description' => 'We are working on important updates to improve your experience. We will be back online shortly. You can try going back to home or wait for the system to restore.',
         'auto_refresh' => 'Checking status automatically...'
     ],
 ];

@@ -19,7 +19,7 @@ class ChatSystemTest extends TestCase
         $project = Proyecto::factory()->create(['user_id' => $user->id, 'modules' => ['chat']]);
 
         $response = $this->actingAs($user)
-            ->postJson(route('project.messages.store', $project->id), [
+            ->postJson(route('project.messages.store', $project), [
                 'content' => 'Hello General',
                 'type' => 'text'
             ]);
@@ -40,7 +40,7 @@ class ChatSystemTest extends TestCase
         $project->miembros()->attach($user2->id, ['rol' => 'member']);
 
         $response = $this->actingAs($user1)
-            ->postJson(route('project.messages.store', $project->id), [
+            ->postJson(route('project.messages.store', $project), [
                 'content' => 'Hello User 2',
                 'recipient_id' => $user2->id
             ]);
@@ -63,7 +63,7 @@ class ChatSystemTest extends TestCase
         $project->miembros()->attach($user->id, ['rol' => 'admin', 'last_read_at' => now()->subDay()]);
 
         $response = $this->actingAs($user)
-            ->postJson(route('project.messages.read', $project->id));
+            ->postJson(route('project.messages.read', $project));
 
         $response->assertStatus(200);
 

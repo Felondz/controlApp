@@ -11,7 +11,7 @@ readonly class CreateCuentaDTO
      */
     public function __construct(
         public Proyecto $proyecto,
-        public int $userId,
+        public string $userId,
         public array $data,
     ) {}
 }

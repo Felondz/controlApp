@@ -18,14 +18,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Laravel\Scout\Searchable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * @property int $id
+ * @property string $uuid
  * @property string $nombre
  * @property string|null $descripcion
  * @property string|null $description Alias for descripcion
  * @property string $moneda_default
- * @property int $user_id
+ * @property string $user_id
  * @property bool $es_personal
  * @property bool $visible_en_listado
  * @property array|null $modules
@@ -39,7 +41,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $miembros
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentasAsociadas
- * @property int|null $proyecto_id
+ * @property string|null $proyecto_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Modules\Finance\Models\Categoria> $categorias
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaccion> $transacciones
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invitacion> $invitaciones
@@ -53,11 +55,32 @@ use Illuminate\Notifications\Notifiable;
  * @property int $unread_messages_count Flag for UI
  * @property int $pending_tasks_count Flag for UI
  * @property int $due_today_count Flag for UI
+ * @property mixed $pivot
  */
 class Proyecto extends Model
 {
     /** @use HasFactory<\Database\Factories\ProyectoFactory> */
-    use HasFactory, SoftDeletes, Searchable, Notifiable;
+    use HasFactory, SoftDeletes, Searchable, Notifiable, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * Los atributos que se pueden asignar masivamente.

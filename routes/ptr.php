@@ -16,13 +16,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['web', 'auth:sanctum', \App\Http\Middleware\RequirePtrEnvironment::class])
+Route::middleware(['web', 'auth', \App\Http\Middleware\RequirePtrEnvironment::class])
     ->prefix('ptr')
     ->group(function (): void {
         Route::get('/bug-reports', [BugReportController::class, 'index'])->name('ptr.bug-reports.index');
         Route::post('/bug-reports', [BugReportController::class, 'store'])->name('ptr.bug-reports.store');
         Route::patch('/bug-reports/{bugReport}', [BugReportController::class, 'update'])->name('ptr.bug-reports.update');
         Route::get('/bug-reports/stats', [BugReportController::class, 'stats'])->name('ptr.bug-reports.stats');
+        Route::get('/bug-reports/export', [BugReportController::class, 'exportJson'])->name('ptr.bug-reports.export');
         Route::get('/bug-reports/{bugReport}/screenshot', [BugReportScreenshotController::class, 'show'])
             ->name('ptr.bug-reports.screenshot');
     });

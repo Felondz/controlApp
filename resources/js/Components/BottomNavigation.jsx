@@ -37,7 +37,7 @@ export default function BottomNavigation({ user, project = null }) {
             items.push({
                 name: t('projects.overview', 'Resumen'),
                 route: 'mis-proyectos.show',
-                routeParams: project.id,
+                routeParams: project.uuid,
                 icon: FolderIcon,
                 matchRoutes: ['mis-proyectos.show', 'mis-proyectos.edit'],
             });
@@ -47,7 +47,7 @@ export default function BottomNavigation({ user, project = null }) {
                 items.push({
                     name: t('modules.chat.title', 'Chat'),
                     route: 'mis-proyectos.chat',
-                    routeParams: project.id,
+                    routeParams: project.uuid,
                     icon: ChatIcon,
                     badge: project.unread_messages_count
                 });
@@ -55,7 +55,7 @@ export default function BottomNavigation({ user, project = null }) {
                 items.push({
                     name: t('modules.tasks', 'Tareas'),
                     route: 'mis-proyectos.tasks.index',
-                    routeParams: { proyecto: project.id },
+                    routeParams: { proyecto: project.uuid },
                     icon: CheckListIcon,
                     matchRoutes: ['mis-proyectos.tasks.index'],
                 });
@@ -63,7 +63,7 @@ export default function BottomNavigation({ user, project = null }) {
                 items.push({
                     name: t('modules.finance', 'Finanzas'),
                     route: 'mis-proyectos.finance',
-                    routeParams: project.id,
+                    routeParams: project.uuid,
                     icon: CurrencyDollarIcon,
                     matchRoutes: ['mis-proyectos.finance'],
                 });
@@ -71,7 +71,7 @@ export default function BottomNavigation({ user, project = null }) {
                 items.push({
                     name: t('operations.title', 'Operaciones'),
                     route: 'operations.lotes.index',
-                    routeParams: project.id,
+                    routeParams: project.uuid,
                     icon: FactoryIcon,
                     matchRoutes: ['operations.lotes.*'],
                 });

@@ -161,7 +161,7 @@ export default function TransactionsWidget({
             )}
 
             {/* Transactions List */}
-            <div className="space-y-6 max-h-[350px] overflow-y-auto pr-2 scrollbar-thin">
+            <div className="space-y-6 max-h-[350px] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
                 {groupedTransactions.length > 0 ? (
                     groupedTransactions.map((group) => (
                         <div key={group.label}>

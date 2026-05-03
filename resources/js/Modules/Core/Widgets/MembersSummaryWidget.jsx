@@ -21,7 +21,7 @@ export default function MembersSummaryWidget({ project, widget, onHide, isDraggi
             action={
                 project ? (
                     <Link
-                        href={route('project.members.index', { proyecto: project.id })}
+                        href={route('project.members.index', { proyecto: project.uuid })}
                         className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
                     >
                         {t('common.view_all', 'Ver todos')}

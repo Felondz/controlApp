@@ -57,7 +57,7 @@ class ScheduledTransactionTest extends TestCase
 
         $initialBalance = $this->cuenta->fresh()->saldo_actual;
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/transacciones", [
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/transacciones", [
             'cuenta_id' => $this->cuenta->id,
             'categoria_id' => $this->categoria->id,
             // Will be converted to negative for expense in controller if logic exists, or we send negative. 
@@ -102,7 +102,7 @@ class ScheduledTransactionTest extends TestCase
         $initialBalance = $this->cuenta->fresh()->saldo_actual;
 
         // Update to completed
-        $response = $this->putJson("/api/proyectos/{$this->proyecto->id}/transacciones/{$transaccion->id}", [
+        $response = $this->putJson("/api/proyectos/{$this->proyecto->uuid}/transacciones/{$transaccion->uuid}", [
             'cuenta_id' => $this->cuenta->id,
             'categoria_id' => $this->categoria->id,
             'monto' => -100.00,
@@ -142,7 +142,7 @@ class ScheduledTransactionTest extends TestCase
         $balanceBeforeDelete = $this->cuenta->fresh()->saldo_actual;
 
         // Delete
-        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->id}/transacciones/{$transaccion->id}");
+        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->uuid}/transacciones/{$transaccion->uuid}");
 
         $response->assertStatus(204);
 
@@ -170,7 +170,7 @@ class ScheduledTransactionTest extends TestCase
         $balanceBeforeDelete = $this->cuenta->fresh()->saldo_actual;
 
         // Delete
-        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->id}/transacciones/{$transaccion->id}");
+        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->uuid}/transacciones/{$transaccion->uuid}");
 
         $response->assertStatus(204);
 

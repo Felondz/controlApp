@@ -36,7 +36,7 @@ class InventoryItemApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-            ->get(route('inventory.items.index', ['proyecto' => $this->project->id]));
+            ->get(route('inventory.items.index', ['proyecto' => $this->project]));
 
         $response->assertStatus(200);
     }
@@ -53,7 +53,7 @@ class InventoryItemApiTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user)
-            ->post(route('inventory.items.store', ['proyecto' => $this->project->id]), $itemData);
+            ->post(route('inventory.items.store', ['proyecto' => $this->project]), $itemData);
 
         $response->assertStatus(302); // Redirect after success
 
@@ -66,7 +66,7 @@ class InventoryItemApiTest extends TestCase
 
     public function test_unauthenticated_user_cannot_access_inventory(): void
     {
-        $response = $this->get(route('inventory.items.index', ['proyecto' => $this->project->id]));
+        $response = $this->get(route('inventory.items.index', ['proyecto' => $this->project]));
 
         $response->assertRedirect(route('login'));
     }

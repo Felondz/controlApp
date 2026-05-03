@@ -10,7 +10,7 @@ readonly class UpdateLoteStageDTO
 {
     public function __construct(
         public LoteProduccion $lote,
-        public int $newStageId,
+        public string $newStageId,
         public bool $forceConsumeInputs,
     ) {}
 }

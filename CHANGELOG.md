@@ -4,6 +4,80 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [3.2.0] - 2026-05-03
+
+### 🔑 CRITICAL: System-Wide UUID Route Binding Migration
+
+**Type**: Architecture Migration & Bug Fix
+**Impact**: CRITICAL — All modules affected, both web and routing layer
+**Tests Affected**: All existing tests remain passing
+
+**Description**:
+Migrated the entire application from numeric `id`-based route binding to **UUID-based routing** for all primary resources. This prevents URL enumeration attacks and provides consistent, opaque identifiers across all modules. Additionally, introduced a standardized `CurrencyInput` component and fixed multiple missing routes.
+
+**Key Changes**:
+
+#### UUID Migration (Backend)
+- ✅ **Model Binding**: All routable models (`Proyecto`, `Cuenta`, `InventoryItem`, `LoteProduccion`, `Task`) now use `getRouteKeyName() = 'uuid'` with the `HasUuids` trait.
+- ✅ **Controller Redirects**: Fixed all `to_route()` / `redirect()->route()` calls across modules to use `$model->uuid` instead of `$model->id`:
+  - `LoteController::storeProcess()` — redirect after creating production process
+  - `LoteController::store()` — redirect after creating production batch
+  - `AccountAdminModal` API URL — was using `account.id`, now `account.uuid`
+- ✅ **LoteCodeService**: Relaxed `generate()` parameter type from `string` to `int|string` for compatibility.
+- ✅ **Broadcasting**: Updated `routes/channels.php` to resolve projects via UUID for real-time chat.
+
+#### UUID Migration (Frontend)
+- ✅ **Navigation**: `NavigationSheet.jsx`, `BottomNavigation.jsx`, `ProjectCard.jsx` — all use UUID routing.
+- ✅ **Finance**: `AccountAdminModal.jsx`, `DeleteAccountModal.jsx`, `AccountDetailsModal.jsx` — UUID in API calls.
+- ✅ **Tasks**: `Index.jsx` — drag-and-drop, filtering, and state management use UUIDs.
+- ✅ **Inventory**: `ItemModal.jsx` — uses `item.uuid` and `project.uuid` for route params.
+- ✅ **Operations**: `CreateLoteModal.jsx`, `CreateProcessModal.jsx` — confirmed UUID usage.
+- ✅ **Dashboard**: `DraggableProjectGrid.jsx` — persists project order using UUIDs.
+
+#### Missing Routes Fixed
+- ✅ **Inventory Module**: Added missing `POST /items/{item}` (update) and `DELETE /items/{item}` (destroy) routes — controller methods existed but were never registered.
+- ✅ **Lotes Index**: Fixed stray closing brace causing Vite build error.
+
+#### Currency Formatting System
+- ✅ **`CurrencyInput` Component** (`@/Components/CurrencyInput.jsx`): New reusable input for all monetary fields:
+  - Shows currency symbol as prefix (`$`, `€`, `£`, etc.)
+  - Formats with thousand separators on blur
+  - Respects per-currency decimal rules: no decimals for COP/JPY/KRW/CLP, 2 decimals for USD/EUR/GBP
+  - `inputMode="decimal"` for mobile keyboard optimization
+- ✅ **AccountAdminModal**: Replaced 4 `TextInput type="number"` fields with `CurrencyInput` (saldo_inicial, limite_credito, valor_cuota, valor_nomina).
+- ✅ **ItemModal**: Replaced 2 `TextInput type="number"` fields with `CurrencyInput` (cost_price, sale_price).
+- ✅ **DeleteAccountModal**: Replaced hardcoded `Intl.NumberFormat` with `formatCurrency()` helper.
+- ✅ **Initialization Fix**: Form data loading now respects currency decimal rules (`shouldShowDecimals()`).
+
+#### UI Polish
+- ✅ **AccountAdminModal Footer**: Added proper padding (`px-6 py-4`), subtle background (`bg-gray-50/50`), and border separation — buttons no longer flush against card edge.
+- ✅ **AccountAdminModal Header/Tabs**: Clean border separations between header, tabs, and content areas.
+
+**Documentation Updated**:
+- `AGENTS.md` — Added UUID Routing Convention section, Currency Formatting Convention, removed deprecated modules
+- `CHANGELOG.md` — This entry
+- `docs/private/es/01-core/MODULES_ARCHITECTURE.md` — Updated module structure and routing info
+
+**Files Created**:
+- `resources/js/Components/CurrencyInput.jsx` (NEW)
+
+**Files Modified**:
+- `app/Services/LoteCodeService.php` — `int|string` type hint
+- `app/Modules/Operations/Controllers/LoteController.php` — UUID redirects
+- `app/Modules/Operations/routes/web.php` — (no changes, routes were correct)
+- `app/Modules/Inventory/routes/web.php` — Added update/destroy routes
+- `resources/js/Components/Finance/Modals/AccountAdminModal.jsx` — CurrencyInput + UUID + UI polish
+- `resources/js/Components/Finance/Modals/DeleteAccountModal.jsx` — formatCurrency helper
+- `resources/js/Pages/Inventory/Items/ItemModal.jsx` — CurrencyInput integration
+- `resources/js/Pages/Operations/Lotes/Index.jsx` — Syntax fix
+- Multiple navigation/widget components — UUID migration
+
+**Validation**:
+- ✅ PHPStan Level 8: `[OK] No errors` on all modified PHP files
+- ✅ Vite builds successfully
+- ✅ Route list verified for inventory and operations modules
+
+---
 
 ## [3.1.0] - 2026-02-26
 

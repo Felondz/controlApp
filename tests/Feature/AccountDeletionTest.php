@@ -43,8 +43,8 @@ class AccountDeletionTest extends TestCase
         // 3. Act: Delete the account
         $response = $this->actingAs($user)
             ->delete(route('finance.accounts.destroy', [
-                'proyecto' => $project->id,
-                'account' => $account->id
+                'proyecto' => $project,
+                'account' => $account
             ]));
 
         // 4. Assert
@@ -82,8 +82,8 @@ class AccountDeletionTest extends TestCase
 
         $response = $this->actingAs($user)
             ->delete(route('finance.accounts.destroy', [
-                'proyecto' => $project->id,
-                'account' => $account->id
+                'proyecto' => $project,
+                'account' => $account
             ]));
 
         $response->assertStatus(403);

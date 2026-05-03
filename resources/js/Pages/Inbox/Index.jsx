@@ -71,7 +71,7 @@ export default function Inbox({ auth, projects, invitations = [] }) {
                                             {projects.map((project) => (
                                                 <li key={project.id}>
                                                     <Link
-                                                        href={route('mis-proyectos.chat', project.id)}
+                                                        href={route('mis-proyectos.chat', project.uuid)}
                                                         className="flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 p-4 rounded-lg transition-colors"
                                                     >
                                                         <div className="flex items-center space-x-4">

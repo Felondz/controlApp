@@ -52,7 +52,7 @@ export default function AiChatWidget() {
                 }
             }
         } catch (error) {
-            console.error("Error fetching models:", error);
+            // Silently handle error fetching models
         } finally {
             setLoadingModels(false);
         }
@@ -161,7 +161,7 @@ export default function AiChatWidget() {
                     </div>
 
                     {/* Chat Area */}
-                    <div className="flex-1 p-4 overflow-y-auto max-h-96 min-h-[16rem] bg-gray-50 dark:bg-gray-900 space-y-4">
+                    <div className="flex-1 p-4 overflow-y-auto overflow-x-hidden max-h-96 min-h-[16rem] bg-gray-50 dark:bg-gray-900 space-y-4 scrollbar-thin">
                         {messages.length === 0 ? (
                             <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
                                 <p className="text-sm">{t('ai.welcome_msg', '¡Hola! ¿En qué puedo ayudarte hoy?')}</p>

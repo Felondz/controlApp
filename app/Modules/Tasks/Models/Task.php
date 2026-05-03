@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Models\Proyecto;
 use App\Models\User;
 use App\Modules\Finance\Models\Categoria;
 
 /**
- * @property int $id
- * @property int $project_id
+ * @property string $id
+ * @property string $project_id
  * @property string $title
  * @property string|null $description
  * @property string $status
@@ -37,7 +38,27 @@ use App\Modules\Finance\Models\Categoria;
 class Task extends Model
 {
     /** @use HasFactory<\Database\Factories\TaskFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     protected static function newFactory(): \Database\Factories\TaskFactory
     {

@@ -489,6 +489,12 @@ export default function Welcome({ auth }) {
                             <Link href="/docs" className="text-gray-400 hover:text-white transition-colors">
                                 {t('landing.footer_docs', 'Documentación')}
                             </Link>
+                            <Link href={route('docs.user', { page: 'privacy' })} className="text-gray-400 hover:text-white transition-colors">
+                                {t('auth.privacy_policy')}
+                            </Link>
+                            <Link href={route('docs.user', { page: 'terms' })} className="text-gray-400 hover:text-white transition-colors">
+                                {t('auth.terms_of_service')}
+                            </Link>
                             <a href="mailto:soporte@controlapp.com" className="text-gray-400 hover:text-white transition-colors">
                                 {t('landing.footer_support', 'Soporte')}
                             </a>

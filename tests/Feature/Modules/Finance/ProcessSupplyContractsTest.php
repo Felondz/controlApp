@@ -83,7 +83,7 @@ class ProcessSupplyContractsTest extends TestCase
         $this->assertDatabaseHas('transacciones', [
             'proyecto_id' => $proyecto->id,
             'monto' => 500,
-            'descripcion' => "Auto-generated from Supply Contract #{$contract->id}",
+            'descripcion' => "Auto-generated from Supply Contract #{$contract->uuid}",
         ]);
     }
 }

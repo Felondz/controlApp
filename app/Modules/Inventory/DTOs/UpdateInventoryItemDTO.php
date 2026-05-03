@@ -17,7 +17,7 @@ class UpdateInventoryItemDTO
         public readonly string $name,
         public readonly string $type,
         public readonly string $unit,
-        public readonly ?int $userId = null,
+        public readonly ?string $userId = null,
         public readonly ?string $sku = null,
         public readonly float $minStockLevel = 0.0,
         public readonly float $salePrice = 0.0,

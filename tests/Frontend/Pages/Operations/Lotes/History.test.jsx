@@ -20,7 +20,7 @@ vi.mock('@/Components/Pagination', () => ({
 
 describe('History Page', () => {
     const mockAuth = { user: { id: 1, name: 'Test User' } };
-    const mockProyecto = { id: 10, name: 'Test Project' };
+    const mockProyecto = { id: 10, uuid: 'project-uuid-10', name: 'Test Project' };
     const mockLotes = {
         data: [
             {
@@ -99,7 +99,7 @@ describe('History Page', () => {
         // Wait for debounce (300ms in component)
         await waitFor(() => {
             const lastCall = router.get.mock.lastCall;
-            expect(lastCall[0].toString()).toBe('/operations.lotes.history/10');
+            expect(lastCall[0].toString()).toBe('/operations.lotes.history/project-uuid-10');
             expect(lastCall[1]).toEqual(expect.objectContaining({ search: 'SEARCH-TERM', status: '' }));
             expect(lastCall[2]).toEqual(expect.objectContaining({ preserveState: true, replace: true }));
         }, { timeout: 1000 });
@@ -120,7 +120,7 @@ describe('History Page', () => {
         fireEvent.change(statusSelect, { target: { value: 'finished' } });
 
         const lastCall = router.get.mock.lastCall;
-        expect(lastCall[0].toString()).toBe('/operations.lotes.history/10');
+        expect(lastCall[0].toString()).toBe('/operations.lotes.history/project-uuid-10');
         expect(lastCall[1]).toEqual(expect.objectContaining({ search: '', status: 'finished' }));
         expect(lastCall[2]).toEqual(expect.objectContaining({ preserveState: true, replace: true }));
     });

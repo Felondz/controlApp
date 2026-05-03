@@ -14,7 +14,7 @@ export default function TasksSummaryWidget({ project, widget, onHide, isDragging
         const fetchData = async () => {
             try {
                 // Use named API route
-                const response = await axios.get(route('api.proyectos.tasks.summary', { proyecto: project.id }));
+                const response = await axios.get(route('api.proyectos.tasks.summary', { proyecto: project.uuid }));
                 setData(response.data);
                 setLoading(false);
             } catch (error) {
@@ -60,7 +60,7 @@ export default function TasksSummaryWidget({ project, widget, onHide, isDragging
             action={
                 project ? (
                     <Link
-                        href={route('mis-proyectos.tasks.index', { proyecto: project.id })}
+                        href={route('mis-proyectos.tasks.index', { proyecto: project.uuid })}
                         className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
                     >
                         {t('common.view_all', 'Ver todas')}

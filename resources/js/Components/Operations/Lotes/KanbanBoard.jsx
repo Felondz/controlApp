@@ -25,7 +25,7 @@ export default function KanbanBoard({ stages, lotes, onDragEnd, onLoteClick, las
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex h-full w-full gap-4 overflow-x-auto pb-4 snap-x snap-mandatory px-4 md:px-0">
+            <div className="flex h-full w-full gap-4 overflow-x-auto pb-4 snap-x snap-mandatory px-4 md:px-0 scrollbar-thin">
                 {stages.map(stage => (
                     <KanbanColumn
                         key={stage.id}

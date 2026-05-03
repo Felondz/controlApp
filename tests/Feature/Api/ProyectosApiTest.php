@@ -193,7 +193,7 @@ class ProyectosApiTest extends TestCase
      */
     public function test_miembro_puede_ver_detalles_proyecto(): void
     {
-        $response = $this->actingAs($this->usuario)->getJson('/api/proyectos/' . $this->proyecto->id);
+        $response = $this->actingAs($this->usuario)->getJson('/api/proyectos/' . $this->proyecto->uuid);
 
         $response->assertStatus(200)
             ->assertJson(['id' => $this->proyecto->id]);
@@ -206,7 +206,7 @@ class ProyectosApiTest extends TestCase
     {
         $otroUsuario = User::factory()->create();
 
-        $response = $this->actingAs($otroUsuario)->getJson('/api/proyectos/' . $this->proyecto->id);
+        $response = $this->actingAs($otroUsuario)->getJson('/api/proyectos/' . $this->proyecto->uuid);
 
         // Policy view: return $user->esMiembroDe($proyecto);
         $response->assertStatus(403);
@@ -217,7 +217,7 @@ class ProyectosApiTest extends TestCase
      */
     public function test_unauthenticated_cannot_view_proyecto(): void
     {
-        $response = $this->getJson('/api/proyectos/' . $this->proyecto->id);
+        $response = $this->getJson('/api/proyectos/' . $this->proyecto->uuid);
         $response->assertStatus(401);
     }
 
@@ -227,7 +227,7 @@ class ProyectosApiTest extends TestCase
     public function test_admin_puede_actualizar_proyecto(): void
     {
         $response = $this->actingAs($this->usuario)
-            ->putJson('/api/proyectos/' . $this->proyecto->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid, [
                 'nombre' => 'Proyecto Renombrado',
                 'moneda_default' => 'EUR',
                 'theme' => 'dark-blue',
@@ -257,7 +257,7 @@ class ProyectosApiTest extends TestCase
         // Usar POST con _method: PUT para simular la actualización con archivo
         // Laravel no procesa multipart/form-data en PUT directo
         $response = $this->actingAs($this->usuario)
-            ->post('/api/proyectos/' . $this->proyecto->id, [
+            ->post('/api/proyectos/' . $this->proyecto->uuid, [
                 '_method' => 'PUT',
                 'image' => $file,
             ]);
@@ -280,7 +280,7 @@ class ProyectosApiTest extends TestCase
         $this->proyecto->miembros()->attach($miembro->id, ['rol' => 'editor']); // Rol no admin
 
         $response = $this->actingAs($miembro)
-            ->putJson('/api/proyectos/' . $this->proyecto->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid, [
                 'nombre' => 'Intento de Hackeo',
             ]);
 
@@ -295,7 +295,7 @@ class ProyectosApiTest extends TestCase
         $otroUsuario = User::factory()->create();
 
         $response = $this->actingAs($otroUsuario)
-            ->putJson('/api/proyectos/' . $this->proyecto->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid, [
                 'nombre' => 'Intento de Hackeo Externo',
             ]);
 
@@ -308,7 +308,7 @@ class ProyectosApiTest extends TestCase
     public function test_admin_puede_actualizar_solo_nombre(): void
     {
         $response = $this->actingAs($this->usuario)
-            ->putJson('/api/proyectos/' . $this->proyecto->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid, [
                 'nombre' => 'Solo Nombre',
             ]);
 
@@ -326,7 +326,7 @@ class ProyectosApiTest extends TestCase
     public function test_admin_puede_eliminar_proyecto(): void
     {
         $response = $this->actingAs($this->usuario)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid);
 
         $response->assertStatus(204); // No Content
 
@@ -342,7 +342,7 @@ class ProyectosApiTest extends TestCase
         $this->proyecto->miembros()->attach($miembro->id, ['rol' => 'editor']);
 
         $response = $this->actingAs($miembro)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid);
 
         $response->assertStatus(403);
     }
@@ -355,7 +355,7 @@ class ProyectosApiTest extends TestCase
         $otroUsuario = User::factory()->create();
 
         $response = $this->actingAs($otroUsuario)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid);
 
         $response->assertStatus(403);
     }
@@ -365,7 +365,7 @@ class ProyectosApiTest extends TestCase
      */
     public function test_unauthenticated_cannot_delete_proyecto(): void
     {
-        $response = $this->deleteJson('/api/proyectos/' . $this->proyecto->id);
+        $response = $this->deleteJson('/api/proyectos/' . $this->proyecto->uuid);
         $response->assertStatus(401);
     }
 
@@ -379,7 +379,7 @@ class ProyectosApiTest extends TestCase
     {
         // Al usar SoftDeletes, la relación en tabla pivote se mantiene (a menos que se fuerce borrado)
 
-        $this->actingAs($this->usuario)->deleteJson('/api/proyectos/' . $this->proyecto->id);
+        $this->actingAs($this->usuario)->deleteJson('/api/proyectos/' . $this->proyecto->uuid);
 
         $this->assertDatabaseHas('proyecto_user', ['proyecto_id' => $this->proyecto->id]);
     }

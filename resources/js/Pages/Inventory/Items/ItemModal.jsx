@@ -15,6 +15,7 @@ import {
     InformationCircleIcon,
     XMarkIcon
 } from '@/Components/Icons';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function ItemModal({ show, onClose, project, item = null }) {
     const { t } = useTranslate();
@@ -61,8 +62,8 @@ export default function ItemModal({ show, onClose, project, item = null }) {
         const routeName = item ? 'inventory.items.update' : 'inventory.items.store';
         // Route parameter must be 'proyecto' to match Route::prefix('mis-proyectos/{proyecto}/inventory')
         const routeParams = item
-            ? { proyecto: project.id, item: item.id }
-            : { proyecto: project.id };
+            ? { proyecto: project.uuid, item: item.uuid }
+            : { proyecto: project.uuid };
 
         post(route(routeName, routeParams), {
             forceFormData: true,
@@ -72,9 +73,9 @@ export default function ItemModal({ show, onClose, project, item = null }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <div className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
                 {/* Header Compacto */}
-                <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800">
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800 flex-none">
                     <div className="flex items-center gap-3">
                         <div className="bg-primary-50 dark:bg-primary-900/20 p-2 rounded-lg text-primary-600 dark:text-primary-400">
                             <PackageIcon className="w-5 h-5" />
@@ -93,8 +94,8 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-6">
+                <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-6 pb-6">
 
                         {/* Top Section: Image + Basic Info */}
                         <div className="flex flex-col sm:flex-row gap-6">
@@ -196,20 +197,14 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                                     htmlFor="cost_price"
                                     value={item ? t('inventory.cost_price', 'Costo Promedio') : t('inventory.initial_cost', 'Costo Inicial')}
                                 />
-                                <div className="relative mt-1">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                    <TextInput
-                                        id="cost_price"
-                                        type="number"
-                                        step="0.01"
-                                        value={item ? data.cost_price : data.initial_cost}
-                                        onChange={(e) => item ? setData('cost_price', e.target.value) : setData('initial_cost', e.target.value)}
-                                        className="block w-full pl-6"
-                                        placeholder="0.00"
-                                        disabled={!!item} // Cost is managed via transactions usually, but allowed to edit if manual correction needed? Keeping it editable for now or as per established rules. 
-                                    // Actually user asked for initial cost on creation. On edit, cost is usually weighted avg.
-                                    />
-                                </div>
+                                <CurrencyInput
+                                    id="cost_price"
+                                    value={item ? data.cost_price : data.initial_cost}
+                                    onChange={(e) => item ? setData('cost_price', e.target.value) : setData('initial_cost', e.target.value)}
+                                    currency={project?.moneda_default || 'COP'}
+                                    className="mt-1 block w-full"
+                                    disabled={!!item}
+                                />
                                 <InputError message={errors.initial_cost} className="mt-1" />
                             </div>
                         </div>
@@ -279,18 +274,13 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                             <div className="bg-primary-50 dark:bg-primary-900/10 p-4 rounded-xl border border-primary-100 dark:border-primary-900/30 flex items-center gap-4 animate-fade-in">
                                 <div className="flex-1">
                                     <InputLabel htmlFor="sale_price" value={t('inventory.sale_price', 'Precio Venta')} className="text-primary-700 dark:text-primary-300" />
-                                    <div className="relative mt-1">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-500 font-bold">$</span>
-                                        <TextInput
-                                            id="sale_price"
-                                            type="number"
-                                            step="0.01"
-                                            value={data.sale_price}
-                                            onChange={(e) => setData('sale_price', e.target.value)}
-                                            className="block w-full pl-6 border-primary-200 focus:border-primary-500 focus:ring-primary-500"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
+                                    <CurrencyInput
+                                        id="sale_price"
+                                        value={data.sale_price}
+                                        onChange={(e) => setData('sale_price', e.target.value)}
+                                        currency={project?.moneda_default || 'COP'}
+                                        className="mt-1 block w-full"
+                                    />
                                 </div>
                                 <div className="hidden sm:block text-xs text-primary-600 dark:text-primary-400 max-w-[150px]">
                                     {t('inventory.type_help', 'Habilitado para productos terminados.')}
@@ -300,7 +290,7 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3 rounded-b-2xl border-t border-gray-100 dark:border-gray-700">
+                    <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3 rounded-b-2xl border-t border-gray-100 dark:border-gray-700 flex-none">
                         <SecondaryButton onClick={onClose} className="border-0 shadow-none hover:bg-gray-200 dark:hover:bg-gray-700">
                             {t('common.cancel', 'Cancelar')}
                         </SecondaryButton>

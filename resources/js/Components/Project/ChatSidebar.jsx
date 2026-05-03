@@ -30,7 +30,7 @@ export default function ChatSidebar({ project, user, activeChannel, onChannelSel
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-2 space-y-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-6 scrollbar-thin">
                     {/* Channels Section */}
                     <div>
                         <div className="flex items-center px-2 mb-2">

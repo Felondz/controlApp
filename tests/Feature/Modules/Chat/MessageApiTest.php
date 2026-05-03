@@ -21,7 +21,7 @@ class MessageApiTest extends TestCase
             'modules' => ['chat'], // Enable chat
         ]);
 
-        $response = $this->actingAs($user)->postJson("/api/proyectos/{$project->id}/messages", [
+        $response = $this->actingAs($user)->postJson("/api/proyectos/{$project->uuid}/messages", [
             'content' => 'Hello World',
         ]);
 
@@ -45,7 +45,7 @@ class MessageApiTest extends TestCase
             'modules' => ['finance'], // Chat disabled
         ]);
 
-        $response = $this->actingAs($user)->postJson("/api/proyectos/{$project->id}/messages", [
+        $response = $this->actingAs($user)->postJson("/api/proyectos/{$project->uuid}/messages", [
             'content' => 'Hello World',
         ]);
 
@@ -61,7 +61,7 @@ class MessageApiTest extends TestCase
             'modules' => ['chat'],
         ]);
 
-        $response = $this->actingAs($otherUser)->getJson("/api/proyectos/{$project->id}/messages");
+        $response = $this->actingAs($otherUser)->getJson("/api/proyectos/{$project->uuid}/messages");
 
         $response->assertStatus(403);
     }
@@ -79,7 +79,7 @@ class MessageApiTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->actingAs($user)->getJson("/api/proyectos/{$project->id}/messages");
+        $response = $this->actingAs($user)->getJson("/api/proyectos/{$project->uuid}/messages");
 
         $response->assertStatus(200)
             ->assertJsonCount(3, 'data');
@@ -95,7 +95,7 @@ class MessageApiTest extends TestCase
         ]);
         $project->miembros()->attach($user2);
 
-        $response = $this->actingAs($user1)->postJson("/api/proyectos/{$project->id}/messages", [
+        $response = $this->actingAs($user1)->postJson("/api/proyectos/{$project->uuid}/messages", [
             'content' => 'Secret message',
             'recipient_id' => $user2->id,
         ]);
@@ -127,17 +127,17 @@ class MessageApiTest extends TestCase
         ]);
 
         // User2 should see it
-        $response = $this->actingAs($user2)->getJson("/api/proyectos/{$project->id}/messages");
+        $response = $this->actingAs($user2)->getJson("/api/proyectos/{$project->uuid}/messages");
         $response->assertStatus(200)
             ->assertJsonFragment(['content' => 'For User 2']);
 
         // User1 should see it (as sender)
-        $response = $this->actingAs($user1)->getJson("/api/proyectos/{$project->id}/messages");
+        $response = $this->actingAs($user1)->getJson("/api/proyectos/{$project->uuid}/messages");
         $response->assertStatus(200)
             ->assertJsonFragment(['content' => 'For User 2']);
 
         // User3 should NOT see it
-        $response = $this->actingAs($user3)->getJson("/api/proyectos/{$project->id}/messages");
+        $response = $this->actingAs($user3)->getJson("/api/proyectos/{$project->uuid}/messages");
         $response->assertStatus(200)
             ->assertJsonMissing(['content' => 'For User 2']);
     }
@@ -160,7 +160,7 @@ class MessageApiTest extends TestCase
             'read_at' => null,
         ]);
 
-        $response = $this->actingAs($user1)->postJson("/api/proyectos/{$project->id}/messages/read");
+        $response = $this->actingAs($user1)->postJson("/api/proyectos/{$project->uuid}/messages/read");
 
         $response->assertStatus(200);
         $this->assertNotNull($message->fresh()->read_at);

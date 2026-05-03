@@ -10,14 +10,14 @@ export default function FinanceWidget({ project }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (project?.id) {
+        if (project?.uuid) {
             fetchBalance();
         }
-    }, [project?.id]);
+    }, [project?.uuid]);
 
     const fetchBalance = async () => {
-        if (!project?.id) {
-            console.warn('FinanceWidget: project.id is missing');
+        if (!project?.uuid) {
+            console.warn('FinanceWidget: project.uuid is missing');
             setLoading(false);
             return;
         }
@@ -30,7 +30,7 @@ export default function FinanceWidget({ project }) {
         }
 
         try {
-            const response = await axios.get(route('api.finance.balance', project.id));
+            const response = await axios.get(route('api.finance.balance', project.uuid));
             setBalance(response.data.balance);
         } catch (error) {
             console.error('Error fetching balance:', error);

@@ -96,7 +96,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
         }
 
         if (confirm(t('finance.confirm_unlink_account', '¿Estás seguro de que quieres desvincular esta cuenta?'))) {
-            router.delete(`/api/proyectos/${proyecto.id}/cuentas/${account.id}/unlink`, {
+            router.delete(`/api/proyectos/${proyecto.uuid}/cuentas/${account.uuid}/unlink`, {
                 onSuccess: () => {
                     router.reload({ only: ['proyecto'] });
                 },
@@ -215,7 +215,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
         // Process payment
         try {
-            await axios.post(route('finance.bills.pay-direct', [proyecto.id, bill.id]));
+            await axios.post(route('finance.bills.pay-direct', [proyecto.uuid, bill.uuid]));
             router.reload({ only: ['proyecto', 'pendingBills'] });
         } catch (error) {
             console.error('Error paying bill:', error);
@@ -247,7 +247,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
     const handleDeleteTransaction = (transaction) => {
         if (confirm(t('finance.confirm_delete_transaction', '¿Estás seguro de que quieres eliminar esta transacción?'))) {
-            router.delete(route('finance.transactions.destroy', { proyecto: proyecto.id, transaccion: transaction.id }), {
+            router.delete(route('finance.transactions.destroy', { proyecto: proyecto.uuid, transaccion: transaction.uuid }), {
                 onSuccess: () => {
                     router.reload({ only: ['transacciones'] });
                 },
@@ -283,7 +283,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handleSettingsSave = (newSettings) => {
-        router.put(route('finance.projects.update-settings', { project: proyecto.id }), { settings: newSettings }, {
+        router.put(route('finance.projects.update-settings', { project: proyecto.uuid }), { settings: newSettings }, {
             onSuccess: () => {
                 setShowSettingsModal(false);
                 router.reload({ only: ['proyecto'] });
@@ -537,7 +537,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                 onMarkAsPaid: handleMarkAsPaid,
                                 onAddBill: handleCreateBill,
                                 onAdd: handleCreateBill, // For BillsWidget
-                                projectId: proyecto.id,
+                                projectId: proyecto.uuid,
                                 projects: [],
                                 isCollaborative: !proyecto.es_personal,
                                 currentUserId: auth.user.id,
@@ -656,7 +656,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             setSelectedAccount(null);
                         }}
                         account={selectedAccount}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         proyecto={proyecto}
                         onSuccess={handleAccountSuccess}
                     />
@@ -668,7 +668,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             setSelectedAccount(null);
                         }}
                         account={selectedAccount}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         proyecto={proyecto}
                         onSuccess={handleAccountSuccess}
                         onDelete={(account) => {
@@ -692,7 +692,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             setSelectedTransaction(null);
                         }}
                         transaction={selectedTransaction}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         proyectos={[]}
                         cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
                         categorias={proyecto.categorias || []}
@@ -708,7 +708,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             setSelectedBill(null);
                         }}
                         bill={selectedBill}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         onSuccess={handleBillSuccess}
                         cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
                         categorias={proyecto.categorias || []}
@@ -746,7 +746,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                             setSelectedTask(null);
                         }}
                         task={selectedTask}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
                         categorias={proyecto.categorias || []}
                         onSuccess={handlePaymentSuccess}
@@ -766,7 +766,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         onDeleteTransaction={handleDeleteTransaction}
                         onAddTransaction={handleCreateTransactionFromAccount}
                         currentUserId={auth.user.id}
-                        projectId={proyecto.id}
+                        projectId={proyecto.uuid}
                     />
 
                     <CreditCardPaymentModal
@@ -779,7 +779,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                         account={selectedAccount}
                         billDetails={ccBillDetails}
                         cuentas={[...(proyecto.cuentas || []), ...(proyecto.cuentas_asociadas || [])]}
-                        proyectoId={proyecto.id}
+                        proyectoId={proyecto.uuid}
                         onSuccess={() => {
                             setShowCCPaymentModal(false);
                             setCcBillDetails(null);

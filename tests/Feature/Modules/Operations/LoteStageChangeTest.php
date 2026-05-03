@@ -77,8 +77,8 @@ class LoteStageChangeTest extends TestCase
         // 2. Act - Move to Stage 2
         $response = $this->actingAs($user)
             ->put(route('operations.lotes.update-stage', [
-                'proyecto' => $proyecto->id,
-                'lote' => $lote->id
+                'proyecto' => $proyecto,
+                'lote' => $lote
             ]), [
                 'stage_id' => $stage2->id,
                 'consume_inputs' => true,

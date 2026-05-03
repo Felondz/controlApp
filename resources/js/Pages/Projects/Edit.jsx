@@ -74,7 +74,7 @@ export default function Edit({ auth, proyecto }) {
     const submit = (e) => {
         e.preventDefault();
 
-        router.post(route('mis-proyectos.update', proyecto.id), {
+        router.post(route('mis-proyectos.update', proyecto.uuid), {
             _method: 'put',
             ...data,
         }, {
@@ -110,7 +110,7 @@ export default function Edit({ auth, proyecto }) {
             return;
         }
 
-        destroy(route('mis-proyectos.destroy', proyecto.id), {
+        destroy(route('mis-proyectos.destroy', proyecto.uuid), {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => closeModal(),

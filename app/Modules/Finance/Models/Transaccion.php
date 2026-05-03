@@ -7,17 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Models\Proyecto;
 use App\Modules\Finance\Models\Cuenta;
 use App\Modules\Finance\Models\Categoria;
 use App\Models\User;
 
 /**
- * @property int $id
- * @property int $proyecto_id
- * @property int $cuenta_id
+ * @property string $id
+ * @property string $proyecto_id
+ * @property string $cuenta_id
  * @property int $categoria_id
- * @property int $user_id
+ * @property string $user_id
  * @property float $monto
  * @property string $tipo
  * @property string $status
@@ -38,7 +39,27 @@ use App\Models\User;
 class Transaccion extends Model
 {
     /** @use HasFactory<\Database\Factories\TransaccionFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     protected static function newFactory(): \Database\Factories\TransaccionFactory
     {

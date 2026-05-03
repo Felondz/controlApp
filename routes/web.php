@@ -33,7 +33,7 @@ use App\Http\Controllers\DocumentationController;
 
 Route::get('/', WelcomeController::class);
 Route::get('/docs', [DocumentationController::class, 'index'])->name('docs.index');
-Route::get('/docs/user', [DocumentationController::class, 'user'])->name('docs.user');
+Route::get('/docs/user/{page?}', [DocumentationController::class, 'user'])->name('docs.user');
 Route::get('/docs/dev/{path?}', [DocumentationController::class, 'dev'])->where('path', '.*')->name('docs.dev');
 Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
@@ -168,11 +168,13 @@ Route::post('/language/{locale}', [\App\Http\Controllers\LanguageController::cla
 require __DIR__ . '/auth.php';
 
 // Admin User Management Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsSuperAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggleStatus');
     Route::patch('/users/{user}/admin', [\App\Http\Controllers\Admin\UserController::class, 'toggleAdmin'])->name('users.toggleAdmin');
+    Route::post('/users/{user}/reset-password', [\App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.resetPassword');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 });
 
 

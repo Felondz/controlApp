@@ -1,0 +1,52 @@
+type Task {
+    id: ID!
+    uuid: String!
+    project_id: ID!
+    title: String!
+    description: String
+    status: String!
+    priority: String!
+    due_date: DateTime
+    assigned_to: ID
+    assignee: User @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    "Listar tareas de un proyecto"
+    tasks(
+        project_id: ID! @eq
+        status: String @eq
+    ): [Task!]! @all @guard @auth
+    
+    "Obtener una tarea específica"
+    task(id: ID! @eq): Task @find @guard @auth
+}
+
+extend type Mutation {
+    "Crear una nueva tarea"
+    createTask(
+        project_id: ID!
+        title: String!
+        description: String
+        status: String
+        priority: String
+        due_date: String
+        assigned_to: ID
+    ): Task! @create @guard @auth
+
+    "Actualizar una tarea"
+    updateTask(
+        id: ID!
+        title: String
+        description: String
+        status: String
+        priority: String
+        due_date: String
+        assigned_to: ID
+    ): Task! @update @guard @auth
+
+    "Eliminar una tarea"
+    deleteTask(id: ID!): Boolean! @delete @guard @auth
+}

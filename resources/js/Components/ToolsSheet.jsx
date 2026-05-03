@@ -62,7 +62,7 @@ export default function ToolsSheet({ isOpen, onClose }) {
                         </div>
 
                         {/* Tools List */}
-                        <div className="px-4 py-6 space-y-3 overflow-y-auto max-h-[60vh]">
+                        <div className="px-4 py-6 space-y-3 overflow-y-auto overflow-x-hidden max-h-[60vh] scrollbar-thin">
                             {tools.map((tool) => {
                                 const Icon = tool.icon;
 

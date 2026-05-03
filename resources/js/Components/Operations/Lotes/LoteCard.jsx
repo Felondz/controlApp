@@ -9,7 +9,7 @@ import { useTranslate } from '@/Hooks/useTranslate';
 export default function LoteCard({ lote, index, onClick, isLastStage, onFinish }) {
     const { t } = useTranslate();
     return (
-        <Draggable draggableId={String(lote.id)} index={index}>
+        <Draggable draggableId={lote.uuid} index={index}>
             {(provided, snapshot) => (
                 <div
                     ref={provided.innerRef}

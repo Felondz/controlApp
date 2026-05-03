@@ -24,7 +24,7 @@ class CategoryApiTest extends TestCase
         $proyecto = Proyecto::factory()->create();
         $proyecto->miembros()->attach($admin, ['rol' => 'admin']);
 
-        $response = $this->actingAs($admin)->postJson('/api/proyectos/' . $proyecto->id . '/categorias', [
+        $response = $this->actingAs($admin)->postJson('/api/proyectos/' . $proyecto->uuid . '/categorias', [
             'nombre' => 'Gastos Generales',
             'tipo' => 'gasto',
         ]);
@@ -50,7 +50,7 @@ class CategoryApiTest extends TestCase
         $proyecto = Proyecto::factory()->create();
         $proyecto->miembros()->attach($miembro, ['rol' => 'miembro']);
 
-        $response = $this->actingAs($miembro)->postJson('/api/proyectos/' . $proyecto->id . '/categorias', [
+        $response = $this->actingAs($miembro)->postJson('/api/proyectos/' . $proyecto->uuid . '/categorias', [
             'nombre' => 'Gastos Generales',
             'tipo' => 'gasto',
         ]);
@@ -76,7 +76,7 @@ class CategoryApiTest extends TestCase
         /** @var Categoria $categoria2 */
         $categoria2 = Categoria::factory()->create(['proyecto_id' => $proyecto->id]);
 
-        $response = $this->actingAs($admin)->getJson('/api/proyectos/' . $proyecto->id . '/categorias');
+        $response = $this->actingAs($admin)->getJson('/api/proyectos/' . $proyecto->uuid . '/categorias');
 
         $response->assertStatus(200);
         $response->assertJsonCount(12); // 10 default categories + 2 manually created
@@ -98,7 +98,7 @@ class CategoryApiTest extends TestCase
         $categoria = Categoria::factory()->create(['proyecto_id' => $proyecto->id]);
 
         $response = $this->actingAs($admin)->putJson(
-            '/api/proyectos/' . $proyecto->id . '/categorias/' . $categoria->id,
+            '/api/proyectos/' . $proyecto->uuid . '/categorias/' . $categoria->id,
             [
                 'nombre' => 'Gastos Actualizados',
                 'tipo' => 'ingreso',
@@ -129,7 +129,7 @@ class CategoryApiTest extends TestCase
         $categoria = Categoria::factory()->create(['proyecto_id' => $proyecto->id]);
 
         $response = $this->actingAs($admin)->deleteJson(
-            '/api/proyectos/' . $proyecto->id . '/categorias/' . $categoria->id
+            '/api/proyectos/' . $proyecto->uuid . '/categorias/' . $categoria->id
         );
 
         $response->assertStatus(204); // No Content
@@ -159,7 +159,7 @@ class CategoryApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)->deleteJson(
-            '/api/proyectos/' . $proyecto->id . '/categorias/' . $categoria->id
+            '/api/proyectos/' . $proyecto->uuid . '/categorias/' . $categoria->id
         );
 
         $response->assertStatus(422); // Unprocessable Entity
@@ -176,7 +176,7 @@ class CategoryApiTest extends TestCase
         /** @var Proyecto $proyecto */
         $proyecto = Proyecto::factory()->create();
 
-        $response = $this->getJson('/api/proyectos/' . $proyecto->id . '/categorias');
+        $response = $this->getJson('/api/proyectos/' . $proyecto->uuid . '/categorias');
 
         $response->assertStatus(401);
     }

@@ -187,7 +187,7 @@ export default function PersonalDashboard({
                     setSelectedAccount(null);
                 }}
                 account={selectedAccount}
-                proyectoId={proyectoPersonal?.id}
+                proyectoId={proyectoPersonal?.uuid}
                 proyecto={proyectoPersonal}
                 onSuccess={handleAccountSuccess}
             />
