@@ -28,7 +28,7 @@ export default function CreateLoteModal({ show, onClose, proyecto, processes = [
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('operations.lotes.store', { proyecto: proyecto.id }), {
+        post(route('operations.lotes.store', { proyecto: proyecto.uuid }), {
             onSuccess: () => {
                 reset();
                 onClose();

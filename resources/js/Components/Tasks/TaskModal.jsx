@@ -66,9 +66,9 @@ export default function TaskModal({ show, onClose, task, project, categories = [
         };
 
         if (task) {
-            put(route('mis-proyectos.tasks.update', { proyecto: project.id, task: task.id }), { ...options, data: formData });
+            put(route('mis-proyectos.tasks.update', { proyecto: project.uuid, task: task.uuid }), { ...options, data: formData });
         } else {
-            post(route('mis-proyectos.tasks.store', { proyecto: project.id }), { ...options, data: formData });
+            post(route('mis-proyectos.tasks.store', { proyecto: project.uuid }), { ...options, data: formData });
         }
     };
 
@@ -210,7 +210,7 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                                 type="button"
                                 onClick={() => {
                                     if (confirm(t('tasks.confirm_delete', '¿Estás seguro de eliminar esta tarea?'))) {
-                                        router.delete(route('mis-proyectos.tasks.destroy', { proyecto: project.id, task: task.id }), {
+                                        router.delete(route('mis-proyectos.tasks.destroy', { proyecto: project.uuid, task: task.uuid }), {
                                             onSuccess: () => {
                                                 onClose();
                                                 onSuccess();
@@ -235,6 +235,6 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                     </div>
                 </form>
             </div>
-        </Modal >
+        </Modal>
     );
 }

@@ -15,7 +15,7 @@ readonly class CreateProductionProcessDTO
         public Proyecto $proyecto,
         public string $name,
         public ?string $description,
-        public ?int $inventoryItemId,
+        public ?string $inventoryItemId,
         public array $stages,
     ) {}
 }

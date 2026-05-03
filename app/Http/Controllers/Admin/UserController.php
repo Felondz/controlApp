@@ -8,16 +8,10 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Password;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        if (request()->user() && !request()->user()->is_super_admin) {
-            abort(403);
-        }
-    }
-
     /**
      * Display a listing of the users.
      */
@@ -81,22 +75,30 @@ class UserController extends Controller
         $accountsCount = $user->cuentas()->count();
         $messagesCount = $user->sentMessages()->count();
 
-        // Combine private and shared projects into a normalized array for the UI
+        // Combine private and shared projects into a normalized array for the UI, ensuring uniqueness
         $projectsList = collect();
+        $addedUuids = [];
         
         foreach ($user->proyectosPersonales as $project) {
             $projectsList->push([
                 'id' => $project->id,
+                'uuid' => $project->uuid,
                 'name' => $project->nombre,
                 'role' => 'owner',
                 'type' => 'personal',
                 'last_read_at' => null // Owners don't use pivot
             ]);
+            $addedUuids[] = (string) $project->uuid;
         }
 
         foreach ($user->proyectos as $project) {
+            if (in_array((string) $project->uuid, $addedUuids)) {
+                continue;
+            }
+
             $projectsList->push([
                 'id' => $project->id,
+                'uuid' => $project->uuid,
                 'name' => $project->nombre,
                 // @phpstan-ignore-next-line
                 'role' => $project->pivot->rol ?? 'miembro',
@@ -123,7 +125,8 @@ class UserController extends Controller
      */
     public function toggleStatus(Request $request, User $user): RedirectResponse
     {
-        if ($user->id === $request->user()->id) {
+        $currentUser = $request->user();
+        if ($currentUser && $user->id === $currentUser->id) {
             return back()->with('error', 'No puedes desactivar tu propia cuenta.');
         }
 
@@ -139,7 +142,8 @@ class UserController extends Controller
      */
     public function toggleAdmin(Request $request, User $user): RedirectResponse
     {
-        if ($user->id === $request->user()->id) {
+        $currentUser = $request->user();
+        if ($currentUser && $user->id === $currentUser->id) {
             return back()->with('error', 'No puedes alterar tus propios permisos de administrador.');
         }
 
@@ -148,5 +152,35 @@ class UserController extends Controller
 
         $roleStr = $user->is_super_admin ? 'promovido a Super Admin' : 'revocado de Super Admin';
         return back()->with('success', "Usuario {$roleStr} exitosamente.");
+    }
+
+    /**
+     * Send a password reset link to the user.
+     */
+    public function resetPassword(Request $request, User $user): RedirectResponse
+    {
+        $status = Password::broker()->sendResetLink(['email' => $user->email]);
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('success', 'Se ha enviado un enlace de recuperación al correo del usuario.');
+        }
+
+        return back()->with('error', 'No se pudo enviar el enlace de recuperación.');
+    }
+
+    /**
+     * Completely remove a user and their data.
+     */
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $currentUser = $request->user();
+        if ($currentUser && $user->id === $currentUser->id) {
+            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        // The cascade delete in migrations should handle related data
+        $user->delete();
+
+        return to_route('admin.users.index')->with('success', 'Usuario y todos sus datos eliminados permanentemente.');
     }
 }

@@ -35,6 +35,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $intended = redirect()->getIntendedUrl();
+
+        if ($intended) {
+            $path = parse_url($intended, PHP_URL_PATH);
+            // Ignore legacy integer IDs in intended URL to avoid ModelNotFoundException 404s
+            // since public entities now require UUIDs.
+            if ($path && preg_match('/\/[0-9]+(\/|$)/', $path)) {
+                $request->session()->forget('url.intended');
+            }
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

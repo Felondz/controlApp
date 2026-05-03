@@ -15,6 +15,7 @@ import {
     InformationCircleIcon,
     XMarkIcon
 } from '@/Components/Icons';
+import CurrencyInput from '@/Components/CurrencyInput';
 
 export default function ItemModal({ show, onClose, project, item = null }) {
     const { t } = useTranslate();
@@ -61,8 +62,8 @@ export default function ItemModal({ show, onClose, project, item = null }) {
         const routeName = item ? 'inventory.items.update' : 'inventory.items.store';
         // Route parameter must be 'proyecto' to match Route::prefix('mis-proyectos/{proyecto}/inventory')
         const routeParams = item
-            ? { proyecto: project.id, item: item.id }
-            : { proyecto: project.id };
+            ? { proyecto: project.uuid, item: item.uuid }
+            : { proyecto: project.uuid };
 
         post(route(routeName, routeParams), {
             forceFormData: true,
@@ -196,19 +197,14 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                                     htmlFor="cost_price"
                                     value={item ? t('inventory.cost_price', 'Costo Promedio') : t('inventory.initial_cost', 'Costo Inicial')}
                                 />
-                                <div className="relative mt-1">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                    <TextInput
-                                        id="cost_price"
-                                        type="number"
-                                        step="0.01"
-                                        value={item ? data.cost_price : data.initial_cost}
-                                        onChange={(e) => item ? setData('cost_price', e.target.value) : setData('initial_cost', e.target.value)}
-                                        className="block w-full pl-6"
-                                        placeholder="0.00"
-                                        disabled={!!item}
-                                    />
-                                </div>
+                                <CurrencyInput
+                                    id="cost_price"
+                                    value={item ? data.cost_price : data.initial_cost}
+                                    onChange={(e) => item ? setData('cost_price', e.target.value) : setData('initial_cost', e.target.value)}
+                                    currency={project?.moneda_default || 'COP'}
+                                    className="mt-1 block w-full"
+                                    disabled={!!item}
+                                />
                                 <InputError message={errors.initial_cost} className="mt-1" />
                             </div>
                         </div>
@@ -278,18 +274,13 @@ export default function ItemModal({ show, onClose, project, item = null }) {
                             <div className="bg-primary-50 dark:bg-primary-900/10 p-4 rounded-xl border border-primary-100 dark:border-primary-900/30 flex items-center gap-4 animate-fade-in">
                                 <div className="flex-1">
                                     <InputLabel htmlFor="sale_price" value={t('inventory.sale_price', 'Precio Venta')} className="text-primary-700 dark:text-primary-300" />
-                                    <div className="relative mt-1">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-500 font-bold">$</span>
-                                        <TextInput
-                                            id="sale_price"
-                                            type="number"
-                                            step="0.01"
-                                            value={data.sale_price}
-                                            onChange={(e) => setData('sale_price', e.target.value)}
-                                            className="block w-full pl-6 border-primary-200 focus:border-primary-500 focus:ring-primary-500"
-                                            placeholder="0.00"
-                                        />
-                                    </div>
+                                    <CurrencyInput
+                                        id="sale_price"
+                                        value={data.sale_price}
+                                        onChange={(e) => setData('sale_price', e.target.value)}
+                                        currency={project?.moneda_default || 'COP'}
+                                        className="mt-1 block w-full"
+                                    />
                                 </div>
                                 <div className="hidden sm:block text-xs text-primary-600 dark:text-primary-400 max-w-[150px]">
                                     {t('inventory.type_help', 'Habilitado para productos terminados.')}

@@ -7,10 +7,12 @@ use Illuminate\Http\UploadedFile;
 readonly class CreateBugReportDTO
 {
     public function __construct(
-        public int $userId,
+        public string $userId,
         public string $category,
         public string $description,
         public string $pageUrl,
+        public ?string $module = null,
+        public ?string $view = null,
         public string $platform = 'web',
         public string $severity = 'medium',
         public ?UploadedFile $screenshot = null,

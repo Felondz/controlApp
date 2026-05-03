@@ -8,10 +8,10 @@ use App\Modules\Inventory\Models\InventoryItem;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int $id
- * @property int $lote_produccion_id
- * @property int $inventory_item_id
- * @property int|null $stage_id
+ * @property string $id
+ * @property string $lote_produccion_id
+ * @property string $inventory_item_id
+ * @property string|null $stage_id
  * @property float $quantity
  * @property float $unit_cost
  * @property float $total_cost

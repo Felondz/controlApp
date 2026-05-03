@@ -83,7 +83,7 @@ export default function InviteUserToProjectModal({ show, onClose, userToInvite, 
                             >
                                 <option value="">{t('common.select', 'Seleccionar...')}</option>
                                 {myProjects.map(project => (
-                                    <option key={project.id} value={project.id}>
+                                    <option key={project.uuid} value={project.uuid}>
                                         {project.nombre}
                                     </option>
                                 ))}

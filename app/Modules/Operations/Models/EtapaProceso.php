@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @property int $id
- * @property int $proyecto_id
- * @property int $production_process_id
+ * @property string $id
+ * @property string $proyecto_id
+ * @property string $production_process_id
  * @property string $name
  * @property int $order
  * @property string|null $description

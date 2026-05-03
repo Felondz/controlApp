@@ -11,6 +11,6 @@ readonly class FinishLoteDTO
     public function __construct(
         public LoteProduccion $lote,
         public float $finalQuantity,
-        public int $inventoryItemId,
+        public string $inventoryItemId,
     ) {}
 }

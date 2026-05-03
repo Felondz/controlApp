@@ -19,6 +19,8 @@ class CreateBugReportAction
         $bugReport = BugReport::create([
             'user_id' => $dto->userId,
             'category' => $dto->category,
+            'module' => $dto->module,
+            'view' => $dto->view,
             'description' => $dto->description,
             'page_url' => $dto->pageUrl,
             'platform' => $dto->platform,

@@ -16,7 +16,7 @@ export default function UserSearchCombobox({ project, onSelect, selectedEmail, e
         const timeoutId = setTimeout(() => {
             if (query.length >= 2) {
                 setLoading(true);
-                axios.get(route('project.users.search', project.id), { params: { query } })
+                axios.get(route('project.users.search', project.uuid), { params: { query } })
                     .then(response => {
                         setUsers(response.data);
                         setLoading(false);
@@ -31,7 +31,7 @@ export default function UserSearchCombobox({ project, onSelect, selectedEmail, e
         }, 300);
 
         return () => clearTimeout(timeoutId);
-    }, [query, project.id]);
+    }, [query, project.uuid]);
 
     // Handle manual email entry if no user selected
     useEffect(() => {

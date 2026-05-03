@@ -18,9 +18,9 @@ type Query {
   "Obtener un lote de producción por ID"
   loteProduccion(id: ID!): LoteProduccion
 
-  transacciones(proyecto_id: Int!, status: String): [Transaccion!]!
-  cuentas(proyecto_id: Int!): [Cuenta!]!
-  categorias(proyecto_id: Int!): [Categoria!]!
+  transacciones(proyecto_id: ID!, status: String): [Transaccion!]!
+  cuentas(proyecto_id: ID!): [Cuenta!]!
+  categorias(proyecto_id: ID!): [Categoria!]!
 
   "List multiple users."
   users(
@@ -112,16 +112,16 @@ type Mutation {
   "Consumir material de un insumo asignado al lote"
   consumeLoteInput(input_id: ID!, proyecto_id: ID!, quantity: Float!): LoteInsumo!
 
-  createTransaccion(proyecto_id: Int!, cuenta_id: Int!, categoria_id: Int!, monto: Float!, fecha: String!, titulo: String, descripcion: String, notas: String, status: String, cuenta_predeterminada_id: Int, debito_automatico: Boolean, is_recurring: Boolean, recurrence_day: Int, cuotas: Int, task_id: Int): Transaccion!
-  updateTransaccion(id: ID!, cuenta_id: Int, categoria_id: Int, monto: Float, fecha: String, titulo: String, descripcion: String, notas: String, status: String): Transaccion!
+  createTransaccion(proyecto_id: ID!, cuenta_id: ID!, categoria_id: ID!, monto: Float!, fecha: String!, titulo: String, descripcion: String, notas: String, status: String, cuenta_predeterminada_id: ID, debito_automatico: Boolean, is_recurring: Boolean, recurrence_day: Int, cuotas: Int, task_id: ID): Transaccion!
+  updateTransaccion(id: ID!, cuenta_id: ID, categoria_id: ID, monto: Float, fecha: String, titulo: String, descripcion: String, notas: String, status: String): Transaccion!
   deleteTransaccion(id: ID!): Boolean!
   payBillDirectly(id: ID!): Transaccion!
-  createCuenta(proyecto_id: Int!, nombre: String!, tipo: String!, saldo_inicial: Int!, banco: String, moneda: String, descripcion: String, color: String, icono: String, tasa_interes_anual: Float, limite_credito: Int, monto_desembolsado: Int, cuenta_destino_id: Int): Cuenta!
-  updateCuenta(id: ID!, proyecto_id: Int!, nombre: String, banco: String, descripcion: String, saldo_inicial: Int, color: String, icono: String): Cuenta!
-  deleteCuenta(id: ID!, proyecto_id: Int!): Boolean!
-  updateCuentaEstado(id: ID!, proyecto_id: Int!, estado: String!): Cuenta!
-  payCreditCardBill(proyecto_id: Int!, cuenta_id: Int!, cuenta_origen_id: Int!, monto: Int!, tipo_pago: String!): PayCreditCardBillResponse!
-  createCategoria(proyecto_id: Int!, nombre: String!, tipo: String!): Categoria!
+  createCuenta(proyecto_id: ID!, nombre: String!, tipo: String!, saldo_inicial: Int!, banco: String, moneda: String, descripcion: String, color: String, icono: String, tasa_interes_anual: Float, limite_credito: Int, monto_desembolsado: Int, cuenta_destino_id: ID): Cuenta!
+  updateCuenta(id: ID!, proyecto_id: ID!, nombre: String, banco: String, descripcion: String, saldo_inicial: Int, color: String, icono: String): Cuenta!
+  deleteCuenta(id: ID!, proyecto_id: ID!): Boolean!
+  updateCuentaEstado(id: ID!, proyecto_id: ID!, estado: String!): Cuenta!
+  payCreditCardBill(proyecto_id: ID!, cuenta_id: ID!, cuenta_origen_id: ID!, monto: Int!, tipo_pago: String!): PayCreditCardBillResponse!
+  createCategoria(proyecto_id: ID!, nombre: String!, tipo: String!): Categoria!
   updateCategoria(id: ID!, nombre: String!, tipo: String!): Categoria!
   deleteCategoria(id: ID!): Boolean!
 }
@@ -215,10 +215,10 @@ type LoteInsumo {
 
 type Transaccion {
   id: ID!
-  proyecto_id: Int!
-  cuenta_id: Int
-  categoria_id: Int!
-  user_id: Int!
+  proyecto_id: ID!
+  cuenta_id: ID
+  categoria_id: ID!
+  user_id: ID!
   monto: Float!
   titulo: String
   descripcion: String
@@ -256,7 +256,7 @@ type Cuenta {
 
 type Categoria {
   id: ID!
-  proyecto_id: Int!
+  proyecto_id: ID!
   nombre: String!
   tipo: String!
   transacciones: [Transaccion!]

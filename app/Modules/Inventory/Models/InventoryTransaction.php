@@ -10,10 +10,10 @@ use App\Models\Proyecto;
 use App\Models\User;
 
 /**
- * @property int $id
- * @property int $proyecto_id
- * @property int $inventory_item_id
- * @property int $user_id
+ * @property string $id
+ * @property string $proyecto_id
+ * @property string $inventory_item_id
+ * @property string $user_id
  * @property string $type
  * @property float $quantity
  * @property float $unit_price

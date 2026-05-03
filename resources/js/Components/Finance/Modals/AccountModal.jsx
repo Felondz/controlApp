@@ -91,7 +91,7 @@ export default function AccountModal({
         try {
             if (account) {
                 // Actualizar cuenta existente
-                await axios.put(`/api/proyectos/${proyectoId}/cuentas/${account.id}`, submitData);
+                await axios.put(`/api/proyectos/${proyectoId}/cuentas/${account.uuid}`, submitData);
             } else {
                 // Crear nueva cuenta
                 await axios.post(`/api/proyectos/${proyectoId}/cuentas`, submitData);
@@ -120,9 +120,9 @@ export default function AccountModal({
 
     return (
         <Modal show={show} onClose={handleClose} maxWidth="lg">
-            <div className="p-6 flex flex-col max-h-[calc(100vh-4rem)]">
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 flex-none">
+                <div className="p-6 pb-0 flex items-center justify-between mb-6 flex-none">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {account
                             ? t('finance.edit_account', 'Editar Cuenta')
@@ -140,7 +140,7 @@ export default function AccountModal({
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin space-y-4 pb-4 px-2">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pt-0 scrollbar-thin space-y-4 pb-4">
                         {/* Nombre */}
                         <div>
                             <div className="flex items-center gap-2">
@@ -694,14 +694,3 @@ export default function AccountModal({
         </Modal>
     );
 }
-
-                     : t('common.create', 'Crear')
-                            }
-                        </PrimaryButton>
-                    </div>
-                </form>
-            </div>
-        </Modal>
-    );
-}
-

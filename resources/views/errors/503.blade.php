@@ -1,154 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('errors.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under Maintenance - controlApp</title>
-    <style>
-        :root {
-            --primary-50: #eef2ff;
-            --primary-100: #e0e7ff;
-            --primary-500: #6366f1;
-            --primary-600: #4f46e5;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-500: #6b7280;
-            --gray-900: #111827;
-        }
+@section('title', __('error_pages.503.title'))
+@section('code', '503')
+@section('message', __('error_pages.503.message'))
+@section('description', __('error_pages.503.description'))
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --gray-50: #111827;
-                /* Dark bg */
-                --gray-100: #1f2937;
-                --gray-500: #9ca3af;
-                --gray-900: #f9fafb;
-                /* Light text */
-            }
-        }
-
-        body {
-            background-color: var(--gray-50);
-            color: var(--gray-900);
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 32rem;
-            padding: 2rem;
-        }
-
-        .icon-wrapper {
-            background-color: var(--primary-100);
-            color: var(--primary-600);
-            width: 4rem;
-            height: 4rem;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-
-        .icon-wrapper svg {
-            width: 2rem;
-            height: 2rem;
-        }
-
-        h1 {
-            font-size: 1.875rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        p {
-            color: var(--gray-500);
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-            margin-bottom: 2rem;
-        }
-
-        .loader {
-            width: 100%;
-            height: 4px;
-            background-color: var(--primary-100);
-            border-radius: 9999px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loader::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 30%;
-            background-color: var(--primary-500);
-            border-radius: 9999px;
-            animation: loading 1.5s infinite ease-in-out;
-        }
-
-        @keyframes loading {
-            0% {
-                left: -30%;
-            }
-
-            100% {
-                left: 100%;
-            }
-        }
-
-        .status-text {
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: var(--gray-500);
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="icon-wrapper">
-            <!-- ServerStackIcon SVG -->
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-            </svg>
+@section('image')
+    <div class="mx-auto w-24 h-24 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-4 relative">
+        <svg class="w-12 h-12 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <div class="absolute -bottom-1 -right-1">
+            <span class="relative flex h-4 w-4">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-4 w-4 bg-indigo-500"></span>
+            </span>
         </div>
-        <h1>@lang('error_pages.503.title')</h1>
-        <p>@lang('error_pages.503.message')</p>
+    </div>
+@endsection
 
-        <div class="loader"></div>
+@section('extra_actions')
+    <a href="mailto:support@controlapp.com"
+        class="inline-flex items-center justify-center px-5 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200 ml-3">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        {{ __('es.json.Contacto') ?? 'Soporte' }}
+    </a>
+@endsection
 
-        <p class="status-text">
-            @lang('error_pages.503.auto_refresh') <br>
-            <span id="countdown">30</span>s
+@section('scripts')
+    <div class="fixed bottom-8 left-0 right-0 text-center">
+        <p class="text-xs text-gray-500 dark:text-gray-500 font-medium bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm inline-block px-4 py-2 rounded-full shadow-sm border border-gray-100 dark:border-gray-700">
+            {{ __('error_pages.503.auto_refresh') }} 
+            <span id="countdown" class="font-bold text-indigo-500">30</span>s
         </p>
     </div>
 
     <script>
-        // Auto-refresh script
         let seconds = 30;
         const el = document.getElementById('countdown');
 
         setInterval(() => {
             seconds--;
-            el.innerText = seconds;
+            if (el) el.innerText = seconds;
 
             if (seconds <= 0) {
                 window.location.reload();
             }
         }, 1000);
     </script>
-</body>
-
-</html>
+@endsection

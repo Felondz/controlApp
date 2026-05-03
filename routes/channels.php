@@ -8,7 +8,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('project.{projectId}.chat', function ($user, $projectId) {
     /** @var \App\Models\Proyecto|null $proyecto */
-    $proyecto = \App\Models\Proyecto::find($projectId);
+    $proyecto = \App\Models\Proyecto::where('uuid', $projectId)->first();
     
     if (!$proyecto instanceof \App\Models\Proyecto) {
         return false;

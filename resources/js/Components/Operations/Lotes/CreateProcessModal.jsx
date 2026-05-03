@@ -40,7 +40,7 @@ export default function CreateProcessModal({ show, onClose, proyecto, inventoryI
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('operations.processes.store', { proyecto: proyecto.id }), {
+        post(route('operations.processes.store', { proyecto: proyecto.uuid }), {
             onSuccess: () => {
                 reset();
                 onClose();

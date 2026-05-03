@@ -14,7 +14,7 @@ export default function Show({ auth, proyecto, lote }) {
             header={
                 <div className="flex items-center gap-4">
                     <Link
-                        href={route('operations.lotes.index', proyecto.id)}
+                        href={route('operations.lotes.index', proyecto.uuid)}
                         className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                     >
                         <ArrowLeftIcon className="h-5 w-5" />

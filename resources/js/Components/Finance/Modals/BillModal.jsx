@@ -87,7 +87,7 @@ export default function BillModal({
         };
 
         const url = bill
-            ? route('finance.transactions.update', { proyecto: proyectoId, transaccion: bill.id })
+            ? route('finance.transactions.update', { proyecto: proyectoId, transaccion: bill.uuid })
             : route('finance.transactions.store', { proyecto: proyectoId });
 
         const method = bill ? 'put' : 'post';

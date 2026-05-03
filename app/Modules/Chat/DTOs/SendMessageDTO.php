@@ -8,9 +8,9 @@ readonly class SendMessageDTO
 {
     public function __construct(
         public Proyecto $proyecto,
-        public int $userId,
+        public string $userId,
         public string $content,
         public string $type = 'text',
-        public ?int $recipientId = null,
+        public ?string $recipientId = null,
     ) {}
 }

@@ -45,7 +45,7 @@ class OperationsMutations
             proyecto: $proyecto,
             name: (string) $args['name'],
             description: isset($args['description']) ? (string) $args['description'] : null,
-            inventoryItemId: isset($args['inventory_item_id']) ? (int) $args['inventory_item_id'] : null,
+            inventoryItemId: isset($args['inventory_item_id']) ? $args['inventory_item_id'] : null,
             stages: []
         );
 
@@ -69,7 +69,7 @@ class OperationsMutations
             process: $process,
             name: (string) $args['name'],
             description: isset($args['description']) ? (string) $args['description'] : null,
-            inventoryItemId: isset($args['inventory_item_id']) ? (int) $args['inventory_item_id'] : null,
+            inventoryItemId: isset($args['inventory_item_id']) ? $args['inventory_item_id'] : null,
             isActive: isset($args['is_active']) ? (bool) $args['is_active'] : true
         );
 
@@ -105,9 +105,9 @@ class OperationsMutations
 
         $dto = new CreateLoteDTO(
             proyecto: $proyecto,
-            productionProcessId: (int) $args['production_process_id'],
+            productionProcessId: $args['production_process_id'],
             startDate: (string) $args['start_date'],
-            assignedTo: isset($args['assigned_to']) ? (int) $args['assigned_to'] : null,
+            assignedTo: isset($args['assigned_to']) ? $args['assigned_to'] : null,
             notes: isset($args['notes']) ? (string) $args['notes'] : null
         );
 
@@ -129,7 +129,7 @@ class OperationsMutations
         $dto = new UpdateLoteDTO(
             lote: $lote,
             notes: isset($args['notes']) ? (string) $args['notes'] : null,
-            assignedTo: isset($args['assigned_to']) ? (int) $args['assigned_to'] : null
+            assignedTo: isset($args['assigned_to']) ? $args['assigned_to'] : null
         );
 
         return app(UpdateLoteAction::class)->execute($dto);
@@ -149,7 +149,7 @@ class OperationsMutations
 
         $dto = new UpdateLoteStageDTO(
             lote: $lote,
-            newStageId: (int) $args['stage_id'],
+            newStageId: $args['stage_id'],
             forceConsumeInputs: isset($args['force_consume_inputs']) ? (bool) $args['force_consume_inputs'] : false
         );
 
@@ -171,7 +171,7 @@ class OperationsMutations
         $dto = new FinishLoteDTO(
             lote: $lote,
             finalQuantity: (float) $args['final_quantity'],
-            inventoryItemId: isset($args['inventory_item_id']) ? (int) $args['inventory_item_id'] : (int) $lote->inventory_item_id
+            inventoryItemId: isset($args['inventory_item_id']) ? $args['inventory_item_id'] : $lote->inventory_item_id
         );
 
         return app(FinishLoteAction::class)->execute($dto);
@@ -213,7 +213,7 @@ class OperationsMutations
 
         $dto = new AddLoteInputDTO(
             lote: $lote,
-            inventoryItemId: (int) $args['inventory_item_id'],
+            inventoryItemId: $args['inventory_item_id'],
             quantity: (float) $args['quantity'],
             notes: isset($args['notes']) ? (string) $args['notes'] : null
         );

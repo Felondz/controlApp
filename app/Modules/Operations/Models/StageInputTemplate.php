@@ -7,9 +7,9 @@ use App\Modules\Inventory\Models\InventoryItem;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int $id
- * @property int $etapa_proceso_id
- * @property int $inventory_item_id
+ * @property string $id
+ * @property string $etapa_proceso_id
+ * @property string $inventory_item_id
  * @property float $quantity
  * @property string|null $notes
  * @property \App\Modules\Inventory\Models\InventoryItem $item

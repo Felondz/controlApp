@@ -44,7 +44,7 @@ export default function InventoryIndex({ auth, proyecto, items, filters, invento
 
     const handleSettingsSave = (newSettings) => {
         router.put(
-            route('finance.projects.update-settings', { project: proyecto.id }),
+            route('finance.projects.update-settings', { project: proyecto.uuid }),
             { settings: newSettings },
             {
                 preserveScroll: true,

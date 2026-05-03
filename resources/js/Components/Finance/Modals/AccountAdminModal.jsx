@@ -12,6 +12,8 @@ import { useTranslate } from '@/Hooks/useTranslate';
 import { XMarkIcon, ExclamationTriangleIcon } from '@/Components/Icons';
 import CreditCardExpiryInput from '@/Components/CreditCardExpiryInput';
 import Alert from '@/Components/Alert';
+import CurrencyInput from '@/Components/CurrencyInput';
+import { shouldShowDecimals } from '@/Utils/currencyHelpers';
 
 export default function AccountAdminModal({
     show = false,
@@ -25,40 +27,52 @@ export default function AccountAdminModal({
     const { t } = useTranslate();
     const [activeTab, setActiveTab] = useState('basic');
 
+    const initMoneda = account?.moneda || proyecto?.moneda_default || 'COP';
+    const initDecimals = shouldShowDecimals(initMoneda) ? 2 : 0;
+
+    const centsToDisplay = (val) => {
+        if (!val) return '';
+        return (Number(val) / 100).toFixed(initDecimals);
+    };
+
     const { data, setData, processing, errors, reset } = useForm({
         nombre: account?.nombre || '',
         banco: account?.banco || '',
         tipo: account?.tipo || 'banco',
-        saldo_inicial: account?.saldo_inicial ? (account.saldo_inicial / 100).toFixed(2) : '',
+        saldo_inicial: centsToDisplay(account?.saldo_inicial),
         estado: account?.estado || 'activa',
         // Credit card fields
-        limite_credito: account?.limite_credito ? (account.limite_credito / 100).toFixed(2) : '',
+        limite_credito: centsToDisplay(account?.limite_credito),
         dia_corte: account?.dia_corte || '',
         dia_pago: account?.dia_pago || '',
         tasa_interes_anual: account?.tasa_interes_anual || '',
         fecha_vencimiento: account?.fecha_vencimiento || '',
         // Loan fields
         plazo: account?.plazo || '',
-        valor_cuota: account?.valor_cuota ? (account.valor_cuota / 100).toFixed(2) : '',
+        valor_cuota: centsToDisplay(account?.valor_cuota),
         cuotas_pagadas: account?.cuotas_pagadas || '',
         // Investment fields
         tasa_interes: account?.tasa_interes || '',
         // Payroll fields
         es_nomina: account?.es_nomina || false,
         dia_nomina: account?.dia_nomina || [],
-        valor_nomina: account?.valor_nomina ? (account.valor_nomina / 100).toFixed(2) : '',
-        moneda: account?.moneda || proyecto?.moneda_default || 'COP',
+        valor_nomina: centsToDisplay(account?.valor_nomina),
+        moneda: initMoneda,
     });
 
     useEffect(() => {
         if (account) {
+            const moneda = account.moneda || proyecto?.moneda_default || 'COP';
+            const dec = shouldShowDecimals(moneda) ? 2 : 0;
+            const toCurrency = (val) => val ? (Number(val) / 100).toFixed(dec) : '';
+
             setData({
                 nombre: account.nombre || '',
                 banco: account.banco || '',
                 tipo: account.tipo || 'banco',
-                saldo_inicial: account.saldo_inicial ? (Number(account.saldo_inicial) / 100).toFixed(2) : '0.00',
+                saldo_inicial: toCurrency(account.saldo_inicial) || (dec > 0 ? '0.00' : '0'),
                 estado: account.estado || 'activa',
-                limite_credito: account.limite_credito ? (Number(account.limite_credito) / 100).toFixed(2) : '0.00',
+                limite_credito: toCurrency(account.limite_credito) || (dec > 0 ? '0.00' : '0'),
                 dia_corte: account.dia_corte || '',
                 dia_pago: account.dia_pago || '',
                 tasa_interes_anual: account.tasa_interes_anual || '',
@@ -67,12 +81,12 @@ export default function AccountAdminModal({
                     ? (account.tipo === 'credito' ? account.fecha_vencimiento.substring(0, 7) : account.fecha_vencimiento)
                     : '',
                 plazo: account.plazo || '',
-                valor_cuota: account.valor_cuota ? (Number(account.valor_cuota) / 100).toFixed(2) : '',
+                valor_cuota: toCurrency(account.valor_cuota),
                 cuotas_pagadas: account.cuotas_pagadas || '',
                 es_nomina: Boolean(account.es_nomina),
                 dia_nomina: Array.isArray(account.dia_nomina) ? account.dia_nomina : [],
-                valor_nomina: account.valor_nomina ? (Number(account.valor_nomina) / 100).toFixed(2) : '',
-                moneda: account.moneda || proyecto?.moneda_default || 'COP',
+                valor_nomina: toCurrency(account.valor_nomina),
+                moneda: moneda,
             });
             setActiveTab('basic');
         }
@@ -104,7 +118,7 @@ export default function AccountAdminModal({
 
         try {
             const url = account
-                ? `/api/proyectos/${proyectoId}/cuentas/${account.id}`
+                ? `/api/proyectos/${proyectoId}/cuentas/${account.uuid}`
                 : `/api/proyectos/${proyectoId}/cuentas`;
 
             const response = await axios({
@@ -158,7 +172,7 @@ export default function AccountAdminModal({
     const handleUnlinkAccount = async () => {
         if (confirm(t('finance.confirm_unlink_account', '¿Estás seguro de que quieres desvincular esta cuenta?'))) {
             try {
-                await axios.delete(`/api/proyectos/${proyectoId}/cuentas/${account.id}/unlink`);
+                await axios.delete(`/api/proyectos/${proyectoId}/cuentas/${account.uuid}/unlink`);
                 onSuccess?.();
                 onClose();
                 router.reload({ only: ['proyecto'] });
@@ -199,9 +213,9 @@ export default function AccountAdminModal({
 
     return (
         <Modal show={show} onClose={handleClose} maxWidth="2xl">
-            <div className="p-6 flex flex-col max-h-[calc(100vh-4rem)]">
+            <div className="flex flex-col max-h-[calc(100vh-4rem)] bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 flex-none">
+                <div className="p-6 pb-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 flex-none">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             {account ? t('finance.edit_account', 'Editar Cuenta') : t('finance.create_account', 'Crear Nueva Cuenta')}
@@ -220,7 +234,7 @@ export default function AccountAdminModal({
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700 flex-none overflow-x-auto scrollbar-hide">
+                <div className="px-6 pt-4 pb-0 flex gap-2 border-b border-gray-200 dark:border-gray-700 flex-none overflow-x-auto scrollbar-hide">
                     <button
                         type="button"
                         onClick={() => setActiveTab('basic')}
@@ -248,7 +262,7 @@ export default function AccountAdminModal({
 
                 {/* Tab Content */}
                 <form onSubmit={handleSubmit} className="flex flex-col overflow-hidden">
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 scrollbar-thin space-y-4 pb-4">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pt-6 scrollbar-thin space-y-4 pb-4">
                         {/* === BASIC TAB === */}
                         {activeTab === 'basic' && (
                             <div className="space-y-4">
@@ -323,13 +337,11 @@ export default function AccountAdminModal({
                                 {/* Saldo Inicial */}
                                 <div>
                                     <InputLabel htmlFor="saldo_inicial" value={t('finance.initial_balance', 'Saldo Inicial')} />
-                                    <TextInput
+                                    <CurrencyInput
                                         id="saldo_inicial"
-                                        type="number"
-                                        step="0.01"
                                         value={data.saldo_inicial}
                                         onChange={(e) => setData('saldo_inicial', e.target.value)}
-                                        placeholder="0.00"
+                                        currency={data.moneda}
                                         className="mt-1 block w-full"
                                     />
                                     <InputError message={errors.saldo_inicial} className="mt-2" />
@@ -363,13 +375,11 @@ export default function AccountAdminModal({
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <InputLabel htmlFor="limite_credito" value={t('finance.credit_limit', 'Límite de Crédito')} />
-                                                <TextInput
+                                                <CurrencyInput
                                                     id="limite_credito"
-                                                    type="number"
-                                                    step="0.01"
                                                     value={data.limite_credito}
                                                     onChange={(e) => setData('limite_credito', e.target.value)}
-                                                    placeholder="0.00"
+                                                    currency={data.moneda}
                                                     className="mt-1 block w-full"
                                                 />
                                                 <InputError message={errors.limite_credito} className="mt-2" />
@@ -455,13 +465,11 @@ export default function AccountAdminModal({
 
                                             <div>
                                                 <InputLabel htmlFor="valor_cuota" value={t('finance.monthly_payment', 'Cuota Mensual')} />
-                                                <TextInput
+                                                <CurrencyInput
                                                     id="valor_cuota"
-                                                    type="number"
-                                                    step="0.01"
                                                     value={data.valor_cuota}
                                                     onChange={(e) => setData('valor_cuota', e.target.value)}
-                                                    placeholder="0.00"
+                                                    currency={data.moneda}
                                                     className="mt-1 block w-full"
                                                 />
                                                 <InputError message={errors.valor_cuota} className="mt-2" />
@@ -589,13 +597,11 @@ export default function AccountAdminModal({
 
                                                 <div>
                                                     <InputLabel htmlFor="valor_nomina" value={t('finance.estimated_payroll_value', 'Valor Estimado')} />
-                                                    <TextInput
+                                                    <CurrencyInput
                                                         id="valor_nomina"
-                                                        type="number"
-                                                        step="0.01"
                                                         value={data.valor_nomina}
                                                         onChange={(e) => setData('valor_nomina', e.target.value)}
-                                                        placeholder="0.00"
+                                                        currency={data.moneda}
                                                         className="mt-1 block w-full"
                                                     />
                                                     <InputError message={errors.valor_nomina} className="mt-2" />
@@ -669,7 +675,7 @@ export default function AccountAdminModal({
 
                     {/* Form Actions - Only show on basic and advanced tabs */}
                     {(activeTab === 'basic' || activeTab === 'advanced') && (
-                        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700 flex-none">
+                        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex-none">
                             <SecondaryButton onClick={handleClose} type="button">
                                 {t('common.cancel', 'Cancelar')}
                             </SecondaryButton>

@@ -13,7 +13,7 @@ use App\Modules\Tasks\Models\Task;
 use App\Notifications\VerificacionEmailNotification;
 
 /**
- * @property int $id
+ * @property string $id
  * @property string $name
  * @property string $email
  * @property \Carbon\Carbon|null $email_verified_at
@@ -28,6 +28,9 @@ use App\Notifications\VerificacionEmailNotification;
  * @property bool $is_super_admin
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * 
+ * @property-read string|null $profile_photo_url
+ * @property-read bool $is_online
  * 
  * @property int|null $count aggregate property
  * @property int|null $unread_messages_count aggregate property
@@ -46,12 +49,33 @@ use App\Notifications\VerificacionEmailNotification;
  * @method static find(int $id)
  */
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
 
     /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, Searchable;
+    use HasApiTokens, HasFactory, Notifiable, Searchable, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -195,6 +219,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function esMiembroDe(Proyecto $proyecto)
     {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
         // Si es propietario de un proyecto personal, puede acceder
         if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
             return true;

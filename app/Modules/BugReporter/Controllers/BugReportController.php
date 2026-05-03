@@ -71,10 +71,12 @@ class BugReportController extends Controller
     {
         $validated = $request->validate([
             'category' => 'required|string|in:' . implode(',', BugReport::CATEGORIES),
-            'description' => 'required|string|max:5000',
-            'page_url' => 'required|string|max:2048',
-            'platform' => 'sometimes|string|in:web,mobile',
-            'severity' => 'sometimes|string|in:' . implode(',', BugReport::SEVERITIES),
+            'module' => 'nullable|string',
+            'view' => 'nullable|string',
+            'description' => 'required|string|max:2000',
+            'severity' => 'required|string|in:low,medium,high',
+            'page_url' => 'required|string',
+            'platform' => 'required|string|in:web,mobile',
             'screenshot' => 'nullable|image|max:5120', // 5MB max
         ]);
 
@@ -82,10 +84,12 @@ class BugReportController extends Controller
         $user = $request->user();
 
         $dto = new CreateBugReportDTO(
-            userId: $user->id,
+            userId: (string) $user->id,
             category: $validated['category'],
             description: $validated['description'],
             pageUrl: $validated['page_url'],
+            module: $validated['module'] ?? null,
+            view: $validated['view'] ?? null,
             platform: $validated['platform'] ?? 'web',
             severity: $validated['severity'] ?? 'medium',
             screenshot: $request->file('screenshot'),
@@ -99,7 +103,7 @@ class BugReportController extends Controller
     /**
      * Update a bug report status/notes — restricted to super admins.
      */
-    public function update(Request $request, BugReport $bugReport, UpdateBugReportAction $action)
+    public function update(Request $request, BugReport $bugReport, UpdateBugReportAction $action): \Illuminate\Http\RedirectResponse|JsonResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -110,7 +114,9 @@ class BugReportController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|string|in:' . implode(',', BugReport::STATUSES),
-            'developer_notes' => 'nullable|string|max:5000',
+            'developer_notes' => 'nullable|string|max:1000',
+            'module' => 'nullable|string',
+            'view' => 'nullable|string',
         ]);
 
         $dto = new UpdateBugReportDTO(
@@ -136,6 +142,29 @@ class BugReportController extends Controller
 
         return response()->json([
             'open_count' => $openCount,
+        ]);
+    }
+
+    /**
+     * Export all bug reports to JSON format.
+     */
+    public function exportJson(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if (!$user->is_super_admin) {
+            abort(403);
+        }
+
+        $reports = BugReport::with('user:id,name,email')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'exported_at' => now()->toIso8601String(),
+            'total_reports' => $reports->count(),
+            'reports' => $reports
         ]);
     }
 }

@@ -13,7 +13,7 @@ class LoteCodeService
      * Format: MM/YY-{SEQ} (e.g., 12/24-A01 or 12/24-001)
      * Using simple numeric sequence for readability: 12/24-001
      */
-    public function generate(int $proyectoId): string
+    public function generate(int|string $proyectoId): string
     {
         $now = Carbon::now();
         $prefix = $now->format('m/y'); // 12/24

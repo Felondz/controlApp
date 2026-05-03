@@ -138,7 +138,7 @@ class InventoryItemController extends Controller
             name: $validated['name'],
             type: $validated['type'],
             unit: $validated['unit'],
-            userId: Auth::id() ? (int) Auth::id() : 1, // Fallback to system user if no auth (testing/MCP)
+            userId: Auth::id() ? (string) Auth::id() : '1', // Fallback to system user if no auth (testing/MCP)
             sku: $validated['sku'] ?? null,
             minStockLevel: (float) ($validated['min_stock_level'] ?? 0),
             initialQuantity: (float) ($validated['initial_quantity'] ?? 0),
@@ -188,7 +188,7 @@ class InventoryItemController extends Controller
             name: $validated['name'],
             type: $validated['type'],
             unit: $validated['unit'],
-            userId: Auth::id() ? (int) Auth::id() : 1, // Fallback to system user if no auth
+            userId: Auth::id() ? (string) Auth::id() : '1', // Fallback to system user if no auth
             sku: $validated['sku'] ?? null,
             minStockLevel: (float) ($validated['min_stock_level'] ?? 0),
             salePrice: (float) ($validated['sale_price'] ?? 0),

@@ -33,7 +33,7 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
 
     const handleProcessChange = (e) => {
         router.get(route('operations.lotes.index', {
-            proyecto: proyecto.id,
+            proyecto: proyecto.uuid,
             process_id: e.target.value
         }), {}, { preserveState: true });
     };
@@ -99,7 +99,7 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
     };
 
     const executeStageUpdate = (loteId, newStageId, options = {}) => {
-        router.put(route('operations.lotes.update-stage', { proyecto: proyecto.id, lote: loteId }), {
+        router.put(route('operations.lotes.update-stage', { proyecto: proyecto.uuid, lote: loteId }), {
             stage_id: newStageId,
             consume_inputs: options.consume_inputs || false,
         }, {
@@ -196,7 +196,7 @@ export default function Index({ auth, proyecto, processes, selectedProcessId, st
 
                         <div className="w-full md:w-auto flex justify-end gap-2">
                             <Link
-                                href={route('operations.lotes.history', { proyecto: proyecto.id })}
+                                href={route('operations.lotes.history', { proyecto: proyecto.uuid })}
                                 className="inline-flex items-center rounded-lg border border-transparent bg-primary-50 px-4 py-2 text-xs font-semibold text-primary-700 hover:bg-primary-100 hover:text-primary-800 focus:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:bg-primary-200 dark:bg-primary-900/20 dark:text-primary-400 dark:hover:bg-primary-900/30 dark:hover:text-primary-300 dark:focus:bg-primary-900/30 dark:active:bg-primary-900/40 transition ease-in-out duration-150"
                             >
                                 <ClockIcon className="w-5 h-5 md:mr-2" />

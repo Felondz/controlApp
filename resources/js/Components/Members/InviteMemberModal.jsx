@@ -17,7 +17,7 @@ export default function InviteMemberModal({ show, onClose, project }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('project.members.store', project.id), {
+        post(route('project.members.store', project.uuid), {
             onSuccess: () => {
                 reset();
                 onClose();

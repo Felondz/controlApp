@@ -28,14 +28,20 @@ export default function BugReporterWidget({ show, onClose }) {
 
     const [step, setStep] = useState(1);
     const [category, setCategory] = useState('');
+    const [module, setModule] = useState('');
+    const [view, setView] = useState('');
     const [description, setDescription] = useState('');
     const [severity, setSeverity] = useState('medium');
+    const [pageUrl, setPageUrl] = useState(() => window.location.href);
     const [platform, setPlatform] = useState(() => window.innerWidth < 768 ? 'mobile' : 'web');
     const [screenshot, setScreenshot] = useState(null);
     const [screenshotPreview, setScreenshotPreview] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const fileInputRef = useRef(null);
+
+    const MODULES = ['finance', 'inventory', 'operations', 'tasks', 'core', 'admin', 'other'];
+    const VIEWS = ['dashboard', 'index', 'details', 'form', 'settings', 'profile', 'chat', 'other'];
 
     // Sync platform if screen size changes while modal is open
     useEffect(() => {
@@ -48,9 +54,12 @@ export default function BugReporterWidget({ show, onClose }) {
     const reset = () => {
         setStep(1);
         setCategory('');
+        setModule('');
+        setView('');
         setDescription('');
         setSeverity('medium');
         setPlatform(window.innerWidth < 768 ? 'mobile' : 'web');
+        setPageUrl(window.location.href);
         setScreenshot(null);
         setScreenshotPreview(null);
         setSuccess(false);
@@ -74,9 +83,11 @@ export default function BugReporterWidget({ show, onClose }) {
         try {
             const formData = new FormData();
             formData.append('category', category);
+            formData.append('module', module);
+            formData.append('view', view);
             formData.append('description', description);
             formData.append('severity', severity);
-            formData.append('page_url', window.location.href);
+            formData.append('page_url', pageUrl || window.location.href);
             formData.append('platform', platform);
             if (screenshot) formData.append('screenshot', screenshot);
 
@@ -122,14 +133,14 @@ export default function BugReporterWidget({ show, onClose }) {
                         <div className="flex flex-col items-center gap-2 py-6 text-center">
                             <CheckCircleIcon className="w-10 h-10 text-green-500" />
                             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {t('bug_reporter.success', 'Bug reported! Thank you.')}
+                                {t('bug_reporter.success', '¡Bug reportado! Gracias por tu ayuda.')}
                             </p>
                         </div>
                     ) : step === 1 ? (
                         /* Step 1: Category Selection */
                         <div className="space-y-3">
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t('bug_reporter.select_category', 'What kind of bug is it?')}
+                                {t('bug_reporter.select_category', '¿Qué tipo de error es?')}
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                                 {CATEGORIES.map(({ key, icon: Icon }) => (
@@ -149,9 +160,39 @@ export default function BugReporterWidget({ show, onClose }) {
                     ) : (
                         /* Step 2: Details Form */
                         <div className="space-y-4">
+                            {/* Module & View Selection */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <InputLabel value={t('bug_reporter.module', 'Módulo')} />
+                                    <select
+                                        value={module}
+                                        onChange={(e) => setModule(e.target.value)}
+                                        className="w-full text-sm mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm focus:ring-danger-500 focus:border-danger-500"
+                                    >
+                                        <option value="">{t('bug_reporter.select_module', 'Seleccionar Módulo...')}</option>
+                                        {MODULES.map(m => (
+                                            <option key={m} value={m}>{t(`bug_reporter.module_${m}`, m)}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <InputLabel value={t('bug_reporter.view', 'Vista')} />
+                                    <select
+                                        value={view}
+                                        onChange={(e) => setView(e.target.value)}
+                                        className="w-full text-sm mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm focus:ring-danger-500 focus:border-danger-500"
+                                    >
+                                        <option value="">{t('bug_reporter.select_view', 'Seleccionar Vista...')}</option>
+                                        {VIEWS.map(v => (
+                                            <option key={v} value={v}>{t(`bug_reporter.view_${v}`, v)}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
                             {/* Description */}
                             <div>
-                                <InputLabel value={t('bug_reporter.description', 'Description')} />
+                                <InputLabel value={t('bug_reporter.description', 'Descripción')} />
                                 <TextArea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -162,10 +203,22 @@ export default function BugReporterWidget({ show, onClose }) {
                                 />
                             </div>
 
+                            {/* Page URL */}
+                            <div>
+                                <InputLabel value={t('bug_reporter.page_url', 'URL de la Página')} />
+                                <input
+                                    type="url"
+                                    value={pageUrl}
+                                    onChange={(e) => setPageUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full text-sm mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 rounded-md shadow-sm focus:ring-danger-500 focus:border-danger-500"
+                                />
+                            </div>
+
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {/* Severity */}
                                 <div>
-                                    <InputLabel value={t('bug_reporter.severity', 'Severity')} />
+                                    <InputLabel value={t('bug_reporter.severity', 'Severidad')} />
                                     <div className="flex gap-1 mt-1">
                                         {SEVERITIES.map(sev => (
                                             <button
@@ -189,7 +242,7 @@ export default function BugReporterWidget({ show, onClose }) {
 
                                 {/* Platform */}
                                 <div>
-                                    <InputLabel value={t('bug_reporter.platform', 'Platform')} />
+                                    <InputLabel value={t('bug_reporter.platform', 'Plataforma')} />
                                     <div className="flex gap-1 mt-1">
                                         {['web', 'mobile'].map(plat => (
                                             <button
@@ -210,7 +263,7 @@ export default function BugReporterWidget({ show, onClose }) {
 
                             {/* Screenshot */}
                             <div>
-                                <InputLabel value={t('bug_reporter.screenshot', 'Screenshot')} optional />
+                                <InputLabel value={t('bug_reporter.screenshot', 'Captura de Pantalla')} optional />
                                 {screenshotPreview ? (
                                     <div className="relative mt-1">
                                         <img src={screenshotPreview} alt="" className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
@@ -227,7 +280,7 @@ export default function BugReporterWidget({ show, onClose }) {
                                         className="w-full mt-1 flex flex-col items-center justify-center gap-1 p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-danger-400 hover:text-danger-600 dark:hover:text-danger-400 transition group"
                                     >
                                         <CameraIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                                        <span className="text-xs">{t('bug_reporter.add_screenshot', 'Add screenshot')}</span>
+                                        <span className="text-xs">{t('bug_reporter.add_screenshot', 'Agregar captura')}</span>
                                     </button>
                                 )}
                                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -246,7 +299,7 @@ export default function BugReporterWidget({ show, onClose }) {
                         >
                             {submitting
                                 ? t('common.saving', 'Saving...')
-                                : t('bug_reporter.submit', 'Submit Report')
+                                : t('bug_reporter.submit', 'Enviar Reporte')
                             }
                         </PrimaryButton>
                     </div>

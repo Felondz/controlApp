@@ -41,7 +41,7 @@ export default function LoteDetailsModal({ show, onClose, lote, proyecto, invent
     const hasChanges = (updateData.assigned_to != (lote.assigned_to || '')) || (updateData.notes != (lote.notes || ''));
 
     const handleUpdateDetails = () => {
-        putUpdate(route('operations.lotes.update', { proyecto: proyecto.id, lote: lote.id }), {
+        putUpdate(route('operations.lotes.update', { proyecto: proyecto.uuid, lote: lote.uuid }), {
             preserveScroll: true,
             onSuccess: () => {
                 // Toast handled globally
@@ -57,7 +57,7 @@ export default function LoteDetailsModal({ show, onClose, lote, proyecto, invent
 
     const handleAddInput = (e) => {
         e.preventDefault();
-        postInput(route('operations.lotes.add-input', { proyecto: proyecto.id, lote: lote.id }), {
+        postInput(route('operations.lotes.add-input', { proyecto: proyecto.uuid, lote: lote.uuid }), {
             onSuccess: () => resetInput(),
             preserveScroll: true,
             preserveState: true,
@@ -70,7 +70,7 @@ export default function LoteDetailsModal({ show, onClose, lote, proyecto, invent
 
     const handleFinish = (e) => {
         e.preventDefault();
-        postFinish(route('operations.lotes.finish', { proyecto: proyecto.id, lote: lote.id }), {
+        postFinish(route('operations.lotes.finish', { proyecto: proyecto.uuid, lote: lote.uuid }), {
             onSuccess: () => {
                 resetFinish();
                 setIsFinishing(false);
@@ -82,7 +82,7 @@ export default function LoteDetailsModal({ show, onClose, lote, proyecto, invent
     const handleDiscard = () => {
         if (!discardReason) return;
 
-        router.put(route('operations.lotes.discard', { proyecto: proyecto.id, lote: lote.id }), {
+        router.put(route('operations.lotes.discard', { proyecto: proyecto.uuid, lote: lote.uuid }), {
             reason: discardReason,
         }, {
             onSuccess: () => {

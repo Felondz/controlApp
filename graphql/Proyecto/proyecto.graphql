@@ -1,0 +1,29 @@
+type Proyecto {
+    id: ID!
+    uuid: String!
+    nombre: String!
+    descripcion: String
+    user_id: ID!
+    es_personal: Boolean!
+    image_path: String
+    image_url: String
+    enabled_features: [String!]
+    modules: [String!]
+    created_at: DateTime!
+    updated_at: DateTime!
+    
+    # Relationships
+    cuentas: [Cuenta!]! @hasMany
+    cuentasAsociadas: [Cuenta!]! @belongsToMany
+    categorias: [Categoria!]! @hasMany
+    transacciones: [Transaccion!]! @hasMany
+    tasks: [Task!]! @hasMany
+}
+
+extend type Query {
+    "Listar los proyectos del usuario autenticado"
+    projects: [Proyecto!]! @all @guard @auth
+    
+    "Obtener un proyecto específico por ID"
+    project(id: ID! @eq): Proyecto @find @guard @auth
+}

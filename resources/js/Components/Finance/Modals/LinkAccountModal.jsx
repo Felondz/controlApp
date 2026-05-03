@@ -28,7 +28,7 @@ export default function LinkAccountModal({ show, onClose, project }) {
     const fetchAvailableAccounts = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`/api/proyectos/${project.id}/cuentas/available`);
+            const response = await axios.get(`/api/proyectos/${project.uuid}/cuentas/available`);
             setAvailableAccounts(response.data);
         } catch (err) {
             setError(t('common.error_loading_data', 'Error al cargar los datos'));
@@ -43,7 +43,7 @@ export default function LinkAccountModal({ show, onClose, project }) {
 
         setLoading(true);
         try {
-            await axios.post(`/api/proyectos/${project.id}/cuentas/link`, {
+            await axios.post(`/api/proyectos/${project.uuid}/cuentas/link`, {
                 cuenta_id: selectedAccount
             });
             onClose();

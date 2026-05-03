@@ -11,7 +11,7 @@ readonly class PayCreditCardBillDTO
         public Proyecto $proyecto,
         public Cuenta $creditCard,
         public Cuenta $sourceAccount,
-        public int $userId,
+        public string $userId,
         public int $monto,
         public string $tipoPago,
     ) {}

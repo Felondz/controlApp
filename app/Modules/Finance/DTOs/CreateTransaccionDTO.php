@@ -8,8 +8,8 @@ readonly class CreateTransaccionDTO
 {
     public function __construct(
         public Proyecto $proyecto,
-        public int $userId,
-        public int $cuentaId,
+        public string $userId,
+        public string $cuentaId,
         public int $categoriaId,
         public float $monto,
         public string $fecha,

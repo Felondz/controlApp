@@ -15,7 +15,7 @@ export default function History({ auth, proyecto, lotes, filters }) {
 
     const handleSearch = debounce((query) => {
         router.get(
-            route('operations.lotes.history', { proyecto: proyecto.id }),
+            route('operations.lotes.history', { proyecto: proyecto.uuid }),
             { search: query, status },
             { preserveState: true, replace: true }
         );
@@ -24,7 +24,7 @@ export default function History({ auth, proyecto, lotes, filters }) {
     const handleStatusChange = (e) => {
         setStatus(e.target.value);
         router.get(
-            route('operations.lotes.history', { proyecto: proyecto.id }),
+            route('operations.lotes.history', { proyecto: proyecto.uuid }),
             { search, status: e.target.value },
             { preserveState: true, replace: true }
         );

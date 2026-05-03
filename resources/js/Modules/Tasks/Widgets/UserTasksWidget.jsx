@@ -12,7 +12,7 @@ export default function UserTasksWidget({ project, widget, onHide, isDragging, d
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(route('api.proyectos.tasks.users-load', { proyecto: project.id }));
+                const response = await axios.get(route('api.proyectos.tasks.users-load', { proyecto: project.uuid }));
                 setData(response.data);
                 setLoading(false);
             } catch (error) {
@@ -21,7 +21,7 @@ export default function UserTasksWidget({ project, widget, onHide, isDragging, d
             }
         };
 
-        if (project?.id) {
+        if (project?.uuid) {
             fetchData();
         }
     }, [project]);

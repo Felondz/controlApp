@@ -19,7 +19,7 @@ export default function LotesListWidget({
 
     // Use the index route with a query param to open the modal
     const createUrl = route('operations.lotes.index', {
-        proyecto: project.id,
+        proyecto: project.uuid,
         action: 'create'
     });
 
@@ -42,7 +42,7 @@ export default function LotesListWidget({
         >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[200px]">
                 {lotesData.map((lote) => (
-                    <Link href={`/mis-proyectos/${project.id}/operations/lotes/${lote.id}`} key={lote.id} className="block h-full">
+                    <Link href={route('operations.lotes.show', { proyecto: project.uuid, lote: lote.uuid })} key={lote.uuid} className="block h-full">
                         <div className="h-full bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-600 overflow-hidden relative group p-4">
 
                             {/* Status Badge */}

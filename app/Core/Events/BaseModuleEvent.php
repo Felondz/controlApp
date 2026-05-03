@@ -52,9 +52,9 @@ abstract class BaseModuleEvent implements ModuleEvent
     /**
      * Project context.
      *
-     * @var int|null
+     * @var string|null
      */
-    protected ?int $projectId;
+    protected ?string $projectId;
 
     /**
      * Event timestamp.
@@ -75,9 +75,9 @@ abstract class BaseModuleEvent implements ModuleEvent
      *
      * @param string $source
      * @param array $payload
-     * @param int|null $projectId
+     * @param string|null $projectId
      */
-    public function __construct(string $source, array $payload, ?int $projectId = null)
+    public function __construct(string $source, array $payload, ?string $projectId = null)
     {
         $this->source = $source;
         $this->payload = $payload;
@@ -109,7 +109,7 @@ abstract class BaseModuleEvent implements ModuleEvent
     /**
      * {@inheritdoc}
      */
-    public function getProjectId(): ?int
+    public function getProjectId(): ?string
     {
         return $this->projectId;
     }

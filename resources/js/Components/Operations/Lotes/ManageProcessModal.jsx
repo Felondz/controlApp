@@ -39,8 +39,8 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
     const handleUpdateProcess = (e) => {
         e.preventDefault();
         putSettings(route('operations.processes.update', {
-            proyecto: proyecto.id,
-            process: process.id
+            proyecto: proyecto.uuid,
+            process: process.uuid
         }), {
             preserveScroll: true,
             onSuccess: () => {
@@ -59,7 +59,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
 
     const handleAddTemplate = (stageId) => {
         post(route('operations.stage-templates.store', {
-            proyecto: proyecto.id,
+            proyecto: proyecto.uuid,
             stage: stageId
         }), {
             onSuccess: () => {
@@ -74,7 +74,7 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
     const handleDeleteTemplate = (templateId) => {
         if (confirm(t('common.confirm_delete', '¿Estás seguro de eliminar este ítem?'))) {
             router.delete(route('operations.stage-templates.destroy', {
-                proyecto: proyecto.id,
+                proyecto: proyecto.uuid,
                 template: templateId
             }), {
                 preserveScroll: true,
@@ -335,12 +335,12 @@ export default function ManageProcessModal({ show, onClose, process, stages, inv
                                             onClick={() => {
                                                 if (confirm(t('operations.confirm_delete_process', '¿Estás completamente seguro de que quieres eliminar este proceso?'))) {
                                                     router.delete(route('operations.processes.destroy', {
-                                                        proyecto: proyecto.id,
-                                                        process: process.id
+                                                        proyecto: proyecto.uuid,
+                                                        process: process.uuid
                                                     }), {
                                                         onSuccess: () => {
                                                             onClose();
-                                                            router.visit(route('operations.lotes.index', { proyecto: proyecto.id }));
+                                                            router.visit(route('operations.lotes.index', { proyecto: proyecto.uuid }));
                                                         }
                                                     });
                                                 }

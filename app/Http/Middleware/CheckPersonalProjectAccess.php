@@ -20,8 +20,8 @@ class CheckPersonalProjectAccess
             $proyecto = Proyecto::find($proyectoId);
 
             if ($proyecto && $proyecto->esPersonal()) {
-                // Solo el propietario puede acceder a su proyecto personal
-                if (!Auth::check() || $proyecto->user_id !== Auth::user()->id) {
+                // Solo el propietario puede acceder a su proyecto personal, a menos que sea super admin
+                if (!Auth::check() || ($proyecto->user_id !== Auth::user()->id && !Auth::user()->is_super_admin)) {
                     return response()->json([
                         'message' => 'No tienes permiso para acceder a este proyecto personal.'
                     ], 403);

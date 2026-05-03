@@ -36,7 +36,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
         return localTasks.filter(task => {
             const matchesSearch = task.title.toLowerCase().includes(filters.search.toLowerCase());
             // Check if ANY of the task users matches the filter
-            const matchesAssignee = filters.assignee === 'all' || (task.users && task.users.some(u => u.id === parseInt(filters.assignee)));
+            const matchesAssignee = filters.assignee === 'all' || (task.users && task.users.some(u => u.uuid === filters.assignee));
             const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
             const matchesPrioriy = filters.priority === 'all' || task.priority === filters.priority;
 
@@ -84,19 +84,22 @@ export default function Index({ auth, proyecto, tasks, categories }) {
         const { source, destination } = result;
 
         if (source.droppableId !== destination.droppableId) {
-            const taskId = parseInt(result.draggableId);
+            const taskUuid = result.draggableId;
             const newStatus = destination.droppableId;
+            const task = localTasks.find(t => t.uuid === taskUuid);
+
+            if (!task) return;
 
             // 1. Optimistic Update
             const updatedTasks = localTasks.map(t =>
-                t.id === taskId ? { ...t, status: newStatus } : t
+                t.uuid === taskUuid ? { ...t, status: newStatus } : t
             );
             setLocalTasks(updatedTasks);
 
             // 2. API Call
             try {
-                await axios.put(route('mis-proyectos.tasks.update', { proyecto: proyecto.id, task: taskId }), {
-                    ...localTasks.find(t => t.id === taskId),
+                await axios.put(route('mis-proyectos.tasks.update', { proyecto: proyecto.uuid, task: task.uuid }), {
+                    ...task,
                     status: newStatus
                 });
 
@@ -124,7 +127,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
     const handleDeleteTask = (e, task) => {
         e.stopPropagation();
         if (confirm(t('tasks.confirm_delete', '¿Estás seguro de eliminar esta tarea?'))) {
-            router.delete(route('mis-proyectos.tasks.destroy', { proyecto: proyecto.id, task: task.id }), {
+            router.delete(route('mis-proyectos.tasks.destroy', { proyecto: proyecto.uuid, task: task.uuid }), {
                 onSuccess: () => router.reload()
             });
         }
@@ -205,7 +208,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                     >
                                         <option value="all">{t('tasks.all_assignees', 'Todos')}</option>
                                         {proyecto.miembros.map(member => (
-                                            <option key={member.id} value={member.id}>{member.name}</option>
+                                            <option key={member.uuid} value={member.uuid}>{member.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -240,7 +243,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                                 className="flex-1 space-y-1.5 md:space-y-3 overflow-y-auto overflow-x-hidden min-h-[100px] pr-0.5 md:pr-1 scrollbar-thin"
                                             >
                                                 {column.items.map((task, index) => (
-                                                    <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                                    <Draggable key={task.uuid} draggableId={task.uuid} index={index}>
                                                         {(provided) => (
                                                             <div
                                                                 ref={provided.innerRef}
@@ -308,7 +311,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                                                     {task.users && task.users.length > 0 && (
                                                                         <div className="flex items-center -space-x-1.5 overflow-hidden">
                                                                             {task.users.slice(0, 3).map((user) => (
-                                                                                <div key={user.id} className="inline-flex h-5 w-5 rounded-full ring-1 ring-white dark:ring-gray-800 bg-primary-100 items-center justify-center text-[8px] font-bold text-primary-700 overflow-hidden" title={user.name}>
+                                                                                <div key={user.uuid} className="inline-flex h-5 w-5 rounded-full ring-1 ring-white dark:ring-gray-800 bg-primary-100 items-center justify-center text-[8px] font-bold text-primary-700 overflow-hidden" title={user.name}>
                                                                                     {user.profile_photo_url ? (
                                                                                         <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
                                                                                     ) : (

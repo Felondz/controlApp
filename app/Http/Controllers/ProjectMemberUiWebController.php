@@ -13,13 +13,16 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class ProjectMemberUiWebController extends Controller
 {
     /**
      * Display the members management view for the project.
      */
-    public function index(Request $request, Proyecto $proyecto)
+    public function index(Request $request, Proyecto $proyecto): InertiaResponse
     {
         if (!$request->user()->esMiembroDe($proyecto)) {
             abort(403, 'No tienes permiso para ver los miembros de este proyecto.');
@@ -39,14 +42,14 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Send a new invitation.
      */
-    public function store(Request $request, Proyecto $proyecto)
+    public function store(Request $request, Proyecto $proyecto): RedirectResponse
     {
         if (!Gate::allows('manageMembersAndInvitations', $proyecto)) {
             abort(403, 'No tienes permiso para invitar miembros.');
         }
 
         $validated = $request->validate([
-            'email' => 'required|email:rfc,dns',
+            'email' => 'required|email:rfc',
             'rol' => 'required|string|in:admin,miembro',
         ]);
 
@@ -78,7 +81,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Update a member's role.
      */
-    public function update(Request $request, Proyecto $proyecto, User $user)
+    public function update(Request $request, Proyecto $proyecto, User $user): RedirectResponse
     {
         if (!$request->user()->esAdminDe($proyecto)) {
             abort(403, 'Solo los administradores pueden cambiar roles.');
@@ -113,7 +116,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Remove a member from the project.
      */
-    public function destroy(Request $request, Proyecto $proyecto, User $user)
+    public function destroy(Request $request, Proyecto $proyecto, User $user): RedirectResponse
     {
         $actor = $request->user();
         $esAdmin = $actor->esAdminDe($proyecto);
@@ -148,26 +151,17 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Cancel an invitation.
      */
-    /**
-     * Cancel an invitation.
-     */
-    public function cancelInvitation(Request $request, Proyecto $proyecto, $invitation)
+    public function cancelInvitation(Request $request, Proyecto $proyecto, Invitacion $invitation): RedirectResponse
     {
         if (!Gate::allows('manageMembersAndInvitations', $proyecto)) {
             abort(403, 'No tienes permiso para gestionar invitaciones.');
         }
 
-        $invitacionModel = Invitacion::find($invitation);
-
-        if (!$invitacionModel) {
-            return back()->with('error', 'La invitación no existe o ya fue eliminada.');
-        }
-
-        if ($invitacionModel->proyecto_id !== $proyecto->id) {
+        if ((string)$invitation->proyecto_id !== (string)$proyecto->id) {
             abort(404);
         }
 
-        $invitacionModel->delete();
+        $invitation->delete();
 
         return back()->with('success', 'Invitación cancelada.');
     }
@@ -175,7 +169,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Transfer project ownership to another member.
      */
-    public function transferOwnership(Request $request, Proyecto $proyecto)
+    public function transferOwnership(Request $request, Proyecto $proyecto): RedirectResponse
     {
         // Only the current Owner can transfer ownership
         if ($request->user()->id !== $proyecto->user_id) {
@@ -217,7 +211,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Search users for invitation.
      */
-    public function searchUsers(Request $request, Proyecto $proyecto)
+    public function searchUsers(Request $request, Proyecto $proyecto): JsonResponse
     {
         if (!Gate::allows('manageMembersAndInvitations', $proyecto)) {
             abort(403, 'No tienes permiso para buscar usuarios.');
@@ -253,7 +247,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Show the invitation acceptance page.
      */
-    public function showInvitation(Request $request, $token)
+    public function showInvitation(Request $request, string $token): InertiaResponse|RedirectResponse
     {
         $invitacion = Invitacion::where('token', $token)->first();
 
@@ -266,6 +260,7 @@ class ProjectMemberUiWebController extends Controller
             return redirect()->route('dashboard')->with('error', 'La invitación ha expirado.');
         }
 
+        /** @var User $user */
         $user = $request->user();
         $proyecto = $invitacion->proyecto;
         $invitador = $invitacion->invitador;
@@ -282,7 +277,7 @@ class ProjectMemberUiWebController extends Controller
     /**
      * Process the invitation acceptance.
      */
-    public function processInvitation(Request $request, $token)
+    public function processInvitation(Request $request, string $token): RedirectResponse
     {
         $invitacion = Invitacion::where('token', $token)->first();
 
@@ -290,6 +285,7 @@ class ProjectMemberUiWebController extends Controller
             return redirect()->route('dashboard')->with('error', 'La invitación no es válida.');
         }
 
+        /** @var User $user */
         $user = $request->user();
         $proyecto = $invitacion->proyecto;
 

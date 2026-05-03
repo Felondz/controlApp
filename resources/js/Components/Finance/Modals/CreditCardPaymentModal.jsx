@@ -76,7 +76,7 @@ export default function CreditCardPaymentModal({
 
         const mappedType = paymentType === 'minimum' ? 'minimo' : (paymentType === 'total' ? 'total' : 'personalizado');
 
-        axios.post(route('api.cuentas.pay-cc-bill', [proyectoId, account.id]), {
+        axios.post(route('api.cuentas.pay-cc-bill', [proyectoId, account.uuid]), {
             cuenta_origen_id: selectedAccountId,
             monto: paymentAmount, // Positive amount expected by endpoint
             tipo_pago: mappedType

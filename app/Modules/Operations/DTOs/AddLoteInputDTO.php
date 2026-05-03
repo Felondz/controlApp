@@ -10,7 +10,7 @@ readonly class AddLoteInputDTO
 {
     public function __construct(
         public LoteProduccion $lote,
-        public int $inventoryItemId,
+        public string $inventoryItemId,
         public float $quantity,
         public ?string $notes,
     ) {}

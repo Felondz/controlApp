@@ -6,14 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title') - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css'])
+    <style>
+        @keyframes gradient-x {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-x {
+            animation: gradient-x 3s ease infinite;
+        }
+    </style>
 </head>
 
 <body
     class="antialiased bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex items-center justify-center p-4">
     <div
-        class="max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden p-8 text-center relative">
+        class="max-w-md w-full bg-white dark:bg-gray-800 shadow-2xl rounded-2xl overflow-hidden p-10 text-center relative border border-gray-100 dark:border-gray-700">
         <!-- Background Pattern/Decoration -->
-        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary-500 to-secondary-500"></div>
+        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-500 bg-[length:200%_auto] animate-gradient-x"></div>
 
         <div class="mb-6">
             @yield('image')
@@ -39,7 +49,10 @@
             </svg>
             {{ __('error_pages.btn_home') }}
         </a>
+
+        @yield('extra_actions')
     </div>
+    @yield('scripts')
 </body>
 
 </html>

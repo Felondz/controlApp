@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
- * @property int $id
- * @property int $proyecto_id
- * @property int|null $user_id
+ * @property string $id
+ * @property string $uuid
+ * @property string $proyecto_id
+ * @property string|null $user_id
  * @property string $email
  * @property string $rol
  * @property string $token
@@ -20,7 +22,27 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Invitacion extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * El nombre de la tabla asociada con el modelo.
