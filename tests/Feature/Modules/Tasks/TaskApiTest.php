@@ -35,7 +35,7 @@ class TaskApiTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/tasks", [
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/tasks", [
             'title' => 'New Task',
             'description' => 'Description',
             'status' => 'todo',
@@ -62,7 +62,7 @@ class TaskApiTest extends TestCase
             'priority' => 'medium'
         ]);
 
-        $response = $this->putJson("/api/proyectos/{$this->proyecto->id}/tasks/{$task->id}", [
+        $response = $this->putJson("/api/proyectos/{$this->proyecto->uuid}/tasks/{$task->uuid}", [
             'title' => 'Test Task',
             'status' => 'done',
             'priority' => 'medium'
@@ -87,7 +87,7 @@ class TaskApiTest extends TestCase
             'priority' => 'low'
         ]);
 
-        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->id}/tasks/{$task->id}");
+        $response = $this->deleteJson("/api/proyectos/{$this->proyecto->uuid}/tasks/{$task->uuid}");
 
         $response->assertStatus(204);
 

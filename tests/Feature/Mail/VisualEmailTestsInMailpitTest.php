@@ -126,7 +126,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
         // Disparar endpoint de invitación
         $this->actingAs($admin);
 
-        $response = $this->postJson('/api/proyectos/' . $proyecto->id . '/invitaciones', [
+        $response = $this->postJson('/api/proyectos/' . $proyecto->uuid . '/invitaciones', [
             'email' => 'invitado@gmail.com',
             'rol' => 'miembro',
         ]);
@@ -203,7 +203,7 @@ class VisualEmailTestsInMailpitTest extends TestCase
         $proyecto->miembros()->attach($admin, ['rol' => 'admin']);
 
         $this->actingAs($admin);
-        $response = $this->postJson('/api/proyectos/' . $proyecto->id . '/invitaciones', [
+        $response = $this->postJson('/api/proyectos/' . $proyecto->uuid . '/invitaciones', [
             'email' => 'invitado-test@example.com',
             'rol' => 'miembro',
         ]);

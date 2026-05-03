@@ -280,7 +280,7 @@ class PersonalFinanceApiTest extends TestCase
         /** @var User $user2 */
 
         $response = $this->actingAs($user2, 'sanctum')
-            ->patchJson("/api/proyectos/{$proyecto->id}", [
+            ->patchJson("/api/proyectos/{$proyecto->uuid}", [
                 'nombre' => 'Nombre Modificado',
             ]);
 
@@ -299,7 +299,7 @@ class PersonalFinanceApiTest extends TestCase
         $proyecto = $this->getPersonalProject();
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson("/api/proyectos/{$proyecto->id}");
+            ->getJson("/api/proyectos/{$proyecto->uuid}");
 
         $response->assertStatus(200);
         $response->assertJsonPath('id', $proyecto->id);
@@ -320,7 +320,7 @@ class PersonalFinanceApiTest extends TestCase
         ];
 
         $response = $this->actingAs($this->user, 'sanctum')
-            ->postJson("/api/proyectos/{$proyecto->id}/cuentas", $data);
+            ->postJson("/api/proyectos/{$proyecto->uuid}/cuentas", $data);
 
         $response->assertStatus(201);
 

@@ -60,7 +60,7 @@ class PayDirectlyApiTest extends TestCase
         $otherUser = User::factory()->create();
         Sanctum::actingAs($otherUser);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$bill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertForbidden();
     }
@@ -76,7 +76,7 @@ class PayDirectlyApiTest extends TestCase
             'monto' => -5000,
         ]);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$bill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertStatus(400);
         $response->assertJson(['error' => 'Esta factura no tiene cuenta predeterminada']);
@@ -93,7 +93,7 @@ class PayDirectlyApiTest extends TestCase
             'monto' => -5000,
         ]);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$bill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertStatus(400);
         $response->assertJson(['error' => 'Esta factura ya fue pagada']);
@@ -110,7 +110,7 @@ class PayDirectlyApiTest extends TestCase
         ]);
 
         // Try to pay other project's bill using our project's URL
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$otherBill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$otherBill->uuid}/pay-direct");
 
         $response->assertNotFound();
     }
@@ -125,7 +125,7 @@ class PayDirectlyApiTest extends TestCase
 
         $this->app['auth']->forgetGuards();
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$bill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertUnauthorized();
     }
@@ -142,7 +142,7 @@ class PayDirectlyApiTest extends TestCase
             'descripcion' => 'Test Bill',
         ]);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/bills/{$bill->id}/pay-direct");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertSuccessful();
         $response->assertJsonStructure([

@@ -34,7 +34,7 @@ class MarketplaceApiTest extends TestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->getJson("/api/proyectos/{$this->proyecto->id}/marketplace");
+        $response = $this->getJson("/api/proyectos/{$this->proyecto->uuid}/marketplace");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -47,7 +47,7 @@ class MarketplaceApiTest extends TestCase
         Sanctum::actingAs($this->user);
 
         // Enable tasks module
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/marketplace/tasks");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/marketplace/tasks");
 
         $response->assertStatus(200)
             ->assertJson(['enabled' => true]);
@@ -56,7 +56,7 @@ class MarketplaceApiTest extends TestCase
         $this->assertContains('tasks', $this->proyecto->modules);
 
         // Disable tasks module
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/marketplace/tasks");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/marketplace/tasks");
 
         $response->assertStatus(200)
             ->assertJson(['enabled' => false]);
@@ -70,7 +70,7 @@ class MarketplaceApiTest extends TestCase
         $otherUser = User::factory()->create();
         Sanctum::actingAs($otherUser);
 
-        $response = $this->postJson("/api/proyectos/{$this->proyecto->id}/marketplace/tasks");
+        $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/marketplace/tasks");
 
         $response->assertStatus(403);
     }

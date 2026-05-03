@@ -45,7 +45,7 @@ class BalanceTest extends TestCase
 
         // 4. Call API
         $response = $this->actingAs($user)
-            ->getJson("/api/proyectos/{$proyecto->id}/finance/balance");
+            ->getJson("/api/proyectos/{$proyecto->uuid}/finance/balance");
         
 
 
@@ -87,7 +87,7 @@ class BalanceTest extends TestCase
 
         // 4. Call API
         $response = $this->actingAs($user)
-            ->getJson("/api/proyectos/{$proyecto->id}/finance/balance");
+            ->getJson("/api/proyectos/{$proyecto->uuid}/finance/balance");
 
         // 5. Assert Balance = 1000 (Inventory ignored)
         $response->assertStatus(200);
@@ -129,7 +129,7 @@ class BalanceTest extends TestCase
         // Expected Net Worth: 1000 - |200| - |-300| = 1000 - 200 - 300 = 500.
 
         $response = $this->actingAs($user)
-            ->getJson("/api/proyectos/{$proyecto->id}/finance/balance");
+            ->getJson("/api/proyectos/{$proyecto->uuid}/finance/balance");
 
         $response->assertStatus(200);
         $response->assertJson([

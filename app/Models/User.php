@@ -13,7 +13,7 @@ use App\Modules\Tasks\Models\Task;
 use App\Notifications\VerificacionEmailNotification;
 
 /**
- * @property string $id
+ * @property int $id
  * @property string $name
  * @property string $email
  * @property \Carbon\Carbon|null $email_verified_at

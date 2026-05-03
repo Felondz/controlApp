@@ -37,7 +37,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($miembro)->postJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones',
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones',
             [
                 'categoria_id' => $categoria->id,
                 'cuenta_id' => $cuenta->id,
@@ -80,7 +80,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($outsider)->postJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones',
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones',
             [
                 'categoria_id' => $categoria->id,
                 'cuenta_id' => $cuenta->id,
@@ -111,7 +111,7 @@ class TransactionApiTest extends TestCase
         /** @var Transaccion $transaccion2 */
         $transaccion2 = Transaccion::factory()->create(['proyecto_id' => $proyecto->id, 'user_id' => $miembro->id]);
 
-        $response = $this->actingAs($miembro)->getJson('/api/proyectos/' . $proyecto->id . '/transacciones');
+        $response = $this->actingAs($miembro)->getJson('/api/proyectos/' . $proyecto->uuid . '/transacciones');
 
         $response->assertStatus(200);
         $response->assertJsonCount(2);
@@ -138,7 +138,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($miembro)->putJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones/' . $transaccion->id,
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones/' . $transaccion->uuid,
             [
                 'monto' => 75000,
                 'descripcion' => 'Descripción actualizada',
@@ -176,7 +176,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($miembro2)->putJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones/' . $transaccion->id,
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones/' . $transaccion->uuid,
             [
                 'monto' => 75000,
             ]
@@ -204,7 +204,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($miembro)->deleteJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones/' . $transaccion->id
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones/' . $transaccion->uuid
         );
 
         $response->assertStatus(204); // No Content
@@ -234,7 +234,7 @@ class TransactionApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($miembro)->postJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones',
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones',
             [
                 'categoria_id' => $categoria->id,
                 'cuenta_id' => $cuenta->id,
@@ -263,7 +263,7 @@ class TransactionApiTest extends TestCase
         $proyecto = Proyecto::factory()->create();
 
         $response = $this->postJson(
-            '/api/proyectos/' . $proyecto->id . '/transacciones',
+            '/api/proyectos/' . $proyecto->uuid . '/transacciones',
             [
                 'categoria_id' => 1,
                 'cuenta_id' => 1,

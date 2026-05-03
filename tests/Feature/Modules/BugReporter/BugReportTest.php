@@ -39,6 +39,7 @@ class BugReportTest extends TestCase
             'description' => 'The button says "Enviar" but should say "Guardar".',
             'page_url' => 'https://ptr.example.com/dashboard',
             'severity' => 'medium',
+            'platform' => 'web',
         ]);
 
         $response->assertStatus(201);
@@ -46,6 +47,8 @@ class BugReportTest extends TestCase
             'user_id' => $this->tester->id,
             'category' => 'translation',
             'status' => 'open',
+            'severity' => 'medium',
+            'platform' => 'web',
         ]);
     }
 
@@ -79,6 +82,8 @@ class BugReportTest extends TestCase
             'category' => 'ui_visual',
             'description' => 'Button is misaligned on mobile.',
             'page_url' => 'https://ptr.example.com/settings',
+            'severity' => 'high',
+            'platform' => 'web',
             'screenshot' => UploadedFile::fake()->image('bug-screenshot.png', 640, 480),
         ]);
 
@@ -119,7 +124,7 @@ class BugReportTest extends TestCase
     {
         $report = BugReport::factory()->create(['status' => 'open']);
 
-        $response = $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->id}", [
+        $response = $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->uuid}", [
             'status' => 'in_progress',
         ]);
 
@@ -134,7 +139,7 @@ class BugReportTest extends TestCase
     {
         $report = BugReport::factory()->create(['status' => 'open']);
 
-        $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->id}", [
+        $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->uuid}", [
             'status' => 'resolved',
             'developer_notes' => 'Fixed the CSS.',
         ]);
@@ -150,7 +155,7 @@ class BugReportTest extends TestCase
         $report = BugReport::factory()->resolved()->create();
         $this->assertNotNull($report->resolved_at);
 
-        $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->id}", [
+        $this->actingAs($this->admin)->patchJson("/ptr/bug-reports/{$report->uuid}", [
             'status' => 'open',
         ]);
 
@@ -163,7 +168,7 @@ class BugReportTest extends TestCase
     {
         $report = BugReport::factory()->create();
 
-        $response = $this->actingAs($this->tester)->patchJson("/ptr/bug-reports/{$report->id}", [
+        $response = $this->actingAs($this->tester)->patchJson("/ptr/bug-reports/{$report->uuid}", [
             'status' => 'resolved',
         ]);
 
@@ -195,7 +200,7 @@ class BugReportTest extends TestCase
             'screenshot_path' => $path,
         ]);
 
-        $response = $this->actingAs($this->admin)->get("/ptr/bug-reports/{$report->id}/screenshot");
+        $response = $this->actingAs($this->admin)->get("/ptr/bug-reports/{$report->uuid}/screenshot");
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'image/png');
@@ -237,6 +242,8 @@ class BugReportTest extends TestCase
             'category' => 'translation',
             'description' => 'test',
             'page_url' => 'https://example.com',
+            'severity' => 'low',
+            'platform' => 'web',
         ]);
 
         $response->assertStatus(404);

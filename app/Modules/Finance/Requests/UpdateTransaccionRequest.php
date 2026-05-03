@@ -41,7 +41,7 @@ class UpdateTransaccionRequest extends FormRequest
             ],
             'cuenta_id' => [
                 'nullable',
-                'string',
+                'integer',
                 Rule::exists('cuentas', 'id'),
             ],
         ];

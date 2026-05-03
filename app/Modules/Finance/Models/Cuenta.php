@@ -13,7 +13,7 @@ use App\Models\Proyecto;
 use App\Modules\Finance\Models\Transaccion;
 
 /**
- * @property string $id
+ * @property int $id
  * @property string $nombre
  * @property string|null $banco
  * @property string $tipo

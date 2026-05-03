@@ -45,7 +45,7 @@ class InvitacionesApiTest extends TestCase
     public function test_admin_can_send_invitation(): void
     {
         $response = $this->actingAs($this->admin)
-            ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
+            ->postJson('/api/proyectos/' . $this->proyecto->uuid . '/invitaciones', [
                 'email' => 'newuser@gmail.com',
                 'rol' => 'miembro',
             ]);
@@ -77,7 +77,7 @@ class InvitacionesApiTest extends TestCase
         $this->proyecto->miembros()->attach($miembro->id, ['rol' => 'miembro']);
 
         $response = $this->actingAs($miembro)
-            ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
+            ->postJson('/api/proyectos/' . $this->proyecto->uuid . '/invitaciones', [
                 'email' => 'newuser@gmail.com',
                 'rol' => 'miembro',
             ]);
@@ -90,7 +90,7 @@ class InvitacionesApiTest extends TestCase
      */
     public function test_unauthenticated_user_cannot_send_invitation(): void
     {
-        $response = $this->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
+        $response = $this->postJson('/api/proyectos/' . $this->proyecto->uuid . '/invitaciones', [
             'email' => 'newuser@gmail.com',
             'rol' => 'miembro',
         ]);
@@ -222,7 +222,7 @@ class InvitacionesApiTest extends TestCase
 
         $response = $this->actingAs($this->admin)
             ->deleteJson(
-                '/api/proyectos/' . $this->proyecto->id . '/invitaciones/' . $invitacion->id
+                '/api/proyectos/' . $this->proyecto->uuid . '/invitaciones/' . $invitacion->uuid
             );
 
         $response->assertStatus(204); // No Content (es lo correcto para DELETE)
@@ -243,7 +243,7 @@ class InvitacionesApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
+            ->postJson('/api/proyectos/' . $this->proyecto->uuid . '/invitaciones', [
                 'email' => 'duplicate@gmail.com',
                 'rol' => 'miembro',
             ]);
@@ -257,7 +257,7 @@ class InvitacionesApiTest extends TestCase
     public function test_invitation_requires_valid_email(): void
     {
         $response = $this->actingAs($this->admin)
-            ->postJson('/api/proyectos/' . $this->proyecto->id . '/invitaciones', [
+            ->postJson('/api/proyectos/' . $this->proyecto->uuid . '/invitaciones', [
                 'email' => 'not-an-email',
                 'rol' => 'miembro',
             ]);

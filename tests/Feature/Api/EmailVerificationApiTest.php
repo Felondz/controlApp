@@ -36,7 +36,7 @@ class EmailVerificationApiTest extends TestCase
         $hash = sha1($user->getEmailForVerification());
 
         // Hacer GET al endpoint de verificación (esta ruta redirige al login)
-        $response = $this->get("/api/email/verify/{$user->id}/{$hash}");
+        $response = $this->get("/api/email/verify/{$user->uuid}/{$hash}");
 
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));
@@ -60,7 +60,7 @@ class EmailVerificationApiTest extends TestCase
         // Hash inválido
         $invalidHash = 'hash_invalido_12345';
 
-        $response = $this->get("/api/email/verify/{$user->id}/{$invalidHash}");
+        $response = $this->get("/api/email/verify/{$user->uuid}/{$invalidHash}");
 
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));
@@ -97,7 +97,7 @@ class EmailVerificationApiTest extends TestCase
 
         $hash = sha1($user->getEmailForVerification());
 
-        $response = $this->get("/api/email/verify/{$user->id}/{$hash}");
+        $response = $this->get("/api/email/verify/{$user->uuid}/{$hash}");
 
         $response->assertStatus(302);
         $response->assertRedirect(route('login'));

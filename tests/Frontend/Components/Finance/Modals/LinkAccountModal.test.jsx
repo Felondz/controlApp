@@ -18,7 +18,7 @@ global.route = vi.fn((name, params) => {
 
 describe('LinkAccountModal', () => {
     const mockOnClose = vi.fn();
-    const mockProject = { id: 1, nombre: 'Test Project' };
+    const mockProject = { id: 1, uuid: 'project-uuid-1', nombre: 'Test Project' };
     const mockAccounts = [
         { id: 101, nombre: 'Personal Bank', banco: 'Bank A' },
         { id: 102, nombre: 'Personal Cash', tipo: 'efectivo' },
@@ -32,7 +32,7 @@ describe('LinkAccountModal', () => {
     it('fetches and displays available accounts when opened', async () => {
         render(<LinkAccountModal show={true} onClose={mockOnClose} project={mockProject} />);
 
-        expect(axios.get).toHaveBeenCalledWith(`/api/proyectos/${mockProject.id}/cuentas/available`);
+        expect(axios.get).toHaveBeenCalledWith(`/api/proyectos/${mockProject.uuid}/cuentas/available`);
 
         await waitFor(() => {
             expect(screen.getByText('Personal Bank (Bank A)')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('LinkAccountModal', () => {
         fireEvent.click(screen.getByText('common.link'));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith(`/api/proyectos/${mockProject.id}/cuentas/link`, {
+            expect(axios.post).toHaveBeenCalledWith(`/api/proyectos/${mockProject.uuid}/cuentas/link`, {
                 cuenta_id: '101'
             });
         });

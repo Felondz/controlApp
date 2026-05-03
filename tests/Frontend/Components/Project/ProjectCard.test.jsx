@@ -4,6 +4,7 @@ import ProjectCard from '@/Components/Project/ProjectCard';
 describe('ProjectCard', () => {
     const mockProject = {
         id: 1,
+        uuid: 'project-uuid-1',
         nombre: 'Test Project',
         descripcion: 'Test Description',
         moneda_default: 'USD',
@@ -84,7 +85,7 @@ describe('ProjectCard', () => {
         render(<ProjectCard proyecto={mockProject} />);
 
         const link = screen.getByText('Test Project').closest('a');
-        expect(link).toHaveAttribute('href', expect.stringContaining('/1'));
+        expect(link).toHaveAttribute('href', expect.stringContaining('/project-uuid-1'));
     });
 
     it('shows restricted access for non-admin users with finance module', () => {

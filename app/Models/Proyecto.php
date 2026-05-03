@@ -21,7 +21,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
- * @property string $id
+ * @property int $id
  * @property string $uuid
  * @property string $nombre
  * @property string|null $descripcion

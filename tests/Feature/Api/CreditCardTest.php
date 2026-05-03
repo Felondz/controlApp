@@ -46,7 +46,7 @@ class CreditCardTest extends TestCase
 
         // 2. Action: Pay CC Bill via Endpoint
         $pagoMonto = 100000;
-        $response = $this->postJson(route('api.cuentas.pay-cc-bill', [$proyecto->id, $cuentaTC->id]), [
+        $response = $this->postJson(route('api.cuentas.pay-cc-bill', [$proyecto->uuid, $cuentaTC->uuid]), [
             'monto' => $pagoMonto,
             'cuenta_origen_id' => $cuentaBanco->id,
             'tipo_pago' => 'minimo',
@@ -115,7 +115,7 @@ class CreditCardTest extends TestCase
                 });
         });
 
-        $response = $this->getJson(route('api.finance.cc-bills', [$proyecto->id]));
+        $response = $this->getJson(route('api.finance.cc-bills', [$proyecto->uuid]));
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

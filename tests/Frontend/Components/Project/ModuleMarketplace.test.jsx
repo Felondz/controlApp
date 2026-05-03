@@ -29,7 +29,7 @@ vi.mock('@/Components/Icons', () => ({
 }));
 
 describe('ModuleMarketplace', () => {
-    const mockProject = { id: 1 };
+    const mockProject = { id: 1, uuid: 'project-uuid-1' };
     const mockModules = [
         {
             id: 'finance',
@@ -102,7 +102,7 @@ describe('ModuleMarketplace', () => {
 
         await waitFor(() => {
             expect(axios.post).toHaveBeenCalledWith(
-                expect.stringContaining('/api.proyectos.marketplace.toggle/1/analytics'),
+                expect.stringContaining('/api.proyectos.marketplace.toggle/project-uuid-1/analytics'),
                 { enable: true }
             );
         });

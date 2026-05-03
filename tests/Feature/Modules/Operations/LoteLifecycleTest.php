@@ -45,7 +45,7 @@ class LoteLifecycleTest extends TestCase
 
 
         // Act
-        $response = $this->post(route('operations.lotes.finish', [$proyecto->id, $lote->id]), [
+        $response = $this->post(route('operations.lotes.finish', [$proyecto, $lote]), [
             'final_quantity' => 100,
             'inventory_item_id' => $item->id,
         ]);
@@ -82,7 +82,7 @@ class LoteLifecycleTest extends TestCase
 
 
 
-        $response = $this->put(route('operations.lotes.discard', [$proyecto->id, $lote->id]), [
+        $response = $this->put(route('operations.lotes.discard', [$proyecto, $lote]), [
             'reason' => 'Bad quality'
         ]);
 
@@ -110,7 +110,7 @@ class LoteLifecycleTest extends TestCase
         ]);
 
         // Visit History
-        $response = $this->get(route('operations.lotes.history', ['proyecto' => $proyecto->id]));
+        $response = $this->get(route('operations.lotes.history', ['proyecto' => $proyecto]));
 
         $response->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -120,7 +120,7 @@ class LoteLifecycleTest extends TestCase
 
         // Filter by Status Finished
         $response = $this->get(route('operations.lotes.history', [
-            'proyecto' => $proyecto->id,
+            'proyecto' => $proyecto,
             'status' => 'finished'
         ]));
 

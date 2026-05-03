@@ -57,7 +57,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_admin_puede_listar_miembros(): void
     {
         $response = $this->actingAs($this->admin)
-            ->getJson('/api/proyectos/' . $this->proyecto->id . '/miembros');
+            ->getJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros');
 
         $response->assertStatus(200)
             ->assertJsonCount(2); // Admin y miembro
@@ -72,7 +72,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_miembro_puede_listar_miembros(): void
     {
         $response = $this->actingAs($this->miembro)
-            ->getJson('/api/proyectos/' . $this->proyecto->id . '/miembros');
+            ->getJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros');
 
         $response->assertStatus(200)
             ->assertJsonCount(2);
@@ -84,7 +84,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_no_miembro_no_puede_listar(): void
     {
         $response = $this->actingAs($this->otroUsuario)
-            ->getJson('/api/proyectos/' . $this->proyecto->id . '/miembros');
+            ->getJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros');
 
         $response->assertStatus(403); // Forbidden
     }
@@ -94,7 +94,7 @@ class ProyectoMiembrosApiTest extends TestCase
      */
     public function test_no_autenticado_no_puede_listar(): void
     {
-        $response = $this->getJson('/api/proyectos/' . $this->proyecto->id . '/miembros');
+        $response = $this->getJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros');
 
         $response->assertStatus(401); // Unauthorized
     }
@@ -105,7 +105,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_admin_puede_cambiar_rol_a_miembro(): void
     {
         $response = $this->actingAs($this->admin)
-            ->putJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->miembro->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->miembro->uuid, [
                 'rol' => 'admin',
             ]);
 
@@ -127,7 +127,7 @@ class ProyectoMiembrosApiTest extends TestCase
         $otro->proyectos()->attach($this->proyecto->id, ['rol' => 'admin']);
 
         $response = $this->actingAs($this->admin)
-            ->putJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $otro->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $otro->uuid, [
                 'rol' => 'miembro',
             ]);
 
@@ -145,7 +145,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_miembro_no_puede_cambiar_roles(): void
     {
         $response = $this->actingAs($this->miembro)
-            ->putJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->miembro->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->miembro->uuid, [
                 'rol' => 'admin',
             ]);
 
@@ -158,7 +158,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_no_puede_cambiar_a_rol_invalido(): void
     {
         $response = $this->actingAs($this->admin)
-            ->putJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->miembro->id, [
+            ->putJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->miembro->uuid, [
                 'rol' => 'superadmin', // Rol no válido
             ]);
 
@@ -173,7 +173,7 @@ class ProyectoMiembrosApiTest extends TestCase
     {
         // El admin intenta eliminarse a sí mismo (es el único admin)
         $response = $this->actingAs($this->admin)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->admin->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->admin->uuid);
 
         $response->assertStatus(403)
             ->assertJsonFragment(['message' => 'No puedes eliminar/abandonar si eres el último administrador del proyecto.']);
@@ -190,7 +190,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_admin_puede_eliminar_miembro(): void
     {
         $response = $this->actingAs($this->admin)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->miembro->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->miembro->uuid);
 
         $response->assertStatus(204); // No Content
 
@@ -215,7 +215,7 @@ class ProyectoMiembrosApiTest extends TestCase
         $usuario->proyectos()->attach($this->proyecto->id, ['rol' => 'miembro']);
 
         $response = $this->actingAs($usuario)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $usuario->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $usuario->uuid);
 
         $response->assertStatus(204); // No Content
 
@@ -231,7 +231,7 @@ class ProyectoMiembrosApiTest extends TestCase
     public function test_no_miembro_no_puede_eliminar(): void
     {
         $response = $this->actingAs($this->otroUsuario)
-            ->deleteJson('/api/proyectos/' . $this->proyecto->id . '/miembros/' . $this->miembro->id);
+            ->deleteJson('/api/proyectos/' . $this->proyecto->uuid . '/miembros/' . $this->miembro->uuid);
 
         $response->assertStatus(403); // Forbidden
 
