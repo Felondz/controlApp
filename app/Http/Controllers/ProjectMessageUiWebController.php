@@ -47,7 +47,7 @@ class ProjectMessageUiWebController extends Controller
             $query->whereNull('recipient_id');
         }
 
-        $messages = $query->with(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name'])
+        $messages = $query->with(['user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name', 'parent.user:id,uuid,name'])
             ->latest()
             ->paginate(50);
 
@@ -111,7 +111,7 @@ class ProjectMessageUiWebController extends Controller
             'file_path' => $filePath,
         ]);
 
-        $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
+        $message->load(['user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name', 'parent.user:id,uuid,name']);
 
         // Dispatch el evento para WebSockets
         broadcast(new \App\Modules\Chat\Events\MessageSent($message))->toOthers();
@@ -137,7 +137,7 @@ class ProjectMessageUiWebController extends Controller
             'is_edited' => true,
         ]);
 
-        $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
+        $message->load(['user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name', 'parent.user:id,uuid,name']);
 
         broadcast(new \App\Modules\Chat\Events\MessageUpdated($message))->toOthers();
 
@@ -196,7 +196,7 @@ class ProjectMessageUiWebController extends Controller
         }
 
         $message->update(['reactions' => empty($reactions) ? null : $reactions]);
-        $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent.user:id,name']);
+        $message->load(['user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name', 'parent.user:id,uuid,name']);
 
         broadcast(new \App\Modules\Chat\Events\MessageUpdated($message))->toOthers();
 
@@ -323,7 +323,7 @@ class ProjectMessageUiWebController extends Controller
                   ->orWhere('recipient_id', auth()->id())
                   ->orWhere('user_id', auth()->id());
             })
-            ->with(['user:id,name,profile_photo_path', 'recipient:id,name'])
+            ->with(['user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name'])
             ->latest()
             ->paginate(20);
 

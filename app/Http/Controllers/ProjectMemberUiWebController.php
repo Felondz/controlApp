@@ -237,7 +237,7 @@ class ProjectMemberUiWebController extends Controller
             ->whereNotIn('id', $memberIds)
             ->whereNotIn('email', $invitedEmails)
             ->take(10)
-            ->get(['id', 'name', 'email', 'profile_photo_path']);
+            ->get(['id', 'uuid', 'name', 'email', 'profile_photo_path']);
 
         // Append profile_photo_url accessor
         $users->each(function ($user) {
