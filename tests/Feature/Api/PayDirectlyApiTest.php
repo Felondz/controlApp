@@ -79,7 +79,7 @@ class PayDirectlyApiTest extends TestCase
         $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertStatus(400);
-        $response->assertJson(['error' => 'Esta factura no tiene cuenta predeterminada']);
+        $response->assertJson(['error' => __('finance.error_no_default_account')]);
     }
 
     #[Test]
@@ -96,7 +96,7 @@ class PayDirectlyApiTest extends TestCase
         $response = $this->postJson("/api/proyectos/{$this->proyecto->uuid}/bills/{$bill->uuid}/pay-direct");
 
         $response->assertStatus(400);
-        $response->assertJson(['error' => 'Esta factura ya fue pagada']);
+        $response->assertJson(['error' => __('finance.error_already_paid')]);
     }
 
     #[Test]

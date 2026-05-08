@@ -26,7 +26,8 @@ class CreateTransaccionAction
         if ($debitoAutomatico && $dto->cuentaPredeterminadaId) {
             $cuenta = Cuenta::find($dto->cuentaPredeterminadaId);
             if ($cuenta && $cuenta->tipo === 'credito') {
-                $dueDate = Carbon::parse($fecha);
+                $baseDate = $dto->fechaVencimiento ?? $fecha;
+                $dueDate = Carbon::parse($baseDate);
                 $fechaAutopago = $dueDate->copy()->subDays(3)->toDateTimeString();
             } else {
                 $debitoAutomatico = false;
@@ -80,6 +81,9 @@ class CreateTransaccionAction
             'recurrence_day' => $dto->recurrenceDay,
             'next_occurrence' => $nextOccurrence,
             'cuotas' => $dto->cuotas ?? 1,
+            'numero_factura' => $dto->numeroFactura,
+            'fecha_emision' => $dto->fechaEmision,
+            'fecha_vencimiento' => $dto->fechaVencimiento,
         ]);
 
         // Update Account Balance

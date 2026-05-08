@@ -10,6 +10,10 @@ type Transaccion {
     titulo: String
     descripcion: String
     fecha: DateTime!
+    numero_factura: String
+    fecha_emision: String
+    fecha_vencimiento: String
+    fecha_pago: DateTime
     notas: String
     status: String!
     is_recurring: Boolean
@@ -96,6 +100,9 @@ extend type Mutation {
         recurrence_day: Int
         cuotas: Int
         task_id: ID
+        numero_factura: String
+        fecha_emision: String
+        fecha_vencimiento: String
     ): Transaccion! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@createTransaccion") @guard(with: ["sanctum"])
 
     updateTransaccion(
@@ -108,6 +115,9 @@ extend type Mutation {
         descripcion: String
         notas: String
         status: String
+        numero_factura: String
+        fecha_emision: String
+        fecha_vencimiento: String
     ): Transaccion! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@updateTransaccion") @guard(with: ["sanctum"])
 
     deleteTransaccion(id: ID!): Boolean! @field(resolver: "App\\Modules\\Finance\\GraphQL\\Mutations\\FinanceMutations@deleteTransaccion") @guard(with: ["sanctum"])

@@ -25,6 +25,9 @@ export default function BillModal({
         monto: bill?.monto ? (Math.abs(bill.monto) / 100).toFixed(2) : '',
         descripcion: bill?.descripcion || '',
         fecha: bill?.fecha || new Date().toISOString().split('T')[0],
+        fecha_emision: bill?.fecha_emision || '',
+        fecha_vencimiento: bill?.fecha_vencimiento || (bill?.fecha || ''),
+        numero_factura: bill?.numero_factura || '',
         categoria_id: bill?.categoria_id || null,
         status: 'pending',
         cuenta_id: null,
@@ -42,14 +45,23 @@ export default function BillModal({
                     monto: (Math.abs(bill.monto) / 100).toFixed(2),
                     descripcion: bill.descripcion,
                     fecha: bill.fecha,
+                    fecha_emision: bill.fecha_emision || '',
+                    fecha_vencimiento: bill.fecha_vencimiento || bill.fecha,
+                    numero_factura: bill.numero_factura || '',
                     categoria_id: bill.categoria_id,
                     status: 'pending',
-                    cuenta_id: null
+                    cuenta_id: null,
+                    cuenta_predeterminada_id: bill.cuenta_predeterminada_id || null,
+                    debito_automatico: bill.debito_automatico || false,
+                    is_recurring: bill.is_recurring || false,
+                    recurrence_day: bill.recurrence_day || new Date().getDate(),
                 });
             } else {
                 reset();
                 setData('proyecto_id', proyectoId);
-                setData('fecha', new Date().toISOString().split('T')[0]);
+                const today = new Date().toISOString().split('T')[0];
+                setData('fecha', today);
+                setData('fecha_vencimiento', ''); // Let user pick for bills
             }
         }
     }, [show, bill, proyectoId]);
@@ -68,8 +80,8 @@ export default function BillModal({
             return;
         }
 
-        if (!data.fecha) {
-            alert(t('finance.error_date', 'Por favor ingresa una fecha de vencimiento.'));
+        if (!data.fecha_vencimiento && !data.is_recurring) {
+            alert(t('finance.error_due_date', 'Por favor ingresa una fecha de vencimiento.'));
             setIsSubmitting(false);
             return;
         }
@@ -81,6 +93,7 @@ export default function BillModal({
 
         const billData = {
             ...data,
+            fecha: data.fecha_vencimiento || data.fecha, // Map for general backend requirement
             monto: -Math.abs(parseFloat(data.monto) * 100), // Bills are expenses (negative) in cents
             categoria_id: facturasCategory?.id || null, // Auto-assign Bills category
             status: 'pending'
@@ -134,6 +147,28 @@ export default function BillModal({
                                 required
                                 autoFocus
                             />
+                        </div>
+
+                        {/* Invoice Number & Emission Date (Optional) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <InputLabel value={t('finance.invoice_number', 'Número de Factura')} />
+                                <TextInput
+                                    value={data.numero_factura}
+                                    onChange={(e) => setData('numero_factura', e.target.value)}
+                                    className="mt-1 block w-full"
+                                    placeholder="Ej: FAC-123"
+                                />
+                            </div>
+                            <div>
+                                <InputLabel value={t('finance.emission_date', 'Fecha de Emisión')} />
+                                <TextInput
+                                    type="date"
+                                    value={data.fecha_emision}
+                                    onChange={(e) => setData('fecha_emision', e.target.value)}
+                                    className="mt-1 block w-full"
+                                />
+                            </div>
                         </div>
 
                         {/* Description */}
@@ -191,8 +226,8 @@ export default function BillModal({
                                 <InputLabel value={t('finance.due_date', 'Fecha de Vencimiento')} />
                                 <TextInput
                                     type="date"
-                                    value={data.fecha}
-                                    onChange={(e) => setData('fecha', e.target.value)}
+                                    value={data.fecha_vencimiento}
+                                    onChange={(e) => setData('fecha_vencimiento', e.target.value)}
                                     className="mt-1 block w-full"
                                     required
                                 />

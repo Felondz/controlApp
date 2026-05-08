@@ -14,16 +14,20 @@ use App\Modules\Finance\Models\Categoria;
 use App\Models\User;
 
 /**
- * @property string $id
- * @property string $proyecto_id
- * @property string $cuenta_id
+ * @property int $id
+ * @property int $proyecto_id
+ * @property int|null $cuenta_id
  * @property int $categoria_id
- * @property string $user_id
+ * @property int $user_id
  * @property float $monto
  * @property string $tipo
  * @property string $status
  * @property string $descripcion
  * @property string $fecha
+ * @property string|null $numero_factura
+ * @property string|null $fecha_emision
+ * @property string|null $fecha_vencimiento
+ * @property \Carbon\Carbon|null $fecha_pago
  * @property int|null $task_id
  * @property string|null $notas
  * @property \Carbon\Carbon $created_at
@@ -94,7 +98,29 @@ class Transaccion extends Model
         'transaccion_origen_id',
         'source_type',
         'source_id',
+        'numero_factura',
+        'fecha_emision',
+        'fecha_vencimiento',
+        'fecha_pago',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'fecha' => 'datetime',
+            'fecha_emision' => 'date',
+            'fecha_vencimiento' => 'date',
+            'fecha_pago' => 'datetime',
+            'monto' => 'integer',
+            'is_recurring' => 'boolean',
+            'debito_automatico' => 'boolean',
+        ];
+    }
 
     /**
      * @return BelongsTo<Proyecto, $this>

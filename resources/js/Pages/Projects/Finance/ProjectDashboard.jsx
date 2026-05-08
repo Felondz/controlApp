@@ -537,6 +537,12 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                                 onMarkAsPaid: handleMarkAsPaid,
                                 onAddBill: handleCreateBill,
                                 onAdd: handleCreateBill, // For BillsWidget
+                                onEditBill: handleEditBill,
+
+                                // Handlers for AccountsListWidget
+                                onEditAccount: handleEditAccount,
+                                onCardClick: handleCardClick,
+
                                 projectId: proyecto.uuid,
                                 projects: [],
                                 isCollaborative: !proyecto.es_personal,
@@ -551,90 +557,39 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
                     </div>
 
 
-                    {/* Accounts Section with Charts */}
-                    {isAdmin ? (
-                        <>
-                            {/* Project Accounts */}
-                            {filteredAccounts.length > 0 && (
-                                <div className="mb-8">
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                        {t('finance.project_accounts', 'Cuentas del Proyecto')}
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {filteredAccounts.map((cuenta) => {
-                                            const cuentaTransacciones = transaccionesPorCuenta[cuenta.id] || [];
-                                            return (
-                                                <div key={cuenta.id} className="relative group">
-                                                    <AccountChart
-                                                        cuenta={{ ...cuenta, paymentStatus: getAccountPaymentStatus(cuenta) }}
-                                                        onEdit={handleEditAccount}
-                                                        onClick={handleCardClick}
-                                                        isCollaborative={!proyecto.es_personal}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Linked Accounts */}
-                            {linkedAccounts.length > 0 && (
-                                <div className="mb-8">
-                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                        <LinkIcon className="h-5 w-5 text-primary-600" />
-                                        {t('finance.linked_accounts', 'Cuentas Vinculadas')}
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {linkedAccounts.map((cuenta) => {
-                                            const cuentaTransacciones = transaccionesPorCuenta[cuenta.id] || [];
-                                            return (
-                                                <div key={cuenta.id} className="relative group">
-                                                    <AccountChart
-                                                        cuenta={{ ...cuenta, paymentStatus: getAccountPaymentStatus(cuenta) }}
-                                                        onEdit={handleEditAccount}
-                                                        onClick={handleCardClick}
-                                                        isCollaborative={!proyecto.es_personal}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {filteredAccounts.length === 0 && linkedAccounts.length === 0 && (
-                                <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-12 text-center">
-                                    <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                        {showInactive
-                                            ? t('finance.no_inactive_accounts', 'No hay cuentas inactivas')
-                                            : t('finance.no_active_accounts', 'No hay cuentas activas')
-                                        }
-                                    </h3>
-                                    <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                        {showInactive
-                                            ? t('finance.check_active', 'Revisa tus cuentas activas')
-                                            : t('finance.create_first_account', 'Crea tu primera cuenta para comenzar')
-                                        }
-                                    </p>
-                                    {!showInactive && (
-                                        <div className="flex justify-center gap-4">
-                                            <PrimaryButton onClick={handleCreateAccount}>
-                                                {t('finance.create_account', 'Crear Cuenta')}
-                                            </PrimaryButton>
-                                            {!proyecto.es_personal && (
-                                                <SecondaryButton onClick={handleLinkAccount}>
-                                                    {t('finance.link_account', 'Vincular Cuenta')}
-                                                </SecondaryButton>
-                                            )}
-                                        </div>
+                    {/* Accounts Section - Now part of DraggableWidgetGrid */}
+                    {isAdmin && filteredAccounts.length === 0 && linkedAccounts.length === 0 && (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-12 text-center mt-8">
+                            <CurrencyDollarIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                {showInactive
+                                    ? t('finance.no_inactive_accounts', 'No hay cuentas inactivas')
+                                    : t('finance.no_active_accounts', 'No hay cuentas activas')
+                                }
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 mb-6">
+                                {showInactive
+                                    ? t('finance.check_active', 'Revisa tus cuentas activas')
+                                    : t('finance.create_first_account', 'Crea tu primera cuenta para comenzar')
+                                }
+                            </p>
+                            {!showInactive && (
+                                <div className="flex justify-center gap-4">
+                                    <PrimaryButton onClick={handleCreateAccount}>
+                                        {t('finance.create_account', 'Crear Cuenta')}
+                                    </PrimaryButton>
+                                    {!proyecto.es_personal && (
+                                        <SecondaryButton onClick={handleLinkAccount}>
+                                            {t('finance.link_account', 'Vincular Cuenta')}
+                                        </SecondaryButton>
                                     )}
                                 </div>
                             )}
-                        </>
-                    ) : (
-                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        </div>
+                    )}
+
+                    {!isAdmin && (
+                        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 mt-8">
                             <p className="text-gray-500 dark:text-gray-400 text-center">
                                 {t('finance.restricted_access', 'No tienes permisos para ver la información financiera de este proyecto.')}
                             </p>
