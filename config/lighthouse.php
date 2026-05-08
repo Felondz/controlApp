@@ -207,7 +207,8 @@ return [
             'App\\Modules\\Inventory\\Models',
             'App\\Modules\\Finance\\Models',
             'App\\Modules\\Operations\\Models',
-            'App\\Modules\\Tasks\\Models'
+            'App\\Modules\\Tasks\\Models',
+            'App\\Modules\\Chat\\Models'
         ],
         'queries' => 'App\\GraphQL\\Queries',
         'mutations' => 'App\\GraphQL\\Mutations',

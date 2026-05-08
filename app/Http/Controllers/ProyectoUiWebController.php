@@ -14,7 +14,7 @@ class ProyectoUiWebController extends Controller
     /**
      * Almacena un nuevo proyecto en la base de datos.
      */
-    public function store(StoreProyectoRequest $request)
+    public function store(StoreProyectoRequest $request): \Illuminate\Http\RedirectResponse
     {
         // El FormRequest ya se ejecutó y si falló, lanzó la excepción 422
         // El FormRequest también maneja la autorización (si la tiene).
@@ -49,7 +49,7 @@ class ProyectoUiWebController extends Controller
             ->with('success', '¡Proyecto "' . $proyecto->nombre . '" creado con éxito!');
     }
 
-    public function create()
+    public function create(): \Inertia\Response
     {
         $availableModules = \App\Models\Module::where('is_active', true)
             ->where('coming_soon', false)
@@ -63,15 +63,18 @@ class ProyectoUiWebController extends Controller
         ]);
     }
 
-    public function show(Request $request, Proyecto $mis_proyecto)
+    public function show(Request $request, Proyecto $mis_proyecto): \Inertia\Response
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         // 1. Autorización: Asegurar que el usuario es miembro del proyecto.
-        if (!$request->user()->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($mis_proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
         // 2. Verificar si es admin para cargar datos financieros
-        $isAdmin = $request->user()->esAdminDe($mis_proyecto);
+        $isAdmin = $user->esAdminDe($mis_proyecto);
 
         // 3. Eager Loading condicional
         $relations = ['categorias']; // Categorías pueden ser visibles (o no, según requerimiento, pero finanzas es lo crítico)
@@ -108,7 +111,7 @@ class ProyectoUiWebController extends Controller
         $mis_proyecto->load($relations);
         $mis_proyecto->loadCount('miembros');
 
-        $this->appendUnreadCount($mis_proyecto, $request->user());
+        $this->appendUnreadCount($mis_proyecto, $user);
 
         // 4. Renderizar vista apropiada según tipo de proyecto
 
@@ -160,10 +163,13 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el formulario para editar un proyecto.
      */
-    public function edit(Request $request, Proyecto $mis_proyecto)
+    public function edit(Request $request, Proyecto $mis_proyecto): \Inertia\Response
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         // 1. Autorización: Solo admins pueden editar
-        if (!$request->user()->esAdminDe($mis_proyecto)) {
+        if (!$user->esAdminDe($mis_proyecto)) {
             abort(403, 'Solo los administradores pueden editar este proyecto.');
         }
 
@@ -175,9 +181,12 @@ class ProyectoUiWebController extends Controller
     /**
      * Actualiza el proyecto en la base de datos.
      */
-    public function update(UpdateProyectoRequest $request, Proyecto $mis_proyecto)
+    public function update(UpdateProyectoRequest $request, Proyecto $mis_proyecto): \Illuminate\Http\RedirectResponse
     {
-        if (!$request->user()->esAdminDe($mis_proyecto)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if (!$user->esAdminDe($mis_proyecto)) {
             abort(403, 'Solo los administradores pueden actualizar este proyecto.');
         }
 
@@ -231,9 +240,12 @@ class ProyectoUiWebController extends Controller
     /**
      * Elimina el proyecto.
      */
-    public function destroy(Request $request, Proyecto $mis_proyecto)
+    public function destroy(Request $request, Proyecto $mis_proyecto): \Illuminate\Http\RedirectResponse
     {
-        if (!$request->user()->esAdminDe($mis_proyecto)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if (!$user->esAdminDe($mis_proyecto)) {
             abort(403, 'Solo los administradores pueden eliminar este proyecto.');
         }
 
@@ -251,15 +263,18 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el dashboard financiero del proyecto.
      */
-    public function finance(Request $request, Proyecto $mis_proyecto)
+    public function finance(Request $request, Proyecto $mis_proyecto): \Inertia\Response
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         // 1. Autorización
-        if (!$request->user()->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($mis_proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
         // 2. Verificar si es admin para cargar datos financieros
-        $isAdmin = $request->user()->esAdminDe($mis_proyecto);
+        $isAdmin = $user->esAdminDe($mis_proyecto);
 
         // 3. Eager Loading específico para finanzas
         $mis_proyecto->load([
@@ -411,7 +426,7 @@ class ProyectoUiWebController extends Controller
              ];
         }
 
-        $this->appendUnreadCount($mis_proyecto, $request->user());
+        $this->appendUnreadCount($mis_proyecto, $user);
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
             'proyecto' => $mis_proyecto, // Already has cuentas, cuentasAsociadas, categorias loaded
@@ -429,7 +444,7 @@ class ProyectoUiWebController extends Controller
     /**
      * Helper to append unread messages count to project.
      */
-    private function appendUnreadCount(Proyecto $proyecto, $user)
+    private function appendUnreadCount(Proyecto $proyecto, \App\Models\User $user): void
     {
         $unreadCount = 0;
         if ($proyecto->hasMessagingFeature()) {
@@ -445,10 +460,13 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra la vista de chat del proyecto.
      */
-    public function chat(Request $request, Proyecto $mis_proyecto)
+    public function chat(Request $request, Proyecto $mis_proyecto): \Inertia\Response
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         // 1. Autorización
-        if (!$request->user()->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($mis_proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
@@ -460,19 +478,20 @@ class ProyectoUiWebController extends Controller
         // 3. Cargar miembros para el chat
         $mis_proyecto->load(['miembros:id,uuid,name,profile_photo_path']);
 
-        $this->appendUnreadCount($mis_proyecto, $request->user());
+        $this->appendUnreadCount($mis_proyecto, $user);
 
         return Inertia::render('Projects/Chat', [
             'proyecto' => $mis_proyecto,
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
     /**
      * Muestra el dashboard principal con la lista de proyectos.
      */
-    public function dashboard(Request $request)
+    public function dashboard(Request $request): \Inertia\Response
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Obtenemos los proyectos (personales + membresías)
@@ -520,9 +539,12 @@ class ProyectoUiWebController extends Controller
     /**
      * Actualiza la configuración del proyecto (ej: widgets).
      */
-    public function updateSettings(Request $request, Proyecto $project)
+    public function updateSettings(Request $request, Proyecto $project): \Illuminate\Http\RedirectResponse
     {
-        if (!$request->user()->esAdminDe($project)) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if (!$user->esAdminDe($project)) {
             abort(403);
         }
 

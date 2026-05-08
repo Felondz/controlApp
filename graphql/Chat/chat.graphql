@@ -18,12 +18,12 @@ extend type Query {
     "Listar mensajes de un proyecto"
     messages(
         proyecto_id: ID! @eq
-    ): [Message!]! @all @guard @auth
+    ): [Message!]! @all @guard
     
     "Listar mensajes directos con un usuario"
     directMessages(
         recipient_id: ID! @eq
-    ): [Message!]! @all @guard @auth
+    ): [Message!]! @all @guard
 }
 
 extend type Mutation {
@@ -33,5 +33,5 @@ extend type Mutation {
         proyecto_id: ID
         recipient_id: ID
         type: String
-    ): Message! @create @guard @auth
+    ): Message! @create(model: "Message") @guard
 }

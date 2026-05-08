@@ -69,23 +69,23 @@ extend type Query {
     "Obtener un proceso de producción por ID"
     productionProcess(
         id: ID! @eq
-    ): ProductionProcess @find
+    ): ProductionProcess @find @guard
 
     "Listar procesos de producción de un proyecto"
     productionProcesses(
         proyecto_id: ID! @eq
-    ): [ProductionProcess!]! @paginate(defaultCount: 15)
+    ): [ProductionProcess!]! @paginate(defaultCount: 15) @guard
 
     "Obtener un lote de producción por ID"
     loteProduccion(
         id: ID! @eq
-    ): LoteProduccion @find
+    ): LoteProduccion @find @guard
 
     "Listar lotes de producción de un proyecto"
     loteProducciones(
         proyecto_id: ID! @eq
         status: String @eq
-    ): [LoteProduccion!]! @paginate(defaultCount: 15)
+    ): [LoteProduccion!]! @paginate(defaultCount: 15) @guard
 }
 
 extend type Mutation {
