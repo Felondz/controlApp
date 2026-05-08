@@ -14,7 +14,7 @@ class ProjectThemeImageTest extends TestCase
 
     public function test_user_can_create_project_with_image_theme_typography()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create();
 
         $file = UploadedFile::fake()->image('project_cover.jpg');
@@ -40,7 +40,7 @@ class ProjectThemeImageTest extends TestCase
 
         $proyecto = \App\Models\Proyecto::where('nombre', 'Proyecto Visual')->first();
         $this->assertNotNull($proyecto->image_path);
-        Storage::disk('public')->assertExists($proyecto->image_path);
+        Storage::disk('local')->assertExists($proyecto->image_path);
     }
 
     public function test_project_creation_uses_defaults_when_theme_missing()
@@ -66,7 +66,7 @@ class ProjectThemeImageTest extends TestCase
     
     public function test_image_validation_rules()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create();
         
         // Test non-image file

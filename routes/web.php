@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::post('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
     Route::get('mis-proyectos/{mis_proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
     Route::get('mis-proyectos/{mis_proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
+    Route::get('mis-proyectos/{mis_proyecto}/messages/{message}/file', [ProjectMessageUiWebController::class, 'file'])->name('project.messages.file');
 
     // Invitations
     Route::get('/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
