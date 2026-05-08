@@ -45,7 +45,9 @@ Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
 
 Route::middleware('auth')->group(function () {
     Route::get('/user/photo/{user}', [ProfilePhotoController::class, 'show'])->name('user.photo');
-    Route::get('/projects/{proyecto}/image', [ProjectImageController::class, 'show'])->name('projects.image');
+    Route::get('/projects/{proyecto}/image', [ProjectImageController::class, 'show'])
+        ->name('projects.image')
+        ->middleware('verified');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Routes moved to project scope below
@@ -243,4 +245,3 @@ if (app()->environment('local', 'testing', 'staging')) {
         }
     });
 }
-Route::get("/proyectos/{proyecto}/image", [\App\Http\Controllers\ProjectImageController::class, "show"])->middleware(["auth", "verified"])->name("projects.image");
