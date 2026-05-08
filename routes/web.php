@@ -11,6 +11,7 @@ use App\Http\Controllers\ToolController;
 use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\ProjectImageController;
 use App\Modules\Finance\Controllers\TransaccionController;
+use App\Http\Controllers\Admin\ServerAdminController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -174,6 +175,22 @@ require __DIR__ . '/auth.php';
 
 // Admin User Management Routes
 Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsSuperAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    // Server Administration (Issue #AI-Log-Control)
+    Route::prefix('server')->name('server.')->group(function () {
+        Route::get('/', [ServerAdminController::class, 'index'])->name('index');
+        
+        // Logs
+        Route::get('/logs', [ServerAdminController::class, 'logs'])->name('logs');
+        Route::get('/logs/download/{filename}', [ServerAdminController::class, 'downloadLog'])->name('logs.download');
+        Route::delete('/logs/{filename}', [ServerAdminController::class, 'deleteLog'])->name('logs.delete');
+        
+        // Backups
+        Route::get('/backups', [ServerAdminController::class, 'backups'])->name('backups');
+        Route::post('/backups/run', [ServerAdminController::class, 'runBackup'])->name('backups.run');
+        Route::get('/backups/download/{filename}', [ServerAdminController::class, 'downloadBackup'])->name('backups.download');
+        Route::delete('/backups/{filename}', [ServerAdminController::class, 'deleteBackup'])->name('backups.delete');
+    });
+
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggleStatus');

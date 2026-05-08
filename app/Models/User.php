@@ -430,6 +430,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // 3. Fetch Pending Invitations (from Projects I'm invited to)
         $pendingInvitations = $this->invitations()
+            ->where('status', Invitacion::STATUS_PENDING)
             ->with(['proyecto', 'invitador'])
             ->latest()
             ->get()
