@@ -458,7 +458,7 @@ class ProyectoUiWebController extends Controller
         }
 
         // 3. Cargar miembros para el chat
-        $mis_proyecto->load(['miembros:id,name,profile_photo_path']);
+        $mis_proyecto->load(['miembros:id,uuid,name,profile_photo_path']);
 
         $this->appendUnreadCount($mis_proyecto, $request->user());
 

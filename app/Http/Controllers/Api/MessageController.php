@@ -34,7 +34,7 @@ class MessageController extends Controller
                     ->orWhere('recipient_id', $user->id) // Private to me
                     ->orWhere('user_id', $user->id); // Private from me
             })
-            ->with('user:id,name,profile_photo_path', 'recipient:id,name')
+            ->with('user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name')
             ->latest()
             ->paginate(50);
 
@@ -70,7 +70,7 @@ class MessageController extends Controller
         ]);
 
         // Load user relationship for the response
-        $message->load('user:id,name,profile_photo_path', 'recipient:id,name');
+        $message->load('user:id,uuid,name,profile_photo_path', 'recipient:id,uuid,name');
 
         return response()->json($message, 201);
     }
