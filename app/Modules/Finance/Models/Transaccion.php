@@ -23,7 +23,6 @@ use App\Models\User;
  * @property string $tipo
  * @property string $status
  * @property string $descripcion
- * @property string $titulo
  * @property string $fecha
  * @property int|null $task_id
  * @property string|null $notas
@@ -74,7 +73,6 @@ class Transaccion extends Model
         'categoria_id',
         'user_id',
         'monto',
-        'titulo',
         'descripcion',
         'fecha',
         'notas',
@@ -162,5 +160,14 @@ class Transaccion extends Model
     public function source(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Virtual attribute to map descripcion as titulo for mobile compatibility.
+     * @return string|null
+     */
+    public function getTituloAttribute(): ?string
+    {
+        return $this->descripcion;
     }
 }
