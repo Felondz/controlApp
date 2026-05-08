@@ -19,7 +19,7 @@ extend type Query {
     "Obtener un item de inventario específico"
     inventoryItem(
         id: ID! @eq
-    ): InventoryItem @find
+    ): InventoryItem @find @guard
 
     "Listar items de inventario de un proyecto con filtros"
     inventoryItems(
@@ -27,7 +27,7 @@ extend type Query {
         name: String @where(operator: "like")
         type: String @eq
         is_active: Boolean @eq
-    ): [InventoryItem!]! @paginate(defaultCount: 15)
+    ): [InventoryItem!]! @paginate(defaultCount: 15) @guard
 }
 
 extend type Mutation {
