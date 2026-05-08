@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\CalculatorController;
 use App\Modules\Tasks\Controllers\TaskController;
 use App\Http\Controllers\Api\MarketplaceController;
 use App\Http\Controllers\Api\AiChatController;
+use App\Http\Controllers\ProjectImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -173,6 +174,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/proyectos/{proyecto}/messages/read', [App\Http\Controllers\Api\MessageController::class, 'markAsRead'])->name('api.proyectos.messages.read');
 
     // --- Project Settings & Ownership (Mobile API) ---
+    Route::get('/proyectos/{proyecto}/image', [ProjectImageController::class, 'show'])->name('api.proyectos.image');
     Route::put('/proyectos/{proyecto}/settings', [ProyectoController::class, 'updateSettings'])->name('api.proyectos.settings.update');
     Route::post('/proyectos/{proyecto}/transfer-ownership', [ProyectoController::class, 'transferOwnership'])->name('api.proyectos.ownership.transfer');
 
