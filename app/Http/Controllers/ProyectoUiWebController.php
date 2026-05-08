@@ -102,7 +102,7 @@ class ProyectoUiWebController extends Controller
         }
 
         if ($mis_proyecto->hasMessagingFeature()) {
-            $relations[] = 'miembros:id,name,profile_photo_path';
+            $relations[] = 'miembros:id,uuid,name,profile_photo_path';
         }
 
         $mis_proyecto->load($relations);
