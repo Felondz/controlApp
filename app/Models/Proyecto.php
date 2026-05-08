@@ -211,14 +211,9 @@ class Proyecto extends Model
             return $this->image_path;
         }
 
-        // Usar el disco public para generar la URL correcta (soporta S3 y local)
-        // Devolvemos una ruta relativa /storage/... si es local para máxima compatibilidad
-        // en entornos de desarrollo donde APP_URL puede variar entre dispositivos (localhost vs IP)
-        if (config('app.env') === 'local') {
-            return '/storage/' . ltrim($this->image_path, '/');
-        }
-
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
+        // Usar la ruta protegida del controlador para máxima seguridad.
+        // Esto garantiza que solo los miembros con permiso puedan ver la imagen.
+        return route('projects.image', $this->uuid);
     }
 
     /**

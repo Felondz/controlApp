@@ -29,12 +29,12 @@ class UpdateInventoryItemAction
             if ($dto->image) {
                 // Delete old image
                 if ($dto->item->image_path) {
-                    Storage::disk('public')->delete($dto->item->image_path);
+                    Storage::disk('local')->delete($dto->item->image_path);
                 }
 
                 $extension = $dto->image->getClientOriginalExtension();
                 $filename = Str::random(40) . '.' . $extension;
-                $path = $dto->image->storeAs('inventory/' . $dto->proyecto->id, $filename, 'public');
+                $path = $dto->image->storeAs('inventory/' . $dto->proyecto->id, $filename, 'local');
                 $dataToUpdate['image_path'] = $path;
             }
 

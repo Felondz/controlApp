@@ -22,7 +22,7 @@ class ProyectoUiWebController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('project-images', 'public');
+            $imagePath = $request->file('image')->store('project-images', 'local');
         }
 
         // 1. Crear el proyecto usando los datos validados
@@ -218,7 +218,7 @@ class ProyectoUiWebController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('project-images', 'public');
+            $imagePath = $request->file('image')->store('project-images', 'local');
             $dataToUpdate['image_path'] = $imagePath;
         }
 

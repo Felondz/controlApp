@@ -106,12 +106,11 @@ class InventoryItem extends Model
             return $this->image_path;
         }
 
-        // Usar ruta relativa en local para evitar fallos por APP_URL (localhost vs IP)
-        if (config('app.env') === 'local') {
-            return '/storage/' . ltrim($this->image_path, '/');
-        }
-
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->image_path);
+        // Usar la ruta protegida para asegurar la privacidad de los activos de la empresa
+        return route('inventory.items.image', [
+            'proyecto' => $this->proyecto_id,
+            'item' => $this->uuid
+        ]);
     }
 
     /**

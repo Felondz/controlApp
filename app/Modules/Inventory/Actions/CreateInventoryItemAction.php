@@ -21,7 +21,7 @@ class CreateInventoryItemAction
             if ($dto->image) {
                 $extension = $dto->image->getClientOriginalExtension();
                 $filename = Str::random(40) . '.' . $extension;
-                $imagePath = $dto->image->storeAs('inventory/' . $dto->proyecto->id, $filename, 'public');
+                $imagePath = $dto->image->storeAs('inventory/' . $dto->proyecto->id, $filename, 'local');
             }
 
             $item = InventoryItem::create([

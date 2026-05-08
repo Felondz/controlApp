@@ -59,6 +59,7 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
+            "@php artisan storage:link",
             "@php artisan migrate --force",
             "@php artisan scout:import \"App\\Models\\User\"",
             "@php artisan scout:import \"App\\Models\\Proyecto\"",

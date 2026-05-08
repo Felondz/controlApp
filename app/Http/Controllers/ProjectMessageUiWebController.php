@@ -86,7 +86,7 @@ class ProjectMessageUiWebController extends Controller
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
             $filename = Str::uuid() . '.' . $extension;
-            $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'public');
+            $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'local');
             
             $mimeType = $file->getMimeType() ?? '';
             if (str_starts_with($mimeType, 'image/')) {
@@ -327,5 +327,32 @@ class ProjectMessageUiWebController extends Controller
             ->paginate(20);
 
         return response()->json($messages);
+    }
+
+    /**
+     * Serve a chat file securely.
+     */
+    public function file(Proyecto $mis_proyecto, Message $message)
+    {
+        // Authorization: Check if user is a member of the project
+        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Security: Ensure message belongs to project and user has access to it
+        if ($message->proyecto_id !== $mis_proyecto->id) {
+            abort(404);
+        }
+
+        // If it's a DM, ensure the user is either the sender or the recipient
+        if ($message->recipient_id && $message->recipient_id !== auth()->id() && $message->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (!$message->file_path || !Storage::disk("local")->exists($message->file_path)) {
+            abort(404);
+        }
+
+        return response()->file(storage_path("app/private/" . $message->file_path));
     }
 }

@@ -206,6 +206,28 @@ class InventoryItemController extends Controller
     }
 
     /**
+     * Serve the item's image securely.
+     */
+    public function image(Proyecto $proyecto, InventoryItem $item)
+    {
+        // Security check: item must belong to the project
+        if ($item->proyecto_id !== $proyecto->id) {
+            abort(404);
+        }
+
+        // Authorization check: user must be a member of the project
+        if (!auth()->user()->esMiembroDe($proyecto)) {
+            abort(403);
+        }
+
+        if (!$item->image_path || !\Illuminate\Support\Facades\Storage::disk("local")->exists($item->image_path)) {
+            abort(404);
+        }
+
+        return response()->file(storage_path("app/private/" . $item->image_path));
+    }
+
+    /**
      * Remove the specified item and its image.
      */
     public function destroy(Proyecto $proyecto, InventoryItem $item, DeleteInventoryItemAction $action): \Illuminate\Http\RedirectResponse

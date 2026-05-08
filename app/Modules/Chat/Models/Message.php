@@ -88,11 +88,11 @@ class Message extends Model
             return $this->file_path;
         }
 
-        if (config('app.env') === 'local') {
-            return '/storage/' . ltrim($this->file_path, '/');
-        }
-
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+        // Usar la ruta protegida para asegurar la privacidad de los archivos compartidos
+        return route('project.messages.file', [
+            'mis_proyecto' => $this->proyecto_id,
+            'message' => $this->id
+        ]);
     }
 
     /**
