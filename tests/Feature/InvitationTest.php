@@ -53,7 +53,10 @@ class InvitationTest extends TestCase
         $response = $this->actingAs($user)->post(route('invitations.accept', $invitation));
 
         $response->assertRedirect(route('mis-proyectos.show', $project->uuid));
-        $this->assertDatabaseMissing('invitaciones', ['id' => $invitation->id]);
+        $this->assertDatabaseHas('invitaciones', [
+            'id' => $invitation->id,
+            'status' => Invitacion::STATUS_ACCEPTED
+        ]);
         $this->assertTrue($user->esMiembroDe($project));
     }
 
@@ -74,7 +77,10 @@ class InvitationTest extends TestCase
         $response = $this->actingAs($user)->post(route('invitations.reject', $invitation));
 
         $response->assertRedirect();
-        $this->assertDatabaseMissing('invitaciones', ['id' => $invitation->id]);
+        $this->assertDatabaseHas('invitaciones', [
+            'id' => $invitation->id,
+            'status' => Invitacion::STATUS_REJECTED
+        ]);
         $this->assertFalse($user->esMiembroDe($project));
     }
 }

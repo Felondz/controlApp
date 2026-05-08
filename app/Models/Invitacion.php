@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property string $rol
  * @property string $token
  * @property \Carbon\Carbon|null $expires_at
+ * @property string $status
+ * @property \Carbon\Carbon|null $accepted_at
+ * @property \Carbon\Carbon|null $cancelled_at
  * @property-read Proyecto $proyecto
  * @property-read User|null $invitador
  * @property \Carbon\Carbon $created_at
@@ -23,6 +26,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class Invitacion extends Model
 {
     use HasFactory, HasUuids;
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * Get the columns that should receive a unique identifier.
@@ -59,6 +68,9 @@ class Invitacion extends Model
         'rol',
         'token',
         'expires_at',
+        'status',
+        'accepted_at',
+        'cancelled_at',
     ];
 
     /**

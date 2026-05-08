@@ -9,12 +9,12 @@ export default function Index({ auth, invitations }) {
     const { t } = useTranslate();
     const { post, processing } = useForm();
 
-    const handleAccept = (id) => {
-        post(route('invitations.accept', id));
+    const handleAccept = (uuid) => {
+        post(route('invitations.accept', uuid));
     };
 
-    const handleReject = (id) => {
-        post(route('invitations.reject', id));
+    const handleReject = (uuid) => {
+        post(route('invitations.reject', uuid));
     };
 
     return (
@@ -57,7 +57,7 @@ export default function Index({ auth, invitations }) {
 
                                             <div className="mt-auto flex flex-col sm:flex-row gap-3">
                                                 <PrimaryButton
-                                                    onClick={() => handleAccept(invitation.id)}
+                                                    onClick={() => handleAccept(invitation.uuid)}
                                                     disabled={processing}
                                                     className="flex-1 justify-center gap-2"
                                                 >
@@ -66,7 +66,7 @@ export default function Index({ auth, invitations }) {
                                                 </PrimaryButton>
 
                                                 <SecondaryButton
-                                                    onClick={() => handleReject(invitation.id)}
+                                                    onClick={() => handleReject(invitation.uuid)}
                                                     disabled={processing}
                                                     className="flex-1 justify-center gap-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                                 >

@@ -11,9 +11,11 @@ class ProjectImageController extends Controller
     public function show(Proyecto $proyecto)
     {
         Gate::authorize("view", $proyecto);
-        if (!$proyecto->image_path || !Storage::disk("public")->exists($proyecto->image_path)) {
+        if (!$proyecto->image_path || !Storage::disk("local")->exists($proyecto->image_path)) {
             abort(404);
         }
-        return response()->file(storage_path("app/public/" . $proyecto->image_path));
+        return response()->file(Storage::disk('local')->path($proyecto->image_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }

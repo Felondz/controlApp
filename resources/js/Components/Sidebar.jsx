@@ -8,7 +8,7 @@ import {
     DashboardIcon, PuzzleIcon, EnvelopeIcon, CalendarIcon, CalculatorIcon,
     PersonalFinanceIcon, FolderIcon, CurrencyDollarIcon, CheckListIcon,
     ChatIcon, UserCircleIcon, EllipsisVerticalIcon, ChevronDownIcon, ChevronUpIcon,
-    BugIcon, UsersIcon
+    BugIcon, UsersIcon, ServerStackIcon
 } from '@/Components/Icons';
 import { useState } from 'react';
 import { getThemeStyle } from '@/Utils/themeStyles';
@@ -83,6 +83,13 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                         <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.*')} collapsed={collapsed}>
                             <UsersIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
                             {!collapsed && t('admin.users_title', 'Gestión de Usuarios')}
+                        </ResponsiveNavLink>
+                    )}
+
+                    {user?.is_super_admin && (
+                        <ResponsiveNavLink href={route('admin.server.index')} active={route().current('admin.server.*')} collapsed={collapsed}>
+                            <ServerStackIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                            {!collapsed && t('admin.server_title', 'Control de Servidor')}
                         </ResponsiveNavLink>
                     )}
                 </>
@@ -290,6 +297,13 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                             <ResponsiveNavLink href={route('admin.users.index')} active={route().current('admin.users.*')} collapsed={collapsed}>
                                 <UsersIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
                                 {!collapsed && t('admin.users_title', 'Gestión de Usuarios')}
+                            </ResponsiveNavLink>
+                        )}
+
+                        {user?.is_super_admin && (
+                            <ResponsiveNavLink href={route('admin.server.index')} active={route().current('admin.server.*')} collapsed={collapsed}>
+                                <ServerStackIcon className={`h-5 w-5 shrink-0 text-danger-600 dark:text-danger-400 ${collapsed ? '' : 'mr-3'}`} />
+                                {!collapsed && t('admin.server_title', 'Control de Servidor')}
                             </ResponsiveNavLink>
                         )}
                     </>

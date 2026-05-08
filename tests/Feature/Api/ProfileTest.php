@@ -71,7 +71,7 @@ class ProfileTest extends TestCase
     }
     public function test_profile_photo_can_be_uploaded(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create();
         $file = UploadedFile::fake()->image('avatar.jpg');
 
@@ -84,16 +84,16 @@ class ProfileTest extends TestCase
             ->assertJsonStructure(['message', 'profile_photo_url']);
 
         $this->assertNotNull($user->refresh()->profile_photo_path);
-        Storage::disk('public')->assertExists($user->profile_photo_path);
+        Storage::disk('local')->assertExists($user->profile_photo_path);
     }
 
     public function test_profile_photo_can_be_deleted(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create([
             'profile_photo_path' => 'profile-photos/test.jpg',
         ]);
-        Storage::disk('public')->put('profile-photos/test.jpg', 'content');
+        Storage::disk('local')->put('profile-photos/test.jpg', 'content');
 
         $response = $this->actingAs($user, 'sanctum')
             ->deleteJson('/api/profile/photo');
@@ -101,7 +101,7 @@ class ProfileTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertNull($user->refresh()->profile_photo_path);
-        Storage::disk('public')->assertMissing('profile-photos/test.jpg');
+        Storage::disk('local')->assertMissing('profile-photos/test.jpg');
     }
     public function test_user_can_delete_their_account(): void
     {

@@ -32,9 +32,7 @@ class UpdateInventoryItemAction
                     Storage::disk('local')->delete($dto->item->image_path);
                 }
 
-                $extension = $dto->image->getClientOriginalExtension();
-                $filename = Str::random(40) . '.' . $extension;
-                $path = $dto->image->storeAs('inventory/' . $dto->proyecto->id, $filename, 'local');
+                $path = (new \App\Actions\SanitizeImageAction())->execute($dto->image, 'inventory/' . $dto->proyecto->id, 'local');
                 $dataToUpdate['image_path'] = $path;
             }
 

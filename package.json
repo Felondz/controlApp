@@ -36,6 +36,7 @@
     },
     "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
+        "@heroicons/react": "^2.2.0",
         "dayjs": "^1.11.19",
         "driver.js": "^1.4.0",
         "html2canvas": "^1.4.1",

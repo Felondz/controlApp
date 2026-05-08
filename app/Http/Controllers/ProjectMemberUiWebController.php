@@ -161,7 +161,10 @@ class ProjectMemberUiWebController extends Controller
             abort(404);
         }
 
-        $invitation->delete();
+        $invitation->update([
+            'status' => Invitacion::STATUS_CANCELLED,
+            'cancelled_at' => now()
+        ]);
 
         return back()->with('success', 'Invitación cancelada.');
     }
@@ -255,8 +258,16 @@ class ProjectMemberUiWebController extends Controller
             return redirect()->route('dashboard')->with('error', 'La invitación no es válida.');
         }
 
+        if ($invitacion->status === Invitacion::STATUS_CANCELLED) {
+            return redirect()->route('dashboard')->with('error', 'Esta invitación ha sido cancelada por el administrador.');
+        }
+
+        if ($invitacion->status === Invitacion::STATUS_ACCEPTED) {
+            return redirect()->route('dashboard')->with('info', 'Ya has aceptado esta invitación anteriormente.');
+        }
+
         if ($invitacion->expires_at < Carbon::now()) {
-            $invitacion->delete();
+            $invitacion->update(['status' => Invitacion::STATUS_EXPIRED]);
             return redirect()->route('dashboard')->with('error', 'La invitación ha expirado.');
         }
 
@@ -281,8 +292,8 @@ class ProjectMemberUiWebController extends Controller
     {
         $invitacion = Invitacion::where('token', $token)->first();
 
-        if (!$invitacion) {
-            return redirect()->route('dashboard')->with('error', 'La invitación no es válida.');
+        if (!$invitacion || $invitacion->status !== Invitacion::STATUS_PENDING) {
+            return redirect()->route('dashboard')->with('error', 'La invitación ya no está disponible o ha sido procesada.');
         }
 
         /** @var User $user */
@@ -296,15 +307,21 @@ class ProjectMemberUiWebController extends Controller
 
         // Check if already a member
         if ($user->esMiembroDe($proyecto)) {
-            $invitacion->delete();
+            $invitacion->update([
+                'status' => Invitacion::STATUS_ACCEPTED,
+                'accepted_at' => now()
+            ]);
             return redirect()->route('mis-proyectos.show', $proyecto)->with('info', 'Ya eres miembro de este proyecto.');
         }
 
         // Add member
         $proyecto->miembros()->attach($user->id, ['rol' => $invitacion->rol]);
 
-        // Delete invitation
-        $invitacion->delete();
+        // Mark as accepted
+        $invitacion->update([
+            'status' => Invitacion::STATUS_ACCEPTED,
+            'accepted_at' => now()
+        ]);
 
         return redirect()->route('mis-proyectos.show', $proyecto)->with('success', '¡Te has unido al proyecto correctamente!');
     }

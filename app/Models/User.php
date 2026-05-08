@@ -300,9 +300,8 @@ class User extends Authenticatable implements MustVerifyEmail
             return $this->profile_photo_path;
         }
 
-        // Usar asset() para generar una URL absoluta basada en la petición actual
-        // Esto es compatible con Docker, Sail, PTR y Apps Móviles (Expo)
-        return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        // Usar la ruta protegida para asegurar la privacidad de las fotos de los usuarios
+        return route('user.photo', ['user' => $this->uuid]);
     }
 
     /**
@@ -431,6 +430,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // 3. Fetch Pending Invitations (from Projects I'm invited to)
         $pendingInvitations = $this->invitations()
+            ->where('status', Invitacion::STATUS_PENDING)
             ->with(['proyecto', 'invitador'])
             ->latest()
             ->get()

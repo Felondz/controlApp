@@ -25,6 +25,7 @@
         "meilisearch/meilisearch-php": "^1.16",
         "nuwave/lighthouse": "^6.65",
         "predis/predis": "^3.4",
+        "spatie/laravel-backup": "^10.2",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

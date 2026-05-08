@@ -24,7 +24,7 @@ class ProfilePhotoTest extends TestCase
 
     public function test_profile_photo_can_be_uploaded()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         
         $user = User::factory()->create();
         $file = UploadedFile::fake()->image('photo.jpg');
@@ -40,13 +40,13 @@ class ProfilePhotoTest extends TestCase
         $user->refresh();
         $this->assertNotNull($user->profile_photo_path);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($user->profile_photo_path);
     }
 
     public function test_old_profile_photo_is_deleted_when_new_one_is_uploaded()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         
         $user = User::factory()->create();
         $oldPhoto = UploadedFile::fake()->image('old_photo.jpg');
@@ -59,7 +59,7 @@ class ProfilePhotoTest extends TestCase
         $user->refresh();
         $oldPhotoPath = $user->profile_photo_path;
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($oldPhotoPath);
 
         // Upload second photo
@@ -72,7 +72,7 @@ class ProfilePhotoTest extends TestCase
         $newPhotoPath = $user->profile_photo_path;
 
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($newPhotoPath);
         $disk->assertMissing($oldPhotoPath);
         $this->assertNotEquals($oldPhotoPath, $newPhotoPath);
@@ -80,7 +80,7 @@ class ProfilePhotoTest extends TestCase
 
     public function test_profile_photo_can_be_deleted()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         
         $user = User::factory()->create();
         $file = UploadedFile::fake()->image('photo.jpg');
@@ -93,7 +93,7 @@ class ProfilePhotoTest extends TestCase
         $user->refresh();
         $photoPath = $user->profile_photo_path;
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($photoPath);
 
         // Delete photo
@@ -104,13 +104,13 @@ class ProfilePhotoTest extends TestCase
         $user->refresh();
         $this->assertNull($user->profile_photo_path);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertMissing($photoPath);
     }
 
     public function test_validation_profile_photo_must_be_image()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         
         $user = User::factory()->create();
         $file = UploadedFile::fake()->create('document.pdf', 100);
@@ -126,7 +126,7 @@ class ProfilePhotoTest extends TestCase
 
     public function test_profile_photo_cannot_exceed_4mb()
     {
-        Storage::fake('public');
+        Storage::fake('local');
         
         $user = User::factory()->create();
         // Create a file larger than 4MB

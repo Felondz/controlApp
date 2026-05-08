@@ -14,7 +14,7 @@ class ProfilePhotoValidationTest extends TestCase
 
     public function test_profile_photo_must_be_an_image(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create();
         $file = UploadedFile::fake()->create('document.pdf', 100);
 
@@ -29,7 +29,7 @@ class ProfilePhotoValidationTest extends TestCase
 
     public function test_profile_photo_must_not_exceed_4mb(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $user = User::factory()->create();
         // 4MB = 4096KB. Create a file slightly larger (4100KB)
         $file = UploadedFile::fake()->image('large_avatar.jpg')->size(4100);

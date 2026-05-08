@@ -84,14 +84,15 @@ class ProjectMessageUiWebController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $extension = $file->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . $extension;
-            $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'local');
-            
             $mimeType = $file->getMimeType() ?? '';
+            
             if (str_starts_with($mimeType, 'image/')) {
+                $filePath = (new \App\Actions\SanitizeImageAction())->execute($file, 'chat/' . $mis_proyecto->id, 'local');
                 $type = 'image';
             } else {
+                $extension = $file->getClientOriginalExtension();
+                $filename = Str::uuid() . '.' . $extension;
+                $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'local');
                 $type = 'file';
             }
             
@@ -353,6 +354,8 @@ class ProjectMessageUiWebController extends Controller
             abort(404);
         }
 
-        return response()->file(storage_path("app/private/" . $message->file_path));
+        return response()->file(Storage::disk('local')->path($message->file_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }
