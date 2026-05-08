@@ -118,7 +118,7 @@ class Proyecto extends Model
     ];
 
     /** @phpstan-ignore-next-line */
-    protected $appends = ['has_messaging_feature', 'image_url'];
+    protected $appends = ['has_messaging_feature', 'image_url', 'enabled_features', 'description'];
 
     /**
      * Determina si el proyecto tiene habilitada la mensajería.
@@ -127,6 +127,22 @@ class Proyecto extends Model
     public function getHasMessagingFeatureAttribute(): bool
     {
         return in_array('chat', $this->modules ?? []);
+    }
+
+    /**
+     * Alias for modules to maintain backward compatibility with Mobile.
+     */
+    public function getEnabledFeaturesAttribute(): array
+    {
+        return $this->modules ?? [];
+    }
+
+    /**
+     * Alias for descripcion to maintain backward compatibility.
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        return $this->descripcion;
     }
 
     /**
