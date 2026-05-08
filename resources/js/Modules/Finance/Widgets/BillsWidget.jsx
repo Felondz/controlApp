@@ -75,7 +75,8 @@ export default function BillsWidget({
             <div className="space-y-3 max-h-[400px] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
                 {bills.length > 0 ? (
                     bills.map((bill) => {
-                        const remaining = getDaysRemaining(bill.fecha);
+                        const billDate = bill.fecha_vencimiento || bill.fecha;
+                        const remaining = getDaysRemaining(billDate);
                         return (
                             <div
                                 key={bill.id}
@@ -84,10 +85,10 @@ export default function BillsWidget({
                                 {/* Date Box - Compact */}
                                 <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 shrink-0">
                                     <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase leading-none">
-                                        {new Date(bill.fecha).toLocaleString(navigator.language, { month: 'short' }).replace('.', '')}
+                                        {new Date(billDate).toLocaleString(navigator.language, { month: 'short' }).replace('.', '')}
                                     </span>
                                     <span className="text-sm font-bold text-gray-800 dark:text-white leading-none">
-                                        {new Date(bill.fecha).getDate()}
+                                        {new Date(billDate).getDate()}
                                     </span>
                                 </div>
 
@@ -98,6 +99,7 @@ export default function BillsWidget({
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                         <span className={remaining.color}>{remaining.text}</span>
+                                        {bill.numero_factura && ` • ${bill.numero_factura}`}
                                         {bill.categoria?.nombre && ` • ${translateCategoryName(bill.categoria.nombre, t)}`}
                                     </p>
                                 </div>
@@ -117,14 +119,14 @@ export default function BillsWidget({
                                         <CheckCircleIcon className="h-4 w-4" />
                                     </button>
                                     <button
-                                        onClick={() => onEdit && onEdit(bill)}
+                                        onClick={() => (onEditBill || onEdit)?.(bill)}
                                         className="hidden sm:block p-1.5 text-gray-400 hover:text-primary-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                                         title={t('common.edit', 'Editar')}
                                     >
                                         <PencilIcon className="h-3.5 w-3.5" />
                                     </button>
                                     <button
-                                        onClick={() => onDelete && onDelete(bill)}
+                                        onClick={() => (onDeleteBill || onDelete)?.(bill)}
                                         className="hidden sm:block p-1.5 text-gray-400 hover:text-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                                         title={t('common.delete', 'Eliminar')}
                                     >

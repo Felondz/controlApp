@@ -44,6 +44,9 @@ class UpdateTransaccionRequest extends FormRequest
                 'integer',
                 Rule::exists('cuentas', 'id'),
             ],
+            'numero_factura' => 'nullable|string|max:50',
+            'fecha_emision' => 'nullable|date',
+            'fecha_vencimiento' => 'required_if:status,pending|nullable|date',
         ];
     }
 }

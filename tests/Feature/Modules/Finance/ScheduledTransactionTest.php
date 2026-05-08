@@ -67,6 +67,7 @@ class ScheduledTransactionTest extends TestCase
             'monto' => -100.00,
             'descripcion' => 'Internet Bill',
             'fecha' => '2025-12-31',
+            'fecha_vencimiento' => '2026-01-05',
             'status' => 'pending', // Key field
             'tipo' => 'expense'
         ]);

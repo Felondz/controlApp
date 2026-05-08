@@ -57,6 +57,9 @@ class FinanceMutations
             recurrenceDay: isset($args['recurrence_day']) ? (int) $args['recurrence_day'] : null,
             cuotas: isset($args['cuotas']) ? (int) $args['cuotas'] : null,
             taskId: isset($args['task_id']) ? (int) $args['task_id'] : null,
+            numeroFactura: $args['numero_factura'] ?? null,
+            fechaEmision: $args['fecha_emision'] ?? null,
+            fechaVencimiento: $args['fecha_vencimiento'] ?? null,
         );
 
         return app(CreateTransaccionAction::class)->execute($dto);

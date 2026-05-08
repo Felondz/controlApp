@@ -14,17 +14,17 @@ class PayBillDirectlyAction
     public function execute(Transaccion $transaccion): Transaccion
     {
         if (!$transaccion->cuenta_predeterminada_id) {
-            throw new Exception('Esta factura no tiene cuenta predeterminada.');
+            throw new Exception(__('finance.error_no_default_account'));
         }
 
         if ($transaccion->status !== 'pending') {
-            throw new Exception('Esta factura ya fue pagada.');
+            throw new Exception(__('finance.error_already_paid'));
         }
 
         $transaccion->update([
             'cuenta_id' => $transaccion->cuenta_predeterminada_id,
             'status' => 'completed',
-            'fecha' => now(),
+            'fecha_pago' => now(),
             'descripcion' => "Pago de factura: {$transaccion->descripcion}",
         ]);
 

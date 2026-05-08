@@ -14,9 +14,9 @@ class TransaccionController extends Controller
     /**
      * Muestra las transacciones 
      */
-    public function index(Request $request, Proyecto $proyecto)
+    public function index(Request $request, Proyecto $proyecto): \Illuminate\Http\JsonResponse
     {
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
         $query = $proyecto->transacciones()->with('categoria', 'cuenta');
 
         if ($request->has('status')) {
@@ -33,9 +33,9 @@ class TransaccionController extends Controller
     /**
      * Almacena una transacción
      */
-    public function store(StoreTransaccionRequest $request, Proyecto $proyecto)
+    public function store(StoreTransaccionRequest $request, Proyecto $proyecto): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para añadir transacciones.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para añadir transacciones.');
 
         \Illuminate\Support\Facades\Log::info('Store Transaction Request:', $request->all());
 
@@ -50,10 +50,13 @@ class TransaccionController extends Controller
 
         // Auto-calculate fecha_autopago if debito_automatico is enabled
         if (isset($datosValidados['debito_automatico']) && $datosValidados['debito_automatico'] && isset($datosValidados['cuenta_predeterminada_id'])) {
+            /** @var \App\Modules\Finance\Models\Cuenta|null $cuenta */
             $cuenta = \App\Modules\Finance\Models\Cuenta::find($datosValidados['cuenta_predeterminada_id']);
 
             if ($cuenta && $cuenta->tipo === 'credito') {
-                $dueDate = \Carbon\Carbon::parse($datosValidados['fecha']);
+                // Use fecha_vencimiento if available, otherwise fallback to generic fecha
+                $baseDate = $datosValidados['fecha_vencimiento'] ?? $datosValidados['fecha'];
+                $dueDate = \Carbon\Carbon::parse($baseDate);
                 $datosValidados['fecha_autopago'] = $dueDate->copy()->subDays(3)->toDateTimeString();
             } else {
                 // Only credit cards can have auto-debit
@@ -67,10 +70,11 @@ class TransaccionController extends Controller
             $datosValidados['recurrence_interval'] = 'monthly';
 
             // Calculate next_occurrence based on recurrence_day
-            $day = $datosValidados['recurrence_day'] ?? date('d');
+            $day = (int) ($datosValidados['recurrence_day'] ?? date('d'));
             $now = \Carbon\Carbon::now();
 
             // Start with current month
+            /** @var \Carbon\Carbon $nextOccurrence */
             $nextOccurrence = \Carbon\Carbon::create($now->year, $now->month, 1);
 
             // Special handling for February when day is 29 or 30
@@ -117,8 +121,9 @@ class TransaccionController extends Controller
 
         // If this transaction is linked to a financial task, mark the task as done
         if (isset($datosValidados['task_id']) && $datosValidados['task_id']) {
+            /** @var \App\Modules\Tasks\Models\Task|null $task */
             $task = \App\Modules\Tasks\Models\Task::find($datosValidados['task_id']);
-            if ($task && $task->project_id === $proyecto->id) {
+            if ($task && (int) $task->project_id === $proyecto->id) {
                 $task->update(['status' => 'done']);
             }
         }
@@ -127,16 +132,16 @@ class TransaccionController extends Controller
             return response()->json($transaccion, 201);
         }
 
-        return redirect()->back()->with('success', 'Transacción creada correctamente.');
+        return redirect()->back()->with('success', __('finance.transaction_created'));
     }
 
     /**
      * Muestra una transacción 
      */
-    public function show(Request $request, Proyecto $proyecto, Transaccion $transaccion)
+    public function show(Request $request, Proyecto $proyecto, Transaccion $transaccion): \Illuminate\Http\JsonResponse
     {
         // Verificar autorización
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
         // Verificar que la transacción pertenece al proyecto
         if ($transaccion->proyecto_id !== $proyecto->id) {
@@ -149,18 +154,18 @@ class TransaccionController extends Controller
     /**
      * Actualiza una transacción 
      */
-    public function update(UpdateTransaccionRequest $request, Proyecto $proyecto, Transaccion $transaccion)
+    public function update(UpdateTransaccionRequest $request, Proyecto $proyecto, Transaccion $transaccion): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         // Verificar autorización
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para ver este proyecto.');
 
         // Verificar que la transacción pertenece al proyecto
-        if ($transaccion->proyecto_id !== $proyecto->id) {
+        if ((int) $transaccion->proyecto_id !== $proyecto->id) {
             abort(404);
         }
 
         // Verificar que el usuario es dueño de la transacción
-        abort_if($transaccion->user_id !== $request->user()->id, 403, 'No puedes editar transacciones de otros usuarios.');
+        abort_if((int) $transaccion->user_id !== $request->user()->id, 403, 'No puedes editar transacciones de otros usuarios.');
 
         $datosValidados = $request->validated();
 
@@ -188,24 +193,24 @@ class TransaccionController extends Controller
             return response()->json($transaccion, 200);
         }
 
-        return redirect()->back()->with('success', 'Transacción actualizada correctamente.');
+        return redirect()->back()->with('success', __('finance.transaction_updated'));
     }
 
     /**
      * Elimina una transacción 
      */
-    public function destroy(Request $request, Proyecto $proyecto, Transaccion $transaccion)
+    public function destroy(Request $request, Proyecto $proyecto, Transaccion $transaccion): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         // Verificar autorización
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para eliminar en este proyecto.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para eliminar en este proyecto.');
 
         // Verificar que la transacción pertenece al proyecto
-        if ($transaccion->proyecto_id !== $proyecto->id) {
+        if ((int) $transaccion->proyecto_id !== $proyecto->id) {
             abort(404);
         }
 
         // Verificar que el usuario es dueño de la transacción
-        abort_if($transaccion->user_id !== $request->user()->id, 403, 'No puedes eliminar transacciones de otros usuarios.');
+        abort_if((int) $transaccion->user_id !== $request->user()->id, 403, 'No puedes eliminar transacciones de otros usuarios.');
 
         // Revert balance before deleting
         if ($transaccion->cuenta_id && $transaccion->status === 'completed') {
@@ -221,50 +226,50 @@ class TransaccionController extends Controller
             return response()->json(null, 204);
         }
 
-        return redirect()->back()->with('success', 'Transacción eliminada correctamente.');
+        return redirect()->back()->with('success', __('finance.transaction_deleted'));
     }
 
     /**
      * Pay a bill directly using its default account
      */
-    public function payDirectly(Request $request, Proyecto $proyecto, Transaccion $transaccion)
+    public function payDirectly(Request $request, Proyecto $proyecto, Transaccion $transaccion): \Illuminate\Http\JsonResponse
     {
         // Verify authorization
-        abort_if(!$request->user()->esMiembroDe($proyecto), 403, 'No tienes permiso para pagar facturas.');
+        abort_if(!$request->user()?->esMiembroDe($proyecto), 403, 'No tienes permiso para pagar facturas.');
 
         // Verify transaction belongs to project
-        if ($transaccion->proyecto_id !== $proyecto->id) {
+        if ((int) $transaccion->proyecto_id !== $proyecto->id) {
             abort(404);
         }
 
         // Verify bill has default account
         if (!$transaccion->cuenta_predeterminada_id) {
-            return response()->json(['error' => 'Esta factura no tiene cuenta predeterminada'], 400);
+            return response()->json(['error' => __('finance.error_no_default_account')], 400);
         }
 
         // Verify bill is pending
         if ($transaccion->status !== 'pending') {
-            return response()->json(['error' => 'Esta factura ya fue pagada'], 400);
+            return response()->json(['error' => __('finance.error_already_paid')], 400);
         }
 
         // Update bill to completed and assign account
         $transaccion->update([
             'cuenta_id' => $transaccion->cuenta_predeterminada_id,
             'status' => 'completed',
-            'fecha' => now(), // Update to payment date
+            'fecha_pago' => now(),
             'descripcion' => "Pago de factura: {$transaccion->descripcion}", // Update description
         ]);
 
         // Update account balance (monto is already negative for expenses)
         $cuenta = \App\Modules\Finance\Models\Cuenta::find($transaccion->cuenta_id);
         if ($cuenta) {
-            $cuenta->saldo_actual = (int) ($cuenta->saldo_actual - $transaccion->monto);
+            $cuenta->saldo_actual = (int) ($cuenta->saldo_actual + $transaccion->monto);
             $cuenta->save();
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Factura pagada correctamente',
+            'message' => __('finance.bill_paid_success'),
             'payment' => $transaccion,
         ]);
     }

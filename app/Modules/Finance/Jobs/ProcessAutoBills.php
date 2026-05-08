@@ -46,7 +46,7 @@ class ProcessAutoBills implements ShouldQueue
                 $bill->update([
                     'cuenta_id' => $bill->cuenta_predeterminada_id,
                     'status' => 'completed',
-                    'fecha' => now(), // Update to actual payment date
+                    'fecha_pago' => now(),
                     'descripcion' => "Débito Automático: {$bill->descripcion}",
                     'tipo' => 'expense', // Ensure it's an expense
                 ]);

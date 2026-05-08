@@ -6,7 +6,7 @@ import { getAvailableWidgets, getOrderedWidgets, WIDGET_DEFINITIONS } from '@/Ut
 import WidgetCard from './WidgetCard';
 
 // Widget component imports - using absolute modular paths
-import { BalanceSummaryWidget, SavingsGoalWidget, CreditSimulationWidget, UpcomingObligationsWidget, FinancialChartsWidget, AccountFlowWidget, TransactionsWidget, BillsWidget } from '@/Modules/Finance/Widgets';
+import { BalanceSummaryWidget, AccountsListWidget, SavingsGoalWidget, CreditSimulationWidget, UpcomingObligationsWidget, FinancialChartsWidget, AccountFlowWidget, TransactionsWidget, BillsWidget } from '@/Modules/Finance/Widgets';
 import { TasksSummaryWidget, UserTasksWidget } from '@/Modules/Tasks/Widgets';
 import { ChatRecentWidget } from '@/Modules/Chat/Widgets';
 import { InventoryItemsWidget, InventorySummaryWidget, LowStockWidget } from '@/Modules/Inventory/Widgets';
@@ -19,6 +19,7 @@ import ProjectsListWidget from './ProjectsListWidget';
 const WIDGET_COMPONENTS = {
     // Finance
     finance_balance_summary: BalanceSummaryWidget,
+    finance_accounts: AccountsListWidget,
     finance_savings_goal: SavingsGoalWidget,
     finance_credit_simulation: CreditSimulationWidget,
     finance_upcoming_obligations: UpcomingObligationsWidget,
@@ -217,6 +218,9 @@ export default function DraggableWidgetGrid({
             // Map specific props if needed, or rely on widgets picking what they need from dashboardData
             // Common props expected by finance widgets:
             accounts: dashboardData.accounts || [],
+            onEditAccount: dashboardData.onEditAccount, // Prop for AccountsListWidget
+            onCardClick: dashboardData.onCardClick,     // Prop for AccountsListWidget
+            isCollaborative: dashboardData.isCollaborative, // Prop for AccountsListWidget
             transactions: dashboardData.transactions || [],
             pendingBills: dashboardData.pendingBills || [],
             creditCardBills: dashboardData.creditCardBills || [],
@@ -228,7 +232,9 @@ export default function DraggableWidgetGrid({
             onEdit: dashboardData.onEdit,
             onDelete: dashboardData.onDelete,
             onAdd: dashboardData.onAdd,
-            onPay: dashboardData.onPay,
+            onPay: dashboardData.onPay || dashboardData.onPayBill,
+            onEditBill: dashboardData.onEditBill,
+            onDeleteBill: dashboardData.onDeleteBill,
             onLinks: dashboardData.onLinks, // e.g., onMarkAsPaid
 
             // Operations & Inventory specific

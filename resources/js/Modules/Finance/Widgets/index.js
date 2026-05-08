@@ -1,5 +1,6 @@
 // Finance Module - Widget Exports
 export { default as AccountFlowWidget } from './AccountFlowWidget';
+export { default as AccountsListWidget } from './AccountsListWidget';
 export { default as BalanceSummaryWidget } from './BalanceSummaryWidget';
 export { default as BillsWidget } from './BillsWidget';
 export { default as CreditSimulationWidget } from './CreditSimulationWidget';

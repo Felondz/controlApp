@@ -21,6 +21,14 @@ export const WIDGET_DEFINITIONS = {
         icon: 'CurrencyDollarIcon',
         defaultSize: 'small',
     },
+    finance_accounts: {
+        id: 'finance_accounts',
+        module: 'finance',
+        requiresAdmin: true,
+        titleKey: 'finance.accounts',
+        icon: 'BanknotesIcon',
+        defaultSize: 'large',
+    },
     finance_savings_goal: {
         id: 'finance_savings_goal',
         module: 'finance',
@@ -205,13 +213,14 @@ export const OVERVIEW_HIDDEN_DEFAULTS = [
 // Finance Dashboard Default Layout (All finance widgets active)
 export const FINANCE_DEFAULT_LAYOUT = [
     'finance_balance_summary',
-    'finance_savings_goal',
-    'finance_credit_simulation',
+    'finance_accounts',
     'finance_upcoming_obligations',
     'finance_bills',
     'finance_charts',
     'finance_account_flow',
     'finance_transactions',
+    'finance_savings_goal',
+    'finance_credit_simulation',
 ];
 
 // Operations Dashboard Default Layout

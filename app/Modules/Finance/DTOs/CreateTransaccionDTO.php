@@ -25,5 +25,8 @@ readonly class CreateTransaccionDTO
         public ?int $recurrenceDay = null,
         public ?int $cuotas = null,
         public ?int $taskId = null,
+        public ?string $numeroFactura = null,
+        public ?string $fechaEmision = null,
+        public ?string $fechaVencimiento = null,
     ) {}
 }
