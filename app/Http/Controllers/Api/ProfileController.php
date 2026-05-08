@@ -99,6 +99,7 @@ class ProfileController extends Controller
             Storage::disk('local')->delete($user->profile_photo_path);
         }
 
+        $file = $request->file('profile_photo');
         $path = (new \App\Actions\SanitizeImageAction())->execute($file, 'profile-photos', 'local');
         if (!$path) {
             return response()->json(['message' => 'Error al guardar la imagen'], 500);
