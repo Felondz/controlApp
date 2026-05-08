@@ -8,6 +8,18 @@ use App\Models\Proyecto;
 class ProyectoPolicy
 {
     /**
+     * Permisos globales para Super Admin.
+     */
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->is_super_admin) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
      * Determina si el usuario puede ver cualquier proyecto.
      * 
      * @param User $user

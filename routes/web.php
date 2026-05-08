@@ -8,6 +8,8 @@ use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 use App\Http\Controllers\ProjectMessageUiWebController;
 use App\Http\Controllers\ToolController;
+use App\Http\Controllers\ProfilePhotoController;
+use App\Http\Controllers\ProjectImageController;
 use App\Modules\Finance\Controllers\TransaccionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +43,8 @@ Route::get('/dashboard', [ProyectoUiWebController::class, 'dashboard'])
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/user/photo/{user}', [ProfilePhotoController::class, 'show'])->name('user.photo');
+    Route::get('/projects/{proyecto}/image', [ProjectImageController::class, 'show'])->name('projects.image');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Routes moved to project scope below

@@ -40,15 +40,10 @@ class ProfileController extends Controller
         if ($request->hasFile('profile_photo')) {
             // Delete old photo if exists
             if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
+                Storage::disk('local')->delete($user->profile_photo_path);
             }
 
-            // Store new photo with a sanitized, unique name
-            $file = $request->file('profile_photo');
-            $extension = $file->extension();
-            $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
-            
-            $path = $file->storeAs('profile-photos', $filename, 'public');
+            $path = (new \App\Actions\SanitizeImageAction())->execute($request->file('profile_photo'), 'profile-photos', 'local');
             $user->profile_photo_path = $path;
         }
 
@@ -69,8 +64,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->profile_photo_path) {
-            // Delete photo from storage
-            Storage::disk('public')->delete($user->profile_photo_path);
+            Storage::disk('local')->delete($user->profile_photo_path);
             
             // Clear from database
             $user->profile_photo_path = null;

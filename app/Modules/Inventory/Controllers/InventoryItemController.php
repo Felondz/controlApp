@@ -224,7 +224,7 @@ class InventoryItemController extends Controller
             abort(404);
         }
 
-        return response()->file(storage_path("app/private/" . $item->image_path));
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($item->image_path));
     }
 
     /**
