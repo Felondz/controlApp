@@ -224,7 +224,9 @@ class InventoryItemController extends Controller
             abort(404);
         }
 
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($item->image_path));
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($item->image_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     /**

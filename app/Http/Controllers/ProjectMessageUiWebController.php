@@ -354,6 +354,8 @@ class ProjectMessageUiWebController extends Controller
             abort(404);
         }
 
-        return response()->file(Storage::disk('local')->path($message->file_path));
+        return response()->file(Storage::disk('local')->path($message->file_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }

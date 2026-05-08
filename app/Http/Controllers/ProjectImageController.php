@@ -14,6 +14,8 @@ class ProjectImageController extends Controller
         if (!$proyecto->image_path || !Storage::disk("local")->exists($proyecto->image_path)) {
             abort(404);
         }
-        return response()->file(Storage::disk('local')->path($proyecto->image_path));
+        return response()->file(Storage::disk('local')->path($proyecto->image_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 }
