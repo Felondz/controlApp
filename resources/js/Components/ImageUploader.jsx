@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
 
 /**
@@ -35,6 +35,17 @@ export default function ImageUploader({
     className = '',
 }) {
     const fileInputRef = useRef(null);
+    const [localPreview, setLocalPreview] = useState(preview);
+
+    useEffect(() => {
+        if (value instanceof File) {
+            const objectUrl = URL.createObjectURL(value);
+            setLocalPreview(objectUrl);
+            return () => URL.revokeObjectURL(objectUrl);
+        } else {
+            setLocalPreview(preview);
+        }
+    }, [value, preview]);
 
     // Tamaños predefinidos
     const sizeClasses = {
@@ -79,9 +90,9 @@ export default function ImageUploader({
                         } transition-colors cursor-pointer group bg-gray-50 dark:bg-gray-900 ${shape === 'square' ? 'relative' : ''}`}
                     onClick={handleClick}
                 >
-                    {preview ? (
+                    {localPreview ? (
                         <img
-                            src={preview}
+                            src={localPreview}
                             alt="Preview"
                             className="w-full h-full object-cover"
                         />
@@ -96,14 +107,14 @@ export default function ImageUploader({
                     {shape === 'square' && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <span className="text-white text-xs font-medium">
-                                {preview ? 'Cambiar' : 'Subir'}
+                                {localPreview ? 'Cambiar' : 'Subir'}
                             </span>
                         </div>
                     )}
                 </div>
 
                 {/* Delete button for circle shape (profile style) */}
-                {shape === 'circle' && showDeleteButton && preview && onDelete && (
+                {shape === 'circle' && showDeleteButton && localPreview && onDelete && (
                     <button
                         type="button"
                         onClick={handleDelete}

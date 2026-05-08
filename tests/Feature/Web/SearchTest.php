@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Tests\Feature\Web;
 
@@ -14,7 +14,7 @@ class SearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_search_page_is_accessible()
+    public function test_search_page_is_accessible(): void
     {
         $user = User::factory()->create();
 
@@ -28,12 +28,12 @@ class SearchTest extends TestCase
             );
     }
 
-    public function test_search_returns_results()
+    public function test_search_returns_results(): void
     {
         // Use the 'collection' driver which runs synchronously in memory.
         Config::set('scout.driver', 'collection');
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['name' => 'Jane Doe']);
         $targetUser = User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
         $targetProject = Proyecto::factory()->create(['nombre' => 'Project Alpha', 'user_id' => $user->id]);
 
@@ -67,7 +67,7 @@ class SearchTest extends TestCase
             );
     }
 
-    public function test_models_have_correct_searchable_array()
+    public function test_models_have_correct_searchable_array(): void
     {
         $user = User::factory()->create(['name' => 'Test User', 'email' => 'test@test.com']);
         $array = $user->toSearchableArray();
@@ -86,7 +86,7 @@ class SearchTest extends TestCase
         $this->assertEquals('Test Project', $projectArray['nombre']);
     }
 
-    public function test_search_respects_project_access()
+    public function test_search_respects_project_access(): void
     {
         Config::set('scout.driver', 'collection');
 
