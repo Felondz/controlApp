@@ -71,7 +71,7 @@ class ProyectosApiTest extends TestCase
      */
     public function test_authenticated_user_can_create_proyecto_with_image(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $file = UploadedFile::fake()->image('project.jpg');
 
         $response = $this->actingAs($this->usuario)->post('/api/proyectos', [
@@ -86,7 +86,7 @@ class ProyectosApiTest extends TestCase
         $proyecto = Proyecto::where('nombre', 'Proyecto con Imagen')->first();
         $this->assertNotNull($proyecto->image_path);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($proyecto->image_path);
     }
 
@@ -251,7 +251,7 @@ class ProyectosApiTest extends TestCase
      */
     public function test_admin_can_update_project_image(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $file = UploadedFile::fake()->image('new-cover.jpg');
 
         // Usar POST con _method: PUT para simular la actualización con archivo
@@ -267,7 +267,7 @@ class ProyectosApiTest extends TestCase
         $this->proyecto->refresh();
         $this->assertNotNull($this->proyecto->image_path);
         /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $disk->assertExists($this->proyecto->image_path);
     }
 
