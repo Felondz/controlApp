@@ -60,7 +60,7 @@ class ProyectoController extends Controller
         if ($request->hasFile('image')) {
             /** @var \Illuminate\Http\UploadedFile $file */
             $file = $request->file('image');
-            $imagePath = $file->store('project-images', 'local');
+            $imagePath = $file->store('project-images', 'public');
         }
 
         $proyecto = Proyecto::create([
@@ -147,11 +147,11 @@ class ProyectoController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image if exists (optional but recommended)
             if ($proyecto->image_path) {
-                Storage::disk('local')->delete($proyecto->image_path);
+                Storage::disk('public')->delete($proyecto->image_path);
             }
             /** @var \Illuminate\Http\UploadedFile $file */
             $file = $request->file('image');
-            $imagePath = $file->store('project-images', 'local');
+            $imagePath = $file->store('project-images', 'public');
             if ($imagePath) {
                 $dataToUpdate['image_path'] = $imagePath;
             }

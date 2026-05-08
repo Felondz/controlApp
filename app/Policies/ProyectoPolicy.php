@@ -28,8 +28,8 @@ class ProyectoPolicy
      */
     public function view(User $user, Proyecto $proyecto): bool
     {
-        // Solo los miembros del proyecto pueden verlo
-        return $proyecto->miembros()->where('user_id', $user->id)->exists();
+        // El método esMiembroDe ya maneja la lógica de Super Admin y Propietario
+        return $user->esMiembroDe($proyecto);
     }
 
     /**

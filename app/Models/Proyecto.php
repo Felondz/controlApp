@@ -211,9 +211,9 @@ class Proyecto extends Model
             return $this->image_path;
         }
 
-        // Usar la ruta protegida del controlador para máxima seguridad.
-        // Esto garantiza que solo los miembros con permiso puedan ver la imagen.
-        return route('projects.image', $this->uuid);
+        // Usar asset() para generar una URL absoluta basada en la petición actual
+        // Esto es compatible con Docker, Sail, PTR y Apps Móviles (Expo)
+        return asset('storage/' . ltrim($this->image_path, '/'));
     }
 
     /**
