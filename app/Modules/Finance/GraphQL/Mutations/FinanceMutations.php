@@ -43,20 +43,20 @@ class FinanceMutations
         $dto = new CreateTransaccionDTO(
             proyecto: $proyecto,
             userId: (string) auth()->id(),
-            cuentaId: $args['cuenta_id'],
-            categoriaId: $args['categoria_id'],
+            cuentaId: (string) $args['cuenta_id'],
+            categoriaId: (int) $args['categoria_id'],
             monto: (float) $args['monto'],
             fecha: (string) $args['fecha'],
             titulo: $args['titulo'] ?? null,
             descripcion: $args['descripcion'] ?? null,
             notas: $args['notas'] ?? null,
             status: $args['status'] ?? 'completed',
-            cuentaPredeterminadaId: isset($args['cuenta_predeterminada_id']) ? $args['cuenta_predeterminada_id'] : null,
+            cuentaPredeterminadaId: isset($args['cuenta_predeterminada_id']) ? (int) $args['cuenta_predeterminada_id'] : null,
             debitoAutomatico: (bool) ($args['debito_automatico'] ?? false),
             isRecurring: (bool) ($args['is_recurring'] ?? false),
-            recurrenceDay: isset($args['recurrence_day']) ? $args['recurrence_day'] : null,
-            cuotas: isset($args['cuotas']) ? $args['cuotas'] : null,
-            taskId: isset($args['task_id']) ? $args['task_id'] : null,
+            recurrenceDay: isset($args['recurrence_day']) ? (int) $args['recurrence_day'] : null,
+            cuotas: isset($args['cuotas']) ? (int) $args['cuotas'] : null,
+            taskId: isset($args['task_id']) ? (int) $args['task_id'] : null,
         );
 
         return app(CreateTransaccionAction::class)->execute($dto);
