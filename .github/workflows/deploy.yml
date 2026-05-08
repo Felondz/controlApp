@@ -159,6 +159,11 @@ jobs:
           echo 'MAIL_ENCRYPTION=tls' >> .env
           echo 'MAIL_FROM_ADDRESS=no-reply@controlapp.site' >> .env
           echo 'MAIL_FROM_NAME="${{ env.APP_NAME }} (${{ env.IMAGE_TAG }})"' >> .env
+          
+          # --- GOOGLE OAUTH ---
+          echo 'GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}' >> .env
+          echo 'GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}' >> .env
+          echo 'GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}' >> .env
 
       - name: Deploy and Optimize
         env:

@@ -79,7 +79,7 @@ class CreateTransaccionAction
             'recurrence_interval' => $recurrenceInterval,
             'recurrence_day' => $dto->recurrenceDay,
             'next_occurrence' => $nextOccurrence,
-            'cuotas' => $dto->cuotas,
+            'cuotas' => $dto->cuotas ?? 1,
         ]);
 
         // Update Account Balance
