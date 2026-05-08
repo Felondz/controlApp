@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -9,7 +9,7 @@ use Inertia\Inertia;
 
 class SearchController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): \Inertia\Response
     {
         $query = $request->input('query');
 
@@ -30,7 +30,7 @@ class SearchController extends Controller
                 $user->append('profile_photo_url');
             });
 
-            // Get IDs of projects where the user is an ADMIN (Owner or Admin role)
+            /** @var \App\Models\User $user */
             $user = auth()->user();
             $adminProjectIds = $user->proyectosPersonales()->pluck('id')
                 ->merge($user->proyectos()->wherePivot('rol', 'admin')->pluck('proyectos.id'))
@@ -60,6 +60,7 @@ class SearchController extends Controller
             });
 
             // SQL Fallback for Projects
+            /** @var \App\Models\User $user */
             $user = auth()->user();
             $adminProjectIds = $user->proyectosPersonales()->pluck('id')
                 ->merge($user->proyectos()->wherePivot('rol', 'admin')->pluck('proyectos.id'))
