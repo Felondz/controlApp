@@ -18,10 +18,10 @@ extend type Query {
     tasks(
         project_id: ID! @eq
         status: String @eq
-    ): [Task!]! @all @guard @auth
+    ): [Task!]! @all @guard
     
     "Obtener una tarea específica"
-    task(id: ID! @eq): Task @find @guard @auth
+    task(id: ID! @eq): Task @find @guard
 }
 
 extend type Mutation {
@@ -34,7 +34,7 @@ extend type Mutation {
         priority: String
         due_date: String
         assigned_to: ID
-    ): Task! @create @guard @auth
+    ): Task! @create(model: "Task") @guard
 
     "Actualizar una tarea"
     updateTask(
@@ -45,8 +45,8 @@ extend type Mutation {
         priority: String
         due_date: String
         assigned_to: ID
-    ): Task! @update @guard @auth
+    ): Task! @update(model: "Task") @guard
 
     "Eliminar una tarea"
-    deleteTask(id: ID!): Boolean! @delete @guard @auth
+    deleteTask(id: ID!): Boolean! @delete(model: "Task") @guard
 }

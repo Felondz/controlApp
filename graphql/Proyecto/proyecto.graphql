@@ -22,8 +22,8 @@ type Proyecto {
 
 extend type Query {
     "Listar los proyectos del usuario autenticado"
-    projects: [Proyecto!]! @all @guard @auth
+    projects: [Proyecto!]! @all @guard
     
     "Obtener un proyecto específico por ID"
-    project(id: ID! @eq): Proyecto @find @guard @auth
+    project(id: ID! @eq): Proyecto @find @guard
 }

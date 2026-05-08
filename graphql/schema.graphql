@@ -89,5 +89,5 @@ type Mutation {
     "Mark an interactive tour as completed for the current user."
     completeTour(
         tour: String!
-    ): User! @field(resolver: "App\\GraphQL\\Mutations\\CompleteTour") @auth
+    ): User! @field(resolver: "App\\GraphQL\\Mutations\\CompleteTour") @guard
 }
