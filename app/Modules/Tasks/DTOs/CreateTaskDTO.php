@@ -3,6 +3,7 @@
 namespace App\Modules\Tasks\DTOs;
 
 use App\Models\Proyecto;
+use Illuminate\Http\UploadedFile;
 
 readonly class CreateTaskDTO
 {
@@ -19,5 +20,6 @@ readonly class CreateTaskDTO
         public ?array $assignees = null,
         public ?string $relatedType = null,
         public ?string $relatedId = null,
+        public ?UploadedFile $image = null,
     ) {}
 }

@@ -5,9 +5,12 @@ namespace App\Modules\Tasks\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Tasks\Models\Task;
 use App\Models\Proyecto;
+use App\Modules\Tasks\Actions\CreateTaskAction;
+use App\Modules\Tasks\Actions\UpdateTaskAction;
+use App\Modules\Tasks\DTOs\CreateTaskDTO;
+use App\Modules\Tasks\DTOs\UpdateTaskDTO;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -117,7 +120,7 @@ class TaskController extends Controller
      * Create a new task in the project.
      * Supports both JSON and HTML responses.
      */
-    public function store(Request $request, Proyecto $proyecto): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+    public function store(Request $request, Proyecto $proyecto, CreateTaskAction $action): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->authorize('addTask', $proyecto);
 
@@ -131,14 +134,23 @@ class TaskController extends Controller
             'assignees.*' => 'exists:users,id',
             'related_type' => 'nullable|string|max:255',
             'related_id' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:3072',
         ]);
 
-        /** @var \App\Modules\Tasks\Models\Task $task */
-        $task = $proyecto->tasks()->create($validated);
+        $dto = new CreateTaskDTO(
+            proyecto: $proyecto,
+            title: $validated['title'],
+            status: $validated['status'],
+            priority: $validated['priority'],
+            description: $validated['description'] ?? null,
+            dueDate: $validated['due_date'] ?? null,
+            assignees: $validated['assignees'] ?? null,
+            relatedType: $validated['related_type'] ?? null,
+            relatedId: $validated['related_id'] ?? null,
+            image: $request->file('image')
+        );
 
-        if (!empty($validated['assignees'])) {
-            $task->users()->sync($validated['assignees']);
-        }
+        $task = $action->execute($dto);
 
         if ($request->wantsJson()) {
             return response()->json($task, 201);
@@ -153,7 +165,7 @@ class TaskController extends Controller
      * Update an existing task.
      * Supports both JSON and HTML responses.
      */
-    public function update(Request $request, Proyecto $proyecto, Task $task): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+    public function update(Request $request, Proyecto $proyecto, Task $task, UpdateTaskAction $action): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $this->authorize('updateTask', $proyecto);
 
@@ -167,19 +179,49 @@ class TaskController extends Controller
             'assignees.*' => 'exists:users,id',
             'related_type' => 'nullable|string|max:255',
             'related_id' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:3072',
         ]);
 
-        $task->update($validated);
+        $dto = new UpdateTaskDTO(
+            task: $task,
+            data: $validated,
+            assignees: $validated['assignees'] ?? null,
+            image: $request->file('image')
+        );
 
-        if (isset($validated['assignees'])) {
-            $task->users()->sync($validated['assignees']);
-        }
+        $task = $action->execute($dto);
 
         if ($request->wantsJson()) {
             return response()->json($task, 200);
         }
 
         return redirect()->back()->with('success', 'Task updated successfully.');
+    }
+
+    /**
+     * Serve the task's image securely.
+     */
+    public function image(Proyecto $proyecto, Task $task): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        // Security check: task must belong to the project
+        if ((int) $task->project_id !== (int) $proyecto->id) {
+            abort(404);
+        }
+
+        // Authorization check: user must be a member of the project
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        if (!$user->esMiembroDe($proyecto)) {
+            abort(403);
+        }
+
+        if (!$task->image_path || !\Illuminate\Support\Facades\Storage::disk("local")->exists($task->image_path)) {
+            abort(404);
+        }
+
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($task->image_path), [
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     /**

@@ -27,6 +27,7 @@ class FinanceEventListener
             return; // Transaction not linked to a task
         }
 
+        /** @var Task|null $task */
         $task = Task::find($taskId);
 
         if (!$task || !$task->is_financial) {

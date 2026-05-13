@@ -26,7 +26,7 @@ class TaskCompleted extends BaseModuleEvent
             'amount' => $task->amount,
             'category_id' => $task->category_id,
             'completed_at' => now()->toIso8601String(),
-        ], $task->project_id);
+        ], (string) $task->project_id);
     }
 
     /**

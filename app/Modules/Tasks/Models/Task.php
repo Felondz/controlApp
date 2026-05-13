@@ -13,12 +13,14 @@ use App\Models\User;
 use App\Modules\Finance\Models\Categoria;
 
 /**
- * @property string $id
- * @property string $project_id
+ * @property int $id
+ * @property string $uuid
+ * @property int $project_id
  * @property string $title
  * @property string|null $description
  * @property string $status
  * @property string $priority
+ * @property string|null $image_path
  * @property \Carbon\Carbon|null $due_date
  * @property \Carbon\Carbon|null $completed_at
  * 
@@ -34,6 +36,8 @@ use App\Modules\Finance\Models\Categoria;
  * @property int|null $category_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * 
+ * @property-read string|null $image_url
  */
 class Task extends Model
 {
@@ -75,11 +79,32 @@ class Task extends Model
         'assigned_to',
         'related_type',
         'related_id',
+        'image_path',
     ];
 
     protected $casts = [
         'due_date' => 'date',
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image_path) {
+            return null;
+        }
+
+        // Si ya es una URL absoluta, devolverla tal cual
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return $this->image_path;
+        }
+
+        // Usar la ruta protegida para asegurar la privacidad de los activos de la empresa
+        return route('api.proyectos.tasks.image', [
+            'proyecto' => $this->project_id,
+            'task' => $this->uuid
+        ]);
+    }
 
     /**
      * @return BelongsTo<Proyecto, $this>

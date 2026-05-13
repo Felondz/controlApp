@@ -97,7 +97,7 @@ class TasksModule extends AbstractModule
      * Hook called when module is installed.
      *
      * @param Proyecto $project
-     * @param array $config
+     * @param array<string, mixed> $config
      * @return void
      */
     protected function onInstall(Proyecto $project, array $config): void

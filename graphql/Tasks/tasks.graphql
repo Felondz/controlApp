@@ -8,6 +8,7 @@ type Task {
     priority: String!
     due_date: DateTime
     assigned_to: ID
+    image_url: String
     assignee: User @belongsTo
     created_at: DateTime!
     updated_at: DateTime!
