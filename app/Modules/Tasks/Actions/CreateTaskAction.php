@@ -10,6 +10,12 @@ class CreateTaskAction
     public function execute(CreateTaskDTO $dto): Task
     {
         $project = $dto->proyecto;
+        
+        $imagePath = null;
+        if ($dto->image) {
+            $imagePath = (new \App\Actions\SanitizeImageAction())->execute($dto->image, 'tasks/' . $project->id, 'local');
+        }
+
         $data = [
             'title' => $dto->title,
             'project_id' => $project->id, 
@@ -20,13 +26,14 @@ class CreateTaskAction
             'description' => $dto->description,
             'status' => $dto->status,
             'priority' => $dto->priority,
+            'image_path' => $imagePath,
         ];
 
         /** @var \App\Modules\Tasks\Models\Task $task */
         $task = $project->tasks()->create($data);
 
-        // Map assigned_user_ids or assignees from DTO if they exist
-        $assignees = $dto->assigned_user_ids ?? $dto->assignees ?? [];
+        // Map assignees from DTO if they exist
+        $assignees = $dto->assignees ?? [];
         if (!empty($assignees)) {
             $task->users()->sync($assignees);
         }

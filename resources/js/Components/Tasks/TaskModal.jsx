@@ -8,67 +8,71 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import DangerButton from '@/Components/DangerButton';
 import { TrashIcon, InformationCircleIcon } from '@/Components/Icons';
 import { useEffect } from 'react';
+import ImageUploader from '@/Components/ImageUploader';
 
 export default function TaskModal({ show, onClose, task, project, categories = [], onSuccess }) {
     const { t } = useTranslate();
 
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         title: '',
         description: '',
         status: 'todo',
         priority: 'medium',
         due_date: '',
-        assignees: [], // Changed from assigned_to to array
+        assignees: [],
+        image: null,
+        _method: 'POST',
     });
 
     useEffect(() => {
-        if (task) {
-            setData({
-                title: task.title,
-                description: task.description || '',
-                status: task.status,
-                priority: task.priority,
-                due_date: task.due_date || '',
-                assignees: task.users ? task.users.map(u => u.id) : (task.assigned_to ? [task.assigned_to] : []),
-            });
-        } else {
-            setData({
-                title: '',
-                description: '',
-                status: 'todo',
-                priority: 'medium',
-                due_date: '',
-                assignees: [], // Changed from assigned_to to array
-            });
+        if (show) {
+            clearErrors();
+            if (task) {
+                setData({
+                    title: task.title,
+                    description: task.description || '',
+                    status: task.status,
+                    priority: task.priority,
+                    due_date: task.due_date || '',
+                    assignees: task.users ? task.users.map(u => u.id) : (task.assigned_to ? [task.assigned_to] : []),
+                    image: null,
+                    _method: 'PUT',
+                });
+            } else {
+                setData({
+                    title: '',
+                    description: '',
+                    status: 'todo',
+                    priority: 'medium',
+                    due_date: '',
+                    assignees: [],
+                    image: null,
+                    _method: 'POST',
+                });
+            }
         }
     }, [task, show]);
 
     const submit = (e) => {
         e.preventDefault();
 
-        // Transform empty strings to null for nullable fields
-        const formData = {
-            ...data,
-            assignees: data.assignees,
-            due_date: data.due_date || null,
-        };
-
         const options = {
             onSuccess: () => {
                 reset();
                 onSuccess();
             },
-            onError: (errors) => {
-                if (Object.keys(errors).length > 0) {
-                    alert(Object.values(errors)[0]);
+            onError: (errs) => {
+                if (Object.keys(errs).length > 0) {
+                    // Let the inline error messages handle it
                 }
-            }
+            },
+            forceFormData: true,
         };
 
         if (task) {
-            put(route('mis-proyectos.tasks.update', { proyecto: project.uuid, task: task.uuid }), { ...options, data: formData });
+            post(route('mis-proyectos.tasks.update', { proyecto: project.uuid, task: task.uuid }), options);
         } else {
-            post(route('mis-proyectos.tasks.store', { proyecto: project.uuid }), { ...options, data: formData });
+            post(route('mis-proyectos.tasks.store', { proyecto: project.uuid }), options);
         }
     };
 
@@ -84,6 +88,22 @@ export default function TaskModal({ show, onClose, task, project, categories = [
 
                 <form onSubmit={submit} className="flex flex-col overflow-hidden">
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin space-y-6 pb-6">
+                        
+                        {/* Image Uploader - Highlighted at top */}
+                        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <ImageUploader
+                                label={t('tasks.image', 'Imagen / Evidencia')}
+                                value={data.image}
+                                preview={task?.image_url}
+                                onChange={(file) => setData('image', file)}
+                                error={errors.image}
+                                hint={t('tasks.image_hint', 'Sube una foto como evidencia o referencia')}
+                                shape="square"
+                                size="lg"
+                                className="items-center"
+                            />
+                        </div>
+
                         {/* Title */}
                         <div>
                             <InputLabel htmlFor="title" value={t('tasks.title', 'Título')} />
@@ -93,7 +113,6 @@ export default function TaskModal({ show, onClose, task, project, categories = [
                                 onChange={(e) => setData('title', e.target.value)}
                                 className="mt-1 block w-full"
                                 required
-                                autoFocus
                             />
                             {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
                         </div>

@@ -3,6 +3,7 @@
 namespace App\Modules\Tasks\DTOs;
 
 use App\Modules\Tasks\Models\Task;
+use Illuminate\Http\UploadedFile;
 
 readonly class UpdateTaskDTO
 {
@@ -14,5 +15,6 @@ readonly class UpdateTaskDTO
         public Task $task,
         public array $data,
         public ?array $assignees = null,
+        public ?UploadedFile $image = null,
     ) {}
 }

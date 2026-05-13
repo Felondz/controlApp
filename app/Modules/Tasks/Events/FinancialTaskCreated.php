@@ -25,7 +25,7 @@ class FinancialTaskCreated extends BaseModuleEvent
             'amount' => $task->amount,
             'category_id' => $task->category_id,
             'due_date' => $task->due_date,
-        ], $task->project_id);
+        ], (string) $task->project_id);
     }
 
     /**

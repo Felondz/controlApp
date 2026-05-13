@@ -29,7 +29,7 @@ class TaskCreated extends BaseModuleEvent
             'is_financial' => $task->is_financial,
             'amount' => $task->amount,
             'category_id' => $task->category_id,
-        ], $task->project_id);
+        ], (string) $task->project_id);
     }
 
     /**
