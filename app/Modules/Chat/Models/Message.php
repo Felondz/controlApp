@@ -90,8 +90,8 @@ class Message extends Model
 
         // Usar la ruta protegida para asegurar la privacidad de los archivos compartidos
         return route('project.messages.file', [
-            'mis_proyecto' => $this->proyecto_id,
-            'message' => $this->id
+            'proyecto' => $this->proyecto->uuid ?? $this->proyecto_id,
+            'message' => $this->uuid
         ]);
     }
 

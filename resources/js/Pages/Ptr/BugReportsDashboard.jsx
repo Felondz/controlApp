@@ -7,6 +7,7 @@ import SelectInput from '@/Components/SelectInput';
 import TextArea from '@/Components/TextArea';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
+import MediaGallery from '@/Components/Common/MediaGallery';
 import {
     BugIcon, ChevronDownIcon, CheckCircleIcon, XCircleIcon,
     GlobeAltIcon, CogIcon, InfoIcon, ExclamationTriangleIcon, ClockIcon,
@@ -228,6 +229,13 @@ export default function BugReportsDashboard({ reports, stats, filters }) {
                                                         className="max-w-sm rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:opacity-90 transition"
                                                         onClick={() => window.open(route('ptr.bug-reports.screenshot', { bugReport: report.uuid }), '_blank')}
                                                     />
+                                                </div>
+                                            )}
+
+                                            {/* Gallery - Multiple Images */}
+                                            {report.images && report.images.length > 0 && (
+                                                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                                                    <MediaGallery images={report.images} />
                                                 </div>
                                             )}
 

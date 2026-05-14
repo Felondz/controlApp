@@ -323,6 +323,16 @@
         "delete": "Delete Category"
     },
     "common": {
+        "media_gallery": "Media Gallery",
+        "unknown_user": "Unknown user",
+        "comments": "Comments and Activity",
+        "no_comments": "No comments yet.",
+        "add_comment_placeholder": "Write a comment or update...",
+        "add_comment_mention_placeholder": "Write a comment... use @ to mention",
+        "mention_member": "Mention member",
+        "sending": "Sending...",
+        "post_comment": "Post",
+        "images": "Images",
         "documentation": "Guides",
         "security_note_title": "Security Note",
         "security_note_desc": "Detailed technical documentation is restricted to verified collaborators.",
@@ -1172,7 +1182,9 @@
             "unread_count": ":count new messages",
             "view_all": "View notification center",
             "notifications": "Notifications",
-            "new_messages": "new messages"
+            "new_messages": "new messages",
+            "mentions": "Mentions",
+            "mentioned_you": "mentioned you"
         },
         "transactions": {
             "title": "Transactions",

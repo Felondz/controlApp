@@ -242,6 +242,16 @@
         "delete": "Eliminar Categoría"
     },
     "common": {
+        "media_gallery": "Galería Multimedia",
+        "unknown_user": "Usuario desconocido",
+        "comments": "Comentarios y Actividad",
+        "no_comments": "No hay comentarios aún.",
+        "add_comment_placeholder": "Escribe un comentario o actualización...",
+        "add_comment_mention_placeholder": "Escribe un comentario... usa @ para mencionar",
+        "mention_member": "Mencionar miembro",
+        "sending": "Enviando...",
+        "post_comment": "Publicar",
+        "images": "Imágenes",
         "documentation": "Guías",
         "security_note_title": "Nota de Seguridad",
         "security_note_desc": "La documentación técnica detallada está restringida a colaboradores verificados.",
@@ -871,6 +881,11 @@
         "no_users_found": "No se encontraron usuarios"
     },
     "tasks": {
+        "comments": "Comentarios y Actividad",
+        "no_comments": "No hay comentarios aún.",
+        "add_comment_placeholder": "Escribe un comentario o actualización...",
+        "post_comment": "Publicar",
+        "add_images": "Añadir Imágenes / Evidencia",
         "pending": "Tareas Pendientes",
         "due_today": "vencen hoy",
         "board": "Tablero de Tareas",
@@ -1172,7 +1187,9 @@
             "unread_count": ":count nuevos mensajes",
             "view_all": "Ver centro de mensajes",
             "notifications": "Notificaciones",
-            "new_messages": "mensajes nuevos"
+            "new_messages": "mensajes nuevos",
+            "mentions": "Menciones",
+            "mentioned_you": "te mencionó"
         },
         "transactions": {
             "title": "Transacciones",
@@ -1356,6 +1373,7 @@
         "checkbox_required": "Debes marcar esta casilla para continuar"
     },
     "bug_reporter": {
+        "additional_images": "Imágenes Adicionales",
         "title": "Reportar un Bug",
         "floating_label": "Bug Tracker",
         "dashboard_title": "Reportes de Bugs",
@@ -1596,6 +1614,7 @@
     "Términos de Servicio": "Términos de Servicio",
     "Contacto": "Contacto",
     "bug_reporter": {
+        "additional_images": "Imágenes Adicionales",
         "title": "Reportar un Bug",
         "dashboard_title": "Reportes de Errores",
         "description": "Descripción",

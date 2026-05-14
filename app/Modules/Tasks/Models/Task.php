@@ -27,6 +27,7 @@ use App\Modules\Finance\Models\Categoria;
  * @property int $pending Aggregate property
  * @property int $due_today Aggregate property
  * 
+ * @property int|null $user_id
  * @property int|null $assigned_to
  * @property int|null $assignee_id
  * @property string|null $related_type
@@ -71,6 +72,8 @@ class Task extends Model
 
     protected $fillable = [
         'project_id',
+        'user_id',
+        'task_number',
         'title',
         'description',
         'status',
@@ -84,9 +87,36 @@ class Task extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'task_number' => 'integer',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'task_id_string'];
+
+    protected static function booted()
+    {
+        static::creating(function ($task) {
+            if (!$task->task_number) {
+                $maxNumber = static::where('project_id', $task->project_id)->max('task_number');
+                $task->task_number = ($maxNumber ?? 0) + 1;
+            }
+        });
+    }
+
+    public function getTaskIdStringAttribute(): string
+    {
+        if (!$this->task_number) {
+            return '';
+        }
+
+        $prefix = 'TASK';
+        if ($this->proyecto && $this->proyecto->nombre) {
+            // Get first 3-4 letters of project name, or use 'PROJ'
+            $cleanName = preg_replace('/[^A-Za-z]/', '', $this->proyecto->nombre);
+            $prefix = strtoupper(substr($cleanName ?: 'PROJ', 0, 3));
+        }
+        
+        return "{$prefix}-{$this->task_number}";
+    }
 
     public function getImageUrlAttribute(): ?string
     {
@@ -100,10 +130,23 @@ class Task extends Model
         }
 
         // Usar la ruta protegida para asegurar la privacidad de los activos de la empresa
-        return route('api.proyectos.tasks.image', [
-            'proyecto' => $this->project_id,
+        // Load the proyecto relationship to get its UUID for route binding
+        $this->loadMissing('proyecto');
+        /** @var \App\Models\Proyecto|null $proyecto */
+        $proyecto = $this->proyecto;
+        
+        return route('mis-proyectos.tasks.image', [
+            'proyecto' => $proyecto?->uuid ?? $this->project_id,
             'task' => $this->uuid
         ]);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
@@ -137,6 +180,23 @@ class Task extends Model
     {
         return $this->belongsTo(Categoria::class, 'categoria_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TaskImage, $this>
+     */
+    public function images(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskImage::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TaskComment, $this>
+     */
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskComment::class)->latest();
+    }
+
     /**
      * Get the parent related model (LoteProduccion, SafetyIssue, etc).
      * @return MorphTo<Model, $this>

@@ -37,7 +37,7 @@ export default function DashboardSettingsModal({ show, onClose, project }) {
     const handleSave = async () => {
         setProcessing(true);
         try {
-            await axios.put(route('proyectos.update', project.uuid), {
+            await axios.put(route('mis-proyectos.update', { proyecto: project.uuid }), {
                 ...project,
                 settings: {
                     ...project.settings,

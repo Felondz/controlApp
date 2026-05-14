@@ -6,6 +6,9 @@ use Illuminate\Http\UploadedFile;
 
 readonly class CreateBugReportDTO
 {
+    /**
+     * @param array<\Illuminate\Http\UploadedFile>|null $images
+     */
     public function __construct(
         public string $userId,
         public string $category,
@@ -16,5 +19,6 @@ readonly class CreateBugReportDTO
         public string $platform = 'web',
         public string $severity = 'medium',
         public ?UploadedFile $screenshot = null,
+        public ?array $images = null,
     ) {}
 }

@@ -26,7 +26,7 @@ export default function TransferOwnershipModal({ show, onClose, project, members
             return;
         }
 
-        post(route('project.ownership.transfer', project.uuid), {
+        post(route('project.ownership.transfer', { proyecto: project.uuid }), {
             preserveScroll: true,
             onSuccess: () => {
                 reset();

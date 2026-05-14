@@ -39,7 +39,13 @@ export default function InventoryItemsWidget({
                 return acc;
             }, {});
 
-            router.get(route(route.current()), cleanParams, {
+            const projectParams = {
+                proyecto: project.uuid,
+                mis_proyecto: project.uuid,
+                project: project.uuid
+            };
+
+            router.get(route(route.current(), projectParams), cleanParams, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,

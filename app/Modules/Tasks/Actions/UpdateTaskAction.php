@@ -24,6 +24,14 @@ class UpdateTaskAction
 
         $dto->task->update($data);
 
+        // Multiple images
+        if (!empty($dto->images)) {
+            foreach ($dto->images as $img) {
+                $path = (new \App\Actions\SanitizeImageAction())->execute($img, 'tasks/' . $dto->task->project_id . '/gallery', 'local');
+                $dto->task->images()->create(['image_path' => $path]);
+            }
+        }
+
         if ($dto->assignees !== null) {
             $dto->task->users()->sync($dto->assignees);
         }

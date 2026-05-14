@@ -173,7 +173,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                     <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                                         <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
                                         <InboxIcon className={`h-6 w-6 ${iconClasses}`} />
-                                        {(user.unread_messages_count > 0 || user.pending_invitations_count > 0) && (
+                                        {(user.unread_messages_count > 0 || user.pending_invitations_count > 0 || (user.db_notifications_count || 0) > 0) && (
                                             <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
                                         )}
                                     </button>
@@ -184,9 +184,9 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                                             {t('inbox.notifications', 'Notificaciones')}
                                         </span>
-                                        {(user.unread_messages_count + user.pending_invitations_count) > 0 && (
+                                        {(user.unread_messages_count + user.pending_invitations_count + (user.db_notifications_count || 0)) > 0 && (
                                             <span className="text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400 px-1.5 py-0.5 rounded-full font-bold">
-                                                {user.unread_messages_count + user.pending_invitations_count}
+                                                {user.unread_messages_count + user.pending_invitations_count + (user.db_notifications_count || 0)}
                                             </span>
                                         )}
                                     </div>
@@ -222,10 +222,43 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                             </div>
                                         )}
 
+                                        {/* Task Mentions / Database Notifications Section */}
+                                        {user.db_notifications && user.db_notifications.length > 0 && (
+                                            <div className="bg-blue-50/30 dark:bg-blue-900/10">
+                                                <div className="px-4 py-1 text-[10px] uppercase font-bold text-blue-600 dark:text-blue-500 tracking-wider">
+                                                    {t('inbox.mentions', 'Menciones')}
+                                                </div>
+                                                {user.db_notifications.map((notif) => (
+                                                    <Dropdown.Link
+                                                        key={`notif-${notif.id}`}
+                                                        href={notif.data.project_uuid
+                                                            ? route('mis-proyectos.show', { proyecto: notif.data.project_uuid }) + '?tab=tasks&task=' + notif.data.task_uuid
+                                                            : route('dashboard')
+                                                        }
+                                                        className="flex items-center px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-b border-blue-100/50 dark:border-blue-900/20"
+                                                    >
+                                                        <div className="shrink-0 mr-3">
+                                                            <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-sm">
+                                                                @
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                                {notif.data.task_id_string} — {notif.data.task_title}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                {notif.data.mentioned_by_name} {t('inbox.mentioned_you', 'te mencionó')} · {notif.data.project_name}
+                                                            </p>
+                                                        </div>
+                                                    </Dropdown.Link>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         {/* Chat Messages Section */}
                                         {user.unread_projects && user.unread_projects.length > 0 ? (
                                             <div>
-                                                {user.pending_invitations?.length > 0 && (
+                                                {(user.pending_invitations?.length > 0 || user.db_notifications?.length > 0) && (
                                                     <div className="px-4 py-1 text-[10px] uppercase font-bold text-primary-600 dark:text-primary-500 tracking-wider border-t border-gray-100 dark:border-gray-700">
                                                         {t('modules.chat.title', 'Mensajes de Chat')}
                                                     </div>
@@ -233,7 +266,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                                 {user.unread_projects.map((project) => (
                                                     <Dropdown.Link
                                                         key={`chat-${project.id}`}
-                                                        href={route('mis-proyectos.chat', project.uuid)}
+                                                        href={route('mis-proyectos.chat', { proyecto: project.uuid })}
                                                         className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                                                     >
                                                         <div className="shrink-0 mr-3">
@@ -262,7 +295,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                                 ))}
                                             </div>
                                         ) : (
-                                            (!user.pending_invitations || user.pending_invitations.length === 0) && (
+                                            (!user.pending_invitations || user.pending_invitations.length === 0) && (!user.db_notifications || user.db_notifications.length === 0) && (
                                                 <div className="px-4 py-10 text-center flex flex-col items-center">
                                                     <div className="h-12 w-12 rounded-full bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3">
                                                         <InboxIcon className="h-6 w-6 text-gray-300 dark:text-gray-600" />
@@ -399,7 +432,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                 >
                                     <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
                                     <InboxIcon className="h-6 w-6 transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300" />
-                                    {user.unread_messages_count > 0 && (
+                                    {(user.unread_messages_count > 0 || (user.db_notifications_count || 0) > 0) && (
                                         <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
                                     )}
                                 </Link>

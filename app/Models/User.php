@@ -22,6 +22,7 @@ use App\Notifications\VerificacionEmailNotification;
  * @property string|null $global_theme
  * @property array|null $enabled_tools
  * @property array|null $settings
+ * @property string $uuid
  * @property bool $is_ai_enabled
  * @property string|null $remember_token
  * @property string $locale
@@ -322,7 +323,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Efficiently fetch unread project data manualy (avoiding global appends).
      * Returns struct compatible with frontend expectation.
      *
-     * @return array{unread_projects: array<int, mixed>, unread_messages_count: int, pending_invitations: \Illuminate\Support\Collection<int, mixed>, pending_invitations_count: int}
+     * @return array{unread_projects: array<int, mixed>, unread_messages_count: int, pending_invitations: \Illuminate\Support\Collection<int, mixed>, pending_invitations_count: int, db_notifications: \Illuminate\Support\Collection<int, mixed>, db_notifications_count: int}
      */
     public function getUnreadData(): array
     {
@@ -340,7 +341,19 @@ class User extends Authenticatable implements MustVerifyEmail
                 'unread_projects' => [], 
                 'unread_messages_count' => 0,
                 'pending_invitations' => collect([]),
-                'pending_invitations_count' => 0
+                'pending_invitations_count' => 0,
+                'db_notifications' => $this->unreadNotifications()
+                    ->latest()
+                    ->limit(20)
+                    ->get()
+                    ->map(fn(\Illuminate\Notifications\DatabaseNotification $n) => [
+                        'id' => $n->id,
+                        'type' => $n->data['type'] ?? 'general',
+                        'data' => $n->data,
+                        'read_at' => $n->read_at,
+                        'created_at' => $n->created_at?->toIso8601String(),
+                    ]),
+                'db_notifications_count' => (int) $this->unreadNotifications()->count(),
             ];
         }
 
@@ -377,7 +390,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if ($pivot instanceof \Illuminate\Database\Eloquent\Relations\Pivot) {
                 /** @phpstan-ignore-next-line */
                 $lastReadAt = $pivot->last_read_at;
-            } else if ($proyecto->user_id === $userId) {
+            } else if ((int) $proyecto->user_id === $userId) {
                 // Owner might not have pivot? Check logic. 
                 // Old code queried DB manually. Let's assume owner sees all if no pivot tracking?
                 // Or try to find pivot in relation?
@@ -450,6 +463,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'unread_messages_count' => (int)$totalUnreadCount,
             'pending_invitations' => $pendingInvitations,
             'pending_invitations_count' => $pendingInvitations->count(),
+            'db_notifications' => $this->unreadNotifications()
+                ->latest()
+                ->limit(20)
+                ->get()
+                ->map(fn(\Illuminate\Notifications\DatabaseNotification $n) => [
+                    'id' => $n->id,
+                    'type' => $n->data['type'] ?? 'general',
+                    'data' => $n->data,
+                    'read_at' => $n->read_at,
+                    'created_at' => $n->created_at?->toIso8601String(),
+                ]),
+            'db_notifications_count' => (int) $this->unreadNotifications()->count(),
         ];
     }
 

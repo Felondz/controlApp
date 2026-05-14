@@ -39,7 +39,7 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get(route('api.proyectos.marketplace.index', project.uuid));
+            const response = await axios.get(route('api.proyectos.marketplace.index', { proyecto: project.uuid }));
             setModules(response.data);
         } catch (error) {
             console.error('Error fetching modules:', error);
@@ -53,7 +53,7 @@ export default function ModuleMarketplace({ project, onModuleChange }) {
         setProcessing(moduleId);
 
         try {
-            const response = await axios.post(route('api.proyectos.marketplace.toggle', [project.uuid, moduleId]), {
+            const response = await axios.post(route('api.proyectos.marketplace.toggle', { proyecto: project.uuid, module: moduleId }), {
                 enable: !currentStatus
             });
 

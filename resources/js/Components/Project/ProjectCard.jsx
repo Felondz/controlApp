@@ -148,7 +148,7 @@ export default function ProjectCard(props) {
                 )}
 
                 <Link
-                    href={route('mis-proyectos.show', { mis_proyecto: proyecto.uuid })}
+                    href={route('mis-proyectos.show', { proyecto: proyecto.uuid })}
                     className="p-4 sm:p-6 flex-1 flex flex-col cursor-pointer"
                 >
                     {/* Header */}

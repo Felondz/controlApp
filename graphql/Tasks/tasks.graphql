@@ -2,6 +2,8 @@ type Task {
     id: ID!
     uuid: String!
     project_id: ID!
+    task_number: Int
+    task_id_string: String
     title: String!
     description: String
     status: String!
@@ -9,9 +11,26 @@ type Task {
     due_date: DateTime
     assigned_to: ID
     image_url: String
+    images: [TaskImage!]! @hasMany
+    comments: [TaskComment!]! @hasMany
     assignee: User @belongsTo
     created_at: DateTime!
     updated_at: DateTime!
+}
+
+type TaskImage {
+    id: ID!
+    uuid: String!
+    image_url: String!
+    created_at: DateTime!
+}
+
+type TaskComment {
+    id: ID!
+    uuid: String!
+    content: String!
+    user: User! @belongsTo
+    created_at: DateTime!
 }
 
 extend type Query {
@@ -35,7 +54,10 @@ extend type Mutation {
         priority: String
         due_date: String
         assigned_to: ID
-    ): Task! @create(model: "Task") @guard
+        assignees: [ID!]
+        related_type: String
+        related_id: String
+    ): Task! @field(resolver: "App\\Modules\\Tasks\\GraphQL\\Mutations\\TaskMutations@createTask") @guard
 
     "Actualizar una tarea"
     updateTask(
@@ -46,8 +68,17 @@ extend type Mutation {
         priority: String
         due_date: String
         assigned_to: ID
-    ): Task! @update(model: "Task") @guard
+        assignees: [ID!]
+        related_type: String
+        related_id: String
+    ): Task! @field(resolver: "App\\Modules\\Tasks\\GraphQL\\Mutations\\TaskMutations@updateTask") @guard
 
     "Eliminar una tarea"
     deleteTask(id: ID!): Boolean! @delete(model: "Task") @guard
+
+    "Añadir un comentario a una tarea"
+    createTaskComment(
+        task_id: ID!
+        content: String!
+    ): TaskComment! @field(resolver: "App\\Modules\\Tasks\\GraphQL\\Mutations\\TaskMutations@createTaskComment") @guard
 }

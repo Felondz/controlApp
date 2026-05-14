@@ -10,7 +10,7 @@ export default function InvitationShow({ invitation, project, inviter, isCorrect
 
     const handleAccept = (e) => {
         e.preventDefault();
-        post(route('invitation.process', invitation.token));
+        post(route('invitation.process', { token: invitation.token }));
     };
 
     const handleLogout = (e) => {

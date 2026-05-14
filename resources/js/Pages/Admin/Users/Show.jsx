@@ -22,28 +22,28 @@ export default function Show({ targetUser, stats, projects_list }) {
     const [tempPassword, setTempPassword] = useState(null);
 
     const toggleStatus = () => {
-        router.patch(route('admin.users.toggleStatus', targetUser.uuid), {}, {
+        router.patch(route('admin.users.toggleStatus', { user: targetUser.uuid }), {}, {
             preserveScroll: true,
             onSuccess: () => setConfirmingDeactivate(false),
         });
     };
 
     const toggleAdmin = () => {
-        router.patch(route('admin.users.toggleAdmin', targetUser.uuid), {}, {
+        router.patch(route('admin.users.toggleAdmin', { user: targetUser.uuid }), {}, {
             preserveScroll: true,
             onSuccess: () => setConfirmingAdmin(false),
         });
     };
 
     const resetPassword = () => {
-        router.post(route('admin.users.resetPassword', targetUser.uuid), {}, {
+        router.post(route('admin.users.resetPassword', { user: targetUser.uuid }), {}, {
             preserveScroll: true,
             onSuccess: () => setConfirmingResetPassword(false),
         });
     };
 
     const deleteUser = () => {
-        router.delete(route('admin.users.destroy', targetUser.uuid), {
+        router.delete(route('admin.users.destroy', { user: targetUser.uuid }), {
             onSuccess: () => setConfirmingDelete(false),
         });
     };
@@ -193,7 +193,7 @@ export default function Show({ targetUser, stats, projects_list }) {
                                                 </span>
                                                 {project.uuid && (
                                                     <Link 
-                                                        href={route('proyectos.show', project.uuid)} 
+                                                        href={route('mis-proyectos.show', { proyecto: project.uuid })} 
                                                         className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white dark:hover:bg-gray-800 p-2 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all shadow-none hover:shadow-sm"
                                                         title={t('admin.view_project', 'Ver Proyecto')}
                                                     >

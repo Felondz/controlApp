@@ -105,6 +105,14 @@ class BugReport extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<BugReportImage, $this>
+     */
+    public function images(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BugReportImage::class);
+    }
+
+    /**
      * Create a new factory instance for the model.
      */
     protected static function newFactory(): BugReportFactory

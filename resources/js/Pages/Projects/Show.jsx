@@ -33,7 +33,7 @@ export default function Show({ auth, proyecto, isAdmin, transacciones = [], pend
     // Handle settings save
     const handleSettingsSave = (newSettings) => {
         router.put(
-            route('finance.projects.update-settings', { project: proyecto.uuid }),
+            route('finance.projects.update-settings', { proyecto: proyecto.uuid }),
             { settings: newSettings },
             {
                 preserveScroll: true,

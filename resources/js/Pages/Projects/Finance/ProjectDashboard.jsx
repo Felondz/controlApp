@@ -215,7 +215,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
 
         // Process payment
         try {
-            await axios.post(route('finance.bills.pay-direct', [proyecto.uuid, bill.uuid]));
+            await axios.post(route('finance.bills.pay-direct', { proyecto: proyecto.uuid, transaccion: bill.uuid }));
             router.reload({ only: ['proyecto', 'pendingBills'] });
         } catch (error) {
             console.error('Error paying bill:', error);
@@ -283,7 +283,7 @@ export default function Dashboard({ auth, proyecto, isAdmin, transacciones = [],
     };
 
     const handleSettingsSave = (newSettings) => {
-        router.put(route('finance.projects.update-settings', { project: proyecto.uuid }), { settings: newSettings }, {
+        router.put(route('finance.projects.update-settings', { proyecto: proyecto.uuid }), { settings: newSettings }, {
             onSuccess: () => {
                 setShowSettingsModal(false);
                 router.reload({ only: ['proyecto'] });

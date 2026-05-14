@@ -140,7 +140,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tasks routes
     Route::get('/proyectos/{proyecto}/tasks/summary', [TaskController::class, 'summary'])->name('api.proyectos.tasks.summary');
     Route::get('/proyectos/{proyecto}/tasks/users-load', [TaskController::class, 'usersLoad'])->name('api.proyectos.tasks.users-load');
-    Route::get('/proyectos/{proyecto}/tasks/{task}/image', [TaskController::class, 'image'])->name('api.proyectos.tasks.image');
     Route::get('/proyectos/{proyecto}/tasks', [TaskController::class, 'index'])->name('api.proyectos.tasks.index');
     Route::post('/proyectos/{proyecto}/tasks', [TaskController::class, 'store'])->name('api.proyectos.tasks.store');
     Route::put('/proyectos/{proyecto}/tasks/{task}', [TaskController::class, 'update'])->name('api.proyectos.tasks.update');

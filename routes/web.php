@@ -17,16 +17,17 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-Route::resource('mis-proyectos', ProyectoUiWebController::class)
-    ->middleware(['auth', 'verified']);
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('mis-proyectos', ProyectoUiWebController::class)
+        ->parameters(['mis-proyectos' => 'proyecto']);
 
-Route::get('mis-proyectos/{mis_proyecto}/finance', [ProyectoUiWebController::class, 'finance'])
-    ->name('mis-proyectos.finance')
-    ->middleware(['auth', 'verified']);
-
-Route::get('mis-proyectos/{mis_proyecto}/chat', [ProyectoUiWebController::class, 'chat'])
-    ->name('mis-proyectos.chat')
-    ->middleware(['auth', 'verified']);
+    // Project Scoped Routes
+    Route::prefix('mis-proyectos/{proyecto}')->group(function () {
+        Route::get('finance', [ProyectoUiWebController::class, 'finance'])->name('mis-proyectos.finance');
+        Route::get('chat', [ProyectoUiWebController::class, 'chat'])->name('mis-proyectos.chat');
+        Route::put('settings', [ProyectoUiWebController::class, 'updateSettings'])->name('finance.projects.update-settings');
+    });
+});
 
 
 
@@ -66,16 +67,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/finance', [\App\Http\Controllers\PersonalFinanceController::class, 'index'])->name('finance.personal');
 
     // Project Messages
-    Route::get('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
-    Route::post('mis-proyectos/{mis_proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
-    Route::put('mis-proyectos/{mis_proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'update'])->name('project.messages.update');
-    Route::delete('mis-proyectos/{mis_proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'destroy'])->name('project.messages.destroy');
-    Route::post('mis-proyectos/{mis_proyecto}/messages/{message}/react', [ProjectMessageUiWebController::class, 'toggleReaction'])->name('project.messages.react');
-    Route::get('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read'); // Should be post but current routes have it mixed
-    Route::post('mis-proyectos/{mis_proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
-    Route::get('mis-proyectos/{mis_proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
-    Route::get('mis-proyectos/{mis_proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
-    Route::get('mis-proyectos/{mis_proyecto}/messages/{message}/file', [ProjectMessageUiWebController::class, 'file'])->name('project.messages.file');
+    Route::get('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
+    Route::post('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
+    Route::put('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'update'])->name('project.messages.update');
+    Route::delete('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'destroy'])->name('project.messages.destroy');
+    Route::post('mis-proyectos/{proyecto}/messages/{message}/react', [ProjectMessageUiWebController::class, 'toggleReaction'])->name('project.messages.react');
+    Route::get('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read'); // Should be post but current routes have it mixed
+    Route::post('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
+    Route::get('mis-proyectos/{proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
+    Route::get('mis-proyectos/{proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
+    Route::get('mis-proyectos/{proyecto}/messages/{message}/file', [ProjectMessageUiWebController::class, 'file'])->name('project.messages.file');
 
     // Invitations
     Route::get('/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
@@ -119,11 +120,18 @@ Route::middleware('auth')->group(function () {
     Route::post('mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct', [TransaccionController::class, 'payDirectly'])
         ->name('finance.bills.pay-direct');
 
-    // Project Settings (Finance)
-    Route::put('mis-proyectos/{project}/settings', [ProyectoUiWebController::class, 'updateSettings'])
-        ->name('finance.projects.update-settings');
+
 
     // Tasks Module
+    Route::get('mis-proyectos/{proyecto}/tasks/{task}/image', [\App\Modules\Tasks\Controllers\TaskController::class, 'image'])
+        ->name('mis-proyectos.tasks.image');
+
+    Route::get('mis-proyectos/{proyecto}/tasks/{task}/gallery/{image}', [\App\Modules\Tasks\Controllers\TaskController::class, 'galleryImage'])
+        ->name('mis-proyectos.tasks.gallery');
+
+    Route::post('mis-proyectos/{proyecto}/tasks/{task}/comments', [\App\Modules\Tasks\Controllers\TaskController::class, 'storeComment'])
+        ->name('mis-proyectos.tasks.comments.store');
+
     Route::resource('mis-proyectos.tasks', \App\Modules\Tasks\Controllers\TaskController::class)
         ->parameters(['mis-proyectos' => 'proyecto'])
         ->except(['create', 'edit', 'show']);
@@ -245,3 +253,4 @@ if (app()->environment('local', 'testing', 'staging')) {
         }
     });
 }
+

@@ -60,7 +60,7 @@ export default function ChatRecentWidget({ project, widget, onHide, isDragging, 
             action={
                 project ? (
                     <Link
-                        href={route('mis-proyectos.chat', { mis_proyecto: project.uuid })}
+                        href={route('mis-proyectos.chat', { proyecto: project.uuid })}
                         className="text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400"
                     >
                         {t('common.go_to_chat', 'Ir al chat')}

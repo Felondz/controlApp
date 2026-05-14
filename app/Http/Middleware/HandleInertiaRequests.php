@@ -62,6 +62,8 @@ class HandleInertiaRequests extends Middleware
                 'unread_projects' => $unreadData['unread_projects'],
                 'pending_invitations' => $unreadData['pending_invitations'],
                 'pending_invitations_count' => $unreadData['pending_invitations_count'],
+                'db_notifications' => $unreadData['db_notifications'],
+                'db_notifications_count' => $unreadData['db_notifications_count'],
                 'is_ai_enabled' => (bool) ($user->is_ai_enabled ?? true),
                 'has_active_ai' => (bool) ($user->is_ai_enabled ?? true) && $user->llmSettings()->where('is_active', true)->whereNotNull('api_key')->exists(),
                 'is_super_admin' => (bool) $user->is_super_admin,

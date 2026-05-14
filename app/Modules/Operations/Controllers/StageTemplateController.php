@@ -27,7 +27,7 @@ class StageTemplateController extends Controller
         ]);
 
         return to_route('operations.lotes.index', [
-            'proyecto' => $proyecto->id,
+            'proyecto' => $proyecto->uuid,
             'process_id' => $stage->production_process_id,
             'open_modal' => 'process_settings'
         ])->with('success', 'Insumo agregado a la receta.');
@@ -39,7 +39,7 @@ class StageTemplateController extends Controller
         $template->delete();
         
         return to_route('operations.lotes.index', [
-            'proyecto' => $proyecto->id,
+            'proyecto' => $proyecto->uuid,
             'process_id' => $processId,
             'open_modal' => 'process_settings'
         ])->with('success', 'Insumo eliminado de la receta.');

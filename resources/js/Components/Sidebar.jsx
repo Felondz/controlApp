@@ -100,6 +100,13 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
     const renderProjectMenu = () => {
         const modules = project.modules || ['finance'];
 
+        // Universal parameters to handle Ziggy naming inconsistencies (proyecto vs mis_proyecto vs project)
+        const projectParams = {
+            proyecto: project.uuid,
+            mis_proyecto: project.uuid,
+            project: project.uuid
+        };
+
 
         // Robust Image Detection (Same as ProjectCard)
         const imageUrl = project.image_url
@@ -146,8 +153,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {/* Project Links - Both personal and regular projects use same route */}
                 <ResponsiveNavLink
-                    href={route('mis-proyectos.show', project.uuid)}
-                    active={route().current('mis-proyectos.show', project.uuid)}
+                    href={route('mis-proyectos.show', projectParams)}
+                    active={route().current('mis-proyectos.show', projectParams)}
                     collapsed={collapsed}
                 >
                     <FolderIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -157,8 +164,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {modules.includes('finance') && (
                     <ResponsiveNavLink
                         id="tour-nav-finance"
-                        href={route('mis-proyectos.finance', project.uuid)}
-                        active={route().current('mis-proyectos.finance', project.uuid)}
+                        href={route('mis-proyectos.finance', projectParams)}
+                        active={route().current('mis-proyectos.finance', projectParams)}
                         collapsed={collapsed}
                     >
                         <CurrencyDollarIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -169,8 +176,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {modules.includes('tasks') && (
                     <ResponsiveNavLink
                         id="tour-nav-tasks"
-                        href={route('mis-proyectos.tasks.index', { proyecto: project.uuid })}
-                        active={route().current('mis-proyectos.tasks.index', project.uuid)}
+                        href={route('mis-proyectos.tasks.index', projectParams)}
+                        active={route().current('mis-proyectos.tasks.index', projectParams)}
                         collapsed={collapsed}
                     >
                         <CheckListIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -182,8 +189,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {modules.includes('operations') && (
                     <ResponsiveNavLink
                         id="tour-nav-operations"
-                        href={route('operations.lotes.index', project.uuid)}
-                        active={route().current('operations.lotes.*', project.uuid)}
+                        href={route('operations.lotes.index', projectParams)}
+                        active={route().current('operations.lotes.*', projectParams)}
                         collapsed={collapsed}
                     >
                         <FactoryIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -195,8 +202,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
                 {modules.includes('inventory') && (
                     <ResponsiveNavLink
                         id="tour-nav-inventory"
-                        href={route('inventory.items.index', project.uuid)}
-                        active={route().current('inventory.items.*', project.uuid)}
+                        href={route('inventory.items.index', projectParams)}
+                        active={route().current('inventory.items.*', projectParams)}
                         collapsed={collapsed}
                     >
                         <PackageIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -206,8 +213,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {modules.includes('chat') && !project.es_personal && (
                     <ResponsiveNavLink
-                        href={route('mis-proyectos.chat', project.uuid)}
-                        active={route().current('mis-proyectos.chat', project.uuid)}
+                        href={route('mis-proyectos.chat', projectParams)}
+                        active={route().current('mis-proyectos.chat', projectParams)}
                         collapsed={collapsed}
                     >
                         <div className={`relative shrink-0 ${collapsed ? '' : 'mr-3'}`}>
@@ -224,8 +231,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {(!project.es_personal && project.es_personal !== 1) && (
                     <ResponsiveNavLink
-                        href={route('project.members.index', project.uuid)}
-                        active={route().current('project.members.index', project.uuid)}
+                        href={route('project.members.index', projectParams)}
+                        active={route().current('project.members.index', projectParams)}
                         collapsed={collapsed}
                     >
                         <UserCircleIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />
@@ -235,8 +242,8 @@ export default function Sidebar({ user, className = '', collapsed = false, proje
 
                 {!project.es_personal && (
                     <ResponsiveNavLink
-                        href={route('mis-proyectos.edit', project.uuid)}
-                        active={route().current('mis-proyectos.edit', project.uuid)}
+                        href={route('mis-proyectos.edit', projectParams)}
+                        active={route().current('mis-proyectos.edit', projectParams)}
                         collapsed={collapsed}
                     >
                         <EllipsisVerticalIcon className={`h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400 ${collapsed ? '' : 'mr-3'}`} />

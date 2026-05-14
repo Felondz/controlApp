@@ -9,6 +9,7 @@ readonly class CreateTaskDTO
 {
     /**
      * @param array<int>|null $assignees
+     * @param array<\Illuminate\Http\UploadedFile>|null $images
      */
     public function __construct(
         public Proyecto $proyecto,
@@ -21,5 +22,6 @@ readonly class CreateTaskDTO
         public ?string $relatedType = null,
         public ?string $relatedId = null,
         public ?UploadedFile $image = null,
+        public ?array $images = null,
     ) {}
 }

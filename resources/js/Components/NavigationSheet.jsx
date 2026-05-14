@@ -27,7 +27,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('modules.finance', 'Finanzas'),
             icon: CurrencyDollarIcon,
             route: 'mis-proyectos.finance',
-            routeParams: project.uuid,
+            routeParams: { proyecto: project.uuid },
             show: modules.includes('finance'),
         },
         {
@@ -42,7 +42,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('modules.chat.title', 'Chat'),
             icon: ChatIcon,
             route: 'mis-proyectos.chat',
-            routeParams: project.uuid,
+            routeParams: { proyecto: project.uuid },
             show: modules.includes('chat') && !project.es_personal,
             badge: project.unread_messages_count
         },
@@ -50,7 +50,7 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('projects.members', 'Miembros'),
             icon: UserCircleIcon,
             route: 'project.members.index',
-            routeParams: project.uuid,
+            routeParams: { proyecto: project.uuid },
             disabled: false,
             show: !project.es_personal && project.es_personal !== 1,
         },
@@ -58,14 +58,14 @@ export default function NavigationSheet({ isOpen, onClose, user, project = null 
             name: t('projects.project_settings', 'Configuración'),
             icon: EllipsisVerticalIcon,
             route: 'mis-proyectos.edit',
-            routeParams: project.uuid,
+            routeParams: { proyecto: project.uuid },
             show: !project.es_personal,
         },
         {
             name: t('operations.title', 'Operaciones'),
             icon: FactoryIcon, // Ensure FactoryIcon is imported
             route: 'operations.lotes.index',
-            routeParams: project.uuid,
+            routeParams: { proyecto: project.uuid },
             show: modules.includes('operations'),
         },
     ] : [];
