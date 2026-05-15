@@ -8,7 +8,7 @@ use App\Http\Controllers\ProjectAccountUiWebController;
 Route::middleware(['auth', 'verified'])->group(function () {
     
     // Project Finance Dashboard
-    Route::get('mis-proyectos/{mis_proyecto}/finance', [ProyectoUiWebController::class, 'finance'])
+    Route::get('mis-proyectos/{proyecto}/finance', [ProyectoUiWebController::class, 'finance'])
         ->name('mis-proyectos.finance');
 
     // Project Transactions
@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->withoutScopedBindings();
         
     // Project Settings (Finance)
-    Route::put('mis-proyectos/{project}/settings', [ProyectoUiWebController::class, 'updateSettings'])
+    Route::put('mis-proyectos/{proyecto}/settings', [ProyectoUiWebController::class, 'updateSettings'])
         ->name('finance.projects.update-settings');
 
     // Personal Finance (if considered part of the module)

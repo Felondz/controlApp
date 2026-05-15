@@ -29,6 +29,14 @@ class CreateBugReportAction
             'status' => 'open',
         ]);
 
+        // Multiple images
+        if (!empty($dto->images)) {
+            foreach ($dto->images as $img) {
+                $path = $img->store('bug-reports/gallery', 'local');
+                $bugReport->images()->create(['image_path' => $path]);
+            }
+        }
+
         return $bugReport;
     }
 }

@@ -7,6 +7,7 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import TextArea from '@/Components/TextArea';
 import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
+import MultiImageUploader from '@/Components/Common/MultiImageUploader';
 import {
     BugIcon, XMarkIcon, ArrowLeftIcon, CameraIcon, CheckCircleIcon,
     GlobeAltIcon, CogIcon, InfoIcon, ExclamationTriangleIcon, ClockIcon
@@ -36,6 +37,7 @@ export default function BugReporterWidget({ show, onClose }) {
     const [platform, setPlatform] = useState(() => window.innerWidth < 768 ? 'mobile' : 'web');
     const [screenshot, setScreenshot] = useState(null);
     const [screenshotPreview, setScreenshotPreview] = useState(null);
+    const [images, setImages] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const fileInputRef = useRef(null);
@@ -62,6 +64,7 @@ export default function BugReporterWidget({ show, onClose }) {
         setPageUrl(window.location.href);
         setScreenshot(null);
         setScreenshotPreview(null);
+        setImages([]);
         setSuccess(false);
     };
 
@@ -90,6 +93,12 @@ export default function BugReporterWidget({ show, onClose }) {
             formData.append('page_url', pageUrl || window.location.href);
             formData.append('platform', platform);
             if (screenshot) formData.append('screenshot', screenshot);
+
+            if (images && images.length > 0) {
+                images.forEach((img, i) => {
+                    formData.append(`images[${i}]`, img);
+                });
+            }
 
             await axios.post('/ptr/bug-reports', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
@@ -284,6 +293,16 @@ export default function BugReporterWidget({ show, onClose }) {
                                     </button>
                                 )}
                                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                            </div>
+
+                            {/* Multiple Images */}
+                            <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <MultiImageUploader
+                                    label={t('bug_reporter.additional_images', 'Imágenes Adicionales')}
+                                    images={images}
+                                    onChange={setImages}
+                                    className="w-full"
+                                />
                             </div>
                         </div>
                     )}

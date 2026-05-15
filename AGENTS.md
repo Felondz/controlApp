@@ -172,8 +172,14 @@ export default forwardRef(function ComponentName(
    // ❌ WRONG
    return to_route('operations.lotes.index', ['proyecto' => $proyecto->id]);
    ```
-4. **GraphQL (Mobile)**: GraphQL mutations use integer `id` via `findOrFail()` — this is correct since GraphQL operates with internal PKs, not UUIDs.
 5. **Internal queries**: Use `$model->id` (integer) for database queries, foreign keys, and relationships. UUIDs are ONLY for routing.
+
+### Route Parameter Consistency (CRITICAL)
+> **⚠️ MANDATORY**: To prevent Ziggy hydration errors and ensure correct Route Model Binding, all project-scoped routes MUST use the parameter name **`{proyecto}`**.
+> - **Backend Routes**: Always use `Route::prefix('.../{proyecto}')->group(...)` or `->parameters(['...' => 'proyecto'])`.
+> - **Controller Methods**: Always use `public function methodName(Request $request, Proyecto $proyecto)`. The variable name MUST be `$proyecto`.
+> - **Frontend**: Pass the parameter as `proyecto` in the `route()` helper (e.g., `route('name', { proyecto: uuid })`).
+> - **NEVER** use `mis_proyecto`, `project`, or other variants. Consistent naming is the only way to avoid 403 Forbidden errors and React crashes.
 
 ### API Strategy (GraphQL vs REST)
 - **GraphQL (Primary Mobile Data Layer)**: Use for >95% of standard Mobile operations. Ideal for CRUD, fetching nested relationships (e.g., loading a Project with Members, Tasks, and Transactions in one trip), and reducing mobile payload sizes.

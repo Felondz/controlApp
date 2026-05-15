@@ -63,18 +63,18 @@ class ProyectoUiWebController extends Controller
         ]);
     }
 
-    public function show(Request $request, Proyecto $mis_proyecto): \Inertia\Response
+    public function show(Request $request, Proyecto $proyecto): \Inertia\Response
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
         // 1. Autorización: Asegurar que el usuario es miembro del proyecto.
-        if (!$user->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
         // 2. Verificar si es admin para cargar datos financieros
-        $isAdmin = $user->esAdminDe($mis_proyecto);
+        $isAdmin = $user->esAdminDe($proyecto);
 
         // 3. Eager Loading condicional
         $relations = ['categorias']; // Categorías pueden ser visibles (o no, según requerimiento, pero finanzas es lo crítico)
@@ -88,7 +88,7 @@ class ProyectoUiWebController extends Controller
             $relations[] = 'cuentasAsociadas.propietario';
 
             // Cargar últimos movimientos para el widget de transacciones y gráficos
-            $transacciones = $mis_proyecto->transacciones()
+            $transacciones = $proyecto->transacciones()
                 ->where('status', 'completed')
                 ->with(['categoria', 'cuenta.propietario', 'usuario'])
                 ->orderBy('fecha', 'desc')
@@ -97,40 +97,40 @@ class ProyectoUiWebController extends Controller
                 ->get();
 
             // Cargar facturas pendientes
-            $pendingBills = $mis_proyecto->transacciones()
+            $pendingBills = $proyecto->transacciones()
                 ->where('status', 'pending')
                 ->with(['categoria', 'cuenta'])
                 ->orderBy('fecha', 'asc')
                 ->get();
         }
 
-        if ($mis_proyecto->hasMessagingFeature()) {
+        if ($proyecto->hasMessagingFeature()) {
             $relations[] = 'miembros:id,uuid,name,profile_photo_path';
         }
 
-        $mis_proyecto->load($relations);
-        $mis_proyecto->loadCount('miembros');
+        $proyecto->load($relations);
+        $proyecto->loadCount('miembros');
 
-        $this->appendUnreadCount($mis_proyecto, $user);
+        $this->appendUnreadCount($proyecto, $user);
 
         // 4. Renderizar vista apropiada según tipo de proyecto
 
 
         // 5. Cargar estadísticas de Inventario para el Widget de Resumen
         $inventoryStats = null;
-        if (in_array('inventory', $mis_proyecto->modules ?? [])) {
+        if (in_array('inventory', $proyecto->modules ?? [])) {
             $inventoryStats = [
-                'totalItems' => $mis_proyecto->inventoryItems()->count(),
-                'totalValue' => $isAdmin ? ($mis_proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0) : null, // Ocultar valor total a no admins
-                'lowStockCount' => $mis_proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
-                'activeItems' => $mis_proyecto->inventoryItems()->where('is_active', true)->count(),
+                'totalItems' => $proyecto->inventoryItems()->count(),
+                'totalValue' => $isAdmin ? ($proyecto->inventoryItems()->selectRaw('SUM(current_stock * cost_price) as total')->value('total') ?? 0) : null, // Ocultar valor total a no admins
+                'lowStockCount' => $proyecto->inventoryItems()->whereColumn('current_stock', '<=', 'min_stock_level')->count(),
+                'activeItems' => $proyecto->inventoryItems()->where('is_active', true)->count(),
             ];
         }
 
         // 6. Cargar Lotes de Operaciones para el Widget de Operaciones
         $lotes = null;
-        if (in_array('operations', $mis_proyecto->modules ?? [])) {
-            $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $mis_proyecto->id)
+        if (in_array('operations', $proyecto->modules ?? [])) {
+            $lotes = \App\Modules\Operations\Models\LoteProduccion::where('proyecto_id', $proyecto->id)
                 ->where('status', 'active')
                 ->with(['productionProcess', 'currentStage'])
                 ->orderBy('created_at', 'desc')
@@ -140,8 +140,8 @@ class ProyectoUiWebController extends Controller
 
         // 7. Cargar items de inventario (limited) para widgets de Items y Low Stock
         $inventoryItems = null;
-        if (in_array('inventory', $mis_proyecto->modules ?? [])) {
-            $items = $mis_proyecto->inventoryItems()
+        if (in_array('inventory', $proyecto->modules ?? [])) {
+            $items = $proyecto->inventoryItems()
                 ->orderBy('created_at', 'desc')
                 ->limit(20)
                 ->get();
@@ -150,7 +150,7 @@ class ProyectoUiWebController extends Controller
 
         // Regular projects use Projects/Show
         return Inertia::render('Projects/Show', [
-            'proyecto' => $mis_proyecto,
+            'proyecto' => $proyecto,
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones, // Passed for widgets
             'pendingBills' => $pendingBills,   // Passed for widgets
@@ -163,30 +163,30 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el formulario para editar un proyecto.
      */
-    public function edit(Request $request, Proyecto $mis_proyecto): \Inertia\Response
+    public function edit(Request $request, Proyecto $proyecto): \Inertia\Response
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
         // 1. Autorización: Solo admins pueden editar
-        if (!$user->esAdminDe($mis_proyecto)) {
+        if (!$user->esAdminDe($proyecto)) {
             abort(403, 'Solo los administradores pueden editar este proyecto.');
         }
 
         return Inertia::render('Projects/Edit', [
-            'proyecto' => $mis_proyecto,
+            'proyecto' => $proyecto,
         ]);
     }
 
     /**
      * Actualiza el proyecto en la base de datos.
      */
-    public function update(UpdateProyectoRequest $request, Proyecto $mis_proyecto): \Illuminate\Http\RedirectResponse
+    public function update(UpdateProyectoRequest $request, Proyecto $proyecto): \Illuminate\Http\RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        if (!$user->esAdminDe($mis_proyecto)) {
+        if (!$user->esAdminDe($proyecto)) {
             abort(403, 'Solo los administradores pueden actualizar este proyecto.');
         }
 
@@ -231,21 +231,21 @@ class ProyectoUiWebController extends Controller
             $dataToUpdate['image_path'] = $imagePath;
         }
 
-        $mis_proyecto->update($dataToUpdate);
+        $proyecto->update($dataToUpdate);
 
-        return redirect()->route('mis-proyectos.show', $mis_proyecto)
+        return redirect()->route('mis-proyectos.show', $proyecto)
             ->with('success', 'Proyecto actualizado correctamente.');
     }
 
     /**
      * Elimina el proyecto.
      */
-    public function destroy(Request $request, Proyecto $mis_proyecto): \Illuminate\Http\RedirectResponse
+    public function destroy(Request $request, Proyecto $proyecto): \Illuminate\Http\RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        if (!$user->esAdminDe($mis_proyecto)) {
+        if (!$user->esAdminDe($proyecto)) {
             abort(403, 'Solo los administradores pueden eliminar este proyecto.');
         }
 
@@ -255,7 +255,7 @@ class ProyectoUiWebController extends Controller
         ]);
 
         // Soft delete
-        $mis_proyecto->delete();
+        $proyecto->delete();
 
         return redirect()->route('dashboard')
             ->with('success', 'Proyecto eliminado correctamente.');
@@ -263,21 +263,21 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el dashboard financiero del proyecto.
      */
-    public function finance(Request $request, Proyecto $mis_proyecto): \Inertia\Response
+    public function finance(Request $request, Proyecto $proyecto): \Inertia\Response
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
         // 1. Autorización
-        if (!$user->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
         // 2. Verificar si es admin para cargar datos financieros
-        $isAdmin = $user->esAdminDe($mis_proyecto);
+        $isAdmin = $user->esAdminDe($proyecto);
 
         // 3. Eager Loading específico para finanzas
-        $mis_proyecto->load([
+        $proyecto->load([
             'cuentas' => function ($query) {
                 $query->where('estado', '!=', 'cerrada');
             },
@@ -292,7 +292,7 @@ class ProyectoUiWebController extends Controller
         // Cargar transacciones si es admin
         $transacciones = [];
         if ($isAdmin) {
-            $transacciones = $mis_proyecto->transacciones()
+            $transacciones = $proyecto->transacciones()
                 ->where('status', 'completed') // Only show completed transactions in the main list
                 ->with(['categoria', 'cuenta.propietario', 'usuario']) // Load account owner
                 ->orderBy('fecha', 'desc')
@@ -310,7 +310,7 @@ class ProyectoUiWebController extends Controller
         $pendingBills = [];
         $creditCardBills = [];
         if ($isAdmin) {
-            $pendingBills = $mis_proyecto->transacciones()
+            $pendingBills = $proyecto->transacciones()
                 ->where('status', 'pending')
                 ->with(['categoria', 'cuenta']) // No account usually, but good to have
                 ->orderBy('fecha', 'asc')
@@ -318,11 +318,11 @@ class ProyectoUiWebController extends Controller
 
             // Calculate credit card bills from active CC accounts
             $billingService = new \App\Modules\Finance\Services\CreditCardBillingService();
-                $allCCs = $mis_proyecto->cuentas
+                $allCCs = $proyecto->cuentas
                 ->where('tipo', 'credito')
                 ->where('estado', 'activa')
                 ->merge(
-                    $mis_proyecto->cuentasAsociadas
+                    $proyecto->cuentasAsociadas
                         ->where('tipo', 'credito')
                         ->where('estado', 'activa')
                 );
@@ -337,12 +337,12 @@ class ProyectoUiWebController extends Controller
 
             // Calculate Projected Investment Yields (Upcoming Incomes)
             $upcomingIncomes = [];
-            $investAccounts = $mis_proyecto->cuentas
+            $investAccounts = $proyecto->cuentas
                 ->whereIn('tipo', ['banco', 'inversion'])
                 ->where('tasa_interes_anual', '>', 0)
                 ->where('estado', 'activa')
                 ->merge(
-                    $mis_proyecto->cuentasAsociadas
+                    $proyecto->cuentasAsociadas
                         ->whereIn('tipo', ['banco', 'inversion'])
                         ->where('tasa_interes_anual', '>', 0)
                         ->where('estado', 'activa')
@@ -375,7 +375,7 @@ class ProyectoUiWebController extends Controller
 
             // Calculate Upcoming Loan Installments
             $loanInstallments = [];
-            $loanAccounts = $mis_proyecto->cuentas
+            $loanAccounts = $proyecto->cuentas
                 ->where('tipo', 'prestamo')
                 ->whereIn('estado', ['activa', 'active']) // Handle potentially different enum values or english/spanish
                 ->filter(function ($cuenta) {
@@ -414,10 +414,10 @@ class ProyectoUiWebController extends Controller
 
         // Calculate Inventory Value if module is active and user is admin
         $inventoryStats = null;
-        if ($isAdmin && in_array('inventory', $mis_proyecto->modules ?? [])) {
+        if ($isAdmin && in_array('inventory', $proyecto->modules ?? [])) {
              // Calculate total value: sum(current_stock * cost_price)
              // We use selectRaw for efficiency
-             $totalValue = $mis_proyecto->inventoryItems()
+             $totalValue = $proyecto->inventoryItems()
                 ->selectRaw('SUM(current_stock * cost_price) as total')
                 ->value('total') ?? 0;
 
@@ -426,10 +426,10 @@ class ProyectoUiWebController extends Controller
              ];
         }
 
-        $this->appendUnreadCount($mis_proyecto, $user);
+        $this->appendUnreadCount($proyecto, $user);
 
         return Inertia::render('Projects/Finance/ProjectDashboard', [
-            'proyecto' => $mis_proyecto, // Already has cuentas, cuentasAsociadas, categorias loaded
+            'proyecto' => $proyecto, // Already has cuentas, cuentasAsociadas, categorias loaded
             'isAdmin' => $isAdmin,
             'transacciones' => $transacciones,
             'financialTasks' => $financialTasks,
@@ -460,28 +460,28 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra la vista de chat del proyecto.
      */
-    public function chat(Request $request, Proyecto $mis_proyecto): \Inertia\Response
+    public function chat(Request $request, Proyecto $proyecto): \Inertia\Response
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
         // 1. Autorización
-        if (!$user->esMiembroDe($mis_proyecto)) {
+        if (!$user->esMiembroDe($proyecto)) {
             abort(403, 'No tienes permiso para acceder a este proyecto.');
         }
 
         // 2. Verificar si el módulo de chat está habilitado
-        if (!$mis_proyecto->hasMessagingFeature()) {
+        if (!$proyecto->hasMessagingFeature()) {
             abort(404);
         }
 
         // 3. Cargar miembros para el chat
-        $mis_proyecto->load(['miembros:id,uuid,name,profile_photo_path']);
+        $proyecto->load(['miembros:id,uuid,name,profile_photo_path']);
 
-        $this->appendUnreadCount($mis_proyecto, $user);
+        $this->appendUnreadCount($proyecto, $user);
 
         return Inertia::render('Projects/Chat', [
-            'proyecto' => $mis_proyecto,
+            'proyecto' => $proyecto,
             'user' => $user,
         ]);
     }
@@ -489,19 +489,25 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el dashboard principal con la lista de proyectos.
      */
-    public function dashboard(Request $request): \Inertia\Response
+    public function dashboard(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
-        /** @var \App\Models\User $user */
         $user = $request->user();
+        if (!$user instanceof \App\Models\User) {
+            return redirect()->route('login'); // Fallback de seguridad
+        }
 
         // Obtenemos los proyectos (personales + membresías)
-        $proyectos = $user->proyectosPersonales->merge($user->proyectos);
+        // Usamos loadMissing para asegurar que las relaciones estén disponibles si Octane las limpió
+        $user->loadMissing(['proyectosPersonales', 'proyectos']);
+        $proyectos = $user->proyectosPersonales->merge($user->proyectos)->unique('id')->values();
 
         // Optimization: Batch load unread counts (N+1 Solution)
+        /** @var array<int, int> $unreadCounts */
         $unreadCounts = \Illuminate\Support\Facades\DB::table('proyecto_user')
             ->where('user_id', $user->id)
             ->whereIn('proyecto_id', $proyectos->pluck('id'))
-            ->pluck('unread_messages_count', 'proyecto_id');
+            ->pluck('unread_messages_count', 'proyecto_id')
+            ->toArray();
 
         // Batch load Task Stats (Pending & Due Today)
         $taskStats = \App\Modules\Tasks\Models\Task::whereIn('project_id', $proyectos->pluck('id'))
@@ -514,10 +520,29 @@ class ProyectoUiWebController extends Controller
             ->get()
             ->keyBy('project_id');
 
-        // Procesamos para agregar flag de admin y conteo de mensajes no leídos
+        // Procesamos para agregar flag de admin, conteo de mensajes no leídos y ROL
         $proyectos->transform(function ($proyecto) use ($user, $unreadCounts, $taskStats) {
             /** @var \App\Models\Proyecto $proyecto */
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
+
+            // Determinar el rol para mostrar la medalla en el frontend
+            if ((int)$proyecto->user_id === (int)$user->id) {
+                $proyecto->role = 'owner';
+            } else {
+                /** @var \App\Models\Proyecto|null $membership */
+                $membership = $user->proyectos->firstWhere('id', $proyecto->id);
+                /** @var mixed $pivot */
+                $pivot = $membership ? $membership->pivot : null;
+                $rawRole = $pivot ? ($pivot->rol ?? 'member') : 'member';
+                
+                // Normalizar a llaves en inglés para consistencia en traducciones
+                $proyecto->role = match(strtolower((string)$rawRole)) {
+                    'propietario', 'owner' => 'owner',
+                    'administrador', 'admin' => 'admin',
+                    'miembro', 'member' => 'member',
+                    default => $rawRole
+                };
+            }
 
             // Use batched cache if messaging is enabled
             if ($proyecto->hasMessagingFeature()) {
@@ -526,10 +551,12 @@ class ProyectoUiWebController extends Controller
                 $proyecto->unread_messages_count = 0;
             }
 
-            // Task Stats
-            $stats = $taskStats[$proyecto->id] ?? null;
-            $proyecto->pending_tasks_count = $stats ? $stats->pending : 0;
-            $proyecto->due_today_count = $stats ? $stats->due_today : 0;
+            // Task stats
+            $stats = $taskStats->get($proyecto->id);
+            $proyecto->task_stats = [
+                'pending' => $stats ? (int)$stats->pending : 0,
+                'due_today' => $stats ? (int)$stats->due_today : 0,
+            ];
 
             return $proyecto;
         });
@@ -539,12 +566,12 @@ class ProyectoUiWebController extends Controller
     /**
      * Actualiza la configuración del proyecto (ej: widgets).
      */
-    public function updateSettings(Request $request, Proyecto $project): \Illuminate\Http\RedirectResponse
+    public function updateSettings(Request $request, Proyecto $proyecto): \Illuminate\Http\RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        if (!$user->esAdminDe($project)) {
+        if (!$user->esAdminDe($proyecto)) {
             abort(403);
         }
 
@@ -553,11 +580,11 @@ class ProyectoUiWebController extends Controller
         ]);
 
         // Merge existing settings with new ones
-        $currentSettings = $project->settings ?? [];
+        $currentSettings = $proyecto->settings ?? [];
         $newSettings = array_merge($currentSettings, $validated['settings']);
 
-        $project->settings = $newSettings;
-        $project->save();
+        $proyecto->settings = $newSettings;
+        $proyecto->save();
 
         return redirect()->back()->with('success', 'Configuración actualizada.');
     }

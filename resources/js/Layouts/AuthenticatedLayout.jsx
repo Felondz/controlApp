@@ -3,11 +3,11 @@ import { usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon, BugIcon, EnvelopeIcon } from '@/Components/Icons';
+import { MenuFoldIcon, MenuUnfoldIcon, IconES, IconEN, UserCircleIcon, ArrowLeftIcon, InboxIcon, FolderIcon, BugIcon, EnvelopeIcon, ChatIcon, CheckListIcon } from '@/Components/Icons';
 import Dropdown from '@/Components/Dropdown';
 import ThemeToggle from '@/Components/ThemeToggle';
 import SearchInput from '@/Components/SearchInput';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
 import { useInactivityTimeout } from '@/Hooks/useInactivityTimeout';
 import SessionExpiredModal from '@/Components/SessionExpiredModal';
@@ -82,11 +82,31 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
         });
     }, [is_ptr, isSuperAdmin]);
 
+    // Listen for real-time notifications
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const channel = `App.Models.User.${user.id}`;
+        
+        window.Echo.private(channel)
+            .notification(() => {
+                // New database notification arrived
+                router.reload({ only: ['auth'] });
+            })
+            .listen('.NotificationsCleared', () => {
+                // Notifications were cleared on another device/tab
+                router.reload({ only: ['auth'] });
+            });
+
+        return () => {
+            window.Echo.leave(channel);
+        };
+    }, [user?.id]);
+
     // Auto-logout on inactivity (30 minutes)
     useInactivityTimeout(30 * 60 * 1000, () => {
         setShowSessionExpired(true);
     });
-
 
     // Helper function for user roles
     const hasRole = (role) => {
@@ -97,6 +117,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
 
     // Helper function for icon colors based on theme - REPLACED by dynamic CSS variables
     const iconClasses = 'transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300';
+    const totalUnread = (user.unread_messages_count || 0) + (user.pending_invitations_count || 0) + (user.db_notifications_count || 0);
 
     return (
         <div className={`h-screen overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex font-${project?.typography || 'sans'}`}>
@@ -165,59 +186,118 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                     <div className="flex items-center space-x-3 pl-4">
                         <ThemeToggle />
 
-
                         {/* Inbox Dropdown */}
                         <div className="relative flex items-center">
-                            <Dropdown width="80" contentClasses="py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <Dropdown width="200" contentClasses="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none min-w-[600px] overflow-hidden">
                                 <Dropdown.Trigger>
-                                    <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                        <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
-                                        <InboxIcon className={`h-6 w-6 ${iconClasses}`} />
-                                        {(user.unread_messages_count > 0 || user.pending_invitations_count > 0) && (
-                                            <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
-                                        )}
-                                    </button>
+                                    {({ open }) => (
+                                        <div className="flex items-center gap-2">
+                                            <button className="relative p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                                <span className="sr-only">{t('inbox.title', 'Notifications')}</span>
+                                                <InboxIcon className="h-6 w-6" />
+                                                {totalUnread > 0 && (
+                                                    <span className={`absolute -top-1 -right-1 block h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white dark:ring-gray-800 ${open ? '' : 'animate-pulse'}`}>
+                                                        {totalUnread > 99 ? '99+' : totalUnread}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
                                 </Dropdown.Trigger>
 
-                                <Dropdown.Content>
-                                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                            {t('inbox.notifications', 'Notificaciones')}
-                                        </span>
-                                        {(user.unread_messages_count + user.pending_invitations_count) > 0 && (
-                                            <span className="text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400 px-1.5 py-0.5 rounded-full font-bold">
-                                                {user.unread_messages_count + user.pending_invitations_count}
-                                            </span>
-                                        )}
-                                    </div>
+                                <Dropdown.Content
+                                    align="right"
+                                    width="200"
+                                    contentClasses="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden"
+                                >
+                                    <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                                            <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                                {t('inbox.title', 'Notifications')}
+                                                <span className="px-1.5 py-0.5 rounded bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 text-[10px]">
+                                                    {totalUnread}
+                                                </span>
+                                            </h3>
+                                        </div>
 
-                                    <div className="max-h-80 overflow-y-auto overflow-x-hidden scrollbar-thin">
                                         {/* Invitations Section */}
                                         {user.pending_invitations && user.pending_invitations.length > 0 && (
                                             <div className="bg-amber-50/30 dark:bg-amber-900/10">
-                                                <div className="px-4 py-1 text-[10px] uppercase font-bold text-amber-600 dark:text-amber-500 tracking-wider">
-                                                    {t('invitations.pending_title', 'Invitaciones Pendientes')}
+                                                <div className="px-4 py-1.5 text-[9px] font-bold text-amber-600 dark:text-amber-500 tracking-wider uppercase">
+                                                    {t('invitations.pending_title', 'Pending Invitations')}
                                                 </div>
                                                 {user.pending_invitations.map((invitation) => (
                                                     <Dropdown.Link
                                                         key={`inv-${invitation.id}`}
                                                         href={route('invitations.index')}
-                                                        className="flex items-center px-4 py-3 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors border-b border-amber-100/50 dark:border-amber-900/20"
+                                                        className="flex flex-col px-4 py-2.5 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors border-b border-amber-100/50 dark:border-amber-900/20"
                                                     >
-                                                        <div className="shrink-0 mr-3">
-                                                            <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                                                                <EnvelopeIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                                {invitation.proyecto_nombre}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                                {t('invitations.invited_by', 'Invitado por')} {invitation.invitador_nombre}
+                                                        <div className="flex justify-between items-start mb-0.5">
+                                                            <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-tight">
+                                                                {t('invitations.type', 'Invitation')}
                                                             </p>
                                                         </div>
+                                                        <p className="text-[13px] font-semibold text-gray-900 dark:text-white">
+                                                            {invitation.proyecto_nombre}
+                                                        </p>
+                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                                            <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                                {invitation.invitador_nombre}
+                                                            </span>
+                                                            : {t('invitations.invited_you', 'invited you to join')}
+                                                        </p>
                                                     </Dropdown.Link>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Task Mentions / Database Notifications Section */}
+                                        {user.db_notifications && user.db_notifications.length > 0 && (
+                                            <div className="bg-blue-50/30 dark:bg-blue-900/10">
+                                                <div className="px-4 py-1.5 text-[9px] font-bold text-blue-600 dark:text-blue-500 tracking-wider uppercase">
+                                                    {t('inbox.mentions', 'Activity')}
+                                                </div>
+                                                {user.db_notifications.map((notif) => (
+                                                    <button
+                                                        key={`notif-${notif.id}`}
+                                                        onClick={() => {
+                                                            // Mark as read (delete) first
+                                                            router.delete(route('notifications.destroy', { notification: notif.id }), {
+                                                                preserveScroll: true,
+                                                                onFinish: () => {
+                                                                    // Determine destination
+                                                                    let targetUrl;
+                                                                    if (notif.type === 'chat_message' && notif.data?.project_uuid) {
+                                                                        targetUrl = route('mis-proyectos.chat', { proyecto: notif.data.project_uuid });
+                                                                    } else if (notif.data?.project_uuid) {
+                                                                        // For tasks (assigned or mentioned)
+                                                                        targetUrl = route('mis-proyectos.tasks.index', { proyecto: notif.data.project_uuid });
+                                                                    } else {
+                                                                        targetUrl = route('dashboard');
+                                                                    }
+                                                                    router.visit(targetUrl);
+                                                                }
+                                                            });
+                                                        }}
+                                                        className="w-full text-left flex flex-col px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-b border-blue-100/50 dark:border-blue-900/20"
+                                                    >
+                                                        <div className="flex justify-between items-baseline mb-0.5">
+                                                            <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">
+                                                                {notif.data.project_name || 'Personal'} — {notif.type === 'chat_message' ? t('modules.chat.title', 'Chat') : t('modules.tasks.title', 'Task')}
+                                                            </p>
+                                                        </div>
+                                                        <p className="text-[13px] font-semibold text-gray-900 dark:text-white">
+                                                            {notif.data.task_id_string ? `${notif.data.task_id_string}: ` : ''}{notif.data.task_title || notif.data.message_content || 'Notification'}
+                                                        </p>
+                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                                            <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                                {notif.data.mentioned_by_name || notif.data.assigned_by_name || notif.data.sender_name}
+                                                            </span>
+                                                            : {notif.type === 'chat_message' ? notif.data.message_content : 
+                                                               (notif.type === 'task_assigned' ? t('inbox.assigned_task', 'assigned you a task') : 
+                                                                notif.data.comment_excerpt || t('inbox.mentioned_you', 'mentioned you'))}
+                                                        </p>
+                                                    </button>
                                                 ))}
                                             </div>
                                         )}
@@ -225,55 +305,74 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                         {/* Chat Messages Section */}
                                         {user.unread_projects && user.unread_projects.length > 0 ? (
                                             <div>
-                                                {user.pending_invitations?.length > 0 && (
-                                                    <div className="px-4 py-1 text-[10px] uppercase font-bold text-primary-600 dark:text-primary-500 tracking-wider border-t border-gray-100 dark:border-gray-700">
-                                                        {t('modules.chat.title', 'Mensajes de Chat')}
+                                                {(user.pending_invitations?.length > 0 || user.db_notifications?.length > 0) && (
+                                                    <div className="px-4 py-1.5 text-[9px] font-bold text-primary-600 dark:text-primary-500 tracking-wider border-t border-gray-100 dark:border-gray-700 uppercase">
+                                                        {t('modules.chat.title', 'Chat')}
                                                     </div>
                                                 )}
                                                 {user.unread_projects.map((project) => (
                                                     <Dropdown.Link
                                                         key={`chat-${project.id}`}
-                                                        href={route('mis-proyectos.chat', project.uuid)}
-                                                        className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                                        href={project.uuid ? route('mis-proyectos.chat', { proyecto: project.uuid }) : '#'}
+                                                        className="flex flex-col px-4 py-2.5 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors border-b border-primary-100/50 dark:border-primary-900/10"
                                                     >
-                                                        <div className="shrink-0 mr-3">
-                                                            {project.image_url || project.image_path ? (
-                                                                <img className="h-8 w-8 rounded-full object-cover border border-gray-100 dark:border-gray-700" src={project.image_url || `/storage/${project.image_path}`} alt="" />
-                                                            ) : (
-                                                                <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-                                                                    <FolderIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-                                                                </div>
+                                                        <div className="flex justify-between items-baseline mb-0.5">
+                                                            <p className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-tight">
+                                                                {project.nombre} — {t('modules.chat.title', 'Chat')}
+                                                            </p>
+                                                            {project.unread_count > 0 && (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                                                                    {project.unread_count}
+                                                                </span>
                                                             )}
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                                                {project.nombre}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                                {project.unread_count} {t('inbox.new_messages', 'mensajes nuevos')}
-                                                            </p>
-                                                        </div>
-                                                        {project.unread_count > 0 && (
-                                                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                                {project.unread_count}
-                                                            </span>
-                                                        )}
+                                                        <p className="text-[13px] font-semibold text-gray-900 dark:text-white">
+                                                            {t('chat.unread_messages', { count: project.unread_count })}
+                                                        </p>
+                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                                            {t('chat.click_to_view', 'Click to view the conversation')}
+                                                        </p>
                                                     </Dropdown.Link>
                                                 ))}
                                             </div>
                                         ) : (
-                                            (!user.pending_invitations || user.pending_invitations.length === 0) && (
+                                            (!user.pending_invitations || user.pending_invitations.length === 0) && (!user.db_notifications || user.db_notifications.length === 0) && (
                                                 <div className="px-4 py-10 text-center flex flex-col items-center">
                                                     <div className="h-12 w-12 rounded-full bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center mb-3">
                                                         <InboxIcon className="h-6 w-6 text-gray-300 dark:text-gray-600" />
                                                     </div>
                                                     <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                                        {t('inbox.empty', 'No tienes notificaciones.')}
+                                                        {t('inbox.empty', 'No notifications yet.')}
                                                     </p>
                                                 </div>
                                             )
-                                        )}
+                                         )}
                                     </div>
+
+                                    {/* Footer Section with Trash Button */}
+                                    {totalUnread > 0 && (
+                                        <div className="p-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 flex justify-end">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (confirm(t('notifications.clear_all_confirm', 'Are you sure you want to clear all notifications?'))) {
+                                                        import('@inertiajs/react').then(({ router }) => {
+                                                            router.delete(route('notifications.destroy-all'));
+                                                        });
+                                                    }
+                                                }}
+                                                className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all flex items-center gap-2 group"
+                                                title={t('notifications.clear_all', 'Clear all notifications')}
+                                            >
+                                                <span className="text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {t('notifications.clear_all', 'Clear all')}
+                                                </span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
                                 </Dropdown.Content>
                             </Dropdown>
                         </div>
@@ -399,7 +498,7 @@ function LayoutContent({ user, header, children, projectTheme, project, showBack
                                 >
                                     <span className="sr-only">{t('inbox.title', 'Buzón de entrada')}</span>
                                     <InboxIcon className="h-6 w-6 transition-colors duration-200 text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300" />
-                                    {user.unread_messages_count > 0 && (
+                                    {(user.unread_messages_count > 0 || (user.db_notifications_count || 0) > 0) && (
                                         <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 bg-red-500 transform translate-x-1/4 -translate-y-1/4"></span>
                                     )}
                                 </Link>

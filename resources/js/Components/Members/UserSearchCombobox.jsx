@@ -16,7 +16,7 @@ export default function UserSearchCombobox({ project, onSelect, selectedEmail, e
         const timeoutId = setTimeout(() => {
             if (query.length >= 2) {
                 setLoading(true);
-                axios.get(route('project.users.search', project.uuid), { params: { query } })
+                axios.get(route('project.users.search', { proyecto: project.uuid }), { params: { query } })
                     .then(response => {
                         setUsers(response.data);
                         setLoading(false);

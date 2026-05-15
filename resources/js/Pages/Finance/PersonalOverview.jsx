@@ -39,7 +39,7 @@ export default function PersonalOverview({ auth, proyecto, isAdmin }) {
                         label={t('finance.dashboard_subtitle', 'Gestiona tus cuentas y transacciones')}
                         action={{
                             label: t('common.view_details', 'Ver detalles'),
-                            href: route('mis-proyectos.finance', proyecto.uuid)
+                            href: route('mis-proyectos.finance', { proyecto: proyecto.uuid })
                         }}
                     />
                 </div>

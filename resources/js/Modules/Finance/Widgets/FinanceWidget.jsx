@@ -30,7 +30,7 @@ export default function FinanceWidget({ project }) {
         }
 
         try {
-            const response = await axios.get(route('api.finance.balance', project.uuid));
+            const response = await axios.get(route('api.finance.balance', { proyecto: project.uuid }));
             setBalance(response.data.balance);
         } catch (error) {
             console.error('Error fetching balance:', error);

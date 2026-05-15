@@ -38,7 +38,6 @@ export default function Index({ auth, proyecto, tasks, categories }) {
             // Check if ANY of the task users matches the filter
             const matchesAssignee = filters.assignee === 'all' || (task.users && task.users.some(u => u.uuid === filters.assignee));
             const matchesPriority = filters.priority === 'all' || task.priority === filters.priority;
-            const matchesPrioriy = filters.priority === 'all' || task.priority === filters.priority;
 
             // Hide completed tasks if they were completed before today (using updated_at as proxy)
             let isVisible = true;
@@ -55,7 +54,7 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                 }
             }
 
-            return matchesSearch && matchesAssignee && matchesPrioriy && isVisible;
+            return matchesSearch && matchesAssignee && matchesPriority && isVisible;
         });
     }, [localTasks, filters]);
 
@@ -78,6 +77,15 @@ export default function Index({ auth, proyecto, tasks, categories }) {
         }
     };
 
+    const isFullTaskAdmin = (task) => {
+        if (!task) return true;
+        const isAdmin = proyecto.user_id === auth.user.id || 
+                        auth.user.is_super_admin || 
+                        (proyecto.miembros && proyecto.miembros.find(m => m.id === auth.user.id)?.pivot?.role === 'admin');
+        const isCreator = Number(task.user_id) === Number(auth.user.id);
+        return isAdmin || isCreator;
+    };
+
     const onDragEnd = async (result) => {
         if (!result.destination) return;
 
@@ -91,16 +99,22 @@ export default function Index({ auth, proyecto, tasks, categories }) {
             if (!task) return;
 
             // 1. Optimistic Update
+            const now = new Date().toISOString();
             const updatedTasks = localTasks.map(t =>
-                t.uuid === taskUuid ? { ...t, status: newStatus } : t
+                t.uuid === taskUuid ? { ...t, status: newStatus, updated_at: now } : t
             );
             setLocalTasks(updatedTasks);
 
             // 2. API Call
             try {
                 await axios.put(route('mis-proyectos.tasks.update', { proyecto: proyecto.uuid, task: task.uuid }), {
-                    ...task,
-                    status: newStatus
+                    title: task.title,
+                    status: newStatus,
+                    priority: task.priority,
+                    description: task.description,
+                    due_date: task.due_date,
+                    related_type: task.related_type,
+                    related_id: task.related_id
                 });
 
                 // 3. Silent Reload (optional, but good for consistency)
@@ -253,13 +267,15 @@ export default function Index({ auth, proyecto, tasks, categories }) {
                                                                 className={`p-2 md:p-3 rounded-md md:rounded-lg shadow-sm border transition-all cursor-pointer group relative flex flex-col xl:flex-row xl:items-center xl:gap-3 ${getStatusColor(task.status)} hover:shadow-md active:scale-95 touch-manipulation min-h-[80px] xl:min-h-[48px]`}
                                                             >
                                                                 {/* Absolute Delete Button */}
-                                                                <button
-                                                                    onClick={(e) => handleDeleteTask(e, task)}
-                                                                    className="absolute top-1 right-1 xl:top-1/2 xl:-translate-y-1/2 xl:right-2 text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1 z-10"
-                                                                    title={t('common.delete', 'Eliminar')}
-                                                                >
-                                                                    <TrashIcon className="w-3.5 h-3.5" />
-                                                                </button>
+                                                                {isFullTaskAdmin(task) && (
+                                                                    <button
+                                                                        onClick={(e) => handleDeleteTask(e, task)}
+                                                                        className="absolute top-1 right-1 xl:top-1/2 xl:-translate-y-1/2 xl:right-2 text-gray-400 hover:text-red-500 transition-colors opacity-100 md:opacity-0 group-hover:opacity-100 p-1 z-10"
+                                                                        title={t('common.delete', 'Eliminar')}
+                                                                    >
+                                                                        <TrashIcon className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                )}
 
                                                                 {/* Left: Priority & Title */}
                                                                 <div className="flex flex-col xl:flex-row xl:items-center gap-1.5 xl:gap-3 flex-1 min-w-0 pr-6 xl:pr-8">

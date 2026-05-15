@@ -9,6 +9,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/lotes/history', [LoteController::class, 'history'])->name('operations.lotes.history');
         Route::get('/lotes', [LoteController::class, 'index'])->name('operations.lotes.index');
         Route::get('/lotes/create', [LoteController::class, 'create'])->name('operations.lotes.create');
+        Route::get('/lotes/{lote}', [LoteController::class, 'show'])->name('operations.lotes.show');
         Route::post('/lotes', [LoteController::class, 'store'])->name('operations.lotes.store');
         
         // Lote Actions

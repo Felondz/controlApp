@@ -24,8 +24,32 @@ class UpdateTaskAction
 
         $dto->task->update($data);
 
+        // Multiple images
+        if (!empty($dto->images)) {
+            foreach ($dto->images as $img) {
+                $path = (new \App\Actions\SanitizeImageAction())->execute($img, 'tasks/' . $dto->task->project_id . '/gallery', 'local');
+                $dto->task->images()->create(['image_path' => $path]);
+            }
+        }
+
         if ($dto->assignees !== null) {
+            $previousAssignees = $dto->task->users()->pluck('users.id')->toArray();
             $dto->task->users()->sync($dto->assignees);
+
+            // Find newly added assignees
+            $newAssignees = array_diff($dto->assignees, $previousAssignees);
+
+            if (!empty($newAssignees)) {
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+                $usersToNotify = \App\Models\User::whereIn('id', $newAssignees)
+                    ->where('id', '!=', $user->id)
+                    ->get();
+
+                foreach ($usersToNotify as $assignee) {
+                    $assignee->notify(new \App\Notifications\TaskAssignedNotification($dto->task, $user));
+                }
+            }
         }
 
         return $dto->task;

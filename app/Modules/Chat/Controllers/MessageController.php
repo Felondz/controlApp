@@ -24,7 +24,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -53,7 +53,7 @@ class MessageController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
         
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -109,8 +109,31 @@ class MessageController extends Controller
         // Load relationships for the response and event
         $message->load(['user:id,name,profile_photo_path', 'recipient:id,name', 'parent']);
 
-        // Dispatch MessageSent event to others
+        // Dispatch MessageSent event to others (WebSockets)
         broadcast(new MessageSent($message))->toOthers();
+
+        // Dispatch persistent notifications
+        if ($message->recipient_id) {
+            // Private message
+            /** @var \App\Models\User|null $recipient */
+            $recipient = \App\Models\User::find($message->recipient_id);
+            if ($recipient) {
+                $recipient->notify(new \App\Notifications\ChatMessageNotification($message));
+            }
+        } else {
+            // Group message - Notify all members except sender
+            $membersToNotify = $proyecto->miembros()
+                ->where('users.id', '!=', $user->id)
+                ->get();
+
+            /** @var \App\Models\User $member */
+            foreach ($membersToNotify as $member) {
+                $member->notify(new \App\Notifications\ChatMessageNotification($message));
+            }
+        }
+
+        // Dispatch module event for listeners (like unread count increment)
+        app(ModuleEventBus::class)->dispatch(new MessageSent($message));
 
         return response()->json($message, 201);
     }
@@ -122,7 +145,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        if ($message->user_id !== $user->id) {
+        if ((int)$message->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -150,7 +173,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        if ($message->user_id !== $user->id && !$user->esAdminDe($proyecto)) {
+        if ((int)$message->user_id !== (int)$user->id && !$user->esAdminDe($proyecto)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -158,7 +181,7 @@ class MessageController extends Controller
         $message->delete();
         
         // Dispatch MessageDeleted event to others
-        broadcast(new MessageDeleted($messageId, $proyecto->id))->toOthers();
+        broadcast(new MessageDeleted((string)$messageId, (string)$proyecto->id))->toOthers();
 
         return response()->json(['status' => 'success']);
     }
@@ -212,13 +235,16 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         // Update pivot for general chat (if user is a member via pivot)
         if ($proyecto->miembros->contains($user)) {
-            $proyecto->miembros()->updateExistingPivot($user->id, ['last_read_at' => now()]);
+            $proyecto->miembros()->updateExistingPivot($user->id, [
+                'last_read_at' => now(),
+                'unread_messages_count' => 0
+            ]);
         }
 
         // Update private messages sent TO me in this project

@@ -1,4 +1,9 @@
 {
+    "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member"
+    },
     "accounts": {
         "title": "Accounts",
         "name": "Account Name",
@@ -56,7 +61,9 @@
         "attachment": "Attachment",
         "cancel_edit": "Cancel edit",
         "save_edit": "Save",
-        "react": "React"
+        "react": "React",
+        "unread_messages": "You have :count unread messages",
+        "click_to_view": "Click to view the conversation"
     },
     "settings": {
         "theme": {
@@ -323,6 +330,16 @@
         "delete": "Delete Category"
     },
     "common": {
+        "media_gallery": "Media Gallery",
+        "unknown_user": "Unknown user",
+        "comments": "Comments and Activity",
+        "no_comments": "No comments yet.",
+        "add_comment_placeholder": "Write a comment or update...",
+        "add_comment_mention_placeholder": "Write a comment... use @ to mention",
+        "mention_member": "Mention member",
+        "sending": "Sending...",
+        "post_comment": "Post",
+        "images": "Images",
         "documentation": "Guides",
         "security_note_title": "Security Note",
         "security_note_desc": "Detailed technical documentation is restricted to verified collaborators.",
@@ -549,7 +566,7 @@
         "expense": "Expense",
         "add_income": "Add Income",
         "add_expense": "Add Expense",
-        "restricted": "Restricted Access",
+        "restricted": "Limited access for members",
         "restricted_access": "You do not have permission to view financial information for this project.",
         "no_accounts_alert": "You have no accounts associated with this project. You must create an account first to register transactions.",
         "personal_finance": "Personal Finance",
@@ -1172,7 +1189,15 @@
             "unread_count": ":count new messages",
             "view_all": "View notification center",
             "notifications": "Notifications",
-            "new_messages": "new messages"
+            "new_messages": "new messages",
+            "mentions": "Notifications",
+            "mentioned_you": "mentioned you",
+            "sent_message": "sent a message",
+            "assigned_task": "assigned you a task"
+        },
+        "notifications": {
+            "clear_all": "clear all notifications",
+            "clear_all_confirm": "Are you sure you want to clear all notifications?"
         },
         "transactions": {
             "title": "Transactions",

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Modules\Chat\Events\MessageUpdated;
 use App\Modules\Chat\Events\MessageDeleted;
+use App\Events\NotificationsCleared;
 
 class ProjectMessageUiWebController extends Controller
 {
@@ -17,19 +18,19 @@ class ProjectMessageUiWebController extends Controller
     /**
      * List messages for a project (filtered by channel).
      */
-    public function index(Request $request, Proyecto $mis_proyecto): JsonResponse
+    public function index(Request $request, Proyecto $proyecto): JsonResponse
     {
         // Authorization: Check if user is a member of the project
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (!$mis_proyecto->hasMessagingFeature()) {
+        if (!$proyecto->hasMessagingFeature()) {
             return response()->json(['message' => 'Messaging not enabled for this project'], 403);
         }
 
         $recipientId = $request->query('recipient_id');
-        $query = Message::where('proyecto_id', $mis_proyecto->id);
+        $query = Message::where('proyecto_id', $proyecto->id);
 
         if ($recipientId) {
             // Private messages between auth user and recipient
@@ -57,13 +58,13 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Send a message to a project.
      */
-    public function store(Request $request, Proyecto $mis_proyecto): JsonResponse
+    public function store(Request $request, Proyecto $proyecto): JsonResponse
     {
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        if (!$mis_proyecto->hasMessagingFeature()) {
+        if (!$proyecto->hasMessagingFeature()) {
             return response()->json(['message' => 'Messaging not enabled for this project'], 403);
         }
 
@@ -87,12 +88,12 @@ class ProjectMessageUiWebController extends Controller
             $mimeType = $file->getMimeType() ?? '';
             
             if (str_starts_with($mimeType, 'image/')) {
-                $filePath = (new \App\Actions\SanitizeImageAction())->execute($file, 'chat/' . $mis_proyecto->id, 'local');
+                $filePath = (new \App\Actions\SanitizeImageAction())->execute($file, 'chat/' . $proyecto->id, 'local');
                 $type = 'image';
             } else {
                 $extension = $file->getClientOriginalExtension();
                 $filename = Str::uuid() . '.' . $extension;
-                $filePath = $file->storeAs('chat/' . $mis_proyecto->id, $filename, 'local');
+                $filePath = $file->storeAs('chat/' . $proyecto->id, $filename, 'local');
                 $type = 'file';
             }
             
@@ -102,7 +103,7 @@ class ProjectMessageUiWebController extends Controller
         }
 
         /** @var \App\Modules\Chat\Models\Message $message */
-        $message = $mis_proyecto->messages()->create([
+        $message = $proyecto->messages()->create([
             'user_id' => auth()->id(),
             'content' => $validated['content'],
             'type' => $type,
@@ -122,7 +123,7 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Update a message (edit content).
      */
-    public function update(Request $request, Proyecto $mis_proyecto, Message $message): JsonResponse
+    public function update(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
         if ($message->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -147,21 +148,21 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Delete a message.
      */
-    public function destroy(Request $request, Proyecto $mis_proyecto, Message $message): JsonResponse
+    public function destroy(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
         
-        if ($message->user_id !== auth()->id() && !$user->esAdminDe($mis_proyecto)) {
+        if ($message->user_id !== auth()->id() && !$user->esAdminDe($proyecto)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $messageId = $message->id;
-        $proyectoId = $mis_proyecto->id;
+        $proyectoId = $proyecto->id;
 
         $message->delete();
 
-        broadcast(new \App\Modules\Chat\Events\MessageDeleted($messageId, $proyectoId))->toOthers();
+        broadcast(new \App\Modules\Chat\Events\MessageDeleted($message->uuid, $proyecto->uuid))->toOthers();
 
         return response()->json(['status' => 'success']);
     }
@@ -169,7 +170,7 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Toggle a reaction on a message.
      */
-    public function toggleReaction(Request $request, Proyecto $mis_proyecto, Message $message): JsonResponse
+    public function toggleReaction(Request $request, Proyecto $proyecto, Message $message): JsonResponse
     {
         $validated = $request->validate([
             'emoji' => 'required|string|max:10',
@@ -206,9 +207,9 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Mark messages as read (channel specific).
      */
-    public function markAsRead(Request $request, Proyecto $mis_proyecto): JsonResponse
+    public function markAsRead(Request $request, Proyecto $proyecto): JsonResponse
     {
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -216,21 +217,30 @@ class ProjectMessageUiWebController extends Controller
 
         if ($recipientId) {
             // Mark DMs from this user as read
-            Message::where('proyecto_id', $mis_proyecto->id)
+            Message::where('proyecto_id', $proyecto->id)
                 ->where('user_id', $recipientId)
                 ->where('recipient_id', auth()->id())
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
+
+            // Clear DM notifications
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $user->unreadNotifications()
+                ->where('data->type', 'chat_message')
+                ->where('data->project_uuid', $proyecto->uuid)
+                ->where('data->sender_id', (int)$recipientId)
+                ->delete();
         } else {
             // Mark General messages as read
-            if ($mis_proyecto->miembros->contains('id', auth()->id())) {
-                $mis_proyecto->miembros()->updateExistingPivot(auth()->id(), [
+            if ($proyecto->miembros->contains('id', auth()->id())) {
+                $proyecto->miembros()->updateExistingPivot(auth()->id(), [
                     'last_read_at' => now(),
                     'unread_messages_count' => 0 // Reset counter
                 ]);
-            } else if ($mis_proyecto->user_id === auth()->id()) {
+            } else if ($proyecto->user_id === auth()->id()) {
                 // If owner is not in pivot, attach them to track read status
-                $mis_proyecto->miembros()->attach(auth()->id(), [
+                $proyecto->miembros()->attach(auth()->id(), [
                     'rol' => 'admin',
                     'last_read_at' => now(),
                     'unread_messages_count' => 0 // Reset counter
@@ -238,12 +248,25 @@ class ProjectMessageUiWebController extends Controller
             }
 
             // Also update individual message read status for consistency
-            Message::where('proyecto_id', $mis_proyecto->id)
+            Message::where('proyecto_id', $proyecto->id)
                 ->whereNull('recipient_id')
                 ->where('user_id', '!=', auth()->id())
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
+
+            // NEW: Clear database notifications of type chat_message for this project
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $user->unreadNotifications()
+                ->where('data->type', 'chat_message')
+                ->where('data->project_uuid', $proyecto->uuid)
+                ->delete();
         }
+
+        // Broadcast cleanup to other sessions (Mobile/Web)
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+        NotificationsCleared::dispatch($authUser, 'chat_message', $proyecto->uuid);
 
         return response()->json(['status' => 'success']);
     }
@@ -251,9 +274,9 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Get unread counts for all channels.
      */
-    public function unreadCounts(Proyecto $mis_proyecto): JsonResponse
+    public function unreadCounts(Proyecto $proyecto): JsonResponse
     {
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -261,7 +284,7 @@ class ProjectMessageUiWebController extends Controller
         $generalLastReadAt = null;
 
         $pivot = \Illuminate\Support\Facades\DB::table('proyecto_user')
-            ->where('proyecto_id', $mis_proyecto->id)
+            ->where('proyecto_id', $proyecto->id)
             ->where('user_id', auth()->id())
             ->first();
 
@@ -269,7 +292,7 @@ class ProjectMessageUiWebController extends Controller
             $generalLastReadAt = $pivot->last_read_at;
         }
 
-        $generalUnread = Message::where('proyecto_id', $mis_proyecto->id)
+        $generalUnread = Message::where('proyecto_id', $proyecto->id)
             ->whereNull('recipient_id')
             ->where('user_id', '!=', auth()->id())
             ->when($generalLastReadAt, function ($q) use ($generalLastReadAt) {
@@ -278,7 +301,7 @@ class ProjectMessageUiWebController extends Controller
             ->count();
 
         // DMs Unread (grouped by sender)
-        $dmUnread = Message::where('proyecto_id', $mis_proyecto->id)
+        $dmUnread = Message::where('proyecto_id', $proyecto->id)
             ->where('recipient_id', auth()->id())
             ->whereNull('read_at')
             ->selectRaw('user_id, count(*) as count')
@@ -286,7 +309,7 @@ class ProjectMessageUiWebController extends Controller
             ->pluck('count', 'user_id');
 
         // DMs Last Read At (grouped by sender)
-        $dmLastReadAt = Message::where('proyecto_id', $mis_proyecto->id)
+        $dmLastReadAt = Message::where('proyecto_id', $proyecto->id)
             ->where('recipient_id', auth()->id())
             ->whereNotNull('read_at')
             ->selectRaw('user_id, max(read_at) as last_read')
@@ -304,9 +327,9 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Search messages in the project.
      */
-    public function search(Request $request, Proyecto $mis_proyecto): JsonResponse
+    public function search(Request $request, Proyecto $proyecto): JsonResponse
     {
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -315,7 +338,7 @@ class ProjectMessageUiWebController extends Controller
             return response()->json(['data' => []]);
         }
 
-        $messages = Message::where('proyecto_id', $mis_proyecto->id)
+        $messages = Message::where('proyecto_id', $proyecto->id)
             ->where('content', 'LIKE', "%{$query}%")
             ->where(function ($q) {
                 // Ensure user can only search messages they have access to
@@ -333,20 +356,20 @@ class ProjectMessageUiWebController extends Controller
     /**
      * Serve a chat file securely.
      */
-    public function file(Proyecto $mis_proyecto, Message $message)
+    public function file(Proyecto $proyecto, Message $message): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         // Authorization: Check if user is a member of the project
-        if (!$mis_proyecto->miembros->contains('id', auth()->id()) && $mis_proyecto->user_id !== auth()->id()) {
+        if (!$proyecto->miembros->contains('id', auth()->id()) && $proyecto->user_id !== auth()->id()) {
             abort(403);
         }
 
         // Security: Ensure message belongs to project and user has access to it
-        if ($message->proyecto_id !== $mis_proyecto->id) {
+        if ((int) $message->proyecto_id !== (int) $proyecto->id) {
             abort(404);
         }
 
         // If it's a DM, ensure the user is either the sender or the recipient
-        if ($message->recipient_id && $message->recipient_id !== auth()->id() && $message->user_id !== auth()->id()) {
+        if ($message->recipient_id && (int) $message->recipient_id !== (int) auth()->id() && (int) $message->user_id !== (int) auth()->id()) {
             abort(403);
         }
 

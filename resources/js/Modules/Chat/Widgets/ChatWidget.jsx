@@ -24,7 +24,7 @@ export default function ChatWidget({ project, user }) {
     // Fetch unread counts and timestamps
     const fetchUnreadCounts = useCallback(async () => {
         try {
-            const response = await axios.get(route('project.messages.unread', project.uuid));
+            const response = await axios.get(route('project.messages.unread', { proyecto: project.uuid }));
             setUnreadCounts(response.data);
             
             // Update lastReadAt based on active channel
@@ -44,7 +44,7 @@ export default function ChatWidget({ project, user }) {
         try {
             const channel = activeChannelRef.current;
             const params = channel === 'general' ? {} : { recipient_id: channel };
-            const response = await axios.get(route('project.messages.index', project.uuid), { params });
+            const response = await axios.get(route('project.messages.index', { proyecto: project.uuid }), { params });
             const newMessages = response.data.data.reverse();
 
             // If new messages arrived while viewing this channel, mark as read
@@ -67,7 +67,7 @@ export default function ChatWidget({ project, user }) {
             const channel = activeChannelRef.current;
             const payload = channel === 'general' ? {} : { recipient_id: channel };
 
-            await axios.post(route('project.messages.read', project.uuid), payload);
+            await axios.post(route('project.messages.read', { proyecto: project.uuid }), payload);
 
             setUnreadCounts(prev => {
                 if (channel === 'general') {
@@ -185,7 +185,7 @@ export default function ChatWidget({ project, user }) {
             if (parentId) formData.append('parent_id', parentId);
             if (file) formData.append('file', file);
 
-            const response = await axios.post(route('project.messages.store', project.uuid), formData, {
+            const response = await axios.post(route('project.messages.store', { proyecto: project.uuid }), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -200,7 +200,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleUpdateMessage = async (messageId, newContent) => {
         try {
-            const response = await axios.put(route('project.messages.update', [project.uuid, messageId]), {
+            const response = await axios.put(route('project.messages.update', { proyecto: project.uuid, message: messageId }), {
                 content: newContent
             });
             setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
@@ -211,7 +211,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleDeleteMessage = async (messageId) => {
         try {
-            await axios.delete(route('project.messages.destroy', [project.uuid, messageId]));
+            await axios.delete(route('project.messages.destroy', { proyecto: project.uuid, message: messageId }));
             setMessages(prev => prev.filter(m => m.id !== messageId));
         } catch (error) {
             console.error("Error deleting message:", error);
@@ -220,7 +220,7 @@ export default function ChatWidget({ project, user }) {
 
     const handleToggleReaction = async (messageId, emoji) => {
         try {
-            const response = await axios.post(route('project.messages.react', [project.uuid, messageId]), {
+            const response = await axios.post(route('project.messages.react', { proyecto: project.uuid, message: messageId }), {
                 emoji
             });
             setMessages(prev => prev.map(m => m.id === messageId ? response.data : m));
@@ -238,7 +238,7 @@ export default function ChatWidget({ project, user }) {
 
         setIsSearching(true);
         try {
-            const response = await axios.get(route('project.messages.search', project.uuid), {
+            const response = await axios.get(route('project.messages.search', { proyecto: project.uuid }), {
                 params: { query }
             });
             setSearchResults(response.data.data);

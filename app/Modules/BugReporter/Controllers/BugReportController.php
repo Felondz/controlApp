@@ -32,7 +32,7 @@ class BugReportController extends Controller
             abort(403);
         }
 
-        $query = BugReport::with('user')->orderByDesc('created_at');
+        $query = BugReport::with(['user', 'images'])->orderByDesc('created_at');
 
         // Apply filters
         if ($request->filled('category')) {
@@ -78,6 +78,8 @@ class BugReportController extends Controller
             'page_url' => 'required|string',
             'platform' => 'required|string|in:web,mobile',
             'screenshot' => 'nullable|image|max:5120', // 5MB max
+            'images' => 'nullable|array',
+            'images.*' => 'image|max:5120',
         ]);
 
         /** @var \App\Models\User $user */
@@ -93,6 +95,7 @@ class BugReportController extends Controller
             platform: $validated['platform'] ?? 'web',
             severity: $validated['severity'] ?? 'medium',
             screenshot: $request->file('screenshot'),
+            images: $request->file('images'),
         );
 
         $bugReport = $action->execute($dto);

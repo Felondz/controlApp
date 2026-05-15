@@ -28,12 +28,16 @@ class ProjectMemberUiWebController extends Controller
             abort(403, 'No tienes permiso para ver los miembros de este proyecto.');
         }
 
-        $proyecto->load(['miembros', 'invitaciones']);
+        $proyecto->load(['miembros']);
+
+        $pendingInvitations = $proyecto->invitaciones()
+            ->where('status', Invitacion::STATUS_PENDING)
+            ->get();
 
         return Inertia::render('Projects/Members/Index', [
             'proyecto' => $proyecto,
             'members' => $proyecto->miembros,
-            'invitations' => $proyecto->invitaciones,
+            'invitations' => $pendingInvitations,
             'isAdmin' => $request->user()->esAdminDe($proyecto),
             'isOwner' => $proyecto->user_id === $request->user()->id,
         ]);
@@ -60,7 +64,7 @@ class ProjectMemberUiWebController extends Controller
             return back()->withErrors(['email' => 'Este usuario ya es miembro del proyecto.']);
         }
 
-        if ($proyecto->invitaciones()->where('email', $emailInvitado)->exists()) {
+        if ($proyecto->invitaciones()->where('email', $emailInvitado)->where('status', Invitacion::STATUS_PENDING)->exists()) {
             return back()->withErrors(['email' => 'Este usuario ya tiene una invitación pendiente.']);
         }
 
@@ -228,7 +232,9 @@ class ProjectMemberUiWebController extends Controller
 
         // Get IDs of current members and pending invitations to exclude
         $memberIds = $proyecto->miembros()->pluck('users.id');
-        $invitedEmails = $proyecto->invitaciones()->pluck('email');
+        $invitedEmails = $proyecto->invitaciones()
+            ->where('status', Invitacion::STATUS_PENDING)
+            ->pluck('email');
 
         $users = User::where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
@@ -296,17 +302,24 @@ class ProjectMemberUiWebController extends Controller
             return redirect()->route('dashboard')->with('error', 'La invitación ya no está disponible o ha sido procesada.');
         }
 
-        /** @var User $user */
         $user = $request->user();
+        if (!$user instanceof \App\Models\User) {
+            return redirect()->route('login');
+        }
+        
+        /** @var \App\Models\Proyecto|null $proyecto */
         $proyecto = $invitacion->proyecto;
+        if (!$proyecto) {
+             return redirect()->route('dashboard')->with('error', 'Proyecto no encontrado.');
+        }
 
         // Security Check: Ensure the logged-in user is the one who was invited
-        if ($user->email !== $invitacion->email) {
+        if ((string)$user->email !== (string)$invitacion->email) {
             return back()->with('error', 'Esta invitación no corresponde a tu cuenta.');
         }
 
-        // Check if already a member
-        if ($user->esMiembroDe($proyecto)) {
+        // Check if already a member (direct pivot check to ensure super-admins are also attached)
+        if ($proyecto->miembros()->where('users.id', $user->id)->exists()) {
             $invitacion->update([
                 'status' => Invitacion::STATUS_ACCEPTED,
                 'accepted_at' => now()

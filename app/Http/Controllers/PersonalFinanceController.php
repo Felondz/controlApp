@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
@@ -10,8 +10,9 @@ class PersonalFinanceController extends Controller
      /**
       * Muestra el dashboard de finanzas personales.
       */
-     public function index(Request $request)
+     public function index(Request $request): \Illuminate\Http\RedirectResponse
      {
+          /** @var \App\Models\User $user */
           $user = $request->user();
 
           // Obtener proyecto personal
@@ -48,6 +49,6 @@ class PersonalFinanceController extends Controller
           }
 
           // Redirect to standard project overview route
-          return redirect()->route('mis-proyectos.show', $proyectoPersonal->id);
+          return redirect()->route('mis-proyectos.show', $proyectoPersonal->uuid);
      }
 }

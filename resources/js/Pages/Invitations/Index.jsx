@@ -10,11 +10,11 @@ export default function Index({ auth, invitations }) {
     const { post, processing } = useForm();
 
     const handleAccept = (uuid) => {
-        post(route('invitations.accept', uuid));
+        post(route('invitations.accept', { invitation: uuid }));
     };
 
     const handleReject = (uuid) => {
-        post(route('invitations.reject', uuid));
+        post(route('invitations.reject', { invitation: uuid }));
     };
 
     return (

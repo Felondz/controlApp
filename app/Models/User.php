@@ -22,6 +22,7 @@ use App\Notifications\VerificacionEmailNotification;
  * @property string|null $global_theme
  * @property array|null $enabled_tools
  * @property array|null $settings
+ * @property string $uuid
  * @property bool $is_ai_enabled
  * @property string|null $remember_token
  * @property string $locale
@@ -224,7 +225,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Si es propietario de un proyecto personal, puede acceder
-        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+        if ($proyecto->esPersonal() && (int)$proyecto->user_id === (int)$this->id) {
             return true;
         }
 
@@ -250,7 +251,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Si es propietario de un proyecto personal, es admin del mismo
-        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+        if ($proyecto->esPersonal() && (int)$proyecto->user_id === (int)$this->id) {
             return true;
         }
 
@@ -261,9 +262,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
-        $rol = $proyectoPivot->pivot->rol ?? null;
+        /** @var mixed $pivot */
+        $pivot = $proyectoPivot->pivot;
+        $rol = strtolower((string)($pivot->rol ?? ''));
 
-        return $rol === 'admin' || $rol === 'owner';
+        return in_array($rol, ['admin', 'administrador', 'owner', 'propietario']);
     }
 
     /**
@@ -301,7 +304,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Usar la ruta protegida para asegurar la privacidad de las fotos de los usuarios
-        return route('user.photo', ['user' => $this->uuid]);
+        return route('user.photo', ['user' => (string) $this->getAttribute('uuid')]);
     }
 
     /**
@@ -322,7 +325,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Efficiently fetch unread project data manualy (avoiding global appends).
      * Returns struct compatible with frontend expectation.
      *
-     * @return array{unread_projects: array<int, mixed>, unread_messages_count: int, pending_invitations: \Illuminate\Support\Collection<int, mixed>, pending_invitations_count: int}
+     * @return array{unread_projects: array<int, mixed>, unread_messages_count: int, pending_invitations: \Illuminate\Support\Collection<int, mixed>, pending_invitations_count: int, db_notifications: \Illuminate\Support\Collection<int, mixed>, db_notifications_count: int}
      */
     public function getUnreadData(): array
     {
@@ -340,7 +343,19 @@ class User extends Authenticatable implements MustVerifyEmail
                 'unread_projects' => [], 
                 'unread_messages_count' => 0,
                 'pending_invitations' => collect([]),
-                'pending_invitations_count' => 0
+                'pending_invitations_count' => 0,
+                'db_notifications' => $this->unreadNotifications()
+                    ->latest()
+                    ->limit(20)
+                    ->get()
+                    ->map(fn(\Illuminate\Notifications\DatabaseNotification $n) => [
+                        'id' => $n->id,
+                        'type' => $n->data['type'] ?? 'general',
+                        'data' => $n->data,
+                        'read_at' => $n->read_at,
+                        'created_at' => $n->created_at?->toIso8601String(),
+                    ]),
+                'db_notifications_count' => (int) $this->unreadNotifications()->count(),
             ];
         }
 
@@ -364,10 +379,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         foreach ($allProjects as $proyecto) {
             /** @var \App\Models\Proyecto $proyecto */
-            // Check feature flag first? Assuming yes based on old code
-            // if (!$proyecto->hasMessagingFeature()) continue; // Model method call might duplicate logic?
-            // Simplified check:
-            if (!in_array('messages', $proyecto->enabled_features ?? [])) continue;
+            if (!$proyecto->hasMessagingFeature()) continue;
 
             $lastReadAt = null;
             
@@ -377,7 +389,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if ($pivot instanceof \Illuminate\Database\Eloquent\Relations\Pivot) {
                 /** @phpstan-ignore-next-line */
                 $lastReadAt = $pivot->last_read_at;
-            } else if ($proyecto->user_id === $userId) {
+            } else if ((int) $proyecto->user_id === $userId) {
                 // Owner might not have pivot? Check logic. 
                 // Old code queried DB manually. Let's assume owner sees all if no pivot tracking?
                 // Or try to find pivot in relation?
@@ -418,6 +430,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if ($projTotal > 0) {
                 $unreadProjects[] = [
                     'id' => $proyecto->id,
+                    'uuid' => $proyecto->uuid,
                     'nombre' => $proyecto->nombre,
                     'image_path' => $proyecto->image_path,
                     'image_url' => $proyecto->image_url,
@@ -437,6 +450,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->map(fn(Invitacion $inv) => [
                 'id' => $inv->id,
                 'proyecto_id' => $inv->proyecto_id,
+                'proyecto_uuid' => $inv->proyecto->uuid,
                 'proyecto_nombre' => $inv->proyecto->nombre,
                 'invitador_nombre' => $inv->invitador->name ?? 'System',
                 'image_url' => $inv->proyecto->image_url,
@@ -450,6 +464,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'unread_messages_count' => (int)$totalUnreadCount,
             'pending_invitations' => $pendingInvitations,
             'pending_invitations_count' => $pendingInvitations->count(),
+            'db_notifications' => $this->unreadNotifications()
+                ->latest()
+                ->limit(20)
+                ->get()
+                ->map(fn(\Illuminate\Notifications\DatabaseNotification $n) => [
+                    'id' => $n->id,
+                    'type' => $n->data['type'] ?? 'general',
+                    'data' => $n->data,
+                    'read_at' => $n->read_at,
+                    'created_at' => $n->created_at?->toIso8601String(),
+                ]),
+            'db_notifications_count' => (int) $this->unreadNotifications()->count(),
         ];
     }
 

@@ -10,6 +10,13 @@ export default forwardRef(function TextArea(
 
     useImperativeHandle(ref, () => ({
         focus: () => localRef.current?.focus(),
+        setSelectionRange: (start, end) => {
+            if (localRef.current && typeof localRef.current.setSelectionRange === 'function') {
+                localRef.current.setSelectionRange(start, end);
+            }
+        },
+        get selectionStart() { return localRef.current?.selectionStart; },
+        get selectionEnd() { return localRef.current?.selectionEnd; },
     }));
 
     useEffect(() => {

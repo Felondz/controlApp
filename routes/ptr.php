@@ -26,4 +26,6 @@ Route::middleware(['web', 'auth', \App\Http\Middleware\RequirePtrEnvironment::cl
         Route::get('/bug-reports/export', [BugReportController::class, 'exportJson'])->name('ptr.bug-reports.export');
         Route::get('/bug-reports/{bugReport}/screenshot', [BugReportScreenshotController::class, 'show'])
             ->name('ptr.bug-reports.screenshot');
+        Route::get('/bug-reports/gallery/{image}', [BugReportScreenshotController::class, 'showImage'])
+            ->name('ptr.bug-reports.gallery.image');
     });
