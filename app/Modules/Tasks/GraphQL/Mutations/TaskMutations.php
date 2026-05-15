@@ -70,10 +70,13 @@ class TaskMutations
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        $mentionedIds = isset($args['mentioned_user_ids']) ? array_map('intval', $args['mentioned_user_ids']) : [];
+
         return app(CreateTaskCommentAction::class)->execute(
             $task,
             $user,
-            (string) $args['content']
+            (string) $args['content'],
+            $mentionedIds
         );
     }
 }

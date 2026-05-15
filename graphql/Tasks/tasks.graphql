@@ -80,5 +80,6 @@ extend type Mutation {
     createTaskComment(
         task_id: ID!
         content: String!
+        mentioned_user_ids: [ID!]
     ): TaskComment! @field(resolver: "App\\Modules\\Tasks\\GraphQL\\Mutations\\TaskMutations@createTaskComment") @guard
 }

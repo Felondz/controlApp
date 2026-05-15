@@ -6,23 +6,21 @@ use App\Models\User;
 use App\Modules\Tasks\Models\Task;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Mail\TaskMentionMail;
 
 /**
- * Core notification dispatched when a user is mentioned (@) in a task comment.
- * Lives in app/Notifications/ because the notification system is cross-cutting (core).
+ * Notification dispatched when a user is assigned to a task.
  * 
- * Channels: database (inbox badge) + mail (queued email).
+ * Channels: database (inbox), mail (email).
  */
-class TaskMentionNotification extends Notification implements ShouldQueue
+class TaskAssignedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
         private readonly Task $task,
-        private readonly User $mentionedBy,
-        private readonly string $commentContent,
+        private readonly User $assignedBy,
     ) {}
 
     /**
@@ -35,7 +33,7 @@ class TaskMentionNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Data stored in the `notifications` table for the inbox/topbar badge.
+     * Data stored in the `notifications` table.
      *
      * @param User $notifiable
      * @return array<string, mixed>
@@ -45,7 +43,7 @@ class TaskMentionNotification extends Notification implements ShouldQueue
         $proyecto = $this->task->proyecto;
 
         return [
-            'type' => 'task_mention',
+            'type' => 'task_assigned',
             'task_id' => $this->task->id,
             'task_uuid' => $this->task->uuid,
             'task_title' => $this->task->title,
@@ -53,24 +51,22 @@ class TaskMentionNotification extends Notification implements ShouldQueue
             'project_id' => $proyecto?->id,
             'project_uuid' => $proyecto?->uuid,
             'project_name' => $proyecto->nombre ?? '',
-            'mentioned_by_name' => $this->mentionedBy->name,
-            'mentioned_by_id' => $this->mentionedBy->id,
-            'comment_excerpt' => mb_substr($this->commentContent, 0, 120),
+            'assigned_by_name' => $this->assignedBy->name,
+            'assigned_by_id' => $this->assignedBy->id,
         ];
     }
 
     /**
-     * Mail channel — uses a dedicated Mailable that extends the shared email layout.
+     * Get the mail representation of the notification.
      *
      * @param User $notifiable
-     * @return TaskMentionMail
+     * @return \App\Mail\TaskAssignedMail
      */
-    public function toMail(User $notifiable): TaskMentionMail
+    public function toMail(User $notifiable): \App\Mail\TaskAssignedMail
     {
-        return (new TaskMentionMail(
+        return (new \App\Mail\TaskAssignedMail(
             task: $this->task,
-            mentionedBy: $this->mentionedBy,
-            commentContent: $this->commentContent,
+            assignedBy: $this->assignedBy,
             recipientLocale: $notifiable->locale ?? 'es',
         ))->to($notifiable->email);
     }

@@ -62,6 +62,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/toggle-ai', [ProfileController::class, 'toggleAi'])->name('profile.toggle-ai');
     Route::get('/search', \App\Http\Controllers\SearchController::class)->name('search');
     Route::get('/inbox', [\App\Http\Controllers\InboxController::class, 'index'])->name('inbox');
+    
+    // Notifications
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications', [\App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
 
     // Personal Finance
     Route::get('/finance', [\App\Http\Controllers\PersonalFinanceController::class, 'index'])->name('finance.personal');

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Modules\Chat\Events\MessageUpdated;
 use App\Modules\Chat\Events\MessageDeleted;
+use App\Events\NotificationsCleared;
 
 class ProjectMessageUiWebController extends Controller
 {
@@ -221,6 +222,15 @@ class ProjectMessageUiWebController extends Controller
                 ->where('recipient_id', auth()->id())
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
+
+            // Clear DM notifications
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $user->unreadNotifications()
+                ->where('data->type', 'chat_message')
+                ->where('data->project_uuid', $proyecto->uuid)
+                ->where('data->sender_id', (int)$recipientId)
+                ->delete();
         } else {
             // Mark General messages as read
             if ($proyecto->miembros->contains('id', auth()->id())) {
@@ -243,7 +253,20 @@ class ProjectMessageUiWebController extends Controller
                 ->where('user_id', '!=', auth()->id())
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
+
+            // NEW: Clear database notifications of type chat_message for this project
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $user->unreadNotifications()
+                ->where('data->type', 'chat_message')
+                ->where('data->project_uuid', $proyecto->uuid)
+                ->delete();
         }
+
+        // Broadcast cleanup to other sessions (Mobile/Web)
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+        NotificationsCleared::dispatch($authUser, 'chat_message', $proyecto->uuid);
 
         return response()->json(['status' => 'success']);
     }

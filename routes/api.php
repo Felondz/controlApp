@@ -167,6 +167,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tools/toggle', [App\Http\Controllers\Api\ToolController::class, 'toggle']);
     Route::post('/tools/calculator/calculate', [CalculatorController::class, 'calculate']);
 
+    // --- Notificaciones ---
+    Route::delete('/notifications/all', [App\Http\Controllers\Api\NotificationController::class, 'destroyAll'])->name('api.notifications.destroy-all');
+    Route::delete('/notifications/{notification}', [App\Http\Controllers\Api\NotificationController::class, 'destroy'])->name('api.notifications.destroy');
+
     // --- Mensajería (Chat) ---
     Route::get('/proyectos/{proyecto}/messages', [App\Http\Controllers\Api\MessageController::class, 'index'])->name('api.proyectos.messages.index');
     Route::get('/proyectos/{proyecto}/messages/unread', [App\Http\Controllers\Api\MessageController::class, 'unread'])->name('api.proyectos.messages.unread');

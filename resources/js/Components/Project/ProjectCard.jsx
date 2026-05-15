@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { useTranslate } from '@/Hooks/useTranslate';
-import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon, ChartBarIcon, BellIcon, FactoryIcon, PackageIcon, UsersIcon } from '@/Components/Icons';
+import { PlusIcon, MinusIcon, EllipsisVerticalIcon, CurrencyDollarIcon, CheckListIcon, FolderIcon, PuzzleIcon, CalendarIcon, CalculatorIcon, UserCircleIcon, PersonalFinanceIcon, ChatIcon, ChartBarIcon, BellIcon, FactoryIcon, PackageIcon, UsersIcon, LockClosedIcon } from '@/Components/Icons';
 import { FinanceWidget } from '@/Modules/Finance/Widgets';
 import { TasksWidget } from '@/Modules/Tasks/Widgets';
 import QuickTransactionModal from '@/Components/Finance/Modals/QuickTransactionModal';
@@ -49,9 +49,11 @@ export default function ProjectCard(props) {
         // Security Check: If finance module is active but user is NOT admin, show restricted state
         if (modules.includes('finance') && !proyecto.isAdmin) {
             return (
-                <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-6">
-                    <span className="text-4xl mb-2">🔒</span>
-                    <span className="text-xs text-center">{t('finance.restricted', 'Acceso Restringido')}</span>
+                <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 py-6 px-4">
+                    <LockClosedIcon className="h-10 w-10 mb-2 opacity-50" />
+                    <span className="text-[10px] text-center italic">
+                        {t('finance.restricted_friendly', 'Not all information is available for you')}
+                    </span>
                 </div>
             );
         }
@@ -197,13 +199,30 @@ export default function ProjectCard(props) {
                             })()}
                         </div>
                         <div className="flex-1 min-w-0 text-left">
-                            <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 leading-tight group-hover:text-primary-800 dark:group-hover:text-primary-200 transition-colors line-clamp-2">
+                            <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300 leading-tight group-hover:text-primary-800 dark:group-hover:text-primary-200 transition-colors line-clamp-2 flex items-center gap-2">
                                 {proyecto.nombre}
+                                {proyecto.unread_messages_count > 0 && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white animate-pulse">
+                                        {proyecto.unread_messages_count > 99 ? '99+' : proyecto.unread_messages_count}
+                                    </span>
+                                )}
                             </h3>
                             {proyecto.descripcion && (
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                                     {proyecto.descripcion}
                                 </p>
+                            )}
+                            {proyecto.role && (
+                                <div className="mt-2 flex">
+                                    <span className={`text-[8px] tracking-wider uppercase font-extrabold px-2 py-0.5 rounded-md border shadow-sm ${proyecto.role === 'owner'
+                                            ? 'bg-primary-50 text-primary-600 border-primary-200 dark:bg-primary-900/20 dark:text-primary-400 dark:border-primary-800'
+                                            : proyecto.role === 'admin' || proyecto.role === 'administrador'
+                                                ? 'bg-success-50 text-success-600 border-success-200 dark:bg-success-900/20 dark:text-success-400 dark:border-success-800'
+                                                : 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800'
+                                        }`}>
+                                        {t(`roles.${proyecto.role}`)}
+                                    </span>
+                                </div>
                             )}
                         </div>
                     </div>

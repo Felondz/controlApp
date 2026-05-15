@@ -33,7 +33,23 @@ class UpdateTaskAction
         }
 
         if ($dto->assignees !== null) {
+            $previousAssignees = $dto->task->users()->pluck('users.id')->toArray();
             $dto->task->users()->sync($dto->assignees);
+
+            // Find newly added assignees
+            $newAssignees = array_diff($dto->assignees, $previousAssignees);
+
+            if (!empty($newAssignees)) {
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+                $usersToNotify = \App\Models\User::whereIn('id', $newAssignees)
+                    ->where('id', '!=', $user->id)
+                    ->get();
+
+                foreach ($usersToNotify as $assignee) {
+                    $assignee->notify(new \App\Notifications\TaskAssignedNotification($dto->task, $user));
+                }
+            }
         }
 
         return $dto->task;

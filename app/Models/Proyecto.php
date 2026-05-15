@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property string|null $descripcion
  * @property string|null $description Alias for descripcion
  * @property string $moneda_default
- * @property string $user_id
+ * @property int $user_id
  * @property bool $es_personal
  * @property bool $visible_en_listado
  * @property array|null $modules
@@ -38,6 +38,9 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  * @property string|null $typography
  * @property array|null $settings
  * @property-read bool $has_messaging_feature
+ * @property array|null $task_stats
+ * @property string|null $role
+ * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $miembros
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Cuenta> $cuentasAsociadas

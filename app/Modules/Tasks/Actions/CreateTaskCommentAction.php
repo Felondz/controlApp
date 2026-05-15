@@ -26,6 +26,21 @@ class CreateTaskCommentAction
             'content' => $content,
         ]);
 
+        if (empty($mentionedUserIds)) {
+            // Auto-detect mentions in text if not provided by frontend
+            preg_match_all('/@([a-zA-Z0-9\s]+?)(?=\s|$|[,.!?])/', $content, $matches);
+            if (!empty($matches[1])) {
+                $mentionedNames = array_map('trim', $matches[1]);
+                $mentionedUserIds = \Illuminate\Support\Facades\DB::table('proyecto_user')
+                    ->join('users', 'users.id', '=', 'proyecto_user.user_id')
+                    ->where('proyecto_user.proyecto_id', $task->project_id)
+                    ->whereIn('users.name', $mentionedNames)
+                    ->pluck('users.id')
+                    ->map(fn($id) => (int)$id)
+                    ->toArray();
+            }
+        }
+
         if (!empty($mentionedUserIds)) {
             $this->processMentions($task, $user, $content, $mentionedUserIds);
         }

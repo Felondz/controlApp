@@ -1,4 +1,9 @@
 {
+    "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member"
+    },
     "accounts": {
         "title": "Accounts",
         "name": "Account Name",
@@ -56,7 +61,9 @@
         "attachment": "Attachment",
         "cancel_edit": "Cancel edit",
         "save_edit": "Save",
-        "react": "React"
+        "react": "React",
+        "unread_messages": "You have :count unread messages",
+        "click_to_view": "Click to view the conversation"
     },
     "settings": {
         "theme": {
@@ -559,7 +566,7 @@
         "expense": "Expense",
         "add_income": "Add Income",
         "add_expense": "Add Expense",
-        "restricted": "Restricted Access",
+        "restricted": "Limited access for members",
         "restricted_access": "You do not have permission to view financial information for this project.",
         "no_accounts_alert": "You have no accounts associated with this project. You must create an account first to register transactions.",
         "personal_finance": "Personal Finance",
@@ -1183,8 +1190,14 @@
             "view_all": "View notification center",
             "notifications": "Notifications",
             "new_messages": "new messages",
-            "mentions": "Mentions",
-            "mentioned_you": "mentioned you"
+            "mentions": "Notifications",
+            "mentioned_you": "mentioned you",
+            "sent_message": "sent a message",
+            "assigned_task": "assigned you a task"
+        },
+        "notifications": {
+            "clear_all": "clear all notifications",
+            "clear_all_confirm": "Are you sure you want to clear all notifications?"
         },
         "transactions": {
             "title": "Transactions",

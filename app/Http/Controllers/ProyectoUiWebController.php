@@ -489,19 +489,25 @@ class ProyectoUiWebController extends Controller
     /**
      * Muestra el dashboard principal con la lista de proyectos.
      */
-    public function dashboard(Request $request): \Inertia\Response
+    public function dashboard(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
-        /** @var \App\Models\User $user */
         $user = $request->user();
+        if (!$user instanceof \App\Models\User) {
+            return redirect()->route('login'); // Fallback de seguridad
+        }
 
         // Obtenemos los proyectos (personales + membresías)
-        $proyectos = $user->proyectosPersonales->merge($user->proyectos);
+        // Usamos loadMissing para asegurar que las relaciones estén disponibles si Octane las limpió
+        $user->loadMissing(['proyectosPersonales', 'proyectos']);
+        $proyectos = $user->proyectosPersonales->merge($user->proyectos)->unique('id')->values();
 
         // Optimization: Batch load unread counts (N+1 Solution)
+        /** @var array<int, int> $unreadCounts */
         $unreadCounts = \Illuminate\Support\Facades\DB::table('proyecto_user')
             ->where('user_id', $user->id)
             ->whereIn('proyecto_id', $proyectos->pluck('id'))
-            ->pluck('unread_messages_count', 'proyecto_id');
+            ->pluck('unread_messages_count', 'proyecto_id')
+            ->toArray();
 
         // Batch load Task Stats (Pending & Due Today)
         $taskStats = \App\Modules\Tasks\Models\Task::whereIn('project_id', $proyectos->pluck('id'))
@@ -514,10 +520,29 @@ class ProyectoUiWebController extends Controller
             ->get()
             ->keyBy('project_id');
 
-        // Procesamos para agregar flag de admin y conteo de mensajes no leídos
+        // Procesamos para agregar flag de admin, conteo de mensajes no leídos y ROL
         $proyectos->transform(function ($proyecto) use ($user, $unreadCounts, $taskStats) {
             /** @var \App\Models\Proyecto $proyecto */
             $proyecto->isAdmin = $user->esAdminDe($proyecto);
+
+            // Determinar el rol para mostrar la medalla en el frontend
+            if ((int)$proyecto->user_id === (int)$user->id) {
+                $proyecto->role = 'owner';
+            } else {
+                /** @var \App\Models\Proyecto|null $membership */
+                $membership = $user->proyectos->firstWhere('id', $proyecto->id);
+                /** @var mixed $pivot */
+                $pivot = $membership ? $membership->pivot : null;
+                $rawRole = $pivot ? ($pivot->rol ?? 'member') : 'member';
+                
+                // Normalizar a llaves en inglés para consistencia en traducciones
+                $proyecto->role = match(strtolower((string)$rawRole)) {
+                    'propietario', 'owner' => 'owner',
+                    'administrador', 'admin' => 'admin',
+                    'miembro', 'member' => 'member',
+                    default => $rawRole
+                };
+            }
 
             // Use batched cache if messaging is enabled
             if ($proyecto->hasMessagingFeature()) {
@@ -526,10 +551,12 @@ class ProyectoUiWebController extends Controller
                 $proyecto->unread_messages_count = 0;
             }
 
-            // Task Stats
-            $stats = $taskStats[$proyecto->id] ?? null;
-            $proyecto->pending_tasks_count = $stats ? $stats->pending : 0;
-            $proyecto->due_today_count = $stats ? $stats->due_today : 0;
+            // Task stats
+            $stats = $taskStats->get($proyecto->id);
+            $proyecto->task_stats = [
+                'pending' => $stats ? (int)$stats->pending : 0,
+                'due_today' => $stats ? (int)$stats->due_today : 0,
+            ];
 
             return $proyecto;
         });

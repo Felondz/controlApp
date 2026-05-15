@@ -1,4 +1,12 @@
 {
+    "roles": {
+        "owner": "Propietario",
+        "propietario": "Propietario",
+        "admin": "Administrador",
+        "administrador": "Administrador",
+        "member": "Miembro",
+        "miembro": "Miembro"
+    },
     "accounts": {
         "title": "Cuentas",
         "name": "Nombre de la Cuenta",
@@ -56,7 +64,9 @@
         "attachment": "Archivo adjunto",
         "cancel_edit": "Cancelar edición",
         "save_edit": "Guardar",
-        "react": "Reaccionar"
+        "react": "Reaccionar",
+        "unread_messages": "Tienes :count mensajes sin leer",
+        "click_to_view": "Haz clic para ver la conversación"
     },
     "landing": {
         "badge": "Ahora en español",
@@ -1188,8 +1198,14 @@
             "view_all": "Ver centro de mensajes",
             "notifications": "Notificaciones",
             "new_messages": "mensajes nuevos",
-            "mentions": "Menciones",
-            "mentioned_you": "te mencionó"
+            "mentions": "Notificaciones",
+            "mentioned_you": "te mencionó",
+            "sent_message": "envió un mensaje",
+            "assigned_task": "te asignó una tarea"
+        },
+        "notifications": {
+            "clear_all": "borrar todas las notificaciones",
+            "clear_all_confirm": "¿Estás seguro de que quieres borrar todas las notificaciones?"
         },
         "transactions": {
             "title": "Transacciones",

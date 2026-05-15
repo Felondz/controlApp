@@ -28,7 +28,9 @@ class ProyectoInvitacionController extends Controller
         }
 
         // Devolvemos las invitaciones 
-        return response()->json($proyecto->invitaciones);
+        return response()->json(
+            $proyecto->invitaciones()->where('status', Invitacion::STATUS_PENDING)->get()
+        );
     }
 
     /**
@@ -57,7 +59,7 @@ class ProyectoInvitacionController extends Controller
         }
 
         // 3. Lógica de Negocio: Revisar si ya tiene una invitación pendiente
-        if ($proyecto->invitaciones()->where('email', $emailInvitado)->exists()) {
+        if ($proyecto->invitaciones()->where('email', $emailInvitado)->where('status', Invitacion::STATUS_PENDING)->exists()) {
             return response()->json(['message' => 'Este usuario ya tiene una invitación pendiente para este proyecto.'], 409);
         }
 

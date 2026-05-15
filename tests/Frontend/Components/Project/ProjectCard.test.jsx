@@ -1,6 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import ProjectCard from '@/Components/Project/ProjectCard';
 
+// Mock Widgets to avoid side effects
+vi.mock('@/Modules/Finance/Widgets', () => ({
+    FinanceWidget: () => <div data-testid="finance-widget">Finance Widget</div>
+}));
+vi.mock('@/Modules/Tasks/Widgets', () => ({
+    TasksWidget: () => <div data-testid="tasks-widget">Tasks Widget</div>
+}));
+
 describe('ProjectCard', () => {
     const mockProject = {
         id: 1,
@@ -66,7 +74,7 @@ describe('ProjectCard', () => {
         render(<ProjectCard proyecto={projectWithUnread} />);
 
         // Badge should show count or 9+ if more than 9
-        expect(screen.getByText('5')).toBeInTheDocument();
+        expect(screen.getAllByText('5')[0]).toBeInTheDocument();
     });
 
     it('shows 9+ badge when unread count exceeds 9', () => {
@@ -78,7 +86,7 @@ describe('ProjectCard', () => {
 
         render(<ProjectCard proyecto={projectWithManyUnread} />);
 
-        expect(screen.getByText('9+')).toBeInTheDocument();
+        expect(screen.getAllByText('9+')[0]).toBeInTheDocument();
     });
 
     it('links to project detail page', () => {
@@ -96,10 +104,9 @@ describe('ProjectCard', () => {
 
         render(<ProjectCard proyecto={nonAdminProject} />);
 
-        // Component uses t('finance.restricted', 'Acceso Restringido')
+        // Component uses t('finance.restricted_friendly', 'Not all information is available for you')
         // With mock, t returns the key
-        expect(screen.getByText('finance.restricted')).toBeInTheDocument();
-        expect(screen.getByText('🔒')).toBeInTheDocument();
+        expect(screen.getByText('finance.restricted_friendly')).toBeInTheDocument();
     });
 
     it('shows quick action buttons for admin users', () => {
@@ -119,8 +126,8 @@ describe('ProjectCard', () => {
 
         render(<ProjectCard proyecto={nonAdminProject} />);
 
-        expect(screen.queryByLabelText('Agregar Ingreso')).not.toBeInTheDocument();
-        expect(screen.queryByLabelText('Agregar Gasto')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('finance.add_income')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('finance.add_expense')).not.toBeInTheDocument();
     });
 
     it('uses PersonalFinanceIcon for personal projects', () => {

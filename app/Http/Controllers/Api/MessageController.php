@@ -7,12 +7,11 @@ use App\Models\Proyecto;
 use App\Modules\Chat\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Events\NotificationsCleared;
 
 class MessageController extends Controller
 {
-    /**
-     * List messages for a project.
-     */
+
     /**
      * List messages for a project.
      */
@@ -20,7 +19,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = request()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -48,7 +47,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = request()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -81,7 +80,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = request()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -135,7 +134,7 @@ class MessageController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = request()->user();
-        if (!$proyecto->miembros->contains($user) && $proyecto->user_id !== $user->id) {
+        if (!$proyecto->miembros->contains($user) && (int)$proyecto->user_id !== (int)$user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -151,6 +150,16 @@ class MessageController extends Controller
             ->where('recipient_id', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
+
+        // Clean up database notifications for chat messages in this project
+        // This ensures the "unread" count in the topbar/notification center is accurate
+        $user->notifications()
+            ->where('type', 'App\Notifications\ChatMessageNotification')
+            ->where('data->proyecto_uuid', $proyecto->uuid)
+            ->delete();
+
+        // Broadcast cleanup to other sessions (Mobile/Web)
+        NotificationsCleared::dispatch($user, 'chat_message', $proyecto->uuid);
 
         return response()->json(['status' => 'success']);
     }

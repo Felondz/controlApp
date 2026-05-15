@@ -44,6 +44,17 @@ class CreateTaskAction
         $assignees = $dto->assignees ?? [];
         if (!empty($assignees)) {
             $task->users()->sync($assignees);
+
+            // Notify newly assigned users
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+            $usersToNotify = \App\Models\User::whereIn('id', $assignees)
+                ->where('id', '!=', $user->id)
+                ->get();
+
+            foreach ($usersToNotify as $assignee) {
+                $assignee->notify(new \App\Notifications\TaskAssignedNotification($task, $user));
+            }
         }
 
         return $task;

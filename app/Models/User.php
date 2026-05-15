@@ -225,7 +225,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Si es propietario de un proyecto personal, puede acceder
-        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+        if ($proyecto->esPersonal() && (int)$proyecto->user_id === (int)$this->id) {
             return true;
         }
 
@@ -251,7 +251,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Si es propietario de un proyecto personal, es admin del mismo
-        if ($proyecto->esPersonal() && $proyecto->user_id === $this->id) {
+        if ($proyecto->esPersonal() && (int)$proyecto->user_id === (int)$this->id) {
             return true;
         }
 
@@ -262,9 +262,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
-        $rol = $proyectoPivot->pivot->rol ?? null;
+        /** @var mixed $pivot */
+        $pivot = $proyectoPivot->pivot;
+        $rol = strtolower((string)($pivot->rol ?? ''));
 
-        return $rol === 'admin' || $rol === 'owner';
+        return in_array($rol, ['admin', 'administrador', 'owner', 'propietario']);
     }
 
     /**
@@ -302,7 +304,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Usar la ruta protegida para asegurar la privacidad de las fotos de los usuarios
-        return route('user.photo', ['user' => $this->uuid]);
+        return route('user.photo', ['user' => (string) $this->getAttribute('uuid')]);
     }
 
     /**
@@ -377,10 +379,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         foreach ($allProjects as $proyecto) {
             /** @var \App\Models\Proyecto $proyecto */
-            // Check feature flag first? Assuming yes based on old code
-            // if (!$proyecto->hasMessagingFeature()) continue; // Model method call might duplicate logic?
-            // Simplified check:
-            if (!in_array('messages', $proyecto->enabled_features ?? [])) continue;
+            if (!$proyecto->hasMessagingFeature()) continue;
 
             $lastReadAt = null;
             
@@ -431,6 +430,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if ($projTotal > 0) {
                 $unreadProjects[] = [
                     'id' => $proyecto->id,
+                    'uuid' => $proyecto->uuid,
                     'nombre' => $proyecto->nombre,
                     'image_path' => $proyecto->image_path,
                     'image_url' => $proyecto->image_url,
@@ -450,6 +450,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->map(fn(Invitacion $inv) => [
                 'id' => $inv->id,
                 'proyecto_id' => $inv->proyecto_id,
+                'proyecto_uuid' => $inv->proyecto->uuid,
                 'proyecto_nombre' => $inv->proyecto->nombre,
                 'invitador_nombre' => $inv->invitador->name ?? 'System',
                 'image_url' => $inv->proyecto->image_url,
