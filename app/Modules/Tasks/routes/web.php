@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'project.access'])->group(function () {
     // Tasks Module
     // Note: The resource name 'mis-proyectos.tasks' implies nested resource under 'mis-proyectos'.
     // The parameter renaming 'mis-proyectos' => 'proyecto' is important for route model binding.

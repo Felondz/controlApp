@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\Operations\Controllers\LoteController;
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'project.access'])->group(function () {
     Route::prefix('proyectos/{proyecto}/operations')->group(function () {
         // Lotes Main
         Route::get('/lotes/history', [LoteController::class, 'history'])->name('operations.lotes.history');
