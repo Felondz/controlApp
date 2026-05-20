@@ -33,7 +33,7 @@ class SearchTest extends TestCase
         // Use the 'collection' driver which runs synchronously in memory.
         Config::set('scout.driver', 'collection');
 
-        $user = User::factory()->create(['name' => 'Jane Doe']);
+        $user = User::factory()->create(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
         $targetUser = User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
         $targetProject = Proyecto::factory()->create(['nombre' => 'Project Alpha', 'user_id' => $user->id]);
 
