@@ -232,9 +232,9 @@ return [
     */
 
     'security' => [
-        'max_query_complexity' => GraphQL\Validator\Rules\QueryComplexity::DISABLED,
-        'max_query_depth' => GraphQL\Validator\Rules\QueryDepth::DISABLED,
-        'disable_introspection' => (bool) env('LIGHTHOUSE_SECURITY_DISABLE_INTROSPECTION', false)
+        'max_query_complexity' => (int) env('LIGHTHOUSE_SECURITY_MAX_QUERY_COMPLEXITY', 100),
+        'max_query_depth' => (int) env('LIGHTHOUSE_SECURITY_MAX_QUERY_DEPTH', 10),
+        'disable_introspection' => (bool) env('LIGHTHOUSE_SECURITY_DISABLE_INTROSPECTION', env('APP_ENV') === 'production')
             ? GraphQL\Validator\Rules\DisableIntrospection::ENABLED
             : GraphQL\Validator\Rules\DisableIntrospection::DISABLED,
     ],
@@ -291,7 +291,10 @@ return [
     |
     */
 
-    'debug' => env('LIGHTHOUSE_DEBUG', GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE | GraphQL\Error\DebugFlag::INCLUDE_TRACE),
+    'debug' => env('LIGHTHOUSE_DEBUG', env('APP_ENV') === 'production' 
+        ? GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE 
+        : GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE | GraphQL\Error\DebugFlag::INCLUDE_TRACE
+    ),
 
     /*
     |--------------------------------------------------------------------------

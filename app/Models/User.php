@@ -93,7 +93,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'enabled_tools',
         'settings',
         'is_ai_enabled',
-        'is_active',
         'google_id',
         'avatar',
     ];
@@ -218,14 +217,14 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  \App\Models\Proyecto  $proyecto
      * @return bool
      */
-    public function esMiembroDe(Proyecto $proyecto)
+    public function esMiembroDe(Proyecto $proyecto): bool
     {
         if ($this->is_super_admin) {
             return true;
         }
 
-        // Si es propietario de un proyecto personal, puede acceder
-        if ($proyecto->esPersonal() && (int)$proyecto->user_id === (int)$this->id) {
+        // Si es el propietario del proyecto, puede acceder
+        if ((int)$proyecto->user_id === (int)$this->id) {
             return true;
         }
 

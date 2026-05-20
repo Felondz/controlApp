@@ -62,9 +62,28 @@ export default function ChatWidget({ project, user }) {
     }, [project.uuid]);
 
     // Mark as read
+    const isMarkingReadRef = useRef(false);
+    const unreadCountsRef = useRef(unreadCounts);
+    
+    useEffect(() => {
+        unreadCountsRef.current = unreadCounts;
+    }, [unreadCounts]);
+
     const markAsRead = useCallback(async () => {
+        if (isMarkingReadRef.current) return;
+        
+        const channel = activeChannelRef.current;
+        const currentUnread = unreadCountsRef.current;
+        
+        // Check if we actually have unread messages for this channel
+        const hasUnread = channel === 'general' 
+            ? (currentUnread.general > 0) 
+            : (currentUnread.dms && currentUnread.dms[channel] > 0);
+        
+        if (!hasUnread) return;
+
         try {
-            const channel = activeChannelRef.current;
+            isMarkingReadRef.current = true;
             const payload = channel === 'general' ? {} : { recipient_id: channel };
 
             await axios.post(route('project.messages.read', { proyecto: project.uuid }), payload);
@@ -73,12 +92,16 @@ export default function ChatWidget({ project, user }) {
                 if (channel === 'general') {
                     return { ...prev, general: 0 };
                 }
-                return { ...prev, dms: { ...prev.dms, [channel]: 0 } };
+                const newDms = { ...(prev.dms || {}) };
+                if (newDms[channel]) newDms[channel] = 0;
+                return { ...prev, dms: newDms };
             });
         } catch (error) {
             console.error("Error marking as read:", error);
+        } finally {
+            isMarkingReadRef.current = false;
         }
-    }, [project.uuid]);
+    }, [project.uuid]); // Removed unreadCounts dependency
 
     // On channel change: load messages and mark as read
     useEffect(() => {
@@ -92,7 +115,7 @@ export default function ChatWidget({ project, user }) {
             markAsRead();
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeChannel]);
+    }, [activeChannel, fetchMessages, fetchUnreadCounts, markAsRead]);
 
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [typingUsers, setTypingUsers] = useState({});

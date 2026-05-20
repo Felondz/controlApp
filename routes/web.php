@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'project.access'])->group(function () {
     Route::resource('mis-proyectos', ProyectoUiWebController::class)
         ->parameters(['mis-proyectos' => 'proyecto']);
 
@@ -70,75 +70,76 @@ Route::middleware('auth')->group(function () {
     // Personal Finance
     Route::get('/finance', [\App\Http\Controllers\PersonalFinanceController::class, 'index'])->name('finance.personal');
 
-    // Project Messages
-    Route::get('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
-    Route::post('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
-    Route::put('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'update'])->name('project.messages.update');
-    Route::delete('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'destroy'])->name('project.messages.destroy');
-    Route::post('mis-proyectos/{proyecto}/messages/{message}/react', [ProjectMessageUiWebController::class, 'toggleReaction'])->name('project.messages.react');
-    Route::get('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read'); // Should be post but current routes have it mixed
-    Route::post('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
-    Route::get('mis-proyectos/{proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
-    Route::get('mis-proyectos/{proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
-    Route::get('mis-proyectos/{proyecto}/messages/{message}/file', [ProjectMessageUiWebController::class, 'file'])->name('project.messages.file');
+    // Project Scoped Group
+    Route::middleware('project.access')->group(function () {
+        // Project Messages
+        Route::get('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'index'])->name('project.messages.index');
+        Route::post('mis-proyectos/{proyecto}/messages', [ProjectMessageUiWebController::class, 'store'])->name('project.messages.store');
+        Route::put('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'update'])->name('project.messages.update');
+        Route::delete('mis-proyectos/{proyecto}/messages/{message}', [ProjectMessageUiWebController::class, 'destroy'])->name('project.messages.destroy');
+        Route::post('mis-proyectos/{proyecto}/messages/{message}/react', [ProjectMessageUiWebController::class, 'toggleReaction'])->name('project.messages.react');
+        Route::get('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read'); // Should be post but current routes have it mixed
+        Route::post('mis-proyectos/{proyecto}/messages/read', [ProjectMessageUiWebController::class, 'markAsRead'])->name('project.messages.read.post');
+        Route::get('mis-proyectos/{proyecto}/messages/unread', [ProjectMessageUiWebController::class, 'unreadCounts'])->name('project.messages.unread');
+        Route::get('mis-proyectos/{proyecto}/messages/search', [ProjectMessageUiWebController::class, 'search'])->name('project.messages.search');
+        Route::get('mis-proyectos/{proyecto}/messages/{message}/file', [ProjectMessageUiWebController::class, 'file'])->name('project.messages.file');
+
+        // Project Members
+        Route::get('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'index'])
+            ->name('project.members.index');
+        Route::post('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'store'])
+            ->name('project.members.store');
+        Route::put('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'update'])
+            ->name('project.members.update');
+        Route::delete('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'destroy'])
+            ->name('project.members.destroy');
+        Route::delete('mis-proyectos/{proyecto}/invitations/{invitation}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'cancelInvitation'])
+            ->name('project.invitations.destroy');
+        Route::post('mis-proyectos/{proyecto}/transfer-ownership', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'transferOwnership'])
+            ->name('project.ownership.transfer');
+        Route::get('mis-proyectos/{proyecto}/users/search', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'searchUsers'])
+            ->name('project.users.search');
+
+        // Project Accounts
+        Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [ProjectAccountUiWebController::class, 'unlink'])
+            ->name('finance.accounts.unlink')
+            ->withoutScopedBindings();
+
+        Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [ProjectAccountUiWebController::class, 'destroy'])
+            ->name('finance.accounts.destroy')
+            ->withoutScopedBindings();
+
+        // Project Transactions
+        Route::post('mis-proyectos/{proyecto}/transactions', [TransaccionController::class, 'store'])
+            ->name('finance.transactions.store');
+        Route::put('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'update'])
+            ->name('finance.transactions.update');
+        Route::delete('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'destroy'])
+            ->name('finance.transactions.destroy');
+
+        // Direct bill payment
+        Route::post('mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct', [TransaccionController::class, 'payDirectly'])
+            ->name('finance.bills.pay-direct');
+
+        // Tasks Module
+        Route::get('mis-proyectos/{proyecto}/tasks/{task}/image', [\App\Modules\Tasks\Controllers\TaskController::class, 'image'])
+            ->name('mis-proyectos.tasks.image');
+
+        Route::get('mis-proyectos/{proyecto}/tasks/{task}/gallery/{image}', [\App\Modules\Tasks\Controllers\TaskController::class, 'galleryImage'])
+            ->name('mis-proyectos.tasks.gallery');
+
+        Route::post('mis-proyectos/{proyecto}/tasks/{task}/comments', [\App\Modules\Tasks\Controllers\TaskController::class, 'storeComment'])
+            ->name('mis-proyectos.tasks.comments.store');
+
+        Route::resource('mis-proyectos.tasks', \App\Modules\Tasks\Controllers\TaskController::class)
+            ->parameters(['mis-proyectos' => 'proyecto'])
+            ->except(['create', 'edit', 'show']);
+    });
 
     // Invitations
     Route::get('/invitations', [\App\Http\Controllers\InvitationController::class, 'index'])->name('invitations.index');
     Route::post('/invitations/{invitation}/accept', [\App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
     Route::post('/invitations/{invitation}/reject', [\App\Http\Controllers\InvitationController::class, 'reject'])->name('invitations.reject');
-
-    // Project Members
-    Route::get('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'index'])
-        ->name('project.members.index');
-    Route::post('mis-proyectos/{proyecto}/members', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'store'])
-        ->name('project.members.store');
-    Route::put('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'update'])
-        ->name('project.members.update');
-    Route::delete('mis-proyectos/{proyecto}/members/{user}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'destroy'])
-        ->name('project.members.destroy');
-    Route::delete('mis-proyectos/{proyecto}/invitations/{invitation}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'cancelInvitation'])
-        ->name('project.invitations.destroy');
-    Route::post('mis-proyectos/{proyecto}/transfer-ownership', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'transferOwnership'])
-        ->name('project.ownership.transfer');
-    Route::get('mis-proyectos/{proyecto}/users/search', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'searchUsers'])
-        ->name('project.users.search');
-
-    // Project Accounts
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}/unlink', [ProjectAccountUiWebController::class, 'unlink'])
-        ->name('finance.accounts.unlink')
-        ->withoutScopedBindings();
-
-    Route::delete('mis-proyectos/{proyecto}/accounts/{account}', [ProjectAccountUiWebController::class, 'destroy'])
-        ->name('finance.accounts.destroy')
-        ->withoutScopedBindings();
-
-    // Project Transactions
-    Route::post('mis-proyectos/{proyecto}/transactions', [TransaccionController::class, 'store'])
-        ->name('finance.transactions.store');
-    Route::put('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'update'])
-        ->name('finance.transactions.update');
-    Route::delete('mis-proyectos/{proyecto}/transactions/{transaccion}', [TransaccionController::class, 'destroy'])
-        ->name('finance.transactions.destroy');
-
-    // Direct bill payment
-    Route::post('mis-proyectos/{proyecto}/transactions/{transaccion}/pay-direct', [TransaccionController::class, 'payDirectly'])
-        ->name('finance.bills.pay-direct');
-
-
-
-    // Tasks Module
-    Route::get('mis-proyectos/{proyecto}/tasks/{task}/image', [\App\Modules\Tasks\Controllers\TaskController::class, 'image'])
-        ->name('mis-proyectos.tasks.image');
-
-    Route::get('mis-proyectos/{proyecto}/tasks/{task}/gallery/{image}', [\App\Modules\Tasks\Controllers\TaskController::class, 'galleryImage'])
-        ->name('mis-proyectos.tasks.gallery');
-
-    Route::post('mis-proyectos/{proyecto}/tasks/{task}/comments', [\App\Modules\Tasks\Controllers\TaskController::class, 'storeComment'])
-        ->name('mis-proyectos.tasks.comments.store');
-
-    Route::resource('mis-proyectos.tasks', \App\Modules\Tasks\Controllers\TaskController::class)
-        ->parameters(['mis-proyectos' => 'proyecto'])
-        ->except(['create', 'edit', 'show']);
 
     // Accept Invitation
     Route::get('/invitacion/{token}', [\App\Http\Controllers\ProjectMemberUiWebController::class, 'showInvitation'])

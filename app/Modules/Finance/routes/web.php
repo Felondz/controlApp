@@ -5,7 +5,7 @@ use App\Modules\Finance\Controllers\TransaccionController;
 use App\Http\Controllers\ProyectoUiWebController;
 use App\Http\Controllers\ProjectAccountUiWebController;
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'project.access'])->group(function () {
     
     // Project Finance Dashboard
     Route::get('mis-proyectos/{proyecto}/finance', [ProyectoUiWebController::class, 'finance'])

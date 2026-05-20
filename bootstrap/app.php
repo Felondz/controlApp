@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             // PTR routes — only loaded in staging/testing environment
-            if (app()->environment('staging', 'testing') || env('PTR_MODE', false)) {
+            if (in_array($_ENV['APP_ENV'] ?? 'production', ['staging', 'testing']) || ($_ENV['PTR_MODE'] ?? false)) {
                 require base_path('routes/ptr.php');
             }
         },
@@ -38,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            'project.access' => \App\Http\Middleware\EnsureUserHasProjectAccess::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
@@ -51,7 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust Cloudflare/Traefik proxies to fix HTTPS detection
         // ⚠️ Security: In production, set TRUSTED_PROXIES env var with specific IPs
         // ⚠️ Currently trusting all proxies only in non-production environments
-        if (env('APP_ENV') !== 'production') {
+        if (($_ENV['APP_ENV'] ?? 'production') !== 'production') {
             $middleware->trustProxies(at: '*');
         }
     })

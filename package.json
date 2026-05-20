@@ -10,48 +10,49 @@
         "sail-dev": "./vendor/bin/sail shell -c 'sh scripts/dev.sh'"
     },
     "devDependencies": {
-        "@headlessui/react": "^2.0.0",
-        "@inertiajs/react": "^2.0.0",
-        "@magidoc/cli": "^6.3.0",
-        "@tailwindcss/forms": "^0.5.3",
+        "@headlessui/react": "^2.2.10",
+        "@inertiajs/react": "^2.3.23",
+        "@magidoc/cli": "^6.4.3",
+        "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/typography": "^0.5.19",
-        "@tailwindcss/vite": "^4.0.0",
+        "@tailwindcss/vite": "^4.3.0",
         "@testing-library/jest-dom": "^6.9.1",
-        "@testing-library/react": "^16.3.0",
-        "@vitejs/plugin-react": "^4.2.0",
-        "autoprefixer": "^10.4.12",
-        "axios": "^1.13.5",
+        "@testing-library/react": "^16.3.2",
+        "@vitejs/plugin-react": "^4.7.0",
+        "autoprefixer": "^10.5.0",
+        "axios": "^1.16.1",
         "chokidar": "^5.0.0",
-        "concurrently": "^9.0.1",
-        "jsdom": "^27.2.0",
-        "laravel-echo": "^2.3.1",
-        "laravel-vite-plugin": "^2.0.0",
-        "postcss": "^8.4.31",
-        "pusher-js": "^8.4.3",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "tailwindcss": "^3.2.1",
-        "vite": "^7.0.7",
-        "vitest": "^4.0.14"
+        "concurrently": "^9.2.1",
+        "jsdom": "^27.4.0",
+        "laravel-echo": "^2.3.4",
+        "laravel-vite-plugin": "^2.1.0",
+        "postcss": "^8.5.15",
+        "pusher-js": "^8.5.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "tailwindcss": "^3.4.19",
+        "vite": "^7.3.3",
+        "vitest": "^4.1.6"
     },
     "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
         "@heroicons/react": "^2.2.0",
-        "dayjs": "^1.11.19",
+        "dayjs": "^1.11.20",
         "driver.js": "^1.4.0",
         "html2canvas": "^1.4.1",
-        "i18next": "^25.6.3",
-        "lodash": "^4.17.23",
-        "react-i18next": "^16.3.4",
+        "i18next": "^25.10.10",
+        "lodash": "^4.18.1",
+        "react-i18next": "^16.6.6",
         "react-markdown": "^10.1.0",
-        "recharts": "^3.5.1",
+        "recharts": "^3.8.1",
         "rehype-raw": "^7.0.0",
-        "ziggy-js": "^2.6.0"
+        "ziggy-js": "^2.6.2"
     },
     "pnpm": {
         "overrides": {
-            "axios": "^1.13.5",
-            "lodash": "^4.17.23"
+            "axios": "^1.16.1",
+            "lodash": "^4.18.1",
+            "ws": ">=8.20.1"
         }
     }
 }

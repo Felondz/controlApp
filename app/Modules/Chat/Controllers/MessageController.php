@@ -260,6 +260,15 @@ class MessageController extends Controller
             MessageRead::dispatch($message);
         }
 
+        // Clean up database notifications for chat messages in this project
+        $user->unreadNotifications()
+            ->where('type', \App\Notifications\ChatMessageNotification::class)
+            ->where('data->project_uuid', $proyecto->uuid)
+            ->delete();
+
+        // Broadcast cleanup to other sessions (Mobile/Web)
+        broadcast(new \App\Events\NotificationsCleared($user, 'chat_message', $proyecto->uuid))->toOthers();
+
         return response()->json(['status' => 'success']);
     }
 }

@@ -192,4 +192,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- AI Chat (Global Interface) ---
     Route::get('/llm/available-models', [\App\Http\Controllers\LlmModelsController::class, 'availableModels'])->name('api.llm.available-models');
     Route::post('/ai/chat', [AiChatController::class, 'chat'])->name('api.ai.chat');
+
+    // --- PTR (Public Test Realm) / Bug Reporter ---
+    Route::middleware([\App\Http\Middleware\RequirePtrEnvironment::class])
+        ->prefix('ptr')
+        ->group(function () {
+            Route::post('/bug-reports', [\App\Modules\BugReporter\Controllers\BugReportController::class, 'store'])
+                ->name('api.ptr.bug-reports.store');
+            Route::get('/bug-reports/stats', [\App\Modules\BugReporter\Controllers\BugReportController::class, 'stats'])
+                ->name('api.ptr.bug-reports.stats');
+        });
 });

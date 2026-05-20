@@ -227,7 +227,7 @@ class ProjectMessageUiWebController extends Controller
             /** @var \App\Models\User $user */
             $user = auth()->user();
             $user->unreadNotifications()
-                ->where('data->type', 'chat_message')
+                ->where('type', \App\Notifications\ChatMessageNotification::class)
                 ->where('data->project_uuid', $proyecto->uuid)
                 ->where('data->sender_id', (int)$recipientId)
                 ->delete();
@@ -254,11 +254,11 @@ class ProjectMessageUiWebController extends Controller
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
 
-            // NEW: Clear database notifications of type chat_message for this project
+            // NEW: Clear database notifications for this project
             /** @var \App\Models\User $user */
             $user = auth()->user();
             $user->unreadNotifications()
-                ->where('data->type', 'chat_message')
+                ->where('type', \App\Notifications\ChatMessageNotification::class)
                 ->where('data->project_uuid', $proyecto->uuid)
                 ->delete();
         }
@@ -266,7 +266,7 @@ class ProjectMessageUiWebController extends Controller
         // Broadcast cleanup to other sessions (Mobile/Web)
         /** @var \App\Models\User $authUser */
         $authUser = auth()->user();
-        NotificationsCleared::dispatch($authUser, 'chat_message', $proyecto->uuid);
+        broadcast(new \App\Events\NotificationsCleared($authUser, 'chat_message', $proyecto->uuid))->toOthers();
 
         return response()->json(['status' => 'success']);
     }

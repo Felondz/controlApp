@@ -125,4 +125,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'ptr_mode' => (bool) env('PTR_MODE', false),
+
 ];
