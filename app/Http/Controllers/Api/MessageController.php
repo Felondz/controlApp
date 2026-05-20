@@ -152,14 +152,17 @@ class MessageController extends Controller
             ->update(['read_at' => now()]);
 
         // Clean up database notifications for chat messages in this project
+        // This ensures the \"unread\" count in the topbar/notification center is accurate
         // This ensures the "unread" count in the topbar/notification center is accurate
-        $user->notifications()
-            ->where('type', 'App\Notifications\ChatMessageNotification')
-            ->where('data->proyecto_uuid', $proyecto->uuid)
+        $user->unreadNotifications()
+            ->where('type', \App\Notifications\ChatMessageNotification::class)
+            ->where('data->project_uuid', $proyecto->uuid)
             ->delete();
 
         // Broadcast cleanup to other sessions (Mobile/Web)
-        NotificationsCleared::dispatch($user, 'chat_message', $proyecto->uuid);
+        /** @var \App\Models\User $authUser */
+        $authUser = $user;
+        broadcast(new \App\Events\NotificationsCleared($authUser, 'chat_message', $proyecto->uuid))->toOthers();
 
         return response()->json(['status' => 'success']);
     }
